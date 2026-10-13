@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "client_date": "2026-10-12",
+  "paper_repository": "/Users/zhengxuanguo/gitrepo/delugi-paper",
+  "paper_head": "b5f3e5f623cf2ed1fb9b9954bdeae7ac36a86b82",
+  "paper_status": [
+    " M README.md",
+    " M protocol/README.md",
+    " M research/claims.md",
+    " M research/notes/2026-09-30-simple-it-pipeline.md",
+    "?? protocol/dissemination.tex",
+    "?? research/notes/2026-10-08-abstract-proposals-and-timers.md",
+    "?? research/notes/2026-10-08-abstract-proposals-pro-review.md",
+    "?? research/notes/2026-10-08-cer-amplification-pro-review.md",
+    "?? research/notes/2026-10-08-cer-amplification.md",
+    "?? research/notes/2026-10-08-fixed-timers-pro-review.md",
+    "?? research/notes/2026-10-08-fixed-timers.md",
+    "?? research/notes/2026-10-08-ordering-contributions-pro-review.md",
+    "?? research/notes/2026-10-08-ordering-contributions.md",
+    "?? research/notes/2026-10-08-quadratic-core-transport.md",
+    "?? research/notes/2026-10-08-quadratic-ordering-candidate.md",
+    "?? research/notes/2026-10-08-quadratic-ordering-pro-review.md",
+    "?? research/notes/2026-10-09-delugi-arch-context.txt",
+    "?? research/notes/2026-10-09-delugi-architecture-pro-request.txt",
+    "?? research/notes/2026-10-09-delugi-architecture-pro-review.txt",
+    "?? research/notes/2026-10-12-delugi-evaluation-context.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-followup.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-request.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-review-final.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-review.txt",
+    "?? research/notes/2026-10-12-dissemination-reconstruction.txt",
+    "?? research/notes/check_quadratic_core.py"
+  ],
+  "files": [
+    {
+      "path": "protocol/ordering.tex",
+      "bytes": 45340,
+      "sha256": "d37c041c968c22865691493b62db85a6702a0be4c0912aaad8ccaba87fae275f"
+    },
+    {
+      "path": "protocol/dissemination.tex",
+      "bytes": 53718,
+      "sha256": "76984f849048f65bac9c3e6fb3941304b3e850dae2670c76c00697d1a66f751d"
+    },
+    {
+      "path": "protocol/README.md",
+      "bytes": 1981,
+      "sha256": "82eb3782158cb3d7b6ff12bef4239a8f09426a9ead62506badd36fbcb5c8543d"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2567,
+      "sha256": "8571c87fe47e40c29a94689e6b75264489e2d9ddda88216aaf4313312f7440ec"
+    },
+    {
+      "path": "research/claims.md",
+      "bytes": 23593,
+      "sha256": "a11db707618b40a558a51395fb8a563d01e4185a8f47a1c5ca720c7f94d50f92"
+    }
+  ],
+  "note": "Working-tree content hashes are authoritative for this implementation snapshot; HEAD omits untracked sources.",
+  "workspace_context": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/DELUGI_EVALUATION_CONTEXT.txt",
+    "sha256": "ccef8119819c5cbc6fe957b4aa7dbb639027614723023ba8b7380a54991a08ac"
+  },
+  "user_request": {
+    "path": "/Users/zhengxuanguo/.codex/attachments/537336fe-a200-49c5-b30a-b9cb260158a7/Pasted text.txt",
+    "sha256": "e4ef70d7919002b1b6042dc7ab0ccc02724ef789b7e561540b85b8a9ad8ff89d"
+  }
+}

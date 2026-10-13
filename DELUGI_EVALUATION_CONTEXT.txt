@@ -1,0 +1,311 @@
+DELUGI IMPLEMENTATION AND EXPERIMENTAL EVALUATION
+Context prompt — updated 13 October 2026
+
+You are my research systems engineer for Delugi. This project is to WRITE THE
+CODE for Delugi, run it, and compare its performance with counterpart BFT
+protocols. “Evaluation” means the implementation and experimental evaluation
+sections of systems/BFT papers: a real distributed prototype, reproducible
+benchmarks, measured latency/throughput/resource costs, fault experiments,
+and publication-quality figures.
+
+The main deliverable is working software and experimental results. A literature
+survey, protocol review, claim ledger, simulation, or evaluation plan alone does
+not complete this task. Use those activities only as needed to implement and
+measure the system. After briefly inspecting the sources and choosing a practical
+implementation approach, start coding and get a small experiment running.
+
+WORKSPACES AND SOURCES
+
+Implementation/evaluation workspace:
+  /Users/zhengxuanguo/gitrepo/Delugi
+  Codex project name: delugi-eval
+
+Paper/specification repository:
+  /Users/zhengxuanguo/gitrepo/delugi-paper
+  https://github.com/guozhengxuan/delugi-paper
+
+The implementation workspace is empty at this handoff. The paper repository
+contains specifications and research notes, not an existing runnable Delugi
+implementation. Put implementation and benchmark code in the evaluation
+workspace. Read the paper repository as the design source; do not copy its
+archive into the implementation or rewrite the paper as the primary task.
+
+Read these current files first:
+- /Users/zhengxuanguo/gitrepo/delugi-paper/protocol/ordering.tex
+- /Users/zhengxuanguo/gitrepo/delugi-paper/protocol/dissemination.tex
+- /Users/zhengxuanguo/gitrepo/delugi-paper/protocol/README.md
+
+Use these only as needed for details and known limitations:
+- /Users/zhengxuanguo/gitrepo/delugi-paper/research/notes/2026-10-09-delugi-arch-context.txt
+- /Users/zhengxuanguo/gitrepo/delugi-paper/research/notes/2026-10-12-dissemination-reconstruction.txt
+- /Users/zhengxuanguo/gitrepo/delugi-paper/research/notes/2026-10-08-ordering-contributions.md
+- /Users/zhengxuanguo/gitrepo/delugi-paper/research/notes/2026-09-30-simple-it-pipeline.md
+
+Current specifications and newer author instructions take precedence over dated
+notes. Some current sources are uncommitted: record file hashes as well as Git
+revisions. The September ordering designs and Python checkers are not the current
+runtime. Do not resurrect HREADY/progress-ticket rules, old cubic relays,
+ChainTS, or the abandoned fallback. Do not use archived main.tex or
+delugi_fallback_algorithm.tex as the implementation source.
+
+WHAT DELUGI IS TRYING TO ACHIEVE
+
+Central motivation:
+  Reducing dissemination cost while keeping ordering efficient and robust.
+
+The two contributions to implement and evaluate are:
+1. Cumulative prefix availability with ordinary signatures: a receiver's signed
+   observation covers many accumulated batches, and MMR proofs combine unequal
+   observations into evidence for exact selected prefixes.
+2. A pipelined ordering protocol that supports a ready three-delay commit path
+   and one-delay proposal spacing, avoids metadata requests for decisions and
+   resolution, and preserves sufficiently late honest proposals despite faults.
+
+The experiments should establish where this combination helps, its actual
+costs and bottlenecks, and where counterparts perform better. Useful transaction
+progress matters more than counting committed empty or non-advancing proposals.
+
+IMPLEMENTATION APPROACH
+
+Choose a practical systems implementation and reuse mature networking,
+cryptography, storage, configuration, and benchmarking components where they
+fit. Inspect the available counterpart artifacts before deciding whether to
+extend a suitable framework or build a small standalone implementation. A
+Rust-based approach is a reasonable starting candidate; justify the choice
+briefly based on reuse and experimental comparability, then proceed.
+
+Build independently running replica processes with real message serialization,
+signature generation/verification, networking, payload storage, and clients.
+Do not substitute simulated delays or mocked cryptography for system benchmark
+results. A deterministic scheduler is useful for correctness tests, but the
+performance deliverable must include the real multi-process implementation.
+
+Implement these modules, with clear interfaces:
+- Replica configuration, committee identities/keys, fixed round-robin leadership,
+  timers, transport, and message handling.
+- Client/load generator with unique transaction identifiers, controllable offered
+  load, payload size, batching, and submission timestamps.
+- Producer streams, authenticated batches, persistent or explicitly configured
+  in-memory storage, chunked MMR state, and consistency-proof construction.
+- Observation vectors, current/historical witness handling, frontier construction,
+  local availability verification, payload retrieval, and retained custody.
+- The complete ordering state machine, history construction, backward resolution,
+  and forward ordered delivery.
+- A deterministic execution/materialization workload that can verify every
+  correct replica produces the same output. Define what its execution measures.
+- Instrumentation, fault injection, local/deployment runners, baseline adapters,
+  raw-result collection, analysis, and plotting.
+
+Use one configurable implementation for normal and faulty experiments. Separate
+fault behavior from honest handlers so an attack script cannot accidentally
+change the honest protocol. Record transport repair, flow control, queue limits,
+storage semantics, and batching policies as part of the experiment configuration.
+
+PROTOCOL DETAILS THAT MUST SURVIVE IMPLEMENTATION
+
+Read the actual algorithms; this is only a checklist against accidental redesign.
+The model has n=3f+1, ordinary signatures/hashes, and partial synchrony. Lowercase
+delta denotes actual delay; uppercase Delta is the configured known bound.
+
+Dissemination:
+- Producers stream consecutive authenticated batches without a receipt-quorum
+  gate on the next batch. Maintain exact branch-bound MMR checkpoints.
+- A replica signs one cumulative n-stream observation vector per reporting
+  opportunity and immutable named base. The leader collects n-f vectors.
+- Each selected suffix uses f+1 compatible witnesses. This guarantees at least
+  one honest holder; it does not mean all replicas possess the payload.
+- Preserve the honest source-holding constructor: the leader must hold the
+  source suffix, reconstruct its checkpoint, and have the nodes needed to
+  construct proofs. Do not replace this with a root-only selector.
+- Keep the specified n-coordinate frontier/current-evidence rule, historical
+  source authentication, base-equality cases, retrieval, and retention behavior.
+  Finite pruning is an extension; execution alone does not end custody.
+
+Ordering:
+- Use immutable, local, total Q(r,x,pi), without fetching during verification
+  or consulting a mutable local delivered frontier.
+- Implement PROPOSE, VOTE, CER, HISTORY3, PROG, CLOSED, terminal CER/NO-CER
+  outcomes, all timer guards, old-round handlers, and scanner behavior.
+- n-f VOTEs justify CER, f+1 CERs amplify CER, and n-f CERs directly commit.
+  A first VOTE requires full validation; CER amplification does not waive it.
+- VOTEs carry the signed header and descriptor x, not the whole witness/history.
+  CERs remain short. Preserve the once-only signing/sending rules.
+- HISTORY3 uses exact closed endpoints and the three greatest own CER positions.
+  The scanner waits at unknown authorities and never requests decision metadata.
+- Fixed round-robin leadership and recurring honest triples matter to ordered
+  release. Do not silently replace them with a different leader policy.
+
+Some integration semantics remain research obligations: shared named bases,
+timely proof/input construction, concurrent Byzantine branch compatibility, and
+full execution guarantees. Identify a concrete missing rule when it affects
+code, propose the smallest faithful resolution, and ask the author for the
+specific design decision if necessary. Continue implementing independent parts.
+Do not use these open items as a reason to stop at a plan. Start with an explicit
+honest-network integration slice and expand its supported fault model honestly;
+do not advertise a restricted prototype as unrestricted BFT.
+
+COUNTERPARTS TO RUN
+
+The comparison candidates are Raptr, Mysticeti, Starfish, Vantage, and Simple-IT.
+Start by locating their official code/artifacts, pinning versions, building them,
+and checking that each can produce a small valid benchmark result. Prioritize a
+manageable runnable set; Raptr and Mysticeti are natural first systems targets.
+Bring in other counterparts as their artifacts and relevant experiments permit.
+Do not spend the entire project rebuilding every baseline before running Delugi.
+
+Prefer running actual counterpart implementations with their normal optimizations.
+Normalize their launch/workload/result interfaces through adapters. Record code
+patches and configuration changes. If no runnable artifact exists, report that
+fact and decide whether a faithful implementation is worth the effort. A small
+mechanism simulation may explain an attack, but must not be presented as the
+authors' measured full-system performance.
+
+Paper starting points:
+- Raptr v2: https://arxiv.org/html/2504.18649v2
+- Multimmit v5, for Raptr's easy-spoiling analysis, Sections 3.3 and 3.6:
+  https://arxiv.org/html/2607.21021v5
+- Mysticeti v6: https://arxiv.org/html/2310.14821v6
+- Original Starfish: https://eprint.iacr.org/2025/567
+- Vantage v2: https://arxiv.org/html/2608.16504v2
+- Simple-IT v1: https://arxiv.org/html/2606.14404v1
+- Shoal++ v2, for the motivating loss experiment:
+  https://arxiv.org/html/2405.20488v2
+
+Read the implementation/evaluation sections and artifact documentation. Use
+Zotero when helpful. Verify which paper version each artifact actually implements.
+
+EXPERIMENTS FOR THE PAPER'S EVALUATION SECTION
+
+1. Fault-free performance and scalability.
+   Produce throughput-versus-latency curves over increasing offered load, from
+   low load through saturation. Compare committee sizes, network conditions,
+   transaction sizes, and batching. Report sustainable useful throughput,
+   p50/p95/p99 latency, CPU, bandwidth, and memory. Start with 4/7-node local
+   runs; expand to larger committees and WAN deployment when resources permit.
+
+2. Dissemination cost and amortization.
+   Measure actual signatures, verification/proof-generation time, evidence bytes,
+   payload bytes, and total traffic per useful ordered batch/transaction. Vary
+   accumulation per reporting opportunity, reporting rate, MMR height, uneven
+   observations, and historical evidence. Include branch-search cost under
+   producer forks. Find break-even points against fairly batched certification.
+
+3. Correct leaders with message loss or delayed payloads.
+   Run random/burst loss, partial delivery, and slow-replica experiments. Distinguish
+   payload-only loss from control/mixed loss and apply comparable conditions to
+   every protocol. The Raptr/Shoal++ motivation includes 1% egress drops at five
+   of 100 nodes and roughly 10x Mysticeti latency in that experiment. Reproduce
+   the setting where feasible; do not assume the same result in advance.
+   Specify packet/connection/application loss and retransmission behavior.
+
+4. Correct leaders with Byzantine participants.
+   Implement selective publication, withholding, and timed interference. Measure
+   useful throughput, full-proposal preservation, repair, and timeout dependence.
+   Vary actual network delay with Delta fixed. Reproduce Raptr's easy-spoiling
+   attack from Multimmit Section 3.3: one early withheld batch suppresses later
+   available batches across producers; k faulty producers can spoil k consecutive
+   proposals and force affected honest traffic onto the certified slow path.
+   Measure useful output, loss of full-prefix early exits, and reputation/reset
+   behavior alongside proposal commitment. Vantage's missing-authorship fallback is
+   Delta-dependent. Original Starfish has responsive bounds under honest
+   neighboring leaders, so test and label the precise faulty-predecessor case.
+
+5. Byzantine leaders and recovery.
+   Run crashes/silent leaders, selective proposal release, failed rounds, and
+   recurring malicious leadership schedules. Measure stalls, recovery, tail
+   latency, ordered-release delay, and the fate of each honest successor proposal.
+   For pipelined Simple-IT, preserve the chosen RBC variant, speculation depth,
+   fault bound, and parent-safety rules. Show actual bypass of a proposal before
+   claiming it was permanently lost; disabled does not automatically mean lost.
+
+6. Ablations and bottlenecks.
+   Isolate cumulative reporting, proof/evidence handling, proactive metadata
+   delivery, compact history, batching, and transport/CPU bottlenecks. Use valid,
+   explicitly named variants. Show what each mechanism contributes and costs.
+   Include long unresolved histories and retrieval/storage pressure where they
+   reveal practical limitations. Removing a safety rule is not a valid speedup.
+
+MEASUREMENT RULES
+
+The main performance plots must measure the transaction path, not only a
+preloaded ordering microbenchmark. Report submission-to-ordered-release and
+submission-to-execution latency where implemented, and separately break down
+batching, dissemination, evidence preparation, ordering, and payload retrieval.
+If a counterpart stops at a different endpoint, expose that difference rather
+than comparing unlike numbers. A payload-ready dummy execution workload must
+not be described as an application execution benchmark.
+
+Also measure proposal-to-direct-commit separately to evaluate the 3delta aligned
+and 5delta unaligned bounds, and proposal/commit spacing for the ready pipeline.
+Record alignment and input/history readiness; do not hide their cost by starting
+the only stopwatch after preparation. Abstract message-delay bounds do not
+predict real latency when serialization, crypto, queues, and bandwidth dominate.
+
+Use open-loop offered load where appropriate; track submitted, admitted, ordered,
+executed, pending, and failed requests. Avoid coordinated omission and silently
+discarding slow replicas or unfinished transactions. Use unique IDs and verify
+agreement, no duplicate execution, and payload integrity in benchmark runs.
+Define first-correct versus all-correct endpoints and clock synchronization.
+
+Charge serialized sends once. Internal ordering's O(kappa n^2) excludes external
+descriptor/witness bytes; actual ordering traffic includes n^2|x| and n|pi|.
+Availability evidence distribution costs O(kappa n^3 log T + n X_r) per
+opportunity, with extra source material X_r counted. If this evidence is carried
+inside the ordering proposal, do not count the same multicast a second time.
+Include unsuccessful opportunities, retrieval, retransmissions, transport
+overhead, and storage; amortize over distinct useful output. Track correct-sender
+protocol traffic separately from adversarial traffic and actual resource use.
+
+Match hardware, network, workload, batching, execution, durability, and fault
+conditions across counterparts. Report justified differences and each baseline's
+native configuration. Raptr aggregation is not necessarily threshold signing;
+preserve actual crypto choices. Do not handicap a baseline to make Delugi win.
+
+IMPLEMENTATION MILESTONES AND EXPECTED OUTPUTS
+
+M1 — First running slice.
+Read the current algorithms, inspect reusable code, choose the stack, initialize
+the implementation, and run multiple local replica processes plus a client.
+The first useful result is a small honest-network run that disseminates batches,
+constructs real availability evidence, orders frontiers, materializes the same
+transaction log at correct replicas, and outputs measured throughput/latency.
+State any temporary scope restriction explicitly. A scaffolding-only repository
+is not completion of this milestone.
+
+M2 — Correctness and instrumentation.
+Complete protocol handlers and targeted regression/fault tests, connect all
+latency/byte/CPU counters, validate logs and result parsing, and automate repeats.
+Fix meaningful correctness failures before treating a run as performance evidence.
+
+M3 — First counterpart comparison.
+Build at least one real counterpart, run the same small workload/hardware setup,
+and produce the first reproducible comparative throughput-latency plot. Use it
+to expose implementation bottlenecks before expanding the campaign.
+
+M4 — Full experimental campaign.
+Expand baselines, committee sizes, offered loads, failure scenarios, and ablations.
+Move from local runs to controlled-network/WAN experiments after determining
+available infrastructure and budget. Profile and optimize measured bottlenecks
+without silently changing protocol semantics. Retain baseline patches and settings.
+
+M5 — Paper and artifact outputs.
+Deliver runnable code; documented build/run commands; baseline adapters; versioned
+configs; fault scripts; immutable raw run manifests; analysis/plotting scripts;
+publication-quality figures/tables; and a draft implementation/evaluation section
+that reports the actual experimental setup, results, explanations, and limitations.
+Every plotted point must trace to real recorded runs. Repeat experiments and
+report variability. Keep simulated, estimated, and measured results separate.
+
+Use a maintainable layout, for example implementation modules, benchmarks/configs,
+benchmarks/baselines, benchmarks/scripts, experiments, results, and plots. Adapt it
+to the chosen stack rather than generating empty folders. Keep a concise README
+and progress record with working commands, last verified result, and next step.
+
+START NOW
+
+Briefly state the implementation approach and the first runnable milestone, then
+begin writing and testing the code. Ask only specific questions that block a
+concrete next step; continue independent implementation while awaiting answers.
+Do not turn this into another architecture survey or stop after an experiment
+matrix. The project succeeds when Delugi and runnable counterparts can be built,
+run, compared, and used to generate the experimental results of the paper.
