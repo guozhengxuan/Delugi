@@ -1,0 +1,2911 @@
+{
+  "historical_transport_comparison": {
+    "historical_manifest": {
+      "path": "results/local/admission-wakeup-first-20261014/rate-1000-repeat-0/manifest.json",
+      "sha256": "0e694f243ccc014c0127c707c429d4be50f883a19ab80eb392d0a9029944d266"
+    },
+    "historical_mean_latency_ms": 727.7184819587628,
+    "historical_maximum_inflight_frames_per_peer": 17,
+    "historical_maximum_inflight_bytes_per_peer": 45864,
+    "historical_all12links_single_connection_and_zero_faults": true,
+    "transport_source_identical_to_final": true,
+    "transport_source_sha256": "f57b342e12cf2a9ab87ff5f335f91e7a64d350be0805075adbf2677e7f346bd0",
+    "maximum_allowed_next_frame_bytes_including_prefix": 1049096,
+    "capacity_reasoning": "Every pending insertion updates in-flight high-water marks. A frame-count peak below64 and byte peak plus the largest legal next frame below8MiB rule out the full-window branches for that run. No explicit ACK-window wait duration or ACK CPU measurement exists."
+  },
+  "schema": "delugi-final-admission-matrix-v1",
+  "status": "verified",
+  "classification": "unprofiled_sequential_single_host_four_process_tcp_proxy_trials",
+  "analysis": {
+    "path": "results/local/admission-optimization-20261014/final_matrix.py",
+    "sha256": "4f67a2f622f43b12b380d962bf263880746961e7809048cb2b70b3ff2db4dcb0"
+  },
+  "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+  "build_stamp": {
+    "inputs": {
+      "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: aarch64-apple-darwin\nrelease: 1.92.0\nLLVM version: 21.1.3",
+      "sources": {
+        "Cargo.toml": "9c4d92fa15aa7906016bebd4fafc46a58f8d1d1196fb5049b4a0e0f907ae0430",
+        "Cargo.lock": "7427a739706c4ee13cbfd3871b271323f81e26b497358013c8dcab6e958e42ec",
+        "src/availability.rs": "60cc9e680815560cb12972ae4663c779e4125105053aa0f4f902a443a9e87f22",
+        "src/batch.rs": "13285a37d62d4b0f947a209bb4c6d671ba9722a93f20db040733b6dfd2949650",
+        "src/bin/delugi_replica.rs": "df52f0f21a7f8072dbee89bf95c138228f4b790771b43f18b5e2480e80467746",
+        "src/bin/end_to_end_trace.rs": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2",
+        "src/bin/ordering_trace.rs": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9",
+        "src/causal.rs": "d4469866313242c2c728a49b9e93e7085ffbb19ee32f9c5fb17bdf8271560e0b",
+        "src/composed.rs": "4507cf88fc1752b809da4f2459707286766c394383529c9d1aa56e2389641201",
+        "src/end_to_end.rs": "38a7cb9757420557e8aacabeabc3173f0973402a52a3cea9c607b32ca06b71a9",
+        "src/history.rs": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8",
+        "src/lib.rs": "707cd845043426ef4339c1a16af0b7a6ccf141fafc96b1a644ab886187092683",
+        "src/mmr.rs": "6cac3708e9e4d76bb39c4d343610deed59f1ff018ec5fa298160d16441bc24a9",
+        "src/process.rs": "87c5ea1923150924218274b93bebae29ff39e1b3291b3d2019c0874fa5133cbb",
+        "src/replica.rs": "8a136febe0b700d27d3f7b218b8d4b842d8a78588e41613f09490518dcf2fa0f",
+        "src/scanner.rs": "8008e554b01068e31eb86dfe1653c8954d150130d0e85155d5bdbf7afbf614f5",
+        "src/simulation.rs": "7446dbf5e155d802604eced471a486bfefd5cd3b5bef3fcfe4ec135f76e0bdc3",
+        "src/slot.rs": "bd695eff64f8186fde52b61a361549fa97dd3d2e88ef816799c2303f3af108e6",
+        "src/transport.rs": "f57b342e12cf2a9ab87ff5f335f91e7a64d350be0805075adbf2677e7f346bd0",
+        "src/wire.rs": "e7c0fa884d2123d5705904c3639090320f431279caf590d2227574f2f2f5826f"
+      }
+    },
+    "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+    "built_utc": "2026-10-14T05:34:00.560341+00:00"
+  },
+  "common_settings": {
+    "delay_ms": 10.0,
+    "bound_ms": 100,
+    "transaction_size": 512,
+    "ingress_batch_ms": 100,
+    "drain": 30
+  },
+  "repeated_trial_window": {
+    "warmup_seconds": 10,
+    "measurement_seconds": 30
+  },
+  "rate_summaries": [
+    {
+      "offered_tx_s": 1000,
+      "trials": 3,
+      "metric_spreads": {
+        "unique_completion_tps": {
+          "median": 996.6643494381394,
+          "minimum": 993.3234003067957,
+          "maximum": 996.6667085689647,
+          "values": [
+            996.6643494381394,
+            993.3234003067957,
+            996.6667085689647
+          ]
+        },
+        "generation_tps": {
+          "median": 999.9976750215446,
+          "minimum": 999.9900003088549,
+          "maximum": 1000.0000420424394,
+          "values": [
+            999.9976750215446,
+            999.9900003088549,
+            1000.0000420424394
+          ]
+        },
+        "mean_latency_ms": {
+          "median": 199.40327842809364,
+          "minimum": 190.43882046979866,
+          "maximum": 204.93202759197325,
+          "values": [
+            204.93202759197325,
+            190.43882046979866,
+            199.40327842809364
+          ]
+        },
+        "replica_tcp_written_bytes_per_second": {
+          "median": 11553979.786947574,
+          "minimum": 11534941.493738674,
+          "maximum": 11559949.784591183,
+          "values": [
+            11559949.784591183,
+            11553979.786947574,
+            11534941.493738674
+          ]
+        },
+        "pending_at_start": {
+          "median": 100,
+          "minimum": 100,
+          "maximum": 100,
+          "values": [
+            100,
+            100,
+            100
+          ]
+        },
+        "pending_at_end": {
+          "median": 200,
+          "minimum": 200,
+          "maximum": 300,
+          "values": [
+            200,
+            300,
+            200
+          ]
+        }
+      },
+      "per_trial_latency_quantile_spreads": {
+        "p50_upper_bound_ms": {
+          "median": 195,
+          "minimum": 159,
+          "maximum": 204,
+          "values": [
+            204,
+            159,
+            195
+          ]
+        },
+        "p95_upper_bound_ms": {
+          "median": 269,
+          "minimum": 256,
+          "maximum": 299,
+          "values": [
+            256,
+            299,
+            269
+          ]
+        },
+        "p99_upper_bound_ms": {
+          "median": 282,
+          "minimum": 276,
+          "maximum": 324,
+          "values": [
+            276,
+            324,
+            282
+          ]
+        }
+      },
+      "pending_delta_spread": {
+        "median": 100,
+        "minimum": 100,
+        "maximum": 200,
+        "values": [
+          100,
+          200,
+          100
+        ]
+      },
+      "maximum_gap_delta_per_trial": {
+        "median": 14,
+        "minimum": 12,
+        "maximum": 18,
+        "values": [
+          12,
+          18,
+          14
+        ]
+      },
+      "every_trial_generation_target_met": true,
+      "every_trial_completion_target_met": true,
+      "every_trial_fully_drained": true
+    },
+    {
+      "offered_tx_s": 4000,
+      "trials": 3,
+      "metric_spreads": {
+        "unique_completion_tps": {
+          "median": 3933.3842707040985,
+          "minimum": 3933.253227823243,
+          "maximum": 3946.6132057775058,
+          "values": [
+            3933.253227823243,
+            3933.3842707040985,
+            3946.6132057775058
+          ]
+        },
+        "generation_tps": {
+          "median": 3999.979600438913,
+          "minimum": 3999.953000857513,
+          "maximum": 4000.0184668571355,
+          "values": [
+            3999.953000857513,
+            4000.0184668571355,
+            3999.979600438913
+          ]
+        },
+        "mean_latency_ms": {
+          "median": 422.86869288462515,
+          "minimum": 334.07608810040625,
+          "maximum": 471.18221099152544,
+          "values": [
+            422.86869288462515,
+            471.18221099152544,
+            334.07608810040625
+          ]
+        },
+        "replica_tcp_written_bytes_per_second": {
+          "median": 16367483.318211548,
+          "minimum": 16250933.948249407,
+          "maximum": 16417991.539822783,
+          "values": [
+            16367483.318211548,
+            16417991.539822783,
+            16250933.948249407
+          ]
+        },
+        "pending_at_start": {
+          "median": 399,
+          "minimum": 399,
+          "maximum": 801,
+          "values": [
+            399,
+            801,
+            399
+          ]
+        },
+        "pending_at_end": {
+          "median": 2400,
+          "minimum": 2000,
+          "maximum": 2800,
+          "values": [
+            2400,
+            2800,
+            2000
+          ]
+        }
+      },
+      "per_trial_latency_quantile_spreads": {
+        "p50_upper_bound_ms": {
+          "median": 426,
+          "minimum": 326,
+          "maximum": 463,
+          "values": [
+            426,
+            463,
+            326
+          ]
+        },
+        "p95_upper_bound_ms": {
+          "median": 658,
+          "minimum": 515,
+          "maximum": 708,
+          "values": [
+            658,
+            708,
+            515
+          ]
+        },
+        "p99_upper_bound_ms": {
+          "median": 669,
+          "minimum": 543,
+          "maximum": 743,
+          "values": [
+            669,
+            743,
+            543
+          ]
+        }
+      },
+      "pending_delta_spread": {
+        "median": 1999,
+        "minimum": 1601,
+        "maximum": 2001,
+        "values": [
+          2001,
+          1999,
+          1601
+        ]
+      },
+      "maximum_gap_delta_per_trial": {
+        "median": 46,
+        "minimum": 36,
+        "maximum": 48,
+        "values": [
+          46,
+          48,
+          36
+        ]
+      },
+      "every_trial_generation_target_met": true,
+      "every_trial_completion_target_met": true,
+      "every_trial_fully_drained": true
+    }
+  ],
+  "trials": [
+    {
+      "label": "1000-repeat-0",
+      "manifest": {
+        "path": "results/local/admission-final-first-20261014/rate-1000-repeat-0/manifest.json",
+        "sha256": "d79cec4806833ab51137984520ab5e6b6a86137f3be76afcce0604f2eff8bdca"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.00006975,
+        "unique_completion_tps": 996.6643494381394,
+        "mean_latency_ms": 204.93202759197325,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 346799300,
+        "replica_tcp_read_bytes": 346826900,
+        "replica_tcp_written_bytes_per_second": 11559949.784591183,
+        "completion_count": 29900,
+        "generated_count": 30000,
+        "generation_tps": 999.9976750215446,
+        "pending_at_start": 100,
+        "pending_at_end": 200,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 204,
+        "p95_upper_bound_ms": 256,
+        "p99_upper_bound_ms": 276
+      },
+      "pending_delta": 100,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 1006,
+          "admitted_end": 3727,
+          "admitted_delta": 2721,
+          "delivered_start": 994,
+          "delivered_end": 3703,
+          "delivered_delta": 2709,
+          "gap_start": 12,
+          "gap_end": 24,
+          "gap_delta": 12,
+          "processed_handlers_delta": 41594,
+          "processed_handlers_per_second": 1386.4641248157711,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1336
+        },
+        {
+          "replica": 1,
+          "admitted_start": 1006,
+          "admitted_end": 3727,
+          "admitted_delta": 2721,
+          "delivered_start": 994,
+          "delivered_end": 3703,
+          "delivered_delta": 2709,
+          "gap_start": 12,
+          "gap_end": 24,
+          "gap_delta": 12,
+          "processed_handlers_delta": 41592,
+          "processed_handlers_per_second": 1386.4052683400198,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1298
+        },
+        {
+          "replica": 2,
+          "admitted_start": 1006,
+          "admitted_end": 3727,
+          "admitted_delta": 2721,
+          "delivered_start": 994,
+          "delivered_end": 3703,
+          "delivered_delta": 2709,
+          "gap_start": 12,
+          "gap_end": 24,
+          "gap_delta": 12,
+          "processed_handlers_delta": 41592,
+          "processed_handlers_per_second": 1386.394361996261,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1478
+        },
+        {
+          "replica": 3,
+          "admitted_start": 1006,
+          "admitted_end": 3727,
+          "admitted_delta": 2721,
+          "delivered_start": 994,
+          "delivered_end": 3703,
+          "delivered_delta": 2709,
+          "gap_start": 12,
+          "gap_end": 24,
+          "gap_delta": 12,
+          "processed_handlers_delta": 41593,
+          "processed_handlers_per_second": 1386.4233510852055,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1556
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 46072,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.21663504200000006,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 39900,
+        "common_prefix_state_hash": [
+          217,
+          186,
+          18,
+          6,
+          78,
+          77,
+          138,
+          113,
+          76,
+          163,
+          31,
+          167,
+          69,
+          56,
+          38,
+          90,
+          69,
+          10,
+          218,
+          140,
+          121,
+          191,
+          29,
+          135,
+          57,
+          60,
+          81,
+          244,
+          40,
+          119,
+          177,
+          94
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 39900,
+          "1": 39900,
+          "2": 39900,
+          "3": 39900
+        },
+        "unique_generated_transactions": 39900,
+        "executed_per_replica": 39900,
+        "state_hash": [
+          217,
+          186,
+          18,
+          6,
+          78,
+          77,
+          138,
+          113,
+          76,
+          163,
+          31,
+          167,
+          69,
+          56,
+          38,
+          90,
+          69,
+          10,
+          218,
+          140,
+          121,
+          191,
+          29,
+          135,
+          57,
+          60,
+          81,
+          244,
+          40,
+          119,
+          177,
+          94
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.392770499999997,
+      "proxy_mean_chunk_delay_ms": 10.257788234647839,
+      "proxy_maximum_chunk_delay_ms": 16.743624999996598,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "1000-repeat-1",
+      "manifest": {
+        "path": "results/local/admission-final-1000-20261014/rate-1000-repeat-1/manifest.json",
+        "sha256": "aa5ed3f83595458d8ea9a61141858f92133b07832d89c9c231b62eca177c4d62"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.000300000000003,
+        "unique_completion_tps": 993.3234003067957,
+        "mean_latency_ms": 190.43882046979866,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 346622860,
+        "replica_tcp_read_bytes": 346650542,
+        "replica_tcp_written_bytes_per_second": 11553979.786947574,
+        "completion_count": 29800,
+        "generated_count": 30000,
+        "generation_tps": 999.9900003088549,
+        "pending_at_start": 100,
+        "pending_at_end": 300,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 159,
+        "p95_upper_bound_ms": 299,
+        "p99_upper_bound_ms": 324
+      },
+      "pending_delta": 200,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 1000,
+          "admitted_end": 3726,
+          "admitted_delta": 2726,
+          "delivered_start": 990,
+          "delivered_end": 3698,
+          "delivered_delta": 2708,
+          "gap_start": 10,
+          "gap_end": 28,
+          "gap_delta": 18,
+          "processed_handlers_delta": 41605,
+          "processed_handlers_per_second": 1386.8068915486012,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1305
+        },
+        {
+          "replica": 1,
+          "admitted_start": 1000,
+          "admitted_end": 3726,
+          "admitted_delta": 2726,
+          "delivered_start": 990,
+          "delivered_end": 3698,
+          "delivered_delta": 2708,
+          "gap_start": 10,
+          "gap_end": 28,
+          "gap_delta": 18,
+          "processed_handlers_delta": 41605,
+          "processed_handlers_per_second": 1386.8333333333333,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1411
+        },
+        {
+          "replica": 2,
+          "admitted_start": 1000,
+          "admitted_end": 3726,
+          "admitted_delta": 2726,
+          "delivered_start": 990,
+          "delivered_end": 3698,
+          "delivered_delta": 2708,
+          "gap_start": 10,
+          "gap_end": 28,
+          "gap_delta": 18,
+          "processed_handlers_delta": 41610,
+          "processed_handlers_per_second": 1386.960425395862,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1391
+        },
+        {
+          "replica": 3,
+          "admitted_start": 1000,
+          "admitted_end": 3726,
+          "admitted_delta": 2726,
+          "delivered_start": 990,
+          "delivered_end": 3698,
+          "delivered_delta": 2708,
+          "gap_start": 10,
+          "gap_end": 28,
+          "gap_delta": 18,
+          "processed_handlers_delta": 41607,
+          "processed_handlers_per_second": 1386.910540520108,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1239
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 45320,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.2133848749999956,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 39900,
+        "common_prefix_state_hash": [
+          247,
+          15,
+          191,
+          103,
+          95,
+          210,
+          55,
+          0,
+          78,
+          216,
+          47,
+          6,
+          50,
+          101,
+          156,
+          104,
+          223,
+          222,
+          163,
+          163,
+          47,
+          42,
+          2,
+          224,
+          187,
+          131,
+          106,
+          98,
+          112,
+          109,
+          38,
+          71
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 39900,
+          "1": 39900,
+          "2": 39900,
+          "3": 39900
+        },
+        "unique_generated_transactions": 39900,
+        "executed_per_replica": 39900,
+        "state_hash": [
+          247,
+          15,
+          191,
+          103,
+          95,
+          210,
+          55,
+          0,
+          78,
+          216,
+          47,
+          6,
+          50,
+          101,
+          156,
+          104,
+          223,
+          222,
+          163,
+          163,
+          47,
+          42,
+          2,
+          224,
+          187,
+          131,
+          106,
+          98,
+          112,
+          109,
+          38,
+          71
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.457562499999998,
+      "proxy_mean_chunk_delay_ms": 10.26107157096353,
+      "proxy_maximum_chunk_delay_ms": 13.132875000000155,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "1000-repeat-2",
+      "manifest": {
+        "path": "results/local/admission-final-1000-20261014/rate-1000-repeat-2/manifest.json",
+        "sha256": "fada93fd40357b10cfc702343744a29c55740812cf8704a0bfdadb4cb62b3757"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 29.99999875,
+        "unique_completion_tps": 996.6667085689647,
+        "mean_latency_ms": 199.40327842809364,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 346048231,
+        "replica_tcp_read_bytes": 346028492,
+        "replica_tcp_written_bytes_per_second": 11534941.493738674,
+        "completion_count": 29900,
+        "generated_count": 30000,
+        "generation_tps": 1000.0000420424394,
+        "pending_at_start": 100,
+        "pending_at_end": 200,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 195,
+        "p95_upper_bound_ms": 269,
+        "p99_upper_bound_ms": 282
+      },
+      "pending_delta": 100,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 998,
+          "admitted_end": 3714,
+          "admitted_delta": 2716,
+          "delivered_start": 988,
+          "delivered_end": 3690,
+          "delivered_delta": 2702,
+          "gap_start": 10,
+          "gap_end": 24,
+          "gap_delta": 14,
+          "processed_handlers_delta": 41499,
+          "processed_handlers_per_second": 1383.313648694667,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1322
+        },
+        {
+          "replica": 1,
+          "admitted_start": 998,
+          "admitted_end": 3714,
+          "admitted_delta": 2716,
+          "delivered_start": 988,
+          "delivered_end": 3690,
+          "delivered_delta": 2702,
+          "gap_start": 10,
+          "gap_end": 24,
+          "gap_delta": 14,
+          "processed_handlers_delta": 41494,
+          "processed_handlers_per_second": 1383.169111307679,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1575
+        },
+        {
+          "replica": 2,
+          "admitted_start": 998,
+          "admitted_end": 3714,
+          "admitted_delta": 2716,
+          "delivered_start": 988,
+          "delivered_end": 3690,
+          "delivered_delta": 2702,
+          "gap_start": 10,
+          "gap_end": 24,
+          "gap_delta": 14,
+          "processed_handlers_delta": 41498,
+          "processed_handlers_per_second": 1383.23208586452,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1421
+        },
+        {
+          "replica": 3,
+          "admitted_start": 998,
+          "admitted_end": 3714,
+          "admitted_delta": 2716,
+          "delivered_start": 988,
+          "delivered_end": 3690,
+          "delivered_delta": 2702,
+          "gap_start": 10,
+          "gap_end": 24,
+          "gap_delta": 14,
+          "processed_handlers_delta": 41496,
+          "processed_handlers_per_second": 1383.1853843411054,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1486
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 44191,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.21562658299999526,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 39900,
+        "common_prefix_state_hash": [
+          145,
+          146,
+          148,
+          161,
+          230,
+          19,
+          114,
+          221,
+          213,
+          26,
+          239,
+          1,
+          21,
+          136,
+          203,
+          244,
+          216,
+          226,
+          152,
+          171,
+          50,
+          163,
+          111,
+          135,
+          237,
+          202,
+          9,
+          176,
+          182,
+          29,
+          49,
+          86
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 39900,
+          "1": 39900,
+          "2": 39900,
+          "3": 39900
+        },
+        "unique_generated_transactions": 39900,
+        "executed_per_replica": 39900,
+        "state_hash": [
+          145,
+          146,
+          148,
+          161,
+          230,
+          19,
+          114,
+          221,
+          213,
+          26,
+          239,
+          1,
+          21,
+          136,
+          203,
+          244,
+          216,
+          226,
+          152,
+          171,
+          50,
+          163,
+          111,
+          135,
+          237,
+          202,
+          9,
+          176,
+          182,
+          29,
+          49,
+          86
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.4435005,
+      "proxy_mean_chunk_delay_ms": 10.275924487914802,
+      "proxy_maximum_chunk_delay_ms": 15.892374999999959,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "4000-repeat-0",
+      "manifest": {
+        "path": "results/local/admission-final-4000-20261014/rate-4000-repeat-0/manifest.json",
+        "sha256": "c6ae3fe8eefdff3980ed87b3d1ee33f75df84801df226614008326fb83171b98"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.0001025,
+        "unique_completion_tps": 3933.253227823243,
+        "mean_latency_ms": 422.86869288462515,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 491026178,
+        "replica_tcp_read_bytes": 490996202,
+        "replica_tcp_written_bytes_per_second": 16367483.318211548,
+        "completion_count": 117998,
+        "generated_count": 119999,
+        "generation_tps": 3999.953000857513,
+        "pending_at_start": 399,
+        "pending_at_end": 2400,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 426,
+        "p95_upper_bound_ms": 658,
+        "p99_upper_bound_ms": 669
+      },
+      "pending_delta": 2001,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 1006,
+          "admitted_end": 3770,
+          "admitted_delta": 2764,
+          "delivered_start": 990,
+          "delivered_end": 3709,
+          "delivered_delta": 2719,
+          "gap_start": 16,
+          "gap_end": 61,
+          "gap_delta": 45,
+          "processed_handlers_delta": 41884,
+          "processed_handlers_per_second": 1396.147108651472,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1362
+        },
+        {
+          "replica": 1,
+          "admitted_start": 1006,
+          "admitted_end": 3771,
+          "admitted_delta": 2765,
+          "delivered_start": 990,
+          "delivered_end": 3709,
+          "delivered_delta": 2719,
+          "gap_start": 16,
+          "gap_end": 62,
+          "gap_delta": 46,
+          "processed_handlers_delta": 41886,
+          "processed_handlers_per_second": 1396.2003723200994,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1619
+        },
+        {
+          "replica": 2,
+          "admitted_start": 1006,
+          "admitted_end": 3770,
+          "admitted_delta": 2764,
+          "delivered_start": 990,
+          "delivered_end": 3709,
+          "delivered_delta": 2719,
+          "gap_start": 16,
+          "gap_end": 61,
+          "gap_delta": 45,
+          "processed_handlers_delta": 41884,
+          "processed_handlers_per_second": 1396.1196978976172,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1579
+        },
+        {
+          "replica": 3,
+          "admitted_start": 1006,
+          "admitted_end": 3771,
+          "admitted_delta": 2765,
+          "delivered_start": 990,
+          "delivered_end": 3709,
+          "delivered_delta": 2719,
+          "gap_start": 16,
+          "gap_end": 62,
+          "gap_delta": 46,
+          "processed_handlers_delta": 41887,
+          "processed_handlers_per_second": 1396.2137398005182,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1343
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 84319,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.6398731250000012,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 159600,
+        "common_prefix_state_hash": [
+          18,
+          149,
+          208,
+          68,
+          213,
+          121,
+          34,
+          179,
+          83,
+          87,
+          139,
+          247,
+          169,
+          200,
+          212,
+          104,
+          171,
+          87,
+          4,
+          235,
+          43,
+          74,
+          9,
+          124,
+          222,
+          164,
+          166,
+          229,
+          111,
+          75,
+          206,
+          98
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 159600,
+          "1": 159600,
+          "2": 159600,
+          "3": 159600
+        },
+        "unique_generated_transactions": 159600,
+        "executed_per_replica": 159600,
+        "state_hash": [
+          18,
+          149,
+          208,
+          68,
+          213,
+          121,
+          34,
+          179,
+          83,
+          87,
+          139,
+          247,
+          169,
+          200,
+          212,
+          104,
+          171,
+          87,
+          4,
+          235,
+          43,
+          74,
+          9,
+          124,
+          222,
+          164,
+          166,
+          229,
+          111,
+          75,
+          206,
+          98
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.407103999999997,
+      "proxy_mean_chunk_delay_ms": 10.205395070327913,
+      "proxy_maximum_chunk_delay_ms": 12.518709000000072,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "4000-repeat-1",
+      "manifest": {
+        "path": "results/local/admission-final-4000-20261014/rate-4000-repeat-1/manifest.json",
+        "sha256": "ae24cd011847703c68d1ddb37f949302735495b189e8e1e0db77ff05055ddfd1"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 29.9996115,
+        "unique_completion_tps": 3933.3842707040985,
+        "mean_latency_ms": 471.18221099152544,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 492533368,
+        "replica_tcp_read_bytes": 492608392,
+        "replica_tcp_written_bytes_per_second": 16417991.539822783,
+        "completion_count": 118000,
+        "generated_count": 119999,
+        "generation_tps": 4000.0184668571355,
+        "pending_at_start": 801,
+        "pending_at_end": 2800,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 463,
+        "p95_upper_bound_ms": 708,
+        "p99_upper_bound_ms": 743
+      },
+      "pending_delta": 1999,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 1013,
+          "admitted_end": 3784,
+          "admitted_delta": 2771,
+          "delivered_start": 992,
+          "delivered_end": 3715,
+          "delivered_delta": 2723,
+          "gap_start": 21,
+          "gap_end": 69,
+          "gap_delta": 48,
+          "processed_handlers_delta": 41967,
+          "processed_handlers_per_second": 1398.9220563377548,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1555
+        },
+        {
+          "replica": 1,
+          "admitted_start": 1013,
+          "admitted_end": 3784,
+          "admitted_delta": 2771,
+          "delivered_start": 992,
+          "delivered_end": 3715,
+          "delivered_delta": 2723,
+          "gap_start": 21,
+          "gap_end": 69,
+          "gap_delta": 48,
+          "processed_handlers_delta": 41966,
+          "processed_handlers_per_second": 1398.8771582453535,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1630
+        },
+        {
+          "replica": 2,
+          "admitted_start": 1013,
+          "admitted_end": 3784,
+          "admitted_delta": 2771,
+          "delivered_start": 992,
+          "delivered_end": 3715,
+          "delivered_delta": 2723,
+          "gap_start": 21,
+          "gap_end": 69,
+          "gap_delta": 48,
+          "processed_handlers_delta": 41961,
+          "processed_handlers_per_second": 1398.7219599347711,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1365
+        },
+        {
+          "replica": 3,
+          "admitted_start": 1013,
+          "admitted_end": 3784,
+          "admitted_delta": 2771,
+          "delivered_start": 992,
+          "delivered_end": 3715,
+          "delivered_delta": 2723,
+          "gap_start": 21,
+          "gap_end": 69,
+          "gap_delta": 48,
+          "processed_handlers_delta": 41968,
+          "processed_handlers_per_second": 1398.9512865415106,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1459
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 84744,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.6511000410000065,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 159600,
+        "common_prefix_state_hash": [
+          50,
+          212,
+          121,
+          235,
+          133,
+          8,
+          214,
+          21,
+          180,
+          229,
+          144,
+          25,
+          125,
+          162,
+          236,
+          190,
+          71,
+          229,
+          195,
+          192,
+          227,
+          197,
+          158,
+          231,
+          230,
+          253,
+          115,
+          120,
+          0,
+          161,
+          80,
+          117
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 159600,
+          "1": 159600,
+          "2": 159600,
+          "3": 159600
+        },
+        "unique_generated_transactions": 159600,
+        "executed_per_replica": 159600,
+        "state_hash": [
+          50,
+          212,
+          121,
+          235,
+          133,
+          8,
+          214,
+          21,
+          180,
+          229,
+          144,
+          25,
+          125,
+          162,
+          236,
+          190,
+          71,
+          229,
+          195,
+          192,
+          227,
+          197,
+          158,
+          231,
+          230,
+          253,
+          115,
+          120,
+          0,
+          161,
+          80,
+          117
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.481687500000003,
+      "proxy_mean_chunk_delay_ms": 10.18903603858616,
+      "proxy_maximum_chunk_delay_ms": 13.27579200000173,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "4000-repeat-2",
+      "manifest": {
+        "path": "results/local/admission-final-4000-20261014/rate-4000-repeat-2/manifest.json",
+        "sha256": "7f18a89c3edf26e26702f4a322d00ca19a540daa513e5ac52bb5dd997d994644"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.000152999999997,
+        "unique_completion_tps": 3946.6132057775058,
+        "mean_latency_ms": 334.07608810040625,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 487530505,
+        "replica_tcp_read_bytes": 487563731,
+        "replica_tcp_written_bytes_per_second": 16250933.948249407,
+        "completion_count": 118399,
+        "generated_count": 120000,
+        "generation_tps": 3999.979600438913,
+        "pending_at_start": 399,
+        "pending_at_end": 2000,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 326,
+        "p95_upper_bound_ms": 515,
+        "p99_upper_bound_ms": 543
+      },
+      "pending_delta": 1601,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 1000,
+          "admitted_end": 3737,
+          "admitted_delta": 2737,
+          "delivered_start": 986,
+          "delivered_end": 3688,
+          "delivered_delta": 2702,
+          "gap_start": 14,
+          "gap_end": 49,
+          "gap_delta": 35,
+          "processed_handlers_delta": 41586,
+          "processed_handlers_per_second": 1386.1713524587158,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 9041
+        },
+        {
+          "replica": 1,
+          "admitted_start": 999,
+          "admitted_end": 3737,
+          "admitted_delta": 2738,
+          "delivered_start": 986,
+          "delivered_end": 3688,
+          "delivered_delta": 2702,
+          "gap_start": 13,
+          "gap_end": 49,
+          "gap_delta": 36,
+          "processed_handlers_delta": 41592,
+          "processed_handlers_per_second": 1386.3995378668208,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 16261
+        },
+        {
+          "replica": 2,
+          "admitted_start": 1000,
+          "admitted_end": 3737,
+          "admitted_delta": 2737,
+          "delivered_start": 986,
+          "delivered_end": 3688,
+          "delivered_delta": 2702,
+          "gap_start": 14,
+          "gap_end": 49,
+          "gap_delta": 35,
+          "processed_handlers_delta": 41587,
+          "processed_handlers_per_second": 1386.2304222494465,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 12350
+        },
+        {
+          "replica": 3,
+          "admitted_start": 999,
+          "admitted_end": 3737,
+          "admitted_delta": 2738,
+          "delivered_start": 986,
+          "delivered_end": 3688,
+          "delivered_delta": 2702,
+          "gap_start": 13,
+          "gap_end": 49,
+          "gap_delta": 36,
+          "processed_handlers_delta": 41588,
+          "processed_handlers_per_second": 1386.2704095967727,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 9041
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 85800,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.4277352079999943,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 159600,
+        "common_prefix_state_hash": [
+          146,
+          55,
+          85,
+          59,
+          14,
+          248,
+          170,
+          146,
+          110,
+          4,
+          80,
+          136,
+          186,
+          7,
+          9,
+          10,
+          118,
+          224,
+          211,
+          157,
+          9,
+          43,
+          82,
+          165,
+          250,
+          226,
+          94,
+          0,
+          137,
+          144,
+          133,
+          53
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 159600,
+          "1": 159600,
+          "2": 159600,
+          "3": 159600
+        },
+        "unique_generated_transactions": 159600,
+        "executed_per_replica": 159600,
+        "state_hash": [
+          146,
+          55,
+          85,
+          59,
+          14,
+          248,
+          170,
+          146,
+          110,
+          4,
+          80,
+          136,
+          186,
+          7,
+          9,
+          10,
+          118,
+          224,
+          211,
+          157,
+          9,
+          43,
+          82,
+          165,
+          250,
+          226,
+          94,
+          0,
+          137,
+          144,
+          133,
+          53
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.40877,
+      "proxy_mean_chunk_delay_ms": 10.237361046680936,
+      "proxy_maximum_chunk_delay_ms": 29.540832999998656,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "1000-growth-60s",
+      "manifest": {
+        "path": "results/local/admission-final-growth-20261014/rate-1000-repeat-0/manifest.json",
+        "sha256": "55a5751fb692b9c6ee360a5cde7b973b89ca55bc067d506810364fff76321a41"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 59.999932750000006,
+        "unique_completion_tps": 996.6677837895203,
+        "mean_latency_ms": 194.38633570234114,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 693119178,
+        "replica_tcp_read_bytes": 693145842,
+        "replica_tcp_written_bytes_per_second": 11551999.25470743,
+        "completion_count": 59800,
+        "generated_count": 60000,
+        "generation_tps": 1000.0011208590504,
+        "pending_at_start": 100,
+        "pending_at_end": 300,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 181,
+        "p95_upper_bound_ms": 338,
+        "p99_upper_bound_ms": 358
+      },
+      "pending_delta": 200,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 998,
+          "admitted_end": 6442,
+          "admitted_delta": 5444,
+          "delivered_start": 989,
+          "delivered_end": 6409,
+          "delivered_delta": 5420,
+          "gap_start": 9,
+          "gap_end": 33,
+          "gap_delta": 24,
+          "processed_handlers_delta": 83213,
+          "processed_handlers_per_second": 1386.8795887584436,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1395
+        },
+        {
+          "replica": 1,
+          "admitted_start": 998,
+          "admitted_end": 6443,
+          "admitted_delta": 5445,
+          "delivered_start": 989,
+          "delivered_end": 6409,
+          "delivered_delta": 5420,
+          "gap_start": 9,
+          "gap_end": 34,
+          "gap_delta": 25,
+          "processed_handlers_delta": 83214,
+          "processed_handlers_per_second": 1386.8934353710727,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1455
+        },
+        {
+          "replica": 2,
+          "admitted_start": 998,
+          "admitted_end": 6442,
+          "admitted_delta": 5444,
+          "delivered_start": 989,
+          "delivered_end": 6409,
+          "delivered_delta": 5420,
+          "gap_start": 9,
+          "gap_end": 33,
+          "gap_delta": 24,
+          "processed_handlers_delta": 83213,
+          "processed_handlers_per_second": 1386.8930415846244,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1552
+        },
+        {
+          "replica": 3,
+          "admitted_start": 998,
+          "admitted_end": 6443,
+          "admitted_delta": 5445,
+          "delivered_start": 989,
+          "delivered_end": 6409,
+          "delivered_delta": 5420,
+          "gap_start": 9,
+          "gap_end": 34,
+          "gap_delta": 25,
+          "processed_handlers_delta": 83213,
+          "processed_handlers_per_second": 1386.890152209915,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1792
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 17,
+      "maximum_inflight_bytes_per_peer": 45928,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.0031411250000132895,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 69900,
+        "common_prefix_state_hash": [
+          90,
+          240,
+          55,
+          181,
+          159,
+          42,
+          206,
+          228,
+          91,
+          150,
+          202,
+          254,
+          181,
+          72,
+          64,
+          128,
+          223,
+          49,
+          20,
+          78,
+          232,
+          50,
+          158,
+          27,
+          110,
+          233,
+          125,
+          26,
+          178,
+          51,
+          103,
+          88
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 69900,
+          "1": 69900,
+          "2": 69900,
+          "3": 69900
+        },
+        "unique_generated_transactions": 69900,
+        "executed_per_replica": 69900,
+        "state_hash": [
+          90,
+          240,
+          55,
+          181,
+          159,
+          42,
+          206,
+          228,
+          91,
+          150,
+          202,
+          254,
+          181,
+          72,
+          64,
+          128,
+          223,
+          49,
+          20,
+          78,
+          232,
+          50,
+          158,
+          27,
+          110,
+          233,
+          125,
+          26,
+          178,
+          51,
+          103,
+          88
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.385875,
+      "proxy_mean_chunk_delay_ms": 10.265653897899915,
+      "proxy_maximum_chunk_delay_ms": 16.76820800000201,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 52
+    },
+    {
+      "label": "1000-smoke-5s",
+      "manifest": {
+        "path": "results/local/admission-final-smoke-20261014/rate-1000-repeat-0/manifest.json",
+        "sha256": "df7dd5d6db7ac6b2bf94f04e55bed1ad41b6de3c809316989271f855094822c1"
+      },
+      "binary_sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c",
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 2.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 4.999955999999999,
+        "unique_completion_tps": 1000.0088074629895,
+        "mean_latency_ms": 71.627245,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 56230264,
+        "replica_tcp_read_bytes": 56230936,
+        "replica_tcp_written_bytes_per_second": 11246150.629464043,
+        "completion_count": 5000,
+        "generated_count": 5000,
+        "generation_tps": 1000.0088074629895,
+        "pending_at_start": 0,
+        "pending_at_end": 0,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "latency_quantiles": {
+        "p50_upper_bound_ms": 70,
+        "p95_upper_bound_ms": 81,
+        "p99_upper_bound_ms": 82
+      },
+      "pending_delta": 0,
+      "per_replica": [
+        {
+          "replica": 0,
+          "admitted_start": 271,
+          "admitted_end": 721,
+          "admitted_delta": 450,
+          "delivered_start": 265,
+          "delivered_end": 715,
+          "delivered_delta": 450,
+          "gap_start": 6,
+          "gap_end": 6,
+          "gap_delta": 0,
+          "processed_handlers_delta": 6899,
+          "processed_handlers_per_second": 1379.7848223669541,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1249
+        },
+        {
+          "replica": 1,
+          "admitted_start": 271,
+          "admitted_end": 721,
+          "admitted_delta": 450,
+          "delivered_start": 265,
+          "delivered_end": 715,
+          "delivered_delta": 450,
+          "gap_start": 6,
+          "gap_end": 6,
+          "gap_delta": 0,
+          "processed_handlers_delta": 6904,
+          "processed_handlers_per_second": 1380.7936483492176,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1199
+        },
+        {
+          "replica": 2,
+          "admitted_start": 271,
+          "admitted_end": 721,
+          "admitted_delta": 450,
+          "delivered_start": 265,
+          "delivered_end": 715,
+          "delivered_delta": 450,
+          "gap_start": 6,
+          "gap_end": 6,
+          "gap_delta": 0,
+          "processed_handlers_delta": 6901,
+          "processed_handlers_per_second": 1380.399605782996,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1080
+        },
+        {
+          "replica": 3,
+          "admitted_start": 271,
+          "admitted_end": 721,
+          "admitted_delta": 450,
+          "delivered_start": 265,
+          "delivered_end": 715,
+          "delivered_delta": 450,
+          "gap_start": 6,
+          "gap_end": 6,
+          "gap_delta": 0,
+          "processed_handlers_delta": 6896,
+          "processed_handlers_per_second": 1379.0706431736703,
+          "pending_materialization_start": 0,
+          "pending_materialization_end": 0,
+          "maximum_generator_schedule_lag_us": 1493
+        }
+      ],
+      "maximum_inflight_frames_per_peer": 16,
+      "maximum_inflight_bytes_per_peer": 42587,
+      "ack_window_capacity_not_exhausted": true,
+      "transport_error_totals": {
+        "retries": 0,
+        "ack_failures": 0,
+        "write_failures": 0,
+        "duplicate_frames": 0,
+        "connection_failures": 0
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.0030348339999992646,
+      "final_backlog": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "agreement": {
+        "common_prefix_count": 6900,
+        "common_prefix_state_hash": [
+          24,
+          139,
+          117,
+          173,
+          3,
+          33,
+          210,
+          82,
+          2,
+          128,
+          148,
+          171,
+          57,
+          120,
+          186,
+          57,
+          65,
+          246,
+          146,
+          244,
+          42,
+          6,
+          77,
+          163,
+          33,
+          131,
+          154,
+          148,
+          119,
+          83,
+          192,
+          43
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 6900,
+          "1": 6900,
+          "2": 6900,
+          "3": 6900
+        },
+        "unique_generated_transactions": 6900,
+        "executed_per_replica": 6900,
+        "state_hash": [
+          24,
+          139,
+          117,
+          173,
+          3,
+          33,
+          210,
+          82,
+          2,
+          128,
+          148,
+          171,
+          57,
+          120,
+          186,
+          57,
+          65,
+          246,
+          146,
+          244,
+          42,
+          6,
+          77,
+          163,
+          33,
+          131,
+          154,
+          148,
+          119,
+          83,
+          192,
+          43
+        ],
+        "replicas_agree": true
+      },
+      "all_owned_processes_reaped": true,
+      "trace_fields_absent": true,
+      "calibration_added_rtt_ms": 22.513229,
+      "proxy_mean_chunk_delay_ms": 10.292091123900715,
+      "proxy_maximum_chunk_delay_ms": 13.123542000000654,
+      "proxy_queue_capacity_waits": 0,
+      "verified_raw_artifacts": 108
+    }
+  ],
+  "finite_regressions": [
+    {
+      "scenario": "honest-round4",
+      "status": "passed",
+      "correctness": {
+        "expected_rounds": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 32,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 1,
+          "reporters": [
+            0,
+            1,
+            3
+          ],
+          "has_cer_proof": true
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 4,
+          "signed_observations": 16,
+          "inputs": 4,
+          "historical_sources": 0,
+          "empty_coordinates": 0
+        },
+        "state_hash": [
+          122,
+          232,
+          29,
+          89,
+          11,
+          26,
+          178,
+          195,
+          131,
+          61,
+          53,
+          131,
+          20,
+          3,
+          37,
+          170,
+          198,
+          171,
+          247,
+          115,
+          75,
+          63,
+          78,
+          35,
+          153,
+          243,
+          40,
+          15,
+          205,
+          220,
+          171,
+          111
+        ],
+        "ordered_descriptor_digests": [
+          {
+            "round": 1,
+            "digest": [
+              232,
+              115,
+              56,
+              175,
+              108,
+              110,
+              144,
+              35,
+              157,
+              128,
+              174,
+              203,
+              117,
+              13,
+              245,
+              63,
+              213,
+              61,
+              167,
+              207,
+              90,
+              28,
+              32,
+              96,
+              192,
+              22,
+              5,
+              235,
+              229,
+              234,
+              110,
+              97
+            ]
+          },
+          {
+            "round": 2,
+            "digest": [
+              13,
+              30,
+              156,
+              131,
+              180,
+              182,
+              25,
+              89,
+              30,
+              155,
+              115,
+              171,
+              98,
+              200,
+              27,
+              89,
+              131,
+              59,
+              88,
+              90,
+              78,
+              244,
+              76,
+              240,
+              59,
+              155,
+              202,
+              0,
+              53,
+              33,
+              153,
+              65
+            ]
+          },
+          {
+            "round": 3,
+            "digest": [
+              96,
+              144,
+              204,
+              158,
+              222,
+              108,
+              83,
+              58,
+              159,
+              198,
+              144,
+              219,
+              207,
+              24,
+              249,
+              178,
+              27,
+              248,
+              138,
+              128,
+              111,
+              166,
+              63,
+              105,
+              228,
+              217,
+              250,
+              63,
+              16,
+              146,
+              5,
+              117
+            ]
+          },
+          {
+            "round": 4,
+            "digest": [
+              20,
+              122,
+              117,
+              35,
+              48,
+              131,
+              175,
+              213,
+              31,
+              22,
+              102,
+              141,
+              82,
+              5,
+              250,
+              63,
+              132,
+              107,
+              47,
+              192,
+              245,
+              218,
+              200,
+              249,
+              92,
+              114,
+              169,
+              128,
+              13,
+              78,
+              144,
+              219
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenario": "silent-leader-three-anchors",
+      "status": "passed",
+      "correctness": {
+        "expected_rounds": [
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 24,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 0,
+          "reporters": [
+            1,
+            2,
+            3
+          ],
+          "has_cer_proof": false
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 3,
+          "signed_observations": 9,
+          "inputs": 3,
+          "historical_sources": 0,
+          "empty_coordinates": 3
+        },
+        "state_hash": [
+          218,
+          65,
+          174,
+          101,
+          64,
+          139,
+          247,
+          7,
+          45,
+          117,
+          135,
+          12,
+          113,
+          153,
+          232,
+          88,
+          10,
+          94,
+          33,
+          50,
+          242,
+          127,
+          99,
+          111,
+          120,
+          224,
+          82,
+          138,
+          237,
+          69,
+          34,
+          190
+        ],
+        "ordered_descriptor_digests": [
+          {
+            "round": 2,
+            "digest": [
+              61,
+              69,
+              37,
+              50,
+              24,
+              67,
+              126,
+              120,
+              81,
+              214,
+              107,
+              82,
+              218,
+              211,
+              119,
+              104,
+              210,
+              51,
+              89,
+              38,
+              4,
+              143,
+              245,
+              134,
+              106,
+              89,
+              230,
+              54,
+              26,
+              158,
+              251,
+              245
+            ]
+          },
+          {
+            "round": 3,
+            "digest": [
+              30,
+              87,
+              43,
+              148,
+              75,
+              82,
+              108,
+              216,
+              200,
+              9,
+              2,
+              116,
+              59,
+              89,
+              9,
+              108,
+              239,
+              163,
+              123,
+              105,
+              102,
+              238,
+              73,
+              222,
+              25,
+              232,
+              197,
+              105,
+              210,
+              152,
+              137,
+              181
+            ]
+          },
+          {
+            "round": 4,
+            "digest": [
+              248,
+              179,
+              19,
+              209,
+              238,
+              222,
+              66,
+              48,
+              67,
+              70,
+              187,
+              76,
+              33,
+              123,
+              222,
+              163,
+              97,
+              49,
+              116,
+              128,
+              78,
+              187,
+              86,
+              30,
+              213,
+              152,
+              53,
+              6,
+              251,
+              200,
+              84,
+              56
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "growth_epochs": {
+    "source": {
+      "path": "results/local/admission-final-growth-20261014/epochs.json",
+      "sha256": "fe7c0ec730dadb1ca089262964b3cfc549077f43218eb42507508b917f08afae"
+    },
+    "intervals": [
+      {
+        "target_interval": [
+          0,
+          10
+        ],
+        "mean_actual_seconds": 9.98734,
+        "origin_completion_count": 9800,
+        "generated_count": 9900,
+        "unique_completion_tps": 981.242252691908,
+        "generation_tps": 991.2549287397846,
+        "completion_population_mean_latency_ms": 74.05671938775511,
+        "pending_start": 0,
+        "pending_end": 100,
+        "gap_range_start": [
+          5,
+          5
+        ],
+        "gap_range_end": [
+          9,
+          9
+        ]
+      },
+      {
+        "target_interval": [
+          10,
+          20
+        ],
+        "mean_actual_seconds": 10.25913125,
+        "origin_completion_count": 10300,
+        "generated_count": 10300,
+        "unique_completion_tps": 1003.9836462760919,
+        "generation_tps": 1003.9836462760919,
+        "completion_population_mean_latency_ms": 107.28123058252426,
+        "pending_start": 100,
+        "pending_end": 100,
+        "gap_range_start": [
+          9,
+          9
+        ],
+        "gap_range_end": [
+          9,
+          11
+        ]
+      },
+      {
+        "target_interval": [
+          20,
+          30
+        ],
+        "mean_actual_seconds": 10.130856000000001,
+        "origin_completion_count": 10100,
+        "generated_count": 10100,
+        "unique_completion_tps": 996.9542553955953,
+        "generation_tps": 996.9542553955953,
+        "completion_population_mean_latency_ms": 115.41032673267325,
+        "pending_start": 100,
+        "pending_end": 100,
+        "gap_range_start": [
+          9,
+          11
+        ],
+        "gap_range_end": [
+          11,
+          12
+        ]
+      },
+      {
+        "target_interval": [
+          30,
+          40
+        ],
+        "mean_actual_seconds": 10.1123975,
+        "origin_completion_count": 10100,
+        "generated_count": 10200,
+        "unique_completion_tps": 998.7740296007945,
+        "generation_tps": 1008.6628813790202,
+        "completion_population_mean_latency_ms": 161.20899257425742,
+        "pending_start": 100,
+        "pending_end": 200,
+        "gap_range_start": [
+          11,
+          12
+        ],
+        "gap_range_end": [
+          15,
+          16
+        ]
+      },
+      {
+        "target_interval": [
+          40,
+          50
+        ],
+        "mean_actual_seconds": 9.6271005,
+        "origin_completion_count": 9500,
+        "generated_count": 9600,
+        "unique_completion_tps": 986.7976344487108,
+        "generation_tps": 997.1849779692235,
+        "completion_population_mean_latency_ms": 212.5206894736842,
+        "pending_start": 200,
+        "pending_end": 300,
+        "gap_range_start": [
+          15,
+          16
+        ],
+        "gap_range_end": [
+          22,
+          22
+        ]
+      },
+      {
+        "target_interval": [
+          50,
+          60
+        ],
+        "mean_actual_seconds": 10.123592750000004,
+        "origin_completion_count": 10100,
+        "generated_count": 10100,
+        "unique_completion_tps": 997.6695279450071,
+        "generation_tps": 997.6695279450071,
+        "completion_population_mean_latency_ms": 255.15989851485148,
+        "pending_start": 300,
+        "pending_end": 300,
+        "gap_range_start": [
+          22,
+          22
+        ],
+        "gap_range_end": [
+          26,
+          26
+        ]
+      },
+      {
+        "target_interval": [
+          60,
+          70
+        ],
+        "mean_actual_seconds": 9.746854749999997,
+        "origin_completion_count": 9700,
+        "generated_count": 9700,
+        "unique_completion_tps": 995.1928338728966,
+        "generation_tps": 995.1928338728966,
+        "completion_population_mean_latency_ms": 322.6174793814433,
+        "pending_start": 300,
+        "pending_end": 300,
+        "gap_range_start": [
+          26,
+          26
+        ],
+        "gap_range_end": [
+          33,
+          34
+        ]
+      }
+    ],
+    "caveat": "Internal epoch boundaries use the first normal0.5s-cadence snapshot at/after the target; exact warmup and measurement endpoints use embedded native boundaries. Interval latency populations are completions in those actual per-replica intervals."
+  },
+  "trace_disabled": {
+    "launch_prefix": [
+      "env",
+      "-u",
+      "DELUGI_CAUSAL_TRACE_DIR",
+      "-u",
+      "DELUGI_CAUSAL_TRACE_STRIDE"
+    ],
+    "all_native_snapshot_trace_fields_absent": true
+  },
+  "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+  "traffic_boundary": "successful native replica TCP stream writes including authenticated frame and ACK bytes; excludes proxy duplicate writes, control, TCP/IP headers, kernel retransmissions",
+  "transport_window": {
+    "frames_per_peer": 64,
+    "bytes_per_peer": 8388608,
+    "ack_window_wait_counter_available": false
+  },
+  "interpretation": [
+    "Every requested repeat is retained; overloaded valid windows are not discarded or replaced. Correctness passing and full drain are separate from steady-state performance.",
+    "Finite-window throughput and latency do not establish bounded steady-state input age; per-trial pending/gap deltas and growth epochs remain explicit.",
+    "Reported medians and ranges summarize three observations. Per-trial latency-quantile medians are not pooled transaction quantiles. No statistical significance or maximum sustainable-throughput claim.",
+    "All four replicas and the asynchronous delay proxy share one machine.10ms delay is per userspace TCP chunk in each direction, not a kernel packet-delay preset.",
+    "Latency population includes origin-local transactions that completed inside each native measurement window; warmup backlog may affect throughput."
+  ],
+  "delay_method": {
+    "requested_minimum_one_way_chunk_delay_ms": 10.0,
+    "scope": "Userspace FIFO byte-stream chunks; release eligibility at read timestamp plus requested delay. Scheduling can add delay. TCP handshake is not delayed.",
+    "observed_six_repeat_mean_chunk_delay_ms_range": [
+      10.18903603858616,
+      10.275924487914802
+    ],
+    "observed_six_repeat_maximum_chunk_delay_ms": 29.540832999998656,
+    "observed_six_repeat_calibration_added_rtt_ms_range": [
+      22.392770499999997,
+      22.481687500000003
+    ],
+    "all_observation_delay_fields": "Each trial record includes its own calibration RTT and observed mean/maximum chunk delay."
+  },
+  "preserved_binary": {
+    "path": "results/local/admission-final-20261014/delugi-replica",
+    "sha256": "c2140aaddeefa8122f35e8360e12918c3d51b13e3292df6eea1a8f2575586b6c"
+  },
+  "preserved_build_stamp": {
+    "path": "results/local/admission-final-20261014/delugi-replica.build.json",
+    "sha256": "77c83d2efaa9382d99bd2c352713046d33d457373669655b0ac7bf6664a27919"
+  },
+  "build_manifest": {
+    "path": "results/local/admission-final-build-20261014/build/manifest.json",
+    "sha256": "f9128d08a922af4c184f24a2edfbe10af1bb6ac50cc97ad9c1f01da91ed4bf88"
+  },
+  "prior_optimization_chronology": {
+    "path": "results/local/admission-optimization-20261014/chronology.json",
+    "sha256": "2d120b693239b6df05234d6179bae806536a4541f576822b9a49165c9ecfdb50"
+  },
+  "separate_instrumented_causal_evidence": {
+    "path": "results/local/admission-causal-trace-20261014/summary.json",
+    "sha256": "b2b1ae41fcf94878a6fa1636a80f2c65a14a7efb41268f1d4061188107a485ae"
+  },
+  "separate_instrumented_cpu_profiles": [
+    {
+      "path": "results/local/admission-profile-before-20261014/summary.json",
+      "sha256": "0f0e5a00ce997a086c24b8f17848d0bc38c4546b6f41a2b58b4fb1a739f80afa"
+    },
+    {
+      "path": "results/local/admission-profile-after-20261014/summary.json",
+      "sha256": "f76b7bd0e8f798fbf2080133bf36b1584fb4b43f6b22a28702861527cec4b4c0"
+    },
+    {
+      "path": "results/local/admission-profile-cache-20261014/summary.json",
+      "sha256": "c5c137c4dd925e715e4a94c84939e6f4cd0742fa5a96363249f43de87b131920"
+    }
+  ],
+  "stage_manifests": [
+    {
+      "path": "results/local/admission-final-build-20261014/stage.json",
+      "sha256": "aee731188a016da90865d0de08cef49d4b00cc73e48fdb254ad36d84d8fc156e"
+    },
+    {
+      "path": "results/local/admission-final-smoke-20261014/stage.json",
+      "sha256": "c36fa27fed91d26f4c571f938084264e5469dc9710ba0eb872c130b609c94926"
+    },
+    {
+      "path": "results/local/admission-final-first-20261014/stage.json",
+      "sha256": "18981879e85dedc3a56d45da704a896f22e650d83cecbc4746ee3d6bd3dab5c2"
+    },
+    {
+      "path": "results/local/admission-final-1000-20261014/stage.json",
+      "sha256": "811d558532e8cb2b9a2ba07c0f46fbb615ca1ba8ef2e64903e68a28f8ae5a1a0"
+    },
+    {
+      "path": "results/local/admission-final-4000-20261014/stage.json",
+      "sha256": "a3f54fad1265626e72b41ec18609ed98ae0f7406e802c866747affa9168c9dbb"
+    },
+    {
+      "path": "results/local/admission-final-growth-20261014/stage.json",
+      "sha256": "1d76d75045cc7e5f9a226ff9da9dcc243c6bb94d599523cd1bac153bbca79ed9"
+    }
+  ],
+  "owned_cpu_snapshot": {
+    "source": {
+      "path": "results/local/admission-final-first-20261014/cpu-snapshot.json",
+      "sha256": "bf4fff83e8a87c798917cf5c1e5f241b502852dfb0ad372c5a56d38c02768848"
+    },
+    "caveat": "One owned-process ps snapshot at35s; not integrated window CPU usage."
+  },
+  "verified_raw_artifact_count": 472,
+  "current_source_compiler_stamp_and_binary_verified": true,
+  "runner_target_met_definition": {
+    "generation_target_met": "achieved generation >= 95% of configured offered rate",
+    "completion_target_met": "achieved completion >= 95% of configured offered rate",
+    "source": {
+      "path": "scripts/run_sustained.py",
+      "sha256": "8e3d9ba8c7c339861a3d3be3b8cbff44e3b06dea84cf9f4cfc1877815840e56a"
+    },
+    "interpretation": "These finite-window acceptance flags do not mean exact offered load is sustained or that pending/input age is bounded."
+  },
+  "separate_final_diagnostic": {
+    "classification": "instrumented causal tracing plus one five-second replica0 sample; excluded from all rate medians and ranges",
+    "native_manifest": {
+      "path": "results/local/admission-final-causal-profile-20261014/trial/manifest.json",
+      "sha256": "2b2ac4b24dfe182db0aeed7061c6d4ef5a548a2713ddce21bf1cd1096f67ed6b"
+    },
+    "orchestration_manifest": {
+      "path": "results/local/admission-final-causal-profile-20261014/manifest.json",
+      "sha256": "ea89ec9eb0e2d8ef702b1e312e62d1d262740655cad8ee8a137711cdfcf85a63"
+    },
+    "causal_summary": {
+      "path": "results/local/admission-final-causal-profile-20261014/causal-summary.json",
+      "sha256": "0b7e69a1b30f0871024a0f63ef18edb620f1e919ba1c986776a3b07be30c531a"
+    },
+    "cpu_summary": {
+      "path": "results/local/admission-final-causal-profile-20261014/cpu-summary.json",
+      "sha256": "cced9fbdf41e4be27990d53b50d8097dace4e011359f1d1f9310453a5535beab"
+    },
+    "supplement_summary": {
+      "path": "results/local/admission-final-causal-profile-20261014/supplement-summary.json",
+      "sha256": "afe2df5e7098f141f804cecafffb587f8aec85252561fd381d12504deeaa0bc4"
+    },
+    "all_trace_tails_complete": true,
+    "readiness_last_prerequisite_counts": {
+      "history": 2718
+    },
+    "measured_input_age_epochs": {
+      "10-20s_from_load_start": {
+        "input_age_at_ready": {
+          "count": 908,
+          "mean_ms": 177.2664471365639,
+          "min_ms": 110.463,
+          "p50_ms": 178.308,
+          "p95_ms": 226.904,
+          "p99_ms": 233.099,
+          "max_ms": 235.923
+        },
+        "admitted_minus_proposal_round": {
+          "count": 908,
+          "mean_rounds": 18.040748898678416,
+          "min_rounds": 12.0,
+          "p50_rounds": 18.0,
+          "p95_rounds": 23.0,
+          "p99_rounds": 23.0,
+          "max_rounds": 24.0
+        }
+      },
+      "20-30s_from_load_start": {
+        "input_age_at_ready": {
+          "count": 905,
+          "mean_ms": 293.88687071823205,
+          "min_ms": 226.129,
+          "p50_ms": 294.936,
+          "p95_ms": 365.34,
+          "p99_ms": 368.092,
+          "max_ms": 371.254
+        },
+        "admitted_minus_proposal_round": {
+          "count": 905,
+          "mean_rounds": 28.685082872928177,
+          "min_rounds": 23.0,
+          "p50_rounds": 29.0,
+          "p95_rounds": 35.0,
+          "p99_rounds": 35.0,
+          "max_rounds": 35.0
+        }
+      },
+      "30-40s_from_load_start": {
+        "input_age_at_ready": {
+          "count": 905,
+          "mean_ms": 411.64801546961326,
+          "min_ms": 356.932,
+          "p50_ms": 422.702,
+          "p95_ms": 435.026,
+          "p99_ms": 438.274,
+          "max_ms": 446.361
+        },
+        "admitted_minus_proposal_round": {
+          "count": 905,
+          "mean_rounds": 39.3292817679558,
+          "min_rounds": 35.0,
+          "p50_rounds": 40.0,
+          "p95_rounds": 41.0,
+          "p99_rounds": 42.0,
+          "max_rounds": 42.0
+        }
+      }
+    },
+    "timers": {
+      "no_cer/all": 0,
+      "no_cer/measurement": 0,
+      "main_timer_expiry/all": 14767,
+      "main_timer_expiry/measurement": 10872,
+      "catchup_timer_expiry/all": 14892,
+      "catchup_timer_expiry/measurement": 10872
+    },
+    "paired_phase_metrics": {
+      "paired_three_round_cer_spacing": {
+        "count": 10872,
+        "mean_ms": 33.119773822663724,
+        "minimum_ms": 30.365,
+        "median_ms": 32.91,
+        "p95_ms": 34.786,
+        "maximum_ms": 47.887
+      },
+      "paired_three_round_admission_spacing": {
+        "count": 10872,
+        "mean_ms": 32.76910448859455,
+        "minimum_ms": 29.346,
+        "median_ms": 32.714,
+        "p95_ms": 34.36,
+        "maximum_ms": 48.47
+      },
+      "paired_three_round_phase_change": {
+        "count": 10872,
+        "mean_ms": 0.3506693340691685,
+        "minimum_ms": -16.348,
+        "median_ms": 0.298,
+        "p95_ms": 2.571,
+        "maximum_ms": 16.732
+      },
+      "first_positive_threshold_to_own_cer_action": {
+        "count": 10872,
+        "mean_ms": 0.009824595290654893,
+        "minimum_ms": 0.006,
+        "median_ms": 0.009,
+        "p95_ms": 0.012,
+        "maximum_ms": 0.295
+      },
+      "own_cer_action_to_CER_outbox": {
+        "count": 10872,
+        "mean_ms": 0.044365618101545254,
+        "minimum_ms": 0.033,
+        "median_ms": 0.043,
+        "p95_ms": 0.05,
+        "maximum_ms": 3.542
+      },
+      "own_cer_action_to_HISTORY3_outbox": {
+        "count": 10872,
+        "mean_ms": 0.12867338116261956,
+        "minimum_ms": 0.08,
+        "median_ms": 0.105,
+        "p95_ms": 0.262,
+        "maximum_ms": 3.601
+      },
+      "leader_local_PROPOSE_outbox_to_VOTE_outbox": {
+        "count": 2718,
+        "mean_ms": 0.031586460632818246,
+        "minimum_ms": 0.022,
+        "median_ms": 0.031,
+        "p95_ms": 0.04,
+        "maximum_ms": 0.233
+      }
+    },
+    "native_boundaries": [
+      {
+        "replica": 0,
+        "admitted_delta": 2746,
+        "delivered_delta": 2718,
+        "gap_start": 16,
+        "gap_end": 44,
+        "pending_materialization_start": 0,
+        "pending_materialization_end": 0
+      },
+      {
+        "replica": 1,
+        "admitted_delta": 2746,
+        "delivered_delta": 2718,
+        "gap_start": 16,
+        "gap_end": 44,
+        "pending_materialization_start": 0,
+        "pending_materialization_end": 0
+      },
+      {
+        "replica": 2,
+        "admitted_delta": 2746,
+        "delivered_delta": 2718,
+        "gap_start": 16,
+        "gap_end": 44,
+        "pending_materialization_start": 0,
+        "pending_materialization_end": 0
+      },
+      {
+        "replica": 3,
+        "admitted_delta": 2746,
+        "delivered_delta": 2718,
+        "gap_start": 16,
+        "gap_end": 44,
+        "pending_materialization_start": 0,
+        "pending_materialization_end": 0
+      }
+    ],
+    "maximum_inflight_frames_per_peer": 17,
+    "maximum_inflight_bytes_per_peer": 83510,
+    "transport_errors": {
+      "retries": 0,
+      "ack_failures": 0,
+      "write_failures": 0,
+      "connection_failures": 0,
+      "duplicate_frames": 0
+    },
+    "main_thread_samples": 3924,
+    "main_blocked_channel_samples": 3077,
+    "main_nonblocking_symbol_samples": 847,
+    "main_signature_verification_inclusive_samples": 278,
+    "main_hash_inclusive_samples": 191,
+    "interpretation": "Input readiness waits on HISTORY3 while exact matched-round CER/admission phase increases. Small ongoing runtime/queue/network overhead compounds; the diagnostic does not identify a unique cross-replica bottleneck or establish hardware CPU utilization."
+  }
+}

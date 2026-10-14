@@ -1,0 +1,296 @@
+{
+  "schema": 1,
+  "date": "2026-10-14",
+  "change": "Promote PROG pacing with immediate ordering bundling to the implementation default.",
+  "defaults": {
+    "ordering_mode": "progress",
+    "ordering_batch": true,
+    "progress_pacing_deadline": "bound_ms (Delta)"
+  },
+  "configuration": "Core constructors select PROG pacing; one explicit pre-start schedule override supports canonical and full-barrier comparisons. Network runners resolve and archive the selected configuration.",
+  "validation": {
+    "checks": {
+      "path": "results/local/bundling-default-20261014/checks.json",
+      "sha256": "3103784eff2943b6b12c6adb69419dec523e938da4fc2d835c52fb071203f077"
+    },
+    "rust_tests_passed": 216,
+    "python_tests_passed": 127,
+    "binary_sha256": "1ff314fd17a71a3aa95b45952488d9e0e19d8add392abbf7f11cb32d15d42ab0",
+    "build": {
+      "path": "results/local/bundling-default-20261014/build/manifest.json",
+      "sha256": "99f358bae7f8e2c46dc91cb314a3218739913689af48f76d81fa896ebb0a2f16"
+    },
+    "source_hashes_verified_after_measurement": true,
+    "source_hashes": {
+      "Cargo.toml": "9c4d92fa15aa7906016bebd4fafc46a58f8d1d1196fb5049b4a0e0f907ae0430",
+      "Cargo.lock": "7427a739706c4ee13cbfd3871b271323f81e26b497358013c8dcab6e958e42ec",
+      "src/availability.rs": "60cc9e680815560cb12972ae4663c779e4125105053aa0f4f902a443a9e87f22",
+      "src/batch.rs": "13285a37d62d4b0f947a209bb4c6d671ba9722a93f20db040733b6dfd2949650",
+      "src/bin/delugi_replica.rs": "df52f0f21a7f8072dbee89bf95c138228f4b790771b43f18b5e2480e80467746",
+      "src/bin/end_to_end_trace.rs": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2",
+      "src/bin/ordering_trace.rs": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9",
+      "src/causal.rs": "d4469866313242c2c728a49b9e93e7085ffbb19ee32f9c5fb17bdf8271560e0b",
+      "src/composed.rs": "4507cf88fc1752b809da4f2459707286766c394383529c9d1aa56e2389641201",
+      "src/end_to_end.rs": "38a7cb9757420557e8aacabeabc3173f0973402a52a3cea9c607b32ca06b71a9",
+      "src/history.rs": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8",
+      "src/lib.rs": "707cd845043426ef4339c1a16af0b7a6ccf141fafc96b1a644ab886187092683",
+      "src/mmr.rs": "6cac3708e9e4d76bb39c4d343610deed59f1ff018ec5fa298160d16441bc24a9",
+      "src/process.rs": "654ccdd019c0f7389a0dabf435d74830de193097e6dd87fc2149623be8f0d408",
+      "src/replica.rs": "6139269bd019aff08f1b9b8204dd1da6b0b8a34b862d690632b7bb4d021e8bff",
+      "src/scanner.rs": "8008e554b01068e31eb86dfe1653c8954d150130d0e85155d5bdbf7afbf614f5",
+      "src/simulation.rs": "7446dbf5e155d802604eced471a486bfefd5cd3b5bef3fcfe4ec135f76e0bdc3",
+      "src/slot.rs": "bd695eff64f8186fde52b61a361549fa97dd3d2e88ef816799c2303f3af108e6",
+      "src/transport.rs": "4faba4be7029c130aa91adadaca04544afa7bc3a4f1022c60025ae1e2cc2e842",
+      "src/wire.rs": "e7c0fa884d2123d5705904c3639090320f431279caf590d2227574f2f2f5826f"
+    }
+  },
+  "runs": {
+    "default-e2e": {
+      "manifest": {
+        "path": "results/local/bundling-default-20261014/default-e2e/manifest.json",
+        "sha256": "fef62fda88cf3b8965918fb33c366b4c7b9beadb3fff607c7ab4c3011f87f28c"
+      },
+      "command": [
+        "scripts/run_tcp_delay.py",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/bundling-default-20261014/default-e2e",
+        "--scenario",
+        "all",
+        "--rate",
+        "4000",
+        "--transaction-size",
+        "512",
+        "--ingress-batch-ms",
+        "100",
+        "--warmup",
+        "10",
+        "--duration",
+        "60",
+        "--delay-ms",
+        "10",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "added_rtt_ms": 22.51625,
+      "trials": [
+        {
+          "label": "honest-round4",
+          "status": "passed"
+        },
+        {
+          "label": "silent-leader-three-anchors",
+          "status": "passed"
+        },
+        {
+          "label": "sustained",
+          "status": "passed"
+        }
+      ],
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 60.0006105,
+        "unique_completion_tps": 3999.9426340665455,
+        "mean_latency_ms": 70.99717752990638,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 626331113,
+        "replica_tcp_read_bytes": 626332985,
+        "replica_tcp_written_bytes_per_second": 10438745.732781578,
+        "completion_count": 239999,
+        "generated_count": 239999,
+        "generation_tps": 3999.9426340665455,
+        "pending_at_start": 0,
+        "pending_at_end": 0,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true
+      },
+      "agreement": {
+        "common_prefix_count": 279600,
+        "common_prefix_state_hash": [
+          122,
+          58,
+          188,
+          221,
+          90,
+          133,
+          153,
+          6,
+          172,
+          80,
+          186,
+          176,
+          151,
+          240,
+          231,
+          226,
+          43,
+          95,
+          109,
+          111,
+          185,
+          108,
+          81,
+          100,
+          0,
+          178,
+          189,
+          159,
+          169,
+          215,
+          96,
+          134
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 279600,
+          "1": 279600,
+          "2": 279600,
+          "3": 279600
+        },
+        "unique_generated_transactions": 279600,
+        "executed_per_replica": 279600,
+        "state_hash": [
+          122,
+          58,
+          188,
+          221,
+          90,
+          133,
+          153,
+          6,
+          172,
+          80,
+          186,
+          176,
+          151,
+          240,
+          231,
+          226,
+          43,
+          95,
+          109,
+          111,
+          185,
+          108,
+          81,
+          100,
+          0,
+          178,
+          189,
+          159,
+          169,
+          215,
+          96,
+          134
+        ],
+        "replicas_agree": true
+      },
+      "result": {
+        "path": "results/local/bundling-default-20261014/default-e2e/sustained/result.json",
+        "sha256": "422b28f6402e26b3aba363e1164474b7104040fea6a85199fa56ec91780624e9"
+      },
+      "default_options_verified": true
+    },
+    "canonical-finite": {
+      "manifest": {
+        "path": "results/local/bundling-default-20261014/canonical-finite/manifest.json",
+        "sha256": "a2d3a7cfadab52618e979ab7d618ed165308e6be77dd182add2e196a369926ef"
+      },
+      "command": [
+        "scripts/run_tcp_delay.py",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/bundling-default-20261014/canonical-finite",
+        "--scenario",
+        "finite",
+        "--ordering-mode",
+        "canonical",
+        "--no-ordering-batch",
+        "--delay-ms",
+        "10",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "added_rtt_ms": 22.466729499999996,
+      "trials": [
+        {
+          "label": "honest-round4",
+          "status": "passed"
+        },
+        {
+          "label": "silent-leader-three-anchors",
+          "status": "passed"
+        }
+      ]
+    },
+    "barrier-finite": {
+      "manifest": {
+        "path": "results/local/bundling-default-20261014/barrier-finite/manifest.json",
+        "sha256": "d17577685dc4eebd8ac96daf71a9d3a8c28db31875faf4ed01537c83592a8c42"
+      },
+      "command": [
+        "scripts/run_tcp_delay.py",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/bundling-default-20261014/barrier-finite",
+        "--scenario",
+        "finite",
+        "--ordering-mode",
+        "barrier",
+        "--delay-ms",
+        "10",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "added_rtt_ms": 22.4245,
+      "trials": [
+        {
+          "label": "honest-round4",
+          "status": "passed"
+        },
+        {
+          "label": "silent-leader-three-anchors",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "cleanup": {
+    "removed": [
+      {
+        "path": "benchmarks/baselines/raptr/target",
+        "allocated_kib_before": 45624116
+      },
+      {
+        "path": "benchmarks/.cache/mysticeti-target",
+        "allocated_kib_before": 3969436
+      },
+      {
+        "path": "benchmarks/.cache/vantage-target",
+        "allocated_kib_before": 1015256
+      },
+      {
+        "path": "target",
+        "allocated_kib_before": 3456268
+      }
+    ],
+    "allocated_kib_reclaimed": 54065076,
+    "repository_allocated_kib_after": 37288400,
+    "preserved": "Source checkouts, dependency caches/toolchains, raw benchmark results, logs, source snapshots and archived experiment binaries."
+  },
+  "limitations": [
+    "Single-host userspace TCP delay, minimum requested 10ms per direction; calibration and actual traffic are retained.",
+    "Sustained metric is origin insertion immediately before signed batch production to post-handler local materialization, over transactions completed in the measurement window.",
+    "One 60-second 4000tx/s validation run; no WAN or cross-protocol performance claim.",
+    "Paper files are unchanged; the PROG-origin scheduling amendment is explicit, with original quorum/validation and 7Delta/3Delta outcome timer guards retained.",
+    "Generated build directories were removed after validation; rebuilding is required for the current executable."
+  ]
+}

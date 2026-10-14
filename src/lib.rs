@@ -1,4 +1,5 @@
 //! Deterministic Delugi ordering and dissemination reference.
+mod causal;
 pub mod history;
 pub mod replica;
 pub mod scanner;

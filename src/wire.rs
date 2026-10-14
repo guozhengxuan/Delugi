@@ -12,6 +12,10 @@ use bincode::Options;
 use ed25519_dalek::{Keypair, PublicKey, SecretKey, Signature, Signer};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use sha2::{Digest as ShaDigest, Sha256};
+use std::collections::{HashSet, VecDeque};
+#[cfg(test)]
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Arc, Mutex};
 
 pub type Digest = [u8; 32];
 /// Replica identifiers are zero-based positions in the ordered committee.
@@ -21,8 +25,10 @@ pub const MAX_WIRE_BYTES: usize = 1024 * 1024;
 /// Leave room for the protocol's `r + 3` indexing without wrapping.
 pub const MAX_ROUND: u64 = u64::MAX - 3;
 pub const GENESIS_HISTORY_ROUNDS: u64 = 3;
-const PROFILE: &str = "delugi/reference/ordering/v2";
+const PROFILE: &str = "delugi/reference/ordering/v3-option-a";
 const SIGNATURE_BYTES: usize = 64;
+const SIGNATURE_CACHE_ENTRIES: usize = 4096;
+const SIGNATURE_CACHE_BYTES: usize = 4 * 1024 * 1024;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Context {
@@ -86,6 +92,44 @@ pub enum Message {
     History3(Report),
 }
 
+/// Borrowed layout of `Message`, including every variant in the same order.
+/// Used only for bounded sizing, so complete proposal/report guards need no
+/// deep clone. Tests compare both its bytes and sizes with every owned variant.
+#[derive(Serialize)]
+pub(crate) enum MessageRef<'a> {
+    Propose(&'a Proposal),
+    Vote {
+        vote: &'a Signed<Statement>,
+        header: &'a Option<Signed<Header>>,
+        value: &'a Option<Vec<u8>>,
+    },
+    Cer(&'a Signed<Statement>),
+    Prog(&'a Signed<Statement>),
+    Closed(&'a Signed<Statement>),
+    History3(&'a Report),
+}
+
+impl<'a> From<&'a Message> for MessageRef<'a> {
+    fn from(message: &'a Message) -> Self {
+        match message {
+            Message::Propose(p) => Self::Propose(p),
+            Message::Vote {
+                vote,
+                header,
+                value,
+            } => Self::Vote {
+                vote,
+                header,
+                value,
+            },
+            Message::Cer(s) => Self::Cer(s),
+            Message::Prog(s) => Self::Prog(s),
+            Message::Closed(s) => Self::Closed(s),
+            Message::History3(r) => Self::History3(r),
+        }
+    }
+}
+
 fn options() -> impl Options {
     bincode::DefaultOptions::new()
         .with_fixint_encoding()
@@ -97,6 +141,14 @@ fn options() -> impl Options {
 /// Encode ordered canonical structures with the fixed profile and size limit.
 pub fn encode<T: Serialize>(value: &T) -> Result<Vec<u8>, String> {
     options().serialize(value).map_err(|e| e.to_string())
+}
+
+/// The same bounded first pass used by `encode`, without allocating/writing a
+/// discarded byte vector. Only use for deterministic derived concrete wire
+/// types, not arbitrary serializers whose behavior can differ between passes.
+/// Hashing, signing, canonical tie-breaks, and actual output still use `encode`.
+pub(crate) fn encoded_size<T: Serialize + ?Sized>(value: &T) -> Result<u64, String> {
+    options().serialized_size(value).map_err(|e| e.to_string())
 }
 
 /// Reject malformed encodings, trailing bytes, and oversized complete messages.
@@ -277,11 +329,82 @@ fn input_budget_for_members(n: usize) -> Result<usize, String> {
     Ok(MAX_WIRE_BYTES - overhead as usize)
 }
 
+/// Exact cryptographic inputs, rather than a message digest or protocol object
+/// identity. In particular, public committee keys may change on a cloned value.
+#[derive(Eq, PartialEq, Hash)]
+struct SignatureCacheKey {
+    public_key: [u8; 32],
+    signer: Id,
+    domain: &'static str,
+    preimage: Box<[u8]>,
+    signature: [u8; SIGNATURE_BYTES],
+}
+
+impl SignatureCacheKey {
+    fn retained_bytes(&self) -> usize {
+        // The domain has static storage. Both indexes share one Arc allocation,
+        // so there is exactly one retained preimage per entry. Index/Arc metadata
+        // is separately bounded by max_entries; this is a key-byte, not RSS, cap.
+        std::mem::size_of::<Self>() + self.preimage.len()
+    }
+}
+
+struct SignatureCache {
+    entries: HashSet<Arc<SignatureCacheKey>>,
+    fifo: VecDeque<Arc<SignatureCacheKey>>,
+    retained_bytes: usize,
+    max_entries: usize,
+    max_bytes: usize,
+}
+
+impl std::fmt::Debug for SignatureCache {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SignatureCache")
+            .field("entries", &self.entries.len())
+            .field("retained_bytes", &self.retained_bytes)
+            .finish()
+    }
+}
+
+impl SignatureCache {
+    fn new(max_entries: usize, max_bytes: usize) -> Self {
+        Self {
+            entries: HashSet::new(),
+            fifo: VecDeque::new(),
+            retained_bytes: 0,
+            max_entries,
+            max_bytes,
+        }
+    }
+
+    /// Call only after verify_strict succeeds. Concurrent misses may verify the
+    /// same key; the second check keeps insertion and byte accounting unique.
+    fn insert_verified(&mut self, key: SignatureCacheKey) {
+        let bytes = key.retained_bytes();
+        if self.max_entries == 0 || bytes > self.max_bytes || self.entries.contains(&key) {
+            return;
+        }
+        while self.entries.len() >= self.max_entries || bytes > self.max_bytes - self.retained_bytes
+        {
+            let oldest = self.fifo.pop_front().expect("cache indexes agree");
+            self.entries.remove(&oldest);
+            self.retained_bytes -= oldest.retained_bytes();
+        }
+        let key = Arc::new(key);
+        self.retained_bytes += bytes;
+        self.entries.insert(Arc::clone(&key));
+        self.fifo.push_back(key);
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Committee {
     pub context: Context,
     pub keys: Vec<PublicKey>,
     input_budget: usize,
+    signature_cache: Arc<Mutex<SignatureCache>>,
+    #[cfg(test)]
+    strict_verifications: Arc<AtomicUsize>,
 }
 
 impl Committee {
@@ -311,7 +434,7 @@ impl Committee {
             input_budget as u64,
             ordered_keys,
         );
-        encode(&profile)?;
+        encoded_size(&profile)?;
         Ok(Self {
             context: Context {
                 instance,
@@ -319,6 +442,12 @@ impl Committee {
             },
             keys,
             input_budget,
+            signature_cache: Arc::new(Mutex::new(SignatureCache::new(
+                SIGNATURE_CACHE_ENTRIES,
+                SIGNATURE_CACHE_BYTES,
+            ))),
+            #[cfg(test)]
+            strict_verifications: Arc::new(AtomicUsize::new(0)),
         })
     }
 
@@ -331,7 +460,15 @@ impl Committee {
     /// Validate locally supplied bytes before fixing the input or hashing it.
     /// Neither early rounds nor smaller histories relax this common limit.
     pub fn validate_input_size(&self, value: &[u8], witness: &[u8]) -> Result<(), String> {
-        match value.len().checked_add(witness.len()) {
+        self.validate_input_lengths(value.len(), witness.len())
+    }
+
+    pub(crate) fn validate_input_lengths(
+        &self,
+        value: usize,
+        witness: usize,
+    ) -> Result<(), String> {
+        match value.checked_add(witness) {
             Some(bytes) if bytes <= self.input_budget => Ok(()),
             _ => Err("combined value and witness exceed the committee input budget".into()),
         }
@@ -349,9 +486,35 @@ impl Committee {
             return Err("Ed25519 signature must contain exactly 64 bytes".into());
         }
         let signature = Signature::from_bytes(&signed.signature).map_err(|e| e.to_string())?;
-        let bytes = signing_bytes(signed.signer, &signed.body)?;
-        key.verify_strict(&bytes, &signature)
-            .map_err(|_| "invalid Ed25519 signature".into())
+        let cache_key = SignatureCacheKey {
+            public_key: key.to_bytes(),
+            signer: signed.signer,
+            domain: T::DOMAIN,
+            preimage: signing_bytes(signed.signer, &signed.body)?.into_boxed_slice(),
+            signature: signed
+                .signature
+                .as_slice()
+                .try_into()
+                .expect("checked length"),
+        };
+        if self
+            .signature_cache
+            .lock()
+            .map(|cache| cache.entries.contains(&cache_key))
+            .unwrap_or(false)
+        {
+            return Ok(());
+        }
+        // Never hold the cache lock during cryptography. A poisoned cache is
+        // bypassed, not trusted; the original strict check still decides.
+        #[cfg(test)]
+        self.strict_verifications.fetch_add(1, Ordering::Relaxed);
+        key.verify_strict(&cache_key.preimage, &signature)
+            .map_err(|_| "invalid Ed25519 signature".to_string())?;
+        if let Ok(mut cache) = self.signature_cache.lock() {
+            cache.insert_verified(cache_key);
+        }
+        Ok(())
     }
 
     /// Check short evidence independently from any VOTE attachments.
@@ -359,7 +522,7 @@ impl Committee {
     /// Handlers must additionally require the expected `Kind` for their outer
     /// message variant; moving a valid CER into `Message::Prog` is not a PROG.
     pub fn verify_statement(&self, signed: &Signed<Statement>) -> Result<(), String> {
-        encode(signed)?;
+        encoded_size(signed)?;
         let body = &signed.body;
         if body.context != self.context {
             return Err("statement instance or configuration mismatch".into());
@@ -377,7 +540,7 @@ impl Committee {
     /// Verify the leader header and projection shape, without inferring full
     /// history or Q validity from the leader signature alone.
     pub fn verify_header(&self, signed: &Signed<Header>) -> Result<(), String> {
-        encode(signed)?;
+        encoded_size(signed)?;
         let body = &signed.body;
         if body.context != self.context {
             return Err("header instance or configuration mismatch".into());
@@ -408,7 +571,7 @@ impl Committee {
         q: impl Fn(u64, &[u8], &[u8]) -> bool,
     ) -> Result<(), String> {
         // Include the outer message discriminator in the total frame budget.
-        encode(&Message::Propose(proposal.clone()))?;
+        encoded_size(&MessageRef::Propose(proposal))?;
         self.validate_input_size(&proposal.value, &proposal.witness)?;
         self.verify_header(&proposal.header)?;
         let header = &proposal.header.body;
@@ -477,6 +640,315 @@ mod tests {
         )
     }
 
+    // Independent reference path: the verifier before caching was introduced.
+    fn uncached_signature<T: Serialize + SigningDomain>(
+        committee: &Committee,
+        signed: &Signed<T>,
+    ) -> Result<(), String> {
+        let key = committee
+            .keys
+            .get(signed.signer as usize)
+            .ok_or("signature signer is not a committee member")?;
+        if signed.signature.len() != SIGNATURE_BYTES {
+            return Err("Ed25519 signature must contain exactly 64 bytes".into());
+        }
+        let signature = Signature::from_bytes(&signed.signature).map_err(|e| e.to_string())?;
+        let bytes = signing_bytes(signed.signer, &signed.body)?;
+        key.verify_strict(&bytes, &signature)
+            .map_err(|_| "invalid Ed25519 signature".into())
+    }
+
+    fn strict_calls(committee: &Committee) -> usize {
+        committee.strict_verifications.load(Ordering::Relaxed)
+    }
+
+    fn cache_stats(committee: &Committee) -> (usize, usize) {
+        let cache = committee.signature_cache.lock().unwrap();
+        assert_eq!(cache.entries.len(), cache.fifo.len());
+        assert_eq!(
+            cache.retained_bytes,
+            cache
+                .fifo
+                .iter()
+                .map(|key| key.retained_bytes())
+                .sum::<usize>()
+        );
+        assert!(cache.entries.len() <= cache.max_entries);
+        assert!(cache.retained_bytes <= cache.max_bytes);
+        (cache.entries.len(), cache.retained_bytes)
+    }
+
+    #[test]
+    fn cache_requires_first_strict_check_and_shares_successes_across_clones() {
+        let committee = committee();
+        let valid = statement(&committee, Kind::Vote);
+        assert_eq!(strict_calls(&committee), 0); // Signing never seeds the cache.
+        assert_eq!(cache_stats(&committee), (0, 0));
+        committee.verify_statement(&valid).unwrap();
+        assert_eq!(strict_calls(&committee), 1);
+        committee.verify_statement(&valid).unwrap();
+        committee.clone().verify_statement(&valid).unwrap();
+        assert_eq!(strict_calls(&committee), 1);
+        assert_eq!(cache_stats(&committee).0, 1);
+    }
+
+    #[test]
+    fn cached_and_original_strict_verifiers_agree_on_adversarial_corpus() {
+        let committee = committee();
+        let mut corpus = Vec::new();
+        for signer in 0..4 {
+            for kind in [Kind::Vote, Kind::Cer, Kind::Prog, Kind::Closed] {
+                let mut body = statement(&committee, kind).body;
+                body.round = 11 + signer as u64;
+                let valid = sign(&fixture_key(signer), signer, body);
+                corpus.push(valid.clone());
+                let mut changed = valid.clone();
+                changed.body.round += 1;
+                corpus.push(changed);
+                let mut changed = valid.clone();
+                changed.body.context.configuration[0] ^= 1;
+                corpus.push(changed);
+                let mut changed = valid.clone();
+                changed.signer = (signer + 1) % 4;
+                corpus.push(changed);
+                let mut changed = valid.clone();
+                changed.signature[0] ^= 1;
+                corpus.push(changed);
+                for length in [0, 63, 65] {
+                    let mut changed = valid.clone();
+                    changed.signature.resize(length, 0);
+                    corpus.push(changed);
+                }
+                let mut changed = valid;
+                changed.signer = 4;
+                corpus.push(changed);
+            }
+        }
+        // The second pass exercises both positive hits and repeated rejections.
+        for _ in 0..2 {
+            for signed in &corpus {
+                assert_eq!(
+                    committee.verify_signature(signed),
+                    uncached_signature(&committee, signed)
+                );
+            }
+        }
+        assert_eq!(cache_stats(&committee).0, 16);
+    }
+
+    #[test]
+    fn cache_keys_include_actual_public_key_and_signer_after_clone_mutation() {
+        let committee = committee();
+        let valid = statement(&committee, Kind::Vote);
+        committee.verify_statement(&valid).unwrap();
+        let mut changed_keys = committee.clone();
+        changed_keys.keys[0] = fixture_key(9).public;
+        assert!(changed_keys.verify_statement(&valid).is_err());
+        let replacement = sign(&fixture_key(9), 0, valid.body.clone());
+        changed_keys.verify_statement(&replacement).unwrap();
+        assert!(committee.verify_statement(&replacement).is_err());
+        committee.verify_statement(&valid).unwrap();
+
+        // Even if public fields are mutated into a duplicate-key configuration,
+        // the signed reporter binding remains mandatory.
+        let mut duplicate_key = committee.clone();
+        duplicate_key.keys[1] = duplicate_key.keys[0];
+        let mut relabeled = valid;
+        relabeled.signer = 1;
+        assert!(duplicate_key.verify_statement(&relabeled).is_err());
+        assert_eq!(cache_stats(&committee).0, 2);
+    }
+
+    #[test]
+    fn cached_crypto_never_skips_context_shape_leader_binding_or_q_checks() {
+        let committee = committee();
+        let valid = statement(&committee, Kind::Vote);
+        committee.verify_statement(&valid).unwrap();
+        let mut changed_context = committee.clone();
+        changed_context.context.instance[0] ^= 1;
+        changed_context.verify_signature(&valid).unwrap();
+        assert!(changed_context.verify_statement(&valid).is_err());
+        let mut bad_shape = valid.body.clone();
+        bad_shape.digest = None;
+        let bad_shape = sign(&fixture_key(0), 0, bad_shape);
+        committee.verify_signature(&bad_shape).unwrap();
+        assert!(committee.verify_statement(&bad_shape).is_err());
+
+        let mut header = proposal(&committee, 5).header.body;
+        header.entries.horizon = 2;
+        let header = sign(&fixture_key(0), 0, header);
+        committee.verify_header(&header).unwrap();
+        let mut missing_history = proposal(&committee, 5);
+        missing_history.header = header.clone();
+        assert!(committee
+            .verify_proposal(&missing_history, |_, _, _| {
+                panic!("a cached leader signature does not validate HISTORY3")
+            })
+            .is_err());
+        let mut changed_membership = committee.clone();
+        changed_membership
+            .keys
+            .extend((4..7).map(|id| fixture_key(id).public));
+        changed_membership.verify_signature(&header).unwrap();
+        assert!(changed_membership.verify_header(&header).is_err());
+
+        let valid = proposal(&committee, 1);
+        committee.verify_proposal(&valid, |_, _, _| true).unwrap();
+        let calls = Cell::new(0);
+        assert!(committee
+            .verify_proposal(&valid, |_, _, _| {
+                calls.set(calls.get() + 1);
+                false
+            })
+            .is_err());
+        assert_eq!(calls.get(), 1);
+        let mut changed_value = valid.clone();
+        changed_value.value.push(0);
+        let mut changed_witness = valid;
+        changed_witness.witness.push(0);
+        for changed in [changed_value, changed_witness] {
+            assert!(committee
+                .verify_proposal(&changed, |_, _, _| {
+                    panic!("Q must follow complete binding checks")
+                })
+                .is_err());
+        }
+    }
+
+    #[test]
+    fn failed_signatures_never_populate_or_evict_a_cached_success() {
+        let mut committee = committee();
+        committee.signature_cache = Arc::new(Mutex::new(SignatureCache::new(1, 4096)));
+        let valid = statement(&committee, Kind::Cer);
+        committee.verify_statement(&valid).unwrap();
+        let before = cache_stats(&committee);
+        let mut invalid = valid.clone();
+        invalid.signature[0] ^= 1;
+        for _ in 0..4 {
+            assert!(committee.verify_statement(&invalid).is_err());
+            assert_eq!(cache_stats(&committee), before);
+        }
+        assert_eq!(strict_calls(&committee), 5);
+        committee.verify_statement(&valid).unwrap();
+        assert_eq!(strict_calls(&committee), 5);
+    }
+
+    #[test]
+    fn cache_is_fifo_and_bounded_by_entries_and_retained_key_bytes() {
+        let mut committee = committee();
+        let signed: Vec<_> = (1..=4)
+            .map(|round| {
+                let mut body = statement(&committee, Kind::Vote).body;
+                body.round = round;
+                sign(&fixture_key(0), 0, body)
+            })
+            .collect();
+        committee.verify_statement(&signed[0]).unwrap();
+        let entry_bytes = cache_stats(&committee).1;
+        for (entries, bytes) in [(2, 4096), (4096, 2 * entry_bytes)] {
+            committee.signature_cache = Arc::new(Mutex::new(SignatureCache::new(entries, bytes)));
+            committee.verify_statement(&signed[0]).unwrap();
+            committee.verify_statement(&signed[1]).unwrap();
+            committee.verify_statement(&signed[0]).unwrap(); // Hit does not change FIFO.
+            committee.verify_statement(&signed[2]).unwrap();
+            assert_eq!(cache_stats(&committee), (2, 2 * entry_bytes));
+            let before = strict_calls(&committee);
+            committee.verify_statement(&signed[1]).unwrap();
+            assert_eq!(strict_calls(&committee), before);
+            committee.verify_statement(&signed[0]).unwrap();
+            assert_eq!(strict_calls(&committee), before + 1);
+            assert_eq!(cache_stats(&committee), (2, 2 * entry_bytes));
+        }
+        // A single oversized key and a disabled cache both preserve strict checks.
+        for (entries, bytes) in [(4096, entry_bytes - 1), (0, 4096)] {
+            committee.signature_cache = Arc::new(Mutex::new(SignatureCache::new(entries, bytes)));
+            let before = strict_calls(&committee);
+            for _ in 0..2 {
+                committee.verify_statement(&signed[0]).unwrap();
+            }
+            assert_eq!(strict_calls(&committee), before + 2);
+            assert_eq!(cache_stats(&committee), (0, 0));
+        }
+    }
+
+    #[test]
+    fn cache_handles_concurrent_misses_and_warmed_clone_hits() {
+        let committee = committee();
+        let valid = statement(&committee, Kind::Vote);
+        let barrier = Arc::new(std::sync::Barrier::new(8));
+        std::thread::scope(|scope| {
+            for _ in 0..8 {
+                let committee = committee.clone();
+                let valid = valid.clone();
+                let barrier = Arc::clone(&barrier);
+                scope.spawn(move || {
+                    barrier.wait();
+                    committee.verify_statement(&valid).unwrap();
+                });
+            }
+        });
+        assert!((1..=8).contains(&strict_calls(&committee)));
+        assert_eq!(cache_stats(&committee).0, 1);
+        let before = strict_calls(&committee);
+        std::thread::scope(|scope| {
+            for _ in 0..8 {
+                let committee = committee.clone();
+                let valid = &valid;
+                scope.spawn(move || {
+                    for _ in 0..8 {
+                        committee.verify_statement(valid).unwrap();
+                    }
+                });
+            }
+        });
+        assert_eq!(strict_calls(&committee), before);
+        assert_eq!(cache_stats(&committee).0, 1);
+    }
+
+    #[test]
+    fn poisoned_cache_falls_back_to_strict_for_successes_and_failures() {
+        let committee = committee();
+        let valid = statement(&committee, Kind::Vote);
+        committee.verify_statement(&valid).unwrap();
+        let cache = Arc::clone(&committee.signature_cache);
+        assert!(std::thread::spawn(move || {
+            let _guard = cache.lock().unwrap();
+            panic!("deliberate cache poison");
+        })
+        .join()
+        .is_err());
+        for _ in 0..2 {
+            committee.verify_statement(&valid).unwrap();
+        }
+        let mut invalid = valid;
+        invalid.signature[0] ^= 1;
+        assert!(committee.verify_statement(&invalid).is_err());
+        assert_eq!(strict_calls(&committee), 4);
+        assert!(committee.signature_cache.lock().is_err());
+    }
+
+    #[test]
+    fn oversized_signing_preimage_is_rejected_before_cache_or_crypto() {
+        #[derive(Serialize)]
+        struct Blob(Vec<u8>);
+        impl SigningDomain for Blob {
+            const DOMAIN: &'static str = "cache-size-test";
+        }
+        let committee = committee();
+        let signed = Signed {
+            signer: 0,
+            body: Blob(vec![0; MAX_WIRE_BYTES]),
+            signature: statement(&committee, Kind::Vote).signature,
+        };
+        assert_eq!(
+            committee.verify_signature(&signed),
+            uncached_signature(&committee, &signed)
+        );
+        assert!(committee.verify_signature(&signed).is_err());
+        assert_eq!(strict_calls(&committee), 0);
+        assert_eq!(cache_stats(&committee), (0, 0));
+    }
+
     #[test]
     fn canonical_encoding_is_fixed_little_endian_and_strict() {
         assert_eq!(encode(&0x0102_0304u32).unwrap(), vec![4, 3, 2, 1]);
@@ -485,6 +957,114 @@ mod tests {
         assert!(decode::<u32>(&[4, 3, 2, 1, 0]).is_err());
         assert!(decode::<Message>(&[255, 255, 255, 255]).is_err());
         assert!(decode::<Vec<u8>>(&u64::MAX.to_le_bytes()).is_err());
+    }
+
+    fn assert_size_matches_encoding<T: Serialize>(value: &T) {
+        assert_eq!(
+            encoded_size(value),
+            encode(value).map(|bytes| bytes.len() as u64)
+        );
+    }
+
+    #[test]
+    fn borrowed_message_sizes_and_bytes_match_every_owned_variant_and_nested_limit() {
+        let c = committee();
+        let mut messages = maximum_control_frames(4).to_vec();
+        messages.extend([
+            Message::Propose(proposal(&c, 1)),
+            Message::Vote {
+                vote: statement(&c, Kind::Vote),
+                header: None,
+                value: None,
+            },
+            Message::Cer(statement(&c, Kind::Cer)),
+            Message::Prog(statement(&c, Kind::Prog)),
+            Message::Closed(statement(&c, Kind::Closed)),
+        ]);
+        let original = proposal(&c, 1);
+        let overhead =
+            encode(&Message::Propose(original.clone())).unwrap().len() - original.value.len();
+        for length in [
+            MAX_WIRE_BYTES - overhead - 1,
+            MAX_WIRE_BYTES - overhead,
+            MAX_WIRE_BYTES - overhead + 1,
+        ] {
+            let mut p = original.clone();
+            p.value = vec![0; length];
+            messages.push(Message::Propose(p));
+        }
+        let Message::History3(mut oversized) = maximum_control_frames(4)[2].clone() else {
+            unreachable!()
+        };
+        oversized.proofs[1].triggers[0].signature = vec![0; MAX_WIRE_BYTES];
+        assert_size_matches_encoding(&oversized);
+        assert_size_matches_encoding(&oversized.proofs[1]);
+        messages.push(Message::History3(oversized));
+        for message in messages {
+            let borrowed = MessageRef::from(&message);
+            let encoded = encode(&message);
+            assert_eq!(encode(&borrowed), encoded);
+            assert_eq!(
+                encoded_size(&borrowed),
+                encoded.map(|bytes| bytes.len() as u64)
+            );
+            assert_size_matches_encoding(&message);
+            match message {
+                Message::Propose(p) => {
+                    assert_size_matches_encoding(&p.header);
+                    assert_size_matches_encoding(&p.history);
+                }
+                Message::History3(r) => {
+                    assert_size_matches_encoding(&r.header);
+                    for proof in r.proofs {
+                        assert_size_matches_encoding(&proof);
+                    }
+                }
+                _ => {}
+            }
+        }
+        let mut short = statement(&c, Kind::Vote);
+        assert_size_matches_encoding(&short);
+        short.signature = vec![0; MAX_WIRE_BYTES];
+        let old_error = encode(&short).unwrap_err();
+        assert_eq!(c.verify_statement(&short), Err(old_error));
+        let mut header = original.header;
+        header.signature = vec![0; MAX_WIRE_BYTES];
+        let old_error = encode(&header).unwrap_err();
+        assert_eq!(c.verify_header(&header), Err(old_error));
+    }
+
+    #[test]
+    fn bounded_sizing_matches_encoding_errors_and_preserves_input_guard_order() {
+        for length in [
+            0,
+            MAX_WIRE_BYTES - 9,
+            MAX_WIRE_BYTES - 8,
+            MAX_WIRE_BYTES - 7,
+            MAX_WIRE_BYTES,
+        ] {
+            assert_size_matches_encoding(&vec![0u8; length]);
+        }
+        let c = committee();
+        for (x, pi) in [
+            (0, 0),
+            (c.input_budget(), 0),
+            (c.input_budget() - 1, 1),
+            (c.input_budget(), 1),
+        ] {
+            assert_eq!(
+                c.validate_input_lengths(x, pi),
+                c.validate_input_size(&vec![0; x], &vec![0; pi])
+            );
+        }
+        let mut p = proposal(&c, 1);
+        p.value = vec![0; MAX_WIRE_BYTES];
+        let original_guard = encode(&Message::Propose(p.clone())).map(|_| ());
+        assert!(original_guard.is_err());
+        assert_eq!(
+            c.verify_proposal(&p, |_, _, _| panic!("size must reject before Q")),
+            original_guard
+        );
     }
 
     #[test]
@@ -734,6 +1314,7 @@ mod tests {
         let body = statement(&committee, Kind::Vote).body;
         let other = sign(&fixture_key(0), 0, DifferentRole(body.clone()));
         assert_eq!(encode(&other.body).unwrap(), encode(&body).unwrap());
+        committee.verify_signature(&other).unwrap();
         let reused = Signed {
             signer: 0,
             body,
@@ -759,6 +1340,7 @@ mod tests {
     fn proposal_digest_excludes_signature_bytes() {
         let committee = committee();
         let proposal = proposal(&committee, 1);
+        committee.verify_header(&proposal.header).unwrap();
         let digest = proposal_digest(&proposal.header.body);
         let mut changed_signature = proposal.header.clone();
         changed_signature.signature.fill(0);

@@ -47,8 +47,21 @@ pub fn scan(
     direct: &BTreeMap<u64, Digest>,
     headers: &BTreeMap<(u64, Digest), Signed<Header>>,
 ) -> BTreeMap<u64, Status> {
+    scan_from(1, horizon, direct, headers)
+}
+
+/// Recompute an exact suffix without consulting retained prefix classifications.
+/// Every dependency of round r is at least r+3, so descending induction gives
+/// the same suffix as the full scan, even for structurally malformed snapshots.
+pub(crate) fn scan_from(
+    first: u64,
+    horizon: u64,
+    direct: &BTreeMap<u64, Digest>,
+    headers: &BTreeMap<(u64, Digest), Signed<Header>>,
+) -> BTreeMap<u64, Status> {
+    assert!(first > 0, "scanner rounds start at one");
     let mut statuses = BTreeMap::new();
-    for round in (1..=horizon).rev() {
+    for round in (first..=horizon).rev() {
         let status = if let Some(digest) = direct.get(&round) {
             Status::Commit(*digest)
         } else {
@@ -167,6 +180,97 @@ mod tests {
         let (digest, signed) = header(round, entries, &round.to_le_bytes());
         headers.insert((round, digest), signed);
         digest
+    }
+
+    // Frozen pre-suffix implementation, independent of scan/scan_from.
+    fn full_scan_reference(
+        horizon: u64,
+        direct: &BTreeMap<u64, Digest>,
+        headers: &BTreeMap<(u64, Digest), Signed<Header>>,
+    ) -> BTreeMap<u64, Status> {
+        let mut statuses = BTreeMap::new();
+        for round in (1..=horizon).rev() {
+            let status = if let Some(digest) = direct.get(&round) {
+                Status::Commit(*digest)
+            } else {
+                let mut resolved = Status::Undecided;
+                if let Some(first) = round.checked_add(3) {
+                    for later in first..=horizon {
+                        match statuses.get(&later) {
+                            Some(Status::Skip) => continue,
+                            Some(Status::Commit(digest)) => {
+                                if let Some(header) = matching_header(headers, later, *digest) {
+                                    resolved = match header.body.entries.entry(round) {
+                                        Some(Entry::Cer(digest)) => Status::Commit(digest),
+                                        Some(Entry::NoCer) => Status::Skip,
+                                        None => Status::Undecided,
+                                    };
+                                }
+                            }
+                            Some(Status::Undecided) | None => {}
+                        }
+                        break;
+                    }
+                }
+                resolved
+            };
+            statuses.insert(round, status);
+        }
+        statuses
+    }
+
+    #[test]
+    fn every_suffix_matches_original_scan_even_on_malformed_snapshots() {
+        let mut headers = BTreeMap::new();
+        let mut digests = BTreeMap::new();
+        for round in 1u64..=9 {
+            let entries = if round == 5 {
+                negative(0) // Deliberately missing the required round-2 entry.
+            } else {
+                negative(round.saturating_sub(3))
+            };
+            digests.insert(round, insert(&mut headers, round, entries));
+        }
+        let fourth = digests[&4];
+        let ninth = insert(
+            &mut headers,
+            9,
+            Entries {
+                horizon: 6,
+                pivot: 4,
+                digest: Some(fourth),
+                previous: vec![(2, Entry::NoCer), (3, Entry::NoCer)],
+            },
+        );
+        digests.insert(9, ninth);
+        let mut missing_header = headers.clone();
+        missing_header.remove(&(4, fourth));
+        let mut wrong_map_key = headers.clone();
+        wrong_map_key.insert((4, fourth), headers[&(6, digests[&6])].clone());
+        for headers in [headers, missing_header, wrong_map_key] {
+            // Every combination of direct anchors 4..9, plus an attachment-free
+            // direct round 1. Undecided barriers and explicit skip chains vary.
+            for mask in 0..128 {
+                let mut direct = BTreeMap::new();
+                for round in 4..=9 {
+                    if mask & (1 << (round - 4)) != 0 {
+                        direct.insert(round, digests[&round]);
+                    }
+                }
+                if mask & 64 != 0 {
+                    direct.insert(1, [91; 32]);
+                }
+                for horizon in [0, 4, 7, 9] {
+                    let full = full_scan_reference(horizon, &direct, &headers);
+                    assert_eq!(scan(horizon, &direct, &headers), full);
+                    for first in 1..=horizon + 1 {
+                        let expected = full.range(first..).map(|(r, s)| (*r, *s)).collect();
+                        assert_eq!(scan_from(first, horizon, &direct, &headers), expected);
+                    }
+                    assert!(scan_from(horizon + 2, horizon, &direct, &headers).is_empty());
+                }
+            }
+        }
     }
 
     #[test]

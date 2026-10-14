@@ -1,0 +1,74 @@
+{
+  "schema": 1,
+  "client_date": "2026-10-13",
+  "paper_repository": "/Users/zhengxuanguo/gitrepo/delugi-paper",
+  "paper_head": "b5f3e5f623cf2ed1fb9b9954bdeae7ac36a86b82",
+  "paper_status": [
+    " M README.md",
+    " M protocol/README.md",
+    " M protocol/ordering.tex",
+    " M research/claims.md",
+    " M research/notes/2026-09-30-simple-it-pipeline.md",
+    "?? protocol/dissemination.tex",
+    "?? research/notes/2026-10-08-abstract-proposals-and-timers.md",
+    "?? research/notes/2026-10-08-abstract-proposals-pro-review.md",
+    "?? research/notes/2026-10-08-cer-amplification-pro-review.md",
+    "?? research/notes/2026-10-08-cer-amplification.md",
+    "?? research/notes/2026-10-08-fixed-timers-pro-review.md",
+    "?? research/notes/2026-10-08-fixed-timers.md",
+    "?? research/notes/2026-10-08-ordering-contributions-pro-review.md",
+    "?? research/notes/2026-10-08-ordering-contributions.md",
+    "?? research/notes/2026-10-08-quadratic-core-transport.md",
+    "?? research/notes/2026-10-08-quadratic-ordering-candidate.md",
+    "?? research/notes/2026-10-08-quadratic-ordering-pro-review.md",
+    "?? research/notes/2026-10-09-delugi-arch-context.txt",
+    "?? research/notes/2026-10-09-delugi-architecture-pro-request.txt",
+    "?? research/notes/2026-10-09-delugi-architecture-pro-review.txt",
+    "?? research/notes/2026-10-12-delugi-evaluation-context.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-followup.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-request.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-review-final.txt",
+    "?? research/notes/2026-10-12-dissemination-pro-review.txt",
+    "?? research/notes/2026-10-12-dissemination-reconstruction.txt",
+    "?? research/notes/2026-10-13-arch-catchup.txt",
+    "?? research/notes/2026-10-13-option-a-adoption.md",
+    "?? research/notes/2026-10-13-option-a-output-check.json",
+    "?? research/notes/2026-10-13-option-a-pro-request.txt",
+    "?? research/notes/2026-10-13-option-a-pro-review.txt",
+    "?? research/notes/2026-10-13-option-a-proof-and-layout-repairs.txt",
+    "?? research/notes/2026-10-13-option-a-repair-request.txt",
+    "?? research/notes/2026-10-13-option-a-repair-verdict.txt",
+    "?? research/notes/2026-10-13-option-a-source-review.txt",
+    "?? research/notes/2026-10-13-stateful-frontier-pro-request.txt",
+    "?? research/notes/2026-10-13-stateful-frontier-pro-review.txt",
+    "?? research/notes/2026-10-13-stateful-frontier-validation.tex",
+    "?? research/notes/check_option_a_output.py",
+    "?? research/notes/check_quadratic_core.py",
+    "?? research/notes/check_stateful_frontier_adoption.py",
+    "?? research/notes/check_stateful_frontier_deeper.py",
+    "?? research/notes/check_stateful_frontier_progress.py"
+  ],
+  "files": [
+    {
+      "path": "protocol/ordering.tex",
+      "bytes": 54386,
+      "sha256": "c201812a71e1c233aa9ba6bb845a4947ae37c56f2342aa7b940bef91225de8c4"
+    },
+    {
+      "path": "protocol/dissemination.tex",
+      "bytes": 68214,
+      "sha256": "464cb6153d6b2273c55370b09ee9d9e391882662ad4fb1a5bd423c6961782f7f"
+    },
+    {
+      "path": "protocol/README.md",
+      "bytes": 3071,
+      "sha256": "f1b39f39836e55004bc2d886052af2d0a507f7331a53903b5071a02a301f0eb0"
+    },
+    {
+      "path": "research/notes/2026-10-13-arch-catchup.txt",
+      "bytes": 17522,
+      "sha256": "a1511ef7def2cc229f9c6cb49d5ffaf1d44821a7a7113d33c76b5170ba8a87ca"
+    }
+  ],
+  "note": "Current Option A specifications; working-tree content hashes identify the sources independently of HEAD. Earlier snapshots and measured archives are preserved."
+}

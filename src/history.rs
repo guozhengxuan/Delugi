@@ -5,10 +5,16 @@
 //! compact history deliberately does not demand the omitted report proofs.
 
 use crate::wire::{
-    encode, Committee, Context, Digest, Kind, Message, Signed, SigningDomain, Statement, MAX_ROUND,
+    encode, encoded_size, Committee, Context, Digest, Kind, MessageRef, Signed, SigningDomain,
+    Statement, MAX_ROUND,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
+
+#[cfg(test)]
+thread_local! {
+    static PROOF_VERIFICATIONS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ReportHeader {
@@ -109,7 +115,9 @@ pub fn negative(header: &ReportHeader, j: u64) -> bool {
 /// Verify a CER plus one exact minimal trigger set; attachments do not authorize
 /// voting and no causal ordering is inferred from cryptographic signatures.
 pub fn verify_proof(committee: &Committee, proof: &CerProof) -> Result<(), String> {
-    encode(proof)?;
+    #[cfg(test)]
+    PROOF_VERIFICATIONS.with(|count| count.set(count.get() + 1));
+    encoded_size(proof)?;
     committee.verify_statement(&proof.cer)?;
     if proof.cer.body.kind != Kind::Cer {
         return Err("CER proof wrapper must be a CER statement".into());
@@ -148,7 +156,7 @@ fn verify_report_header(
     committee: &Committee,
     header: &Signed<ReportHeader>,
 ) -> Result<(), String> {
-    encode(header)?;
+    encoded_size(header)?;
     let body = &header.body;
     if body.context != committee.context {
         return Err("HISTORY3 instance or configuration mismatch".into());
@@ -172,7 +180,7 @@ fn verify_report_header(
 /// A usable complete report has exactly one matching own CER proof per listed
 /// position, in the signed list's order. It cannot advertise a proof-free pivot.
 pub fn verify_report(committee: &Committee, report: &Report) -> Result<(), String> {
-    encode(&Message::History3(report.clone()))?;
+    encoded_size(&MessageRef::History3(report))?;
     verify_report_header(committee, &report.header)?;
     if report.proofs.len() != report.header.body.positives.len() {
         return Err("HISTORY3 must attach exactly its listed proofs".into());
@@ -217,7 +225,7 @@ pub(crate) fn verify_entries(round: u64, entries: &Entries) -> Result<(), String
 /// Verify compact proposal history. Unlike complete-report admission, the
 /// retained signed lists need no proofs for positions omitted from the history.
 pub fn verify_history(committee: &Committee, round: u64, history: &History) -> Result<(), String> {
-    encode(history)?;
+    encoded_size(history)?;
     if round == 0 || round > MAX_ROUND {
         return Err("history proposal round is outside the supported positive range".into());
     }
@@ -361,12 +369,17 @@ pub fn build_history(
     }
     // Every usable supplied report is local evidence, including any that is not
     // retained in the selected quorum. Invalid local proofs are ignored.
+    let verified_local = local_proofs
+        .iter()
+        .filter(|proof| proof.cer.body.round <= horizon && verify_proof(committee, proof).is_ok());
     for proof in usable
         .iter()
         .flat_map(|(_, _, r)| r.proofs.iter())
-        .chain(local_proofs.iter())
+        .chain(verified_local)
     {
-        if proof.cer.body.round > horizon || verify_proof(committee, proof).is_err() {
+        // verify_report above already checked every immutable attached proof.
+        // Only the separately supplied local candidates need another check.
+        if proof.cer.body.round > horizon {
             continue;
         }
         let bytes = encode(proof)?;
@@ -398,7 +411,7 @@ pub fn build_history(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::wire::{fixture_key, hash, sign, Header, Id, Proposal};
+    use crate::wire::{fixture_key, hash, sign, Header, Id, Message, Proposal};
     use std::cell::Cell;
 
     fn committee() -> Committee {
@@ -463,6 +476,155 @@ mod tests {
 
     fn empty_reports(c: &Committee, horizon: u64) -> Vec<Report> {
         (0..3).map(|id| report(c, id, horizon, &[])).collect()
+    }
+
+    #[test]
+    fn nested_oversize_history_keeps_original_first_guard_errors() {
+        let c = committee();
+        let mut r = report(&c, 0, 3, &[3, 2, 1]);
+        r.proofs[1].triggers[0].signature = vec![0; crate::wire::MAX_WIRE_BYTES];
+        assert_eq!(
+            verify_proof(&c, &r.proofs[1]),
+            encode(&r.proofs[1]).map(|_| ())
+        );
+        let expected = encode(&Message::History3(r.clone())).map(|_| ());
+        assert!(expected.is_err());
+        assert_eq!(verify_report(&c, &r), expected);
+        let h = History::Evidence {
+            reports: vec![r.header],
+            pivot: 2,
+            proof: Some(r.proofs[1].clone()),
+            previous: vec![],
+        };
+        assert_eq!(verify_history(&c, 6, &h), encode(&h).map(|_| ()));
+        let mut header = report(&c, 0, 3, &[]).header;
+        header.signature = vec![0; crate::wire::MAX_WIRE_BYTES];
+        assert_eq!(
+            verify_report_header(&c, &header),
+            encode(&header).map(|_| ())
+        );
+    }
+
+    // Frozen original builder: report-attached candidates are checked twice.
+    fn strict_build_history(
+        committee: &Committee,
+        round: u64,
+        reports: &[Report],
+        local_proofs: &[CerProof],
+    ) -> Result<History, String> {
+        if round == 0 || round > MAX_ROUND {
+            return Err("history proposal round is outside the supported positive range".into());
+        }
+        if round <= 3 {
+            return Ok(History::Empty);
+        }
+        let horizon = round - 3;
+        let mut usable: Vec<_> = reports
+            .iter()
+            .filter(|r| r.header.body.horizon == horizon && verify_report(committee, r).is_ok())
+            .map(|r| {
+                (
+                    r.header.signer,
+                    encode(r).expect("verified report is bounded"),
+                    r,
+                )
+            })
+            .collect();
+        usable.sort_by(|a, b| (&a.0, &a.1).cmp(&(&b.0, &b.1)));
+        let mut selected = BTreeMap::new();
+        let mut proofs: BTreeMap<u64, (Vec<u8>, CerProof)> = BTreeMap::new();
+        for (_, _, report) in &usable {
+            selected.entry(report.header.signer).or_insert(*report);
+        }
+        if selected.len() < quorum(committee) {
+            return Err("not enough usable reports at the exact horizon".into());
+        }
+        for proof in usable
+            .iter()
+            .flat_map(|(_, _, r)| r.proofs.iter())
+            .chain(local_proofs.iter())
+        {
+            if proof.cer.body.round > horizon || verify_proof(committee, proof).is_err() {
+                continue;
+            }
+            let bytes = encode(proof)?;
+            let key = proof.cer.body.round;
+            if proofs.get(&key).map_or(true, |(old, _)| bytes < *old) {
+                proofs.insert(key, (bytes, proof.clone()));
+            }
+        }
+        let headers = selected
+            .values()
+            .take(quorum(committee))
+            .map(|r| r.header.clone())
+            .collect();
+        let pivot = proofs.keys().next_back().copied().unwrap_or(0);
+        let previous = predecessors(pivot)
+            .into_iter()
+            .map(|j| (j, proofs.get(&j).map(|(_, p)| p.clone())))
+            .collect();
+        let history = History::Evidence {
+            reports: headers,
+            pivot,
+            proof: proofs.get(&pivot).map(|(_, p)| p.clone()),
+            previous,
+        };
+        verify_history(committee, round, &history)?;
+        Ok(history)
+    }
+
+    #[test]
+    fn reuse_of_current_call_report_checks_preserves_canonical_bytes_and_rejections() {
+        let c = committee();
+        let ordinary: Vec<_> = (0..3).map(|id| report(&c, id, 10, &[8, 5, 3])).collect();
+        let mut cases = vec![ordinary.clone()];
+        let mut equivocation = ordinary.clone();
+        equivocation.push(report(&c, 0, 10, &[10, 9, 8]));
+        equivocation.push(report(&c, 3, 10, &[7, 6, 5]));
+        cases.push(equivocation); // Useful proofs outside the selected report quorum.
+        let mut bad_signature = report(&c, 3, 10, &[10]);
+        bad_signature.proofs[0].cer.signature[0] ^= 1;
+        let mut missing = report(&c, 0, 10, &[10]);
+        missing.proofs.clear();
+        let mut wrong_owner = report(&c, 0, 10, &[10]);
+        wrong_owner.proofs[0] = proof(&c, 1, 10);
+        let wrong_horizon = report(&c, 3, 11, &[10]);
+        let bad = vec![bad_signature, missing, wrong_owner, wrong_horizon];
+        let mut mixed = ordinary;
+        mixed.extend(bad.clone());
+        cases.push(mixed);
+        cases.push(bad); // No valid report quorum must still reject.
+
+        let mut malformed_local = proof(&c, 3, 10);
+        malformed_local.triggers[2] = malformed_local.triggers[0].clone();
+        let local = vec![proof(&c, 3, 9), proof(&c, 3, 11), malformed_local];
+        for mut reports in cases {
+            for _ in 0..2 {
+                for round in [0, 3, 13, MAX_ROUND + 1] {
+                    let expected = strict_build_history(&c, round, &reports, &local)
+                        .map(|h| encode(&h).unwrap());
+                    let actual =
+                        build_history(&c, round, &reports, &local).map(|h| encode(&h).unwrap());
+                    assert_eq!(actual, expected);
+                }
+                reports.reverse();
+            }
+        }
+    }
+
+    #[test]
+    fn report_proofs_are_checked_once_before_final_assembled_history_validation() {
+        let c = committee();
+        let reports: Vec<_> = (0..3).map(|id| report(&c, id, 3, &[3, 2, 1])).collect();
+        PROOF_VERIFICATIONS.with(|count| count.set(0));
+        let expected = strict_build_history(&c, 6, &reports, &[]).unwrap();
+        let old_calls = PROOF_VERIFICATIONS.with(Cell::get);
+        PROOF_VERIFICATIONS.with(|count| count.set(0));
+        let actual = build_history(&c, 6, &reports, &[]).unwrap();
+        let calls = PROOF_VERIFICATIONS.with(Cell::get);
+        assert_eq!(encode(&actual).unwrap(), encode(&expected).unwrap());
+        assert_eq!(old_calls, 21); // 9 in reports + 9 candidates + 3 final proofs.
+        assert_eq!(calls, 12); // 9 in reports + 3 final proofs; none are trusted blindly.
     }
 
     fn proposal(c: &Committee, round: u64, history: History) -> Proposal {

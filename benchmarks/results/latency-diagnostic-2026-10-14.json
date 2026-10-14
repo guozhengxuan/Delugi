@@ -1,0 +1,924 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "date": "2026-10-14",
+  "classification": "deterministic_zero_cpu_semantic_diagnostic_not_reconstruction_of_real_run",
+  "question": "Is approximately700ms compulsory7Delta timer latency, or can the current per-peer stop-and-wait ACK gate produce it?",
+  "provenance": {
+    "manifest": {
+      "path": "results/local/latency-diagnostic-20261014/manifest.json",
+      "sha256": "d88b96a79c493be7a25c5101321a91120969769962ec0a183198fd7686a18ec6"
+    },
+    "example": {
+      "path": "examples/latency_diagnostic.rs",
+      "sha256": "478a028166db604d0da4aebdee2dd3e75dbd924e346885964232b239fc70f323"
+    },
+    "binary": {
+      "path": "target/release/examples/latency_diagnostic",
+      "sha256": "45ee60460875fc79b1b9b86de05a69da2b8b3ab32a02db3d2edf8b5637a2466d"
+    },
+    "runner": {
+      "path": "results/local/latency-diagnostic-20261014/run_diagnostic.py",
+      "sha256": "b739e261b8d961a7f079731d1bff2baf23fa4e2b4de5d92f4c5a85d2bb0bdb9f"
+    },
+    "analysis": {
+      "path": "results/local/latency-diagnostic-20261014/summarize.py",
+      "sha256": "189cdf4d250f82dafe34c8b5766c8e1b5f957cd1f0c16b59d391ccdc5031bee0"
+    },
+    "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: aarch64-apple-darwin\nrelease: 1.92.0\nLLVM version: 21.1.3\n",
+    "git_head": "156c2062f7a321d630b29c2a4ba8a6ef3ac42278",
+    "source_snapshot_directory": "results/local/latency-diagnostic-20261014/source",
+    "source_files_count": 20,
+    "source_manifest_sha256": "99679694462682906128ace51db9b60fc42995d1bc6f08fa225ab5e0efcba076",
+    "source_scope": "Cargo.toml, Cargo.lock, every src/*.rs file and example archived byte-for-byte; source manifest binds the dirty working tree used, not git HEAD alone",
+    "build_command": [
+      "cargo",
+      "build",
+      "--release",
+      "--example",
+      "latency_diagnostic",
+      "--locked"
+    ],
+    "validation": {
+      "example_tests_passed": 3,
+      "command": [
+        "cargo",
+        "test",
+        "--release",
+        "--example",
+        "latency_diagnostic",
+        "--locked"
+      ]
+    }
+  },
+  "settings": {
+    "honest_replicas": 4,
+    "delta_one_way_ms": 10,
+    "Delta_bounds_ms": [
+      100,
+      250,
+      1000
+    ],
+    "virtual_horizon_ms": 10000,
+    "warmup_ms": 2000,
+    "batch_period_ms": 100,
+    "transactions_per_batch_per_producer": 1,
+    "offered_transactions_per_second": 40,
+    "transaction_payload_bytes": 32,
+    "local_CPU_modeled_ms": 0,
+    "pipelined": "arrival=enqueue+delta",
+    "stop_and_wait": "One FIFO shared by both protocol layers per directed peer; start=max(enqueue,stream_free), arrival=start+delta, stream_free=start+2delta",
+    "completion_population": "One completion per transaction at its origin replica, with2000 <= materialization_ms <10000; completed-in-window rather than arrival cohort",
+    "faults_injected": 0,
+    "post_horizon_drain_ms": 0
+  },
+  "interpretation": {
+    "result": "The ACK-gated FIFO alone yields757.774ms mean in this semantic model, while pipelining yields50ms. Identical timelines across all three Delta values exclude compulsory7Delta waiting for these executions.",
+    "limitations": [
+      "This is not a reconstruction or decomposition of the prior real-process1000tx/s run; it isolates one mechanism under a40tx/s small-payload workload.",
+      "Real protocol signatures, encoded messages, validity checks and scanner run, but CPU takes zero virtual time; no bandwidth, OS scheduling, TCP/kernel, transport authentication CPU, or failures are modeled.",
+      "Pipelined transport is a modeled alternative; the production transport was not changed.",
+      "Latency includes only finished origin-local transactions in the window; pending work is reported and no drain is performed.",
+      "The raw actual_cer_received label means bare CER packet receipts. Actual signatures imported through HISTORY3/proposal-history proofs are not counted there; own CER emissions and DirectCommit events are complete.",
+      "Catch-up expiry relations compare horizon h to commit(h), although expiry acts on slots1..h. Full-trace zeroNO-CER is the decisive check that no negative timer resolution occurred.",
+      "Stop-and-wait delivered enqueue-to-receive delay exceedsDelta100; this case is not a bounded-delay guarantee demonstration. Delta250 and1000 satisfy the observed delivered-message bound."
+    ]
+  },
+  "cases": [
+    {
+      "transport": "pipelined",
+      "Delta_ms": 100,
+      "raw": {
+        "path": "results/local/latency-diagnostic-20261014/pipelined-Delta100.json",
+        "sha256": "791a91b0da5607c79331c1fa467effbc62d592e6d9e9b9f3e43ae9f6f28c934a"
+      },
+      "status": "passed",
+      "origin_completions_in_window": 320,
+      "origin_completion_tps": 40.0,
+      "latency_ms": {
+        "count": 320,
+        "max": 50,
+        "mean": 50.0,
+        "p50": 50,
+        "p99": 50
+      },
+      "mean_additive_stages_ms": {
+        "insertion_to_execution_proposal": 20,
+        "execution_proposal_to_direct_commit": 30.0,
+        "direct_commit_to_ordered_release": 0.0,
+        "ordered_release_to_materialization": 0.0
+      },
+      "stage_validation": {
+        "first_vs_execution_proposal_round_mismatches": 0,
+        "missing_direct_commit": 0,
+        "indirect_release_before_direct_commit": 0,
+        "exact_additive_completions": 320
+      },
+      "generated_transactions": 400,
+      "origin_pending_at_horizon": 0,
+      "no_cer_full_trace": 0,
+      "timer_and_CER_relations": {
+        "actual_cer_emitted": {
+          "after_commit": 0,
+          "before_commit": 3984,
+          "no_commit_by_horizon": 4,
+          "same_time_as_commit": 0
+        },
+        "actual_cer_received": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 11952
+        },
+        "catchup_timer_expiry": {
+          "after_commit": 3864,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "main_timer_expiry": {
+          "after_commit": 3716,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "no_cer": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        }
+      },
+      "delivered_packet_queue_delay_ms": {
+        "count": 61050,
+        "max": 0,
+        "mean": 0.0,
+        "p50": 0,
+        "p99": 0
+      },
+      "delivered_packet_effective_delay_ms": {
+        "count": 61050,
+        "max": 10,
+        "mean": 10.0,
+        "p50": 10,
+        "p99": 10
+      },
+      "delivered_packets_exceeding_Delta": 0,
+      "proposals_full_horizon": 999,
+      "proposal_spacing_in_completion_window_ms": {
+        "count": 799,
+        "mean": 10,
+        "p50": 10,
+        "p99": 10,
+        "max": 10
+      },
+      "common_execution_prefix_transactions": 400,
+      "all_replica_output_agreement": true,
+      "representative_origin0_transaction_inserted_at5000ms": {
+        "stages": {
+          "direct_commit_at_ms": 5050,
+          "execution_proposal_at_ms": 5020,
+          "execution_round": 501,
+          "first_proposal_at_ms": 5020,
+          "first_proposal_round": 501,
+          "height": 51,
+          "in_completion_window": true,
+          "insertion_at_ms": 5000,
+          "local_origin": true,
+          "materialization_at_ms": 5050,
+          "ordered_release_at_ms": 5050,
+          "origin": 0,
+          "replica": 0
+        },
+        "execution_round_timers": {
+          "admission_at_ms": 5000,
+          "catchup_deadline_ms": 5350,
+          "catchup_timer_arm_at_ms": 5050,
+          "catchup_timer_expiry_at_ms": 5350,
+          "direct_commit_at_ms": 5050,
+          "main_deadline_ms": 5720,
+          "main_timer_arm_at_ms": 5020,
+          "main_timer_expiry_at_ms": 5720,
+          "materialization_at_ms": 5050,
+          "no_cer_at_ms": null,
+          "ordered_release_at_ms": 5050,
+          "own_cer_at_ms": 5040,
+          "proposal_at_ms": 5020,
+          "received_cers": [
+            [
+              2,
+              5050
+            ],
+            [
+              3,
+              5050
+            ],
+            [
+              1,
+              5050
+            ]
+          ],
+          "replica": 0,
+          "round": 501
+        }
+      }
+    },
+    {
+      "transport": "pipelined",
+      "Delta_ms": 250,
+      "raw": {
+        "path": "results/local/latency-diagnostic-20261014/pipelined-Delta250.json",
+        "sha256": "5cc1cc334b8ad372ec12ed115172cbcbd6ab5d5cb6e426b992c3a1a1beb79c84"
+      },
+      "status": "passed",
+      "origin_completions_in_window": 320,
+      "origin_completion_tps": 40.0,
+      "latency_ms": {
+        "count": 320,
+        "max": 50,
+        "mean": 50.0,
+        "p50": 50,
+        "p99": 50
+      },
+      "mean_additive_stages_ms": {
+        "insertion_to_execution_proposal": 20,
+        "execution_proposal_to_direct_commit": 30.0,
+        "direct_commit_to_ordered_release": 0.0,
+        "ordered_release_to_materialization": 0.0
+      },
+      "stage_validation": {
+        "first_vs_execution_proposal_round_mismatches": 0,
+        "missing_direct_commit": 0,
+        "indirect_release_before_direct_commit": 0,
+        "exact_additive_completions": 320
+      },
+      "generated_transactions": 400,
+      "origin_pending_at_horizon": 0,
+      "no_cer_full_trace": 0,
+      "timer_and_CER_relations": {
+        "actual_cer_emitted": {
+          "after_commit": 0,
+          "before_commit": 3984,
+          "no_commit_by_horizon": 4,
+          "same_time_as_commit": 0
+        },
+        "actual_cer_received": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 11952
+        },
+        "catchup_timer_expiry": {
+          "after_commit": 3684,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "main_timer_expiry": {
+          "after_commit": 3296,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "no_cer": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        }
+      },
+      "delivered_packet_queue_delay_ms": {
+        "count": 61050,
+        "max": 0,
+        "mean": 0.0,
+        "p50": 0,
+        "p99": 0
+      },
+      "delivered_packet_effective_delay_ms": {
+        "count": 61050,
+        "max": 10,
+        "mean": 10.0,
+        "p50": 10,
+        "p99": 10
+      },
+      "delivered_packets_exceeding_Delta": 0,
+      "proposals_full_horizon": 999,
+      "proposal_spacing_in_completion_window_ms": {
+        "count": 799,
+        "mean": 10,
+        "p50": 10,
+        "p99": 10,
+        "max": 10
+      },
+      "common_execution_prefix_transactions": 400,
+      "all_replica_output_agreement": true,
+      "representative_origin0_transaction_inserted_at5000ms": {
+        "stages": {
+          "direct_commit_at_ms": 5050,
+          "execution_proposal_at_ms": 5020,
+          "execution_round": 501,
+          "first_proposal_at_ms": 5020,
+          "first_proposal_round": 501,
+          "height": 51,
+          "in_completion_window": true,
+          "insertion_at_ms": 5000,
+          "local_origin": true,
+          "materialization_at_ms": 5050,
+          "ordered_release_at_ms": 5050,
+          "origin": 0,
+          "replica": 0
+        },
+        "execution_round_timers": {
+          "admission_at_ms": 5000,
+          "catchup_deadline_ms": 5800,
+          "catchup_timer_arm_at_ms": 5050,
+          "catchup_timer_expiry_at_ms": 5800,
+          "direct_commit_at_ms": 5050,
+          "main_deadline_ms": 6770,
+          "main_timer_arm_at_ms": 5020,
+          "main_timer_expiry_at_ms": 6770,
+          "materialization_at_ms": 5050,
+          "no_cer_at_ms": null,
+          "ordered_release_at_ms": 5050,
+          "own_cer_at_ms": 5040,
+          "proposal_at_ms": 5020,
+          "received_cers": [
+            [
+              2,
+              5050
+            ],
+            [
+              3,
+              5050
+            ],
+            [
+              1,
+              5050
+            ]
+          ],
+          "replica": 0,
+          "round": 501
+        }
+      }
+    },
+    {
+      "transport": "pipelined",
+      "Delta_ms": 1000,
+      "raw": {
+        "path": "results/local/latency-diagnostic-20261014/pipelined-Delta1000.json",
+        "sha256": "b496acdd70c8e863c558504a2ab804c4fa699ace1025b8d05bf007a248501216"
+      },
+      "status": "passed",
+      "origin_completions_in_window": 320,
+      "origin_completion_tps": 40.0,
+      "latency_ms": {
+        "count": 320,
+        "max": 50,
+        "mean": 50.0,
+        "p50": 50,
+        "p99": 50
+      },
+      "mean_additive_stages_ms": {
+        "insertion_to_execution_proposal": 20,
+        "execution_proposal_to_direct_commit": 30.0,
+        "direct_commit_to_ordered_release": 0.0,
+        "ordered_release_to_materialization": 0.0
+      },
+      "stage_validation": {
+        "first_vs_execution_proposal_round_mismatches": 0,
+        "missing_direct_commit": 0,
+        "indirect_release_before_direct_commit": 0,
+        "exact_additive_completions": 320
+      },
+      "generated_transactions": 400,
+      "origin_pending_at_horizon": 0,
+      "no_cer_full_trace": 0,
+      "timer_and_CER_relations": {
+        "actual_cer_emitted": {
+          "after_commit": 0,
+          "before_commit": 3984,
+          "no_commit_by_horizon": 4,
+          "same_time_as_commit": 0
+        },
+        "actual_cer_received": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 11952
+        },
+        "catchup_timer_expiry": {
+          "after_commit": 2784,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "main_timer_expiry": {
+          "after_commit": 1196,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "no_cer": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        }
+      },
+      "delivered_packet_queue_delay_ms": {
+        "count": 61050,
+        "max": 0,
+        "mean": 0.0,
+        "p50": 0,
+        "p99": 0
+      },
+      "delivered_packet_effective_delay_ms": {
+        "count": 61050,
+        "max": 10,
+        "mean": 10.0,
+        "p50": 10,
+        "p99": 10
+      },
+      "delivered_packets_exceeding_Delta": 0,
+      "proposals_full_horizon": 999,
+      "proposal_spacing_in_completion_window_ms": {
+        "count": 799,
+        "mean": 10,
+        "p50": 10,
+        "p99": 10,
+        "max": 10
+      },
+      "common_execution_prefix_transactions": 400,
+      "all_replica_output_agreement": true,
+      "representative_origin0_transaction_inserted_at5000ms": {
+        "stages": {
+          "direct_commit_at_ms": 5050,
+          "execution_proposal_at_ms": 5020,
+          "execution_round": 501,
+          "first_proposal_at_ms": 5020,
+          "first_proposal_round": 501,
+          "height": 51,
+          "in_completion_window": true,
+          "insertion_at_ms": 5000,
+          "local_origin": true,
+          "materialization_at_ms": 5050,
+          "ordered_release_at_ms": 5050,
+          "origin": 0,
+          "replica": 0
+        },
+        "execution_round_timers": {
+          "admission_at_ms": 5000,
+          "catchup_deadline_ms": 8050,
+          "catchup_timer_arm_at_ms": 5050,
+          "catchup_timer_expiry_at_ms": 8050,
+          "direct_commit_at_ms": 5050,
+          "main_deadline_ms": 12020,
+          "main_timer_arm_at_ms": 5020,
+          "main_timer_expiry_at_ms": null,
+          "materialization_at_ms": 5050,
+          "no_cer_at_ms": null,
+          "ordered_release_at_ms": 5050,
+          "own_cer_at_ms": 5040,
+          "proposal_at_ms": 5020,
+          "received_cers": [
+            [
+              2,
+              5050
+            ],
+            [
+              3,
+              5050
+            ],
+            [
+              1,
+              5050
+            ]
+          ],
+          "replica": 0,
+          "round": 501
+        }
+      }
+    },
+    {
+      "transport": "stop-and-wait",
+      "Delta_ms": 100,
+      "raw": {
+        "path": "results/local/latency-diagnostic-20261014/stop-and-wait-Delta100.json",
+        "sha256": "17c2a5692877f0dad2adc68cd7212c2f1b28778ad1c65b641c6b6a13be06fa71"
+      },
+      "status": "passed",
+      "origin_completions_in_window": 319,
+      "origin_completion_tps": 39.875,
+      "latency_ms": {
+        "count": 319,
+        "max": 830,
+        "mean": 757.7742946708464,
+        "p50": 770,
+        "p99": 830
+      },
+      "mean_additive_stages_ms": {
+        "insertion_to_execution_proposal": 420.282131661442,
+        "execution_proposal_to_direct_commit": 337.4921630094044,
+        "direct_commit_to_ordered_release": 0.0,
+        "ordered_release_to_materialization": 0.0
+      },
+      "stage_validation": {
+        "first_vs_execution_proposal_round_mismatches": 0,
+        "missing_direct_commit": 0,
+        "indirect_release_before_direct_commit": 0,
+        "exact_additive_completions": 319
+      },
+      "generated_transactions": 400,
+      "origin_pending_at_horizon": 28,
+      "no_cer_full_trace": 0,
+      "timer_and_CER_relations": {
+        "actual_cer_emitted": {
+          "after_commit": 0,
+          "before_commit": 316,
+          "no_commit_by_horizon": 1,
+          "same_time_as_commit": 0
+        },
+        "actual_cer_received": {
+          "after_commit": 182,
+          "before_commit": 218,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 548
+        },
+        "catchup_timer_expiry": {
+          "after_commit": 304,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "main_timer_expiry": {
+          "after_commit": 303,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "no_cer": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        }
+      },
+      "delivered_packet_queue_delay_ms": {
+        "count": 6000,
+        "max": 190,
+        "mean": 116.84,
+        "p50": 120,
+        "p99": 180
+      },
+      "delivered_packet_effective_delay_ms": {
+        "count": 6000,
+        "max": 200,
+        "mean": 126.84,
+        "p50": 130,
+        "p99": 190
+      },
+      "delivered_packets_exceeding_Delta": 4754,
+      "proposals_full_horizon": 82,
+      "proposal_spacing_in_completion_window_ms": {
+        "count": 63,
+        "mean": 124.44444444444444,
+        "p50": 110,
+        "p99": 170,
+        "max": 170
+      },
+      "common_execution_prefix_transactions": 372,
+      "all_replica_output_agreement": true,
+      "representative_origin0_transaction_inserted_at5000ms": {
+        "stages": {
+          "direct_commit_at_ms": 5750,
+          "execution_proposal_at_ms": 5410,
+          "execution_round": 45,
+          "first_proposal_at_ms": 5410,
+          "first_proposal_round": 45,
+          "height": 51,
+          "in_completion_window": true,
+          "insertion_at_ms": 5000,
+          "local_origin": true,
+          "materialization_at_ms": 5750,
+          "ordered_release_at_ms": 5750,
+          "origin": 0,
+          "replica": 0
+        },
+        "execution_round_timers": {
+          "admission_at_ms": 5070,
+          "catchup_deadline_ms": 6050,
+          "catchup_timer_arm_at_ms": 5750,
+          "catchup_timer_expiry_at_ms": 6050,
+          "direct_commit_at_ms": 5750,
+          "main_deadline_ms": 6070,
+          "main_timer_arm_at_ms": 5370,
+          "main_timer_expiry_at_ms": 6070,
+          "materialization_at_ms": 5750,
+          "no_cer_at_ms": null,
+          "ordered_release_at_ms": 5750,
+          "own_cer_at_ms": 5650,
+          "proposal_at_ms": 5410,
+          "received_cers": [
+            [
+              3,
+              5730
+            ],
+            [
+              1,
+              5750
+            ],
+            [
+              2,
+              5770
+            ]
+          ],
+          "replica": 0,
+          "round": 45
+        }
+      }
+    },
+    {
+      "transport": "stop-and-wait",
+      "Delta_ms": 250,
+      "raw": {
+        "path": "results/local/latency-diagnostic-20261014/stop-and-wait-Delta250.json",
+        "sha256": "59877fc067b89c4cbb7926635de33a60cdead7ae44704c29defe06465357cded"
+      },
+      "status": "passed",
+      "origin_completions_in_window": 319,
+      "origin_completion_tps": 39.875,
+      "latency_ms": {
+        "count": 319,
+        "max": 830,
+        "mean": 757.7742946708464,
+        "p50": 770,
+        "p99": 830
+      },
+      "mean_additive_stages_ms": {
+        "insertion_to_execution_proposal": 420.282131661442,
+        "execution_proposal_to_direct_commit": 337.4921630094044,
+        "direct_commit_to_ordered_release": 0.0,
+        "ordered_release_to_materialization": 0.0
+      },
+      "stage_validation": {
+        "first_vs_execution_proposal_round_mismatches": 0,
+        "missing_direct_commit": 0,
+        "indirect_release_before_direct_commit": 0,
+        "exact_additive_completions": 319
+      },
+      "generated_transactions": 400,
+      "origin_pending_at_horizon": 28,
+      "no_cer_full_trace": 0,
+      "timer_and_CER_relations": {
+        "actual_cer_emitted": {
+          "after_commit": 0,
+          "before_commit": 316,
+          "no_commit_by_horizon": 1,
+          "same_time_as_commit": 0
+        },
+        "actual_cer_received": {
+          "after_commit": 182,
+          "before_commit": 218,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 548
+        },
+        "catchup_timer_expiry": {
+          "after_commit": 290,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "main_timer_expiry": {
+          "after_commit": 268,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "no_cer": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        }
+      },
+      "delivered_packet_queue_delay_ms": {
+        "count": 6000,
+        "max": 190,
+        "mean": 116.84,
+        "p50": 120,
+        "p99": 180
+      },
+      "delivered_packet_effective_delay_ms": {
+        "count": 6000,
+        "max": 200,
+        "mean": 126.84,
+        "p50": 130,
+        "p99": 190
+      },
+      "delivered_packets_exceeding_Delta": 0,
+      "proposals_full_horizon": 82,
+      "proposal_spacing_in_completion_window_ms": {
+        "count": 63,
+        "mean": 124.44444444444444,
+        "p50": 110,
+        "p99": 170,
+        "max": 170
+      },
+      "common_execution_prefix_transactions": 372,
+      "all_replica_output_agreement": true,
+      "representative_origin0_transaction_inserted_at5000ms": {
+        "stages": {
+          "direct_commit_at_ms": 5750,
+          "execution_proposal_at_ms": 5410,
+          "execution_round": 45,
+          "first_proposal_at_ms": 5410,
+          "first_proposal_round": 45,
+          "height": 51,
+          "in_completion_window": true,
+          "insertion_at_ms": 5000,
+          "local_origin": true,
+          "materialization_at_ms": 5750,
+          "ordered_release_at_ms": 5750,
+          "origin": 0,
+          "replica": 0
+        },
+        "execution_round_timers": {
+          "admission_at_ms": 5070,
+          "catchup_deadline_ms": 6500,
+          "catchup_timer_arm_at_ms": 5750,
+          "catchup_timer_expiry_at_ms": 6500,
+          "direct_commit_at_ms": 5750,
+          "main_deadline_ms": 7120,
+          "main_timer_arm_at_ms": 5370,
+          "main_timer_expiry_at_ms": 7120,
+          "materialization_at_ms": 5750,
+          "no_cer_at_ms": null,
+          "ordered_release_at_ms": 5750,
+          "own_cer_at_ms": 5650,
+          "proposal_at_ms": 5410,
+          "received_cers": [
+            [
+              3,
+              5730
+            ],
+            [
+              1,
+              5750
+            ],
+            [
+              2,
+              5770
+            ]
+          ],
+          "replica": 0,
+          "round": 45
+        }
+      }
+    },
+    {
+      "transport": "stop-and-wait",
+      "Delta_ms": 1000,
+      "raw": {
+        "path": "results/local/latency-diagnostic-20261014/stop-and-wait-Delta1000.json",
+        "sha256": "12fdb53a7c186fcd34a4e8143156607b46c5f97050622059b78507f2bbac2540"
+      },
+      "status": "passed",
+      "origin_completions_in_window": 319,
+      "origin_completion_tps": 39.875,
+      "latency_ms": {
+        "count": 319,
+        "max": 830,
+        "mean": 757.7742946708464,
+        "p50": 770,
+        "p99": 830
+      },
+      "mean_additive_stages_ms": {
+        "insertion_to_execution_proposal": 420.282131661442,
+        "execution_proposal_to_direct_commit": 337.4921630094044,
+        "direct_commit_to_ordered_release": 0.0,
+        "ordered_release_to_materialization": 0.0
+      },
+      "stage_validation": {
+        "first_vs_execution_proposal_round_mismatches": 0,
+        "missing_direct_commit": 0,
+        "indirect_release_before_direct_commit": 0,
+        "exact_additive_completions": 319
+      },
+      "generated_transactions": 400,
+      "origin_pending_at_horizon": 28,
+      "no_cer_full_trace": 0,
+      "timer_and_CER_relations": {
+        "actual_cer_emitted": {
+          "after_commit": 0,
+          "before_commit": 316,
+          "no_commit_by_horizon": 1,
+          "same_time_as_commit": 0
+        },
+        "actual_cer_received": {
+          "after_commit": 182,
+          "before_commit": 218,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 548
+        },
+        "catchup_timer_expiry": {
+          "after_commit": 218,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "main_timer_expiry": {
+          "after_commit": 102,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        },
+        "no_cer": {
+          "after_commit": 0,
+          "before_commit": 0,
+          "no_commit_by_horizon": 0,
+          "same_time_as_commit": 0
+        }
+      },
+      "delivered_packet_queue_delay_ms": {
+        "count": 6000,
+        "max": 190,
+        "mean": 116.84,
+        "p50": 120,
+        "p99": 180
+      },
+      "delivered_packet_effective_delay_ms": {
+        "count": 6000,
+        "max": 200,
+        "mean": 126.84,
+        "p50": 130,
+        "p99": 190
+      },
+      "delivered_packets_exceeding_Delta": 0,
+      "proposals_full_horizon": 82,
+      "proposal_spacing_in_completion_window_ms": {
+        "count": 63,
+        "mean": 124.44444444444444,
+        "p50": 110,
+        "p99": 170,
+        "max": 170
+      },
+      "common_execution_prefix_transactions": 372,
+      "all_replica_output_agreement": true,
+      "representative_origin0_transaction_inserted_at5000ms": {
+        "stages": {
+          "direct_commit_at_ms": 5750,
+          "execution_proposal_at_ms": 5410,
+          "execution_round": 45,
+          "first_proposal_at_ms": 5410,
+          "first_proposal_round": 45,
+          "height": 51,
+          "in_completion_window": true,
+          "insertion_at_ms": 5000,
+          "local_origin": true,
+          "materialization_at_ms": 5750,
+          "ordered_release_at_ms": 5750,
+          "origin": 0,
+          "replica": 0
+        },
+        "execution_round_timers": {
+          "admission_at_ms": 5070,
+          "catchup_deadline_ms": 8750,
+          "catchup_timer_arm_at_ms": 5750,
+          "catchup_timer_expiry_at_ms": 8750,
+          "direct_commit_at_ms": 5750,
+          "main_deadline_ms": 12370,
+          "main_timer_arm_at_ms": 5370,
+          "main_timer_expiry_at_ms": null,
+          "materialization_at_ms": 5750,
+          "no_cer_at_ms": null,
+          "ordered_release_at_ms": 5750,
+          "own_cer_at_ms": 5650,
+          "proposal_at_ms": 5410,
+          "received_cers": [
+            [
+              3,
+              5730
+            ],
+            [
+              1,
+              5750
+            ],
+            [
+              2,
+              5770
+            ]
+          ],
+          "replica": 0,
+          "round": 45
+        }
+      }
+    }
+  ],
+  "cross_Delta_validation": {
+    "pipelined_all_replica_completion_timelines_identical": true,
+    "stop_and_wait_all_replica_completion_timelines_identical": true,
+    "all_six_zero_no_cer": true,
+    "all_six_every_measured_completion_has_exact_additive_stages": true,
+    "all_six_first_and_execution_proposal_round_match": true
+  }
+}

@@ -48,7 +48,7 @@ def main():
     try:
         sources = [ROOT / name for name in (
             "Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-            "scripts/run_ordering.py", "provenance/spec-2026-10-12.json",
+            "scripts/run_ordering.py", "provenance/spec-2026-10-13.json",
         )]
         sources += sorted((ROOT / "src").rglob("*.rs"))
         sources += sorted((ROOT / "tests").rglob("*.rs"))
@@ -59,7 +59,7 @@ def main():
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
-        spec = json.loads((ROOT / "provenance/spec-2026-10-12.json").read_text())
+        spec = json.loads((ROOT / "provenance/spec-2026-10-13.json").read_text())
         for entry in spec["files"]:
             data = (Path(spec["paper_repository"]) / entry["path"]).read_bytes()
             if sha(data) != entry["sha256"]:

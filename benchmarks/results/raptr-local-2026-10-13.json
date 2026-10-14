@@ -1,0 +1,559 @@
+{
+  "schema": 1,
+  "baseline": "raptr",
+  "source_url": "https://github.com/aptos-labs/aptos-core.git",
+  "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "source_patches": [
+    {
+      "path": "benchmarks/patches/raptr-local.patch",
+      "sha256": "6ec2c2e11a161d766bcd7fa02db514b959a840728bc2e65670ce98f7028c2620"
+    }
+  ],
+  "build_stamp": {
+    "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+    "source_diff_sha256": "6ec2c2e11a161d766bcd7fa02db514b959a840728bc2e65670ce98f7028c2620",
+    "patch_sha256": "6ec2c2e11a161d766bcd7fa02db514b959a840728bc2e65670ce98f7028c2620",
+    "lock_sha256": "aec06acdddae7bf00bd7f6235f5b3b4160ecc128e3590cd87194424e919cbc6d",
+    "rustc_verbose": "rustc 1.78.0 (9b00956e5 2024-04-29)\nbinary: rustc\ncommit-hash: 9b00956e56009bab2aa15d7bff10916599e3d6d6\ncommit-date: 2024-04-29\nhost: aarch64-apple-darwin\nrelease: 1.78.0\nLLVM version: 18.1.2\n",
+    "profile": "release",
+    "node_features": "consensus-only-perf-test,failpoints,smoke-test",
+    "build_environment": {
+      "CFLAGS": "-Dfdopen=fdopen",
+      "CXXFLAGS": null,
+      "RUSTFLAGS": null,
+      "CONSENSUS_ONLY_PERF_TEST": "1"
+    },
+    "forge_sha256": "eef70ba53774d41aadc76757f2d242b4667e4b540760bed2bb27d1b7f1445fae"
+  },
+  "binaries": {
+    "forge": {
+      "path": "benchmarks/baselines/raptr/target/release/forge",
+      "sha256": "eef70ba53774d41aadc76757f2d242b4667e4b540760bed2bb27d1b7f1445fae"
+    },
+    "aptos-node": {
+      "path": "benchmarks/baselines/raptr/target/release/aptos-node",
+      "sha256": "71827b65fb640d017ee91dc39107739631025a5804840db5a359bb15035f5ac7"
+    }
+  },
+  "lockfile_audit": {
+    "original_packages": 1490,
+    "retained_packages": 1344,
+    "removed_packages": 146,
+    "added_or_upgraded_packages": 0,
+    "modified_sha256": "aec06acdddae7bf00bd7f6235f5b3b4160ecc128e3590cd87194424e919cbc6d"
+  },
+  "runs": [
+    {
+      "trial": 1,
+      "manifest": "results/local/baseline-raptr-trial1-retry-20261013/manifest.json",
+      "manifest_sha256": "8ff76b15962bedfb576354b6237844d0d3ed6901327d0137e1391d80c38532d4",
+      "status": "passed",
+      "metrics": {
+        "measurement_seconds": 30.071189937647432,
+        "replicas": [
+          {
+            "committed_transaction_inclusions": 32137.0,
+            "committed_transaction_inclusions_per_second": 1068.6973168217162,
+            "committed_blocks": 5775.0,
+            "local_ingress_completions": 7538.0,
+            "local_ingress_completion_mean_ms": 94.17745400013268
+          },
+          {
+            "committed_transaction_inclusions": 32289.0,
+            "committed_transaction_inclusions_per_second": 1073.7519887623735,
+            "committed_blocks": 5775.0,
+            "local_ingress_completions": 7501.0,
+            "local_ingress_completion_mean_ms": 93.47711045847203
+          },
+          {
+            "committed_transaction_inclusions": 32289.0,
+            "committed_transaction_inclusions_per_second": 1073.7519887623735,
+            "committed_blocks": 5774.0,
+            "local_ingress_completions": 7538.0,
+            "local_ingress_completion_mean_ms": 94.20730592677063
+          },
+          {
+            "committed_transaction_inclusions": 32289.0,
+            "committed_transaction_inclusions_per_second": 1073.7519887623735,
+            "committed_blocks": 5774.0,
+            "local_ingress_completions": 7500.0,
+            "local_ingress_completion_mean_ms": 94.03220303613315
+          }
+        ],
+        "latency": {
+          "BATCHCOMMIT": {
+            "samples": 859.0,
+            "mean_ms": 18.18801396973225
+          },
+          "COMMITBLOCK": {
+            "samples": 5774.0,
+            "mean_ms": 8.390983200554203
+          }
+        },
+        "median_replica_inclusion_tps": 1073.7519887623735,
+        "unique_ingress_completions": 30077.0,
+        "unique_ingress_completion_tps": 1000.193210257546,
+        "ingress_to_materialized_commit_mean_ms": 93.97405488077251,
+        "snapshot_spread_seconds": {
+          "start": 0.06163599994033575,
+          "end": 0.07333662500604987
+        }
+      },
+      "workload_readiness": {
+        "seconds_after_native_client_spawn": 12.539953645318747,
+        "ingress_completion_counts": [
+          51.0,
+          49.0,
+          50.0,
+          13.0
+        ],
+        "snapshot_spread_seconds": 0.05888187512755394,
+        "condition": "Every ingress node has materialized at least one committed local transaction before warmup starts"
+      },
+      "runner_sha256": "ed202730ed1fb6125050c6ac29b0cf4e8cdc7f009094ffefcb1104af6c0551d6",
+      "base_port": 24100,
+      "native_wire_samples": [
+        {
+          "client": 1,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 2,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 0,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 3,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        }
+      ],
+      "raw_metric_files": [
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-end-0.prom",
+          "sha256": "0158a28706ebc47b50d551f0193310aa7a5cc96afecfc31f40f5255b5e662cea"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-end-1.prom",
+          "sha256": "0f1348093d84032c4d78c6f432e6f0bf1ac79548f32c5bb8015cfdeeaf372d85"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-end-2.prom",
+          "sha256": "97a11ba88173dc6b9466fe6c22cb1a8561fc375e2060acad9d247dd59c25200a"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-end-3.prom",
+          "sha256": "bcfe476c1fdb8266de9c49514e231f876d00950641ebad01406086b85bc7aa43"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-ready-0.prom",
+          "sha256": "d93b58eaddf7b0e733245143db549599cfbdf09fbd01703cb4e30b641b0552c4"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-ready-1.prom",
+          "sha256": "d87f5d82e2bb62cceea1e5e58b92543be87ba00a3a86a366f4a603e9a2cd7603"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-ready-2.prom",
+          "sha256": "4cd084294b81676d7e926e83c62f49af9a54aa1c96ea935df1bcd8f852177ce9"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-ready-3.prom",
+          "sha256": "331f92d717dfd8ff7ccf59666964ed3fdccb3a720b523ba84971807de2ea65bc"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-start-0.prom",
+          "sha256": "d8641ce46b1b1131677f576e8b7d32da5c366a8c79b183b134bcc36576bb886e"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-start-1.prom",
+          "sha256": "125385f369252979a954b9b2383cf4918355ae3306fe0a033e8c36dfcb21a815"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-start-2.prom",
+          "sha256": "92c1eb876ce32be4762369929f063145e9812411a1bc23e2fb8ebac048e23db1"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial1-retry-20261013/metrics-start-3.prom",
+          "sha256": "6353ff7b843b61ed8452640b15806f3ecfc79744f03ae6c22992f93f3ec33150"
+        }
+      ]
+    },
+    {
+      "trial": 2,
+      "manifest": "results/local/baseline-raptr-trial2-20261013/manifest.json",
+      "manifest_sha256": "8d285f3c9450b1bf9756fa75f1230b4633da11a3b068fccaa3f41541e9eaea7f",
+      "status": "passed",
+      "metrics": {
+        "measurement_seconds": 30.066619521006942,
+        "replicas": [
+          {
+            "committed_transaction_inclusions": 31535.0,
+            "committed_transaction_inclusions_per_second": 1048.837564793978,
+            "committed_blocks": 5952.0,
+            "local_ingress_completions": 7538.0,
+            "local_ingress_completion_mean_ms": 92.8045675520034
+          },
+          {
+            "committed_transaction_inclusions": 31535.0,
+            "committed_transaction_inclusions_per_second": 1048.837564793978,
+            "committed_blocks": 5947.0,
+            "local_ingress_completions": 7500.0,
+            "local_ingress_completion_mean_ms": 92.25635963533311
+          },
+          {
+            "committed_transaction_inclusions": 31686.0,
+            "committed_transaction_inclusions_per_second": 1053.8597456179477,
+            "committed_blocks": 5952.0,
+            "local_ingress_completions": 7537.0,
+            "local_ingress_completion_mean_ms": 91.1276714294814
+          },
+          {
+            "committed_transaction_inclusions": 31686.0,
+            "committed_transaction_inclusions_per_second": 1053.8597456179477,
+            "committed_blocks": 5951.0,
+            "local_ingress_completions": 7500.0,
+            "local_ingress_completion_mean_ms": 91.614769790534
+          }
+        ],
+        "latency": {
+          "BATCHCOMMIT": {
+            "samples": 843.0,
+            "mean_ms": 16.53798102016606
+          },
+          "COMMITBLOCK": {
+            "samples": 5952.0,
+            "mean_ms": 8.15243061155913
+          }
+        },
+        "median_replica_inclusion_tps": 1051.3486552059628,
+        "unique_ingress_completions": 30075.0,
+        "unique_ingress_completion_tps": 1000.2787303370504,
+        "ingress_to_materialized_commit_mean_ms": 91.95090807863694,
+        "snapshot_spread_seconds": {
+          "start": 0.0722710001282394,
+          "end": 0.056460958905518055
+        }
+      },
+      "workload_readiness": {
+        "seconds_after_native_client_spawn": 13.14305247925222,
+        "ingress_completion_counts": [
+          124.0,
+          124.0,
+          126.0,
+          125.0
+        ],
+        "snapshot_spread_seconds": 0.06456245761364698,
+        "condition": "Every ingress node has materialized at least one committed local transaction before warmup starts"
+      },
+      "runner_sha256": "f5c3e5e78bb699ff02a1bb9d5ab899c5e6dd4a879cb33ad8d843b0f75aba3a3c",
+      "base_port": 24200,
+      "native_wire_samples": [
+        {
+          "client": 0,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 1,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 2,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 3,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        }
+      ],
+      "raw_metric_files": [
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-end-0.prom",
+          "sha256": "22a9a9637011e2feb11fd0e35b45926e21f153a651f335bbf00ee0a36e32c00b"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-end-1.prom",
+          "sha256": "7cc3da4e43d8aeaa490d01b967349a35b2a0ca2c00c2273d9148a90573361416"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-end-2.prom",
+          "sha256": "c2916d529f35512a5d8b4c9ac4d5f9c2da354300a88570e72adc3bcddae5147a"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-end-3.prom",
+          "sha256": "0bc70dddd6ba99b21484a97d78472b287b45fae9177be324ea35ac1d87f8b017"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-ready-0.prom",
+          "sha256": "f1b41f5d2b3e808f714ec905805e7d45676c2a5dcdb37ff2ac1b690da851fd48"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-ready-1.prom",
+          "sha256": "82b77d51cbb95cd49b316383694197e55728717cd912f55e9005fe210927b074"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-ready-2.prom",
+          "sha256": "2a6869d0a2c700cadb2272b23fc46b8a458fe4bd865a1f01381dd5b3d841f0c7"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-ready-3.prom",
+          "sha256": "55aab5fc64350f0a7539b96498a6d32f95326e191d85075f434ff7cbca940261"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-start-0.prom",
+          "sha256": "e3b53ca6241f9d0cd20a01b35a0e91c6816880e1a7f2e81ac1bc96522dc40fa7"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-start-1.prom",
+          "sha256": "47f56482d99c779173f07cd8296d60a21b86a105922d8f6a0ff790b93adacf25"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-start-2.prom",
+          "sha256": "507e993b7be18b4e07f1164b956f5ef464ee4cf2312297293c77c4a035a8f498"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial2-20261013/metrics-start-3.prom",
+          "sha256": "34b56969adc8feaf05bad02180967c19889dc72f2f6300d1d9eee8213940f76a"
+        }
+      ]
+    },
+    {
+      "trial": 3,
+      "manifest": "results/local/baseline-raptr-trial3-20261013/manifest.json",
+      "manifest_sha256": "f52e480db9da5770dafb769ac391781228ceeb2f39da275c5c9a5ff7ecec8cb1",
+      "status": "passed",
+      "metrics": {
+        "measurement_seconds": 30.064823562745005,
+        "replicas": [
+          {
+            "committed_transaction_inclusions": 32212.0,
+            "committed_transaction_inclusions_per_second": 1071.4182284414162,
+            "committed_blocks": 5936.0,
+            "local_ingress_completions": 7500.0,
+            "local_ingress_completion_mean_ms": 93.07041480520016
+          },
+          {
+            "committed_transaction_inclusions": 32212.0,
+            "committed_transaction_inclusions_per_second": 1071.4182284414162,
+            "committed_blocks": 5936.0,
+            "local_ingress_completions": 7500.0,
+            "local_ingress_completion_mean_ms": 93.13432298320048
+          },
+          {
+            "committed_transaction_inclusions": 32212.0,
+            "committed_transaction_inclusions_per_second": 1071.4182284414162,
+            "committed_blocks": 5934.0,
+            "local_ingress_completions": 7538.0,
+            "local_ingress_completion_mean_ms": 92.76912821093062
+          },
+          {
+            "committed_transaction_inclusions": 32212.0,
+            "committed_transaction_inclusions_per_second": 1071.4182284414162,
+            "committed_blocks": 5936.0,
+            "local_ingress_completions": 7538.0,
+            "local_ingress_completion_mean_ms": 93.29020544826217
+          }
+        ],
+        "latency": {
+          "BATCHCOMMIT": {
+            "samples": 856.0,
+            "mean_ms": 17.521982476635515
+          },
+          "COMMITBLOCK": {
+            "samples": 5936.0,
+            "mean_ms": 8.166513477088937
+          }
+        },
+        "median_replica_inclusion_tps": 1071.4182284414162,
+        "unique_ingress_completions": 30076.0,
+        "unique_ingress_completion_tps": 1000.3717446480825,
+        "ingress_to_materialized_commit_mean_ms": 93.06592600531985,
+        "snapshot_spread_seconds": {
+          "start": 0.059612750075757504,
+          "end": 0.06380845792591572
+        }
+      },
+      "workload_readiness": {
+        "seconds_after_native_client_spawn": 13.109622145537287,
+        "ingress_completion_counts": [
+          125.0,
+          126.0,
+          162.0,
+          163.0
+        ],
+        "snapshot_spread_seconds": 0.06907512526959181,
+        "condition": "Every ingress node has materialized at least one committed local transaction before warmup starts"
+      },
+      "runner_sha256": "f5c3e5e78bb699ff02a1bb9d5ab899c5e6dd4a879cb33ad8d843b0f75aba3a3c",
+      "base_port": 24300,
+      "native_wire_samples": [
+        {
+          "client": 0,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 2,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 3,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        },
+        {
+          "client": 1,
+          "transactions": 1,
+          "bcs_batch_bytes": 214
+        }
+      ],
+      "raw_metric_files": [
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-end-0.prom",
+          "sha256": "ca9db23e17eaad40b1fda88d2619b67f7818f8bca93af2cefae077185f8fb232"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-end-1.prom",
+          "sha256": "106ecbc276928db90e8df175c9d5fdf4ac9f02b816eaed852b7f30432986cd42"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-end-2.prom",
+          "sha256": "f56eb2e3ada3d36b184fe4a408d150c2c01024fa6190fc426251e284955bf78f"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-end-3.prom",
+          "sha256": "605eb4333ee314fd388e823797d27f17392e05e3ff9ba9f62acb7f1fdcdb1dc5"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-ready-0.prom",
+          "sha256": "2a98544ed98995fc5f61b834c48c2b02dd542659eacd9b59c5c45ba3f303d258"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-ready-1.prom",
+          "sha256": "599999e39b67b69430a9310cce678a39895835ffe8d21a38967d0b406303d91a"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-ready-2.prom",
+          "sha256": "bc48fb087391cbd84003cea72d9e5c26849fcbd4e47c1b7d468f138f59604a56"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-ready-3.prom",
+          "sha256": "63ff87965b890bc4b59ec0f3dbe7021b4cb426c72813f8108d5e7136b7f722ca"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-start-0.prom",
+          "sha256": "c95229df797231c4d47065b615435dcb3fe35896c75e11e3cbf07868d90c89ed"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-start-1.prom",
+          "sha256": "0724d961ed36797f7637ac96e82ea111fc2c2348c6c49855a77d3e5461292720"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-start-2.prom",
+          "sha256": "1141970accadf9f04d9380b6539381507a15d2fd1510f133036f396c0ef0ce95"
+        },
+        {
+          "path": "results/local/baseline-raptr-trial3-20261013/metrics-start-3.prom",
+          "sha256": "850609445d927618665e81ff74b39d092c0d898db5be835371c65fe1a4b2bbc7"
+        }
+      ]
+    }
+  ],
+  "aggregate": {
+    "median_unique_ingress_completion_tps": 1000.2787303370504,
+    "median_trial_mean_ingress_to_materialized_commit_ms": 93.06592600531985,
+    "pooled_transaction_weighted_mean_ingress_to_materialized_commit_ms": 92.9969854108481,
+    "total_unique_ingress_completions_in_measurement_windows": 90228.0,
+    "network_bytes": null
+  },
+  "settings": {
+    "replicas": 4,
+    "configured_total_offered_tx_s": 1000,
+    "configured_per_replica_offered_tx_s": 250,
+    "faults": 0,
+    "warmup_seconds": 10,
+    "measurement_seconds": 30,
+    "native_client_startup_seconds": 5,
+    "additional_readiness_allowance_seconds": 45,
+    "native_client_lifetime_seconds": 95,
+    "readiness": "Every ingress node must complete local transactions before warmup",
+    "request_size_observation": "First native BCS request sample from each client: 214 bytes containing one transaction; not total transport bytes",
+    "transport": "Native authenticated Aptos networking on localhost",
+    "workload": {
+      "transaction": "Native synthetic aptos_coin_transfer with unique random sender per slot and increasing sequence number",
+      "client_authenticator": "NoAccountAuthenticator, as in pinned consensus-only benchmark",
+      "consensus_authentication": "Pinned native BLS signatures and authenticated Aptos networking",
+      "vm_execution": false,
+      "native_delta_ms": 200,
+      "native_optimistic_dissemination": true,
+      "storage": "Real AptosDB genesis with native FakeAptosDB wrapper; steady-state transaction execution/ledger commit is bypassed. Quorum Store payloads and batch IDs use RocksDB writes (upstream does not explicitly sync each write). Raptr protocol state is in memory and restart recovery is not exercised. Generated node configurations retained in swarm/."
+    }
+  },
+  "measurement_boundaries": {
+    "throughput": "Sum of native raikou_mempool_insert_to_commit_latency_count deltas across ingress nodes. Native PendingTracker removes each locally submitted (sender,sequence) once, after real payload retrieval and commit notification. Distinct senders across ingress nodes; no VM execution. The separate per-replica inclusion rates are never added together.",
+    "completion_latency": "Native mempool insertion to committed transaction payload retrieval and notification at its ingress node, transaction weighted mean over completions observed inside the snapshot interval (not an arrival cohort). Excludes client-side generation, scheduling and HTTP ingress time. This is not an all-replica completion barrier.",
+    "BATCHCOMMIT": "Native batch creation timestamp to commit notification, observed only at batch creator; arithmetic mean across creators, batch weighted, excludes client queueing.",
+    "COMMITBLOCK": "Native proposal timestamp to leader-local commit, observed only at that block's leader; block weighted mean.",
+    "traffic": "Not measured by this adapter; native metrics are retained without claiming TCP wire-byte accounting.",
+    "agreement": "Progress and local payload-ready completions at every validator; no full transaction-order agreement check exposed by the adapter",
+    "offered_load": "Configured native client pacing; unique completion counters are measured, not inferred from target rate",
+    "shutdown": "All trials exited naturally with Forge status zero; all owned process groups were empty after cleanup",
+    "native_acknowledgement_logs": "Native HTTP batch handler drops acknowledgement receivers after admission, so client timedout logs may occur after successful recorded completion; logging overhead retained"
+  },
+  "validation": {
+    "build_manifest": {
+      "path": "results/local/baseline-raptr-build-node-20261013/manifest.json",
+      "sha256": "61e5bc51eadd8edabfe571ac75110d45e9f7e8a6b388ba4ed8b5ca2d8de40561"
+    },
+    "native_crypto_manifest": {
+      "path": "results/local/baseline-raptr-crypto-tests-20261013/manifest.json",
+      "sha256": "6192bffa7baa227a2a64d4db55d309e43316c08e2a6f4649e30eeb9eb6e9229c"
+    },
+    "native_crypto_tests_passed": 9,
+    "runner_regressions_passed": 26,
+    "checks": [
+      "Recomputed every reported trial metric from archived Prometheus snapshots",
+      "Verified source diff, patch, lockfile, runner archive, and native executable hashes",
+      "Verified four independent native replicas, natural exit, and no surviving owned processes for every run"
+    ]
+  },
+  "commands": {
+    "build": [
+      "python3",
+      "scripts/baselines/raptr.py",
+      "--build-only"
+    ],
+    "run": [
+      "python3",
+      "scripts/baselines/raptr.py",
+      "--warmup",
+      "10",
+      "--duration",
+      "30"
+    ],
+    "runner_tests": [
+      "python3",
+      "tests/raptr_baseline_test.py"
+    ]
+  },
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "memory_bytes": 25769803776,
+    "logical_cpus": 12,
+    "physical_cpus": 12,
+    "os": "Darwin25.6.0",
+    "architecture": "arm64"
+  },
+  "classification": "small_load_localhost_consensus_benchmark_not_saturation_or_application_execution"
+}

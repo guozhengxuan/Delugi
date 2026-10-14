@@ -1,0 +1,397 @@
+{
+  "schema": 1,
+  "baseline": "vantage",
+  "date": "2026-10-13",
+  "status": "passed",
+  "classification": "pinned_native_single_process_functional_smokes",
+  "source": {
+    "repository": "https://github.com/polinikita/vantage-bft.git",
+    "commit": "199098c4978e4a97a7d3707ec9aac6de086969db",
+    "tree": "d2f7e4a4e93074cb132aa5b2ec583d4676ab0415",
+    "checkout": "benchmarks/baselines/vantage",
+    "benchmark_source_patches": [],
+    "cargo_lock": {
+      "path": "benchmarks/baselines/vantage/Cargo.lock",
+      "sha256": "da4ce3fbd975c5ae9c245f90c920c3fe84d9ed3784d39c14eaa9adbb57eb2a1e"
+    },
+    "checkout_pristine_after_validation": true
+  },
+  "binary": {
+    "path": "benchmarks/.cache/vantage-target/release/node",
+    "sha256": "9ea259353bdccbf4e3a2bedd94fd2ff8f943462b71efd6071843bc75a593b5a7"
+  },
+  "build": {
+    "profile": "release",
+    "features": [
+      "benchmark"
+    ],
+    "rustc_verbose": "rustc 1.95.0 (59807616e 2026-04-14)\nbinary: rustc\ncommit-hash: 59807616e1fa2540724bfbac14d7976d7e4a3860\ncommit-date: 2026-04-14\nhost: aarch64-apple-darwin\nrelease: 1.95.0\nLLVM version: 22.1.2",
+    "jobs": 4,
+    "isolated_rustup_home": "benchmarks/toolchains/vantage",
+    "isolated_cargo_home": "benchmarks/.cache/vantage-cargo",
+    "command": [
+      "cargo",
+      "build",
+      "--release",
+      "--workspace",
+      "--features",
+      "benchmark",
+      "--locked",
+      "--jobs",
+      "4"
+    ],
+    "stamp": {
+      "path": "benchmarks/.cache/vantage-target/build-provenance.json",
+      "sha256": "4756f35056299f24fa6e50dcc457c089b5c7ff02510ec3792445eb3ba15a0669"
+    },
+    "log": {
+      "path": "results/local/vantage-20261013-native/build.log",
+      "sha256": "83e21b4cb9f0a656a5d5c73a09c649de7c57bff8914d022989a68f5852566908"
+    }
+  },
+  "raw_manifest": {
+    "path": "results/local/vantage-20261013-native-verified/manifest.json",
+    "sha256": "65238db31d100ee3eb59e9cf5c308f039670b665a0bf23b3c12e88c7b709e8b4"
+  },
+  "archived_runner": {
+    "path": "results/local/vantage-20261013-native-verified/runner.py",
+    "sha256": "48dac3607d2716370b382a6fa82e8a3168adaec8232f538dd941dbb99e3e773a"
+  },
+  "settings": {
+    "authorities": 4,
+    "workers_per_authority": 1,
+    "os_processes": 1,
+    "independent_replica_processes": false,
+    "storage": "Separate native primary and worker RocksDB stores per authority",
+    "transport": "Native loopback IPv4 TCP; channel authentication enabled",
+    "configured_consensus_signature_scheme": "ed25519 where used by each native protocol",
+    "workload_mode": "random",
+    "offered_tx_s": 1000,
+    "transaction_bytes": 512,
+    "warmup_seconds": 2,
+    "measurement_seconds": 10,
+    "client_pacing_period_ms": 50,
+    "delta_ms": 200,
+    "mimic_latency_ms_explicit_cli": 0,
+    "injected_network_delay_ms": 0,
+    "latency_table": "none; explicit CLI zero prevents the upstream default AWS RTT matrix",
+    "parameters_mimic_latency_ms": null,
+    "timeout_override_supplied": false,
+    "fast_path_timeout_ms": 500,
+    "max_batch_delay_ms": 20,
+    "max_header_delay_ms": 100,
+    "transport_batch_messages": true,
+    "transport_batch_max_bytes": 65536,
+    "transport_batch_max_delay_ms": 5,
+    "faults_injected": 0,
+    "trials_per_protocol": 1
+  },
+  "measurement_boundaries": {
+    "comparison": "No matched performance inference against Delugi, Raptr, or Mysticeti: process model, input batching, duration, latency aggregation, and traffic boundaries differ. These are native functional smokes, not saturation or ranking experiments.",
+    "throughput": "Native committed transaction count is summed across workers within each authority, then maximum across authorities, divided by integer elapsed seconds. Replicated authority counts are not summed.",
+    "latency": "Native client transaction UTC timestamp to locally materialized ordered payload; mean is weighted by observations across worker replicas. Native reported observation count is maximum worker count, not the pooled denominator.",
+    "percentiles": "Native p50 and p99 are medians of per-worker percentile values; one worker per authority here. They are not pooled transaction percentiles or an all-replica completion barrier.",
+    "traffic": "Native sent/received counters summed across primary and worker registries; includes same-authority primary-worker traffic, and receive totals include client ingress. Framing/authentication/ACK boundaries differ from successful replica TCP stream-write accounting in the matched Delugi matrix.",
+    "window": "First SUMMARY and its single BENCHMARK_RESULT line after warmup. Later STEADY-STATE diagnostic drain output is excluded. Native duration truncates elapsed time to whole seconds.",
+    "backlog": "Native saturating submitted-minus-maximum-committed count at the measurement boundary; not an arrival-cohort drain or full agreement proof.",
+    "agreement": "Native useful progress, nonzero workload/network counters, zero reported panics, and process exit zero; no independent full executed-prefix agreement check.",
+    "cleanup": "All five run-owned native processes exited naturally with status zero; no surviving owned Vantage processes were observed."
+  },
+  "tests": {
+    "distinct_cases_passed": 713,
+    "unmodified_workspace": {
+      "passed": 712,
+      "failed": 0,
+      "filtered_out": 1,
+      "ignored": 0,
+      "filter": "reliable_sender::reliable_sender_tests::authenticated_send_is_delivered_and_acknowledged",
+      "filter_reason": "Upstream fixture hardcodes 127.0.0.1:5900, already occupied on this host; no foreign process was stopped.",
+      "profile": "Release dependencies with debug assertions enabled by Cargo command-line overrides for all eight workspace crates; preserves the upstream debug_assert expected-panic test.",
+      "manifest": {
+        "path": "results/local/vantage-20261013-native-verified/manifest.json",
+        "sha256": "65238db31d100ee3eb59e9cf5c308f039670b665a0bf23b3c12e88c7b709e8b4"
+      },
+      "log": {
+        "path": "results/local/vantage-20261013-native-verified/tests.log",
+        "sha256": "80ee4831faecc572e9d382929c31d1aba4bc47994f936cda231fa8f638082594"
+      }
+    },
+    "relocated_authentication_fixture": {
+      "passed": 1,
+      "failed": 0,
+      "test": "reliable_sender::reliable_sender_tests::authenticated_send_is_delivered_and_acknowledged",
+      "change": "Only the test fixture address changes from fixed port5900 to a kernel-selected ephemeral port; protocol code unchanged.",
+      "scope": "Exact single-test invocation; not an unmodified 713-test invocation.",
+      "source_restored": true,
+      "benchmark_binary_unchanged": true,
+      "manifest": {
+        "path": "results/local/vantage-20261013-auth-ephemeral/manifest.json",
+        "sha256": "d110f1f54c5a9593d42a09a53c370d00fedb13a35be85ac818e0fb185af6f056"
+      },
+      "patch": {
+        "path": "results/local/vantage-20261013-auth-ephemeral/test-only-ephemeral-port.patch",
+        "sha256": "f5573d0ccfbb68615615e493ca75cca391727de428894e66343be4939225277f"
+      },
+      "runner": {
+        "path": "results/local/vantage-20261013-auth-ephemeral/run_exact_test.py",
+        "sha256": "71ff41f13ca3c0103592f2403c06a0be6e52218aa95fd196b68fc09eee053118"
+      },
+      "log": {
+        "path": "results/local/vantage-20261013-auth-ephemeral/test.log",
+        "sha256": "50fe87a0ca63cca53513764bfd957394ace95409abdb7b38d3ce154cdd64ee24"
+      }
+    }
+  },
+  "runs": [
+    {
+      "protocol": "vantage",
+      "status": "passed",
+      "exit_code": 0,
+      "started_utc": "2026-10-13T10:23:38.906532+00:00",
+      "settings": {
+        "consensus_timeout_ms": 1000,
+        "use_optimistic_tips": true,
+        "all_to_all": false,
+        "channel_auth": true
+      },
+      "metrics": {
+        "offered_tps": 1000,
+        "duration_s": 10,
+        "submitted": 10012,
+        "committed": 9924,
+        "committed_tps": 992.4,
+        "throughput_pct": 99.24,
+        "backlog": 88,
+        "materialized_mean_ms": 95.53,
+        "materialized_observations": 9924,
+        "materialized_p50_ms": 94.0,
+        "materialized_p99_ms": 149.0,
+        "network_bytes": 21119699,
+        "panics": 0,
+        "vantage_repairs_requested": 114,
+        "vantage_repairs_served": 114,
+        "native_network_bytes_received": 26285995,
+        "native_network_messages_sent": 52368
+      },
+      "raw_result": {
+        "path": "results/local/vantage-20261013-native-verified/vantage/result.json",
+        "sha256": "a32a8ff692c713d8a2a3c2951cf730852ae57816ed4973f8a58cb1fc03a52364"
+      },
+      "raw_log": {
+        "path": "results/local/vantage-20261013-native-verified/vantage/native.log",
+        "sha256": "793c60e26277c1d5a827100fa2047c979885ab7c6d8d2e9cbf5f4f1ff2290dd7"
+      },
+      "raw_parameters": {
+        "path": "results/local/vantage-20261013-native-verified/vantage/native-data/parameters.json",
+        "sha256": "52b07a72c9a7bdba22278fd7f4998d0c5d94e5e90d3aac8aa90a48a812d47e48"
+      }
+    },
+    {
+      "protocol": "autobahn-optimistic",
+      "status": "passed",
+      "exit_code": 0,
+      "started_utc": "2026-10-13T10:23:52.348466+00:00",
+      "settings": {
+        "consensus_timeout_ms": 2000,
+        "use_optimistic_tips": true,
+        "all_to_all": true,
+        "channel_auth": true
+      },
+      "metrics": {
+        "offered_tps": 1000,
+        "duration_s": 10,
+        "submitted": 10013,
+        "committed": 9900,
+        "committed_tps": 990.0,
+        "throughput_pct": 99.0,
+        "backlog": 113,
+        "materialized_mean_ms": 138.23,
+        "materialized_observations": 9900,
+        "materialized_p50_ms": 133.0,
+        "materialized_p99_ms": 248.5,
+        "network_bytes": 17751987,
+        "panics": 0,
+        "vantage_repairs_requested": 0,
+        "vantage_repairs_served": 0,
+        "native_network_bytes_received": 22918695,
+        "native_network_messages_sent": 11070
+      },
+      "raw_result": {
+        "path": "results/local/vantage-20261013-native-verified/autobahn-optimistic/result.json",
+        "sha256": "fbcbfdc114edc329bb5fde30c73f0d9699e11e025e69dc456f3875dce071f754"
+      },
+      "raw_log": {
+        "path": "results/local/vantage-20261013-native-verified/autobahn-optimistic/native.log",
+        "sha256": "b8373087d902cf2f6fb5b5a689210242db74ebeaa164d90635ffd0517041d0e5"
+      },
+      "raw_parameters": {
+        "path": "results/local/vantage-20261013-native-verified/autobahn-optimistic/native-data/parameters.json",
+        "sha256": "c63c361f0f789b14864960f7ae82864e956ecf3c686276b08ccb126fde4dd861"
+      }
+    },
+    {
+      "protocol": "autobahn-seamless",
+      "status": "passed",
+      "exit_code": 0,
+      "started_utc": "2026-10-13T10:24:06.798231+00:00",
+      "settings": {
+        "consensus_timeout_ms": 2000,
+        "use_optimistic_tips": false,
+        "all_to_all": false,
+        "channel_auth": true
+      },
+      "metrics": {
+        "offered_tps": 1000,
+        "duration_s": 10,
+        "submitted": 10000,
+        "committed": 9800,
+        "committed_tps": 980.0,
+        "throughput_pct": 98.0,
+        "backlog": 200,
+        "materialized_mean_ms": 236.57,
+        "materialized_observations": 9800,
+        "materialized_p50_ms": 232.0,
+        "materialized_p99_ms": 349.5,
+        "network_bytes": 19526628,
+        "panics": 0,
+        "vantage_repairs_requested": 0,
+        "vantage_repairs_served": 0,
+        "native_network_bytes_received": 24673964,
+        "native_network_messages_sent": 10613
+      },
+      "raw_result": {
+        "path": "results/local/vantage-20261013-native-verified/autobahn-seamless/result.json",
+        "sha256": "c920b723cec111db99e4771f151ae1bdc5bed6fb701457e7628268eb19f5ec9d"
+      },
+      "raw_log": {
+        "path": "results/local/vantage-20261013-native-verified/autobahn-seamless/native.log",
+        "sha256": "cf98793fa1cdf021f424625160f11e1ecbe5b6699bf0810a209330183a5403e0"
+      },
+      "raw_parameters": {
+        "path": "results/local/vantage-20261013-native-verified/autobahn-seamless/native-data/parameters.json",
+        "sha256": "4942caab1bab4a5d46428d63a4b68b52600c5b5056a9ec433fdc948bad8f3f98"
+      }
+    },
+    {
+      "protocol": "simple-it",
+      "status": "passed",
+      "exit_code": 0,
+      "started_utc": "2026-10-13T10:24:21.225185+00:00",
+      "settings": {
+        "consensus_timeout_ms": 1600,
+        "use_optimistic_tips": true,
+        "all_to_all": false,
+        "channel_auth": true
+      },
+      "metrics": {
+        "offered_tps": 1000,
+        "duration_s": 10,
+        "submitted": 10012,
+        "committed": 9924,
+        "committed_tps": 992.4,
+        "throughput_pct": 99.24,
+        "backlog": 88,
+        "materialized_mean_ms": 133.2,
+        "materialized_observations": 9924,
+        "materialized_p50_ms": 132.0,
+        "materialized_p99_ms": 188.0,
+        "network_bytes": 21315576,
+        "panics": 0,
+        "vantage_repairs_requested": 0,
+        "vantage_repairs_served": 0,
+        "native_network_bytes_received": 26481768,
+        "native_network_messages_sent": 39017
+      },
+      "raw_result": {
+        "path": "results/local/vantage-20261013-native-verified/simple-it/result.json",
+        "sha256": "38996e910b955f3aab1a094adfa4a85bb41bf8f5ad05c6a150af88db4e3a79ae"
+      },
+      "raw_log": {
+        "path": "results/local/vantage-20261013-native-verified/simple-it/native.log",
+        "sha256": "d1d9d2018c85c751e43bfd92ee0256f5dd50d86d769ae16e330163d68daf41bc"
+      },
+      "raw_parameters": {
+        "path": "results/local/vantage-20261013-native-verified/simple-it/native-data/parameters.json",
+        "sha256": "7099f575bc2b4e74e153ad3a2bb9312b4af67c28dd1b235b11deecdaa7f00ecf"
+      }
+    },
+    {
+      "protocol": "simple-it-bracha",
+      "status": "passed",
+      "exit_code": 0,
+      "started_utc": "2026-10-13T10:24:35.265619+00:00",
+      "settings": {
+        "consensus_timeout_ms": 1000,
+        "use_optimistic_tips": true,
+        "all_to_all": false,
+        "channel_auth": true
+      },
+      "metrics": {
+        "offered_tps": 1000,
+        "duration_s": 10,
+        "submitted": 10000,
+        "committed": 9911,
+        "committed_tps": 991.1,
+        "throughput_pct": 99.11,
+        "backlog": 89,
+        "materialized_mean_ms": 142.4,
+        "materialized_observations": 9911,
+        "materialized_p50_ms": 142.0,
+        "materialized_p99_ms": 200.0,
+        "network_bytes": 19996244,
+        "panics": 0,
+        "vantage_repairs_requested": 0,
+        "vantage_repairs_served": 0,
+        "native_network_bytes_received": 25156244,
+        "native_network_messages_sent": 28778
+      },
+      "raw_result": {
+        "path": "results/local/vantage-20261013-native-verified/simple-it-bracha/result.json",
+        "sha256": "841019c405b873fa19ff2383a2f6f0130da1c62514871b73598e015d30be156b"
+      },
+      "raw_log": {
+        "path": "results/local/vantage-20261013-native-verified/simple-it-bracha/native.log",
+        "sha256": "af90c2837f5e5defb75cae429913d6d618500336c3086c3ce38fb4aa33c24147"
+      },
+      "raw_parameters": {
+        "path": "results/local/vantage-20261013-native-verified/simple-it-bracha/native-data/parameters.json",
+        "sha256": "06d5d8b2659537d054b97a48e3eadb876ba7c25f351053a607daaef68531e60d"
+      }
+    }
+  ],
+  "reproduce": {
+    "native_pipeline": [
+      "python3",
+      "scripts/baselines/vantage.py",
+      "--skip-test",
+      "reliable_sender::reliable_sender_tests::authenticated_send_is_delivered_and_acknowledged",
+      "--output",
+      "<new-output-directory>",
+      "--warmup",
+      "2",
+      "--duration",
+      "10",
+      "--rate",
+      "1000",
+      "--transaction-size",
+      "512"
+    ],
+    "relocated_exact_test": "Archived run_exact_test.py and test-only patch record the separate host-port workaround; the pinned checkout is restored afterward."
+  },
+  "machine": {
+    "architecture": "arm64",
+    "logical_cpus": 12,
+    "system": "Darwin"
+  },
+  "validation": {
+    "all_referenced_file_hashes_verified": true,
+    "file_hash_references": 27,
+    "unique_files_hashed": 26,
+    "checks": [
+      "Reparsed every reported smoke metric from its first native measurement summary",
+      "Verified all five result.json and parameters.json records against the raw manifest",
+      "Verified recorded binary, Cargo.lock, source commit/tree, pristine checkout, and native build stamp",
+      "Verified the exact-test patch hash, restored-source identity, and unchanged benchmark binary"
+    ]
+  }
+}

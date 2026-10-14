@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "baseline": "mysticeti",
+  "source_commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+  "source_patches": [],
+  "runs": [
+    {
+      "manifest_sha256": "ffdcd595b3f91a6fd6d6a0602016627ee4a3d7b2c500af7267ac08ff4f95cc97",
+      "throughput_tx_s_median_across_replicas": 998.905349899732,
+      "mean_latency_ms_median_across_replicas": 1.4080910100376132,
+      "per_replica_throughputs": [
+        999.7338520869025,
+        998.9037690461194,
+        998.9069307533446,
+        998.0769869738451
+      ],
+      "per_replica_mean_latencies_ms": [
+        1.4005216666667475,
+        1.4093486238532944,
+        1.4079399499583711,
+        1.4082420701168554
+      ],
+      "common_leader_authority_round_prefix": 489340,
+      "binary_sha256": "8e38d21d2d0445b5244c1e28bacb344cd3666df8bb4ea4e4abb02a128549bbf1",
+      "status": "completed",
+      "manifest": "results/local/baseline-mysticeti-11bec6a12f0e4754af3220f986abce05/manifest.json"
+    },
+    {
+      "manifest_sha256": "b400b4d4ca024c842e6680b4d83ee1a228265652de4f6f933ca2a931638fbf06",
+      "throughput_tx_s_median_across_replicas": 999.8381765418459,
+      "mean_latency_ms_median_across_replicas": 1.2900975000000634,
+      "per_replica_throughputs": [
+        999.8394862021489,
+        999.8390571734296,
+        999.8360019331108,
+        999.8372959102621
+      ],
+      "per_replica_mean_latencies_ms": [
+        1.2885958333333543,
+        1.3024308333333556,
+        1.2882575000000651,
+        1.2915991666667725
+      ],
+      "common_leader_authority_round_prefix": 500192,
+      "binary_sha256": "8e38d21d2d0445b5244c1e28bacb344cd3666df8bb4ea4e4abb02a128549bbf1",
+      "status": "completed",
+      "manifest": "results/local/baseline-mysticeti-e011cc267e714361b12230b719c38380/manifest.json"
+    },
+    {
+      "manifest_sha256": "754ac8c397fb5c8e20b65b1d49689e0475c6434286722b72a8323ce2d3f94eca",
+      "throughput_tx_s_median_across_replicas": 999.8121040618232,
+      "mean_latency_ms_median_across_replicas": 1.2738004166666705,
+      "per_replica_throughputs": [
+        999.8179227248381,
+        999.8115521859389,
+        999.8126559377076,
+        999.7974111838782
+      ],
+      "per_replica_mean_latencies_ms": [
+        1.269024166666695,
+        1.2869591666666558,
+        1.270455833333365,
+        1.2771449999999762
+      ],
+      "common_leader_authority_round_prefix": 500548,
+      "binary_sha256": "8e38d21d2d0445b5244c1e28bacb344cd3666df8bb4ea4e4abb02a128549bbf1",
+      "status": "completed",
+      "manifest": "results/local/baseline-mysticeti-6e2250ca1e064751b442d1d12b34858c/manifest.json"
+    }
+  ],
+  "aggregate": {
+    "median_throughput_tx_s": 999.8121040618232,
+    "median_mean_latency_ms": 1.2900975000000634,
+    "network_bytes": null
+  },
+  "settings": {
+    "benchmark_keys": "upstream deterministic test keys; not suitable for production",
+    "configured_per_replica_offered_tx_s": 250,
+    "configured_total_offered_tx_s": 1000,
+    "faults": 0,
+    "generator_initial_delay_seconds": 1,
+    "leader_timeout_seconds": 1,
+    "leaders_per_round": 2,
+    "logging": "info,mysticeti_core::syncer=debug (leader trace logging overhead included)",
+    "measurement_seconds": 30.0,
+    "mode": "consensus-only",
+    "pipelining": true,
+    "replicas": 4,
+    "tokio_workers_per_replica": 2,
+    "transaction_bytes": 512,
+    "transport": "native TCP on localhost",
+    "warmup_seconds": 10.0
+  },
+  "measurement_boundaries": {
+    "agreement": "Progress at all four validators is checked. Full transaction order agreement is not exposed by the native metrics and is not inferred from throughput counts.",
+    "durability": "Native WAL enabled with background fsync every 1 s (AsyncWalSyncer); no synchronous fsync per commit. This benchmark does not test crash recovery.",
+    "latency": "Upstream transaction generation UTC timestamp (millisecond resolution) to consensus commit callback current_timestamp, before application execution. Mean uses delta histogram sum/count, pooled per-transaction observations within each replica.",
+    "offered_load": "Configured generator rate; native submitted_transactions is batched every 10,000 and is not used as an exact short-run submission count.",
+    "percentiles": "Only upper bounds from upstream coarse Prometheus histogram buckets; not exact percentiles or estimates.",
+    "shutdown": "Validators are deliberately terminated after end-of-window scrape, so the benchmark is a steady-state observation window, not a drain-to-zero test.",
+    "throughput": "Delta of each replica latency_s_count{workload=shared} over that replica's two Prometheus scrape midpoint times; replicas observe the same system workload and are not summed.",
+    "traffic": "Unavailable: upstream artifact exposes no measured per-run network byte counter; no traffic figure inferred from payload size."
+  },
+  "validation": {
+    "path": "results/local/baseline-mysticeti-build/validation.json",
+    "sha256": "a512b734403794aa619e04e27d615265f5db0648dca92a8696b13fad3c8adc05",
+    "native_tests_passed": 52,
+    "native_tests_ignored": 1,
+    "measurement_tests_passed": 12
+  },
+  "commands": {
+    "build": [
+      "python3",
+      "scripts/baselines/mysticeti.py",
+      "--build-only"
+    ],
+    "run": [
+      "python3",
+      "scripts/baselines/mysticeti.py",
+      "--warmup",
+      "10",
+      "--duration",
+      "30"
+    ],
+    "harness_tests": [
+      [
+        "python3",
+        "scripts/baselines/mysticeti_test.py"
+      ],
+      [
+        "python3",
+        "tests/baseline_metrics_test.py"
+      ]
+    ]
+  },
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "memory_bytes": 25769803776,
+    "logical_cpus": 12,
+    "physical_cpus": 12,
+    "os": "Darwin25.6.0",
+    "architecture": "arm64"
+  },
+  "classification": "small_load_localhost_consensus_benchmark_not_saturation_or_application_execution"
+}

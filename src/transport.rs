@@ -1,8 +1,9 @@
 //! Bounded, authenticated TCP transport for independent reference processes.
 //!
-//! Every protocol frame and its acknowledgement is signed. A per-peer FIFO
-//! retries exactly the same frame after a failed write/acknowledgement and the
-//! receiver suppresses its duplicate. Successful enqueue, socket writes, and
+//! Every protocol frame and its acknowledgement is signed. A bounded per-peer
+//! window pipelines FIFO writes while an independent reader collects ACKs.
+//! Reconnects replay the exact unacknowledged suffix before new frames, and the
+//! receiver suppresses duplicates. Successful enqueue, socket writes, and
 //! acknowledged delivery are distinct counters. Sequence numbers are retained
 //! across connections, not process crashes: a restarted experiment needs a new
 //! instance (this module does not implement durable crash recovery).
@@ -11,9 +12,9 @@ use crate::wire::{self, Committee, Context, Digest, Id, Signed, SigningDomain};
 use ed25519_dalek::Keypair;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest as ShaDigest, Sha256};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, VecDeque};
 use std::io::{self, Read, Write};
-use std::net::{SocketAddr, TcpListener, TcpStream};
+use std::net::{Shutdown, SocketAddr, TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, SyncSender, TrySendError};
 use std::sync::{Arc, Mutex};
@@ -27,6 +28,8 @@ pub const MAX_FRAME_BYTES: usize = wire::MAX_WIRE_BYTES + MAX_AUTH_BYTES + 4;
 pub enum Layer {
     Ordering,
     Dissemination,
+    /// Bounded envelope of independently validated canonical ordering messages.
+    OrderingBundle,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -61,6 +64,12 @@ impl SigningDomain for Ack {
 pub struct TransportSettings {
     pub inbox_capacity: usize,
     pub outbox_capacity: usize,
+    /// Unacknowledged frames retained by each writer, separate from its outbox.
+    pub max_inflight_frames: usize,
+    /// Encoded bytes in the window; one additional dequeued frame may be staged.
+    pub max_inflight_bytes: usize,
+    /// Maximum wait for the oldest fully written frame's ACK; idle links do not expire.
+    pub ack_timeout: Duration,
     pub connect_timeout: Duration,
     pub io_timeout: Duration,
     pub reconnect_delay: Duration,
@@ -72,6 +81,9 @@ impl Default for TransportSettings {
         Self {
             inbox_capacity: 4096,
             outbox_capacity: 4096,
+            max_inflight_frames: 64,
+            max_inflight_bytes: 8 * 1024 * 1024,
+            ack_timeout: Duration::from_secs(2),
             connect_timeout: Duration::from_millis(100),
             io_timeout: Duration::from_millis(250),
             reconnect_delay: Duration::from_millis(20),
@@ -108,6 +120,15 @@ pub struct LayerCounters {
 pub struct PeerCounters {
     pub layers: BTreeMap<Layer, LayerCounters>,
     pub outstanding_frames: u64,
+    /// Retained window, including a frame currently being written or replayed.
+    #[serde(default)]
+    pub inflight_frames: u64,
+    #[serde(default)]
+    pub inflight_bytes: u64,
+    #[serde(default)]
+    pub maximum_inflight_frames: u64,
+    #[serde(default)]
+    pub maximum_inflight_bytes: u64,
     pub connection_attempts: u64,
     pub connection_failures: u64,
     pub established_connections: u64,
@@ -169,6 +190,9 @@ impl Transport {
         }
         if settings.inbox_capacity == 0
             || settings.outbox_capacity == 0
+            || settings.max_inflight_frames == 0
+            || settings.max_inflight_bytes < MAX_FRAME_BYTES + 4
+            || settings.ack_timeout.is_zero()
             || settings.max_reader_connections == 0
             || settings.connect_timeout.is_zero()
             || settings.io_timeout.is_zero()
@@ -383,6 +407,9 @@ fn verify_frame(
 }
 
 fn configure(stream: &TcpStream, timeout: Duration) -> io::Result<()> {
+    // BSD/macOS accept inherits the listener's O_NONBLOCK flag. Our workers use
+    // blocking I/O with timeouts; leaving it set would busy-spin on WouldBlock.
+    stream.set_nonblocking(false)?;
     stream.set_nodelay(true)?;
     stream.set_read_timeout(Some(timeout))?;
     stream.set_write_timeout(Some(timeout))
@@ -508,6 +535,117 @@ fn pause(stop: &AtomicBool, duration: Duration) {
     }
 }
 
+struct PendingFrame {
+    frame: QueuedFrame,
+    attempted: bool,
+    sent_at: Option<Instant>,
+}
+
+/// The reader belongs to exactly one connection. Closing it interrupts both I/O
+/// and a full notification queue before joining, so no old ACK can affect replay.
+struct WriterConnection {
+    stream: TcpStream,
+    acknowledgements: Receiver<io::Result<Vec<u8>>>,
+    cancel: Arc<AtomicBool>,
+    reader: Option<JoinHandle<()>>,
+}
+
+impl WriterConnection {
+    fn open(
+        address: SocketAddr,
+        peer: Id,
+        settings: &TransportSettings,
+        stats: Stats,
+    ) -> io::Result<Self> {
+        let stream = TcpStream::connect_timeout(&address, settings.connect_timeout)?;
+        configure(&stream, settings.io_timeout)?;
+        let mut input = stream.try_clone()?;
+        let cancel = Arc::new(AtomicBool::new(false));
+        let reader_cancel = cancel.clone();
+        let (tx, acknowledgements) = mpsc::sync_channel(settings.max_inflight_frames);
+        let reader = thread::spawn(move || {
+            while !reader_cancel.load(Ordering::Acquire) {
+                // Idle sockets may remain open. The writer times out the oldest
+                // outstanding frame, while read_frame bounds partial ACK reads.
+                let mut result =
+                    read_frame(&mut input, MAX_AUTH_BYTES, &reader_cancel, true, &mut |n| {
+                        stats
+                            .lock()
+                            .unwrap()
+                            .peers
+                            .get_mut(&peer)
+                            .unwrap()
+                            .ack_bytes_read += n as u64;
+                    });
+                let failed = result.is_err();
+                loop {
+                    if reader_cancel.load(Ordering::Acquire) {
+                        return;
+                    }
+                    match tx.try_send(result) {
+                        Ok(()) => break,
+                        Err(TrySendError::Full(value)) => {
+                            result = value;
+                            pause(&reader_cancel, Duration::from_millis(1));
+                        }
+                        Err(TrySendError::Disconnected(_)) => return,
+                    }
+                }
+                if failed {
+                    break;
+                }
+            }
+        });
+        Ok(Self {
+            stream,
+            acknowledgements,
+            cancel,
+            reader: Some(reader),
+        })
+    }
+}
+
+impl Drop for WriterConnection {
+    fn drop(&mut self) {
+        self.cancel.store(true, Ordering::Release);
+        let _ = self.stream.shutdown(Shutdown::Both);
+        if let Some(reader) = self.reader.take() {
+            let _ = reader.join();
+        }
+    }
+}
+
+fn retire_ack(
+    ack: io::Result<Vec<u8>>,
+    pending: &mut VecDeque<PendingFrame>,
+    pending_bytes: &mut usize,
+    committee: &Committee,
+    peer: Id,
+    stats: &Stats,
+) -> Result<(), ()> {
+    let valid = ack.ok().is_some_and(|bytes| {
+        pending.front().is_some_and(|entry| {
+            entry.sent_at.is_some() && verify_ack(committee, &entry.frame.auth, &bytes).is_ok()
+        })
+    });
+    if !valid {
+        return Err(());
+    }
+    let entry = pending.pop_front().unwrap();
+    *pending_bytes -= entry.frame.bytes.len();
+    let mut stats = stats.lock().unwrap();
+    let counters = stats.peers.get_mut(&peer).unwrap();
+    counters
+        .layers
+        .entry(entry.frame.auth.layer)
+        .or_default()
+        .acknowledged_frames += 1;
+    counters.outstanding_frames -= 1;
+    counters.inflight_frames = pending.len() as u64;
+    counters.inflight_bytes = *pending_bytes as u64;
+    Ok(())
+}
+
 fn writer(
     peer: Id,
     address: SocketAddr,
@@ -517,95 +655,53 @@ fn writer(
     stop: Arc<AtomicBool>,
     stats: Stats,
 ) {
-    let mut stream = None;
+    let mut connection: Option<WriterConnection> = None;
+    let mut pending = VecDeque::<PendingFrame>::new();
+    let mut pending_bytes = 0usize;
+    // Dequeue at most one frame beyond the window to inspect its byte size.
+    let mut staged: Option<QueuedFrame> = None;
+    let mut received_ack = None;
     while !stop.load(Ordering::Acquire) {
-        let frame = match rx.recv_timeout(Duration::from_millis(20)) {
-            Ok(frame) => frame,
-            Err(RecvTimeoutError::Timeout) => continue,
-            Err(RecvTimeoutError::Disconnected) => break,
-        };
-        let mut attempted = false;
-        while !stop.load(Ordering::Acquire) {
-            if stream.is_none() {
-                stats
-                    .lock()
-                    .unwrap()
-                    .peers
-                    .get_mut(&peer)
-                    .unwrap()
-                    .connection_attempts += 1;
-                match TcpStream::connect_timeout(&address, settings.connect_timeout) {
-                    Ok(socket) if configure(&socket, settings.io_timeout).is_ok() => {
-                        stats
-                            .lock()
-                            .unwrap()
-                            .peers
-                            .get_mut(&peer)
-                            .unwrap()
-                            .established_connections += 1;
-                        stream = Some(socket);
-                    }
-                    _ => {
-                        stats
-                            .lock()
-                            .unwrap()
-                            .peers
-                            .get_mut(&peer)
-                            .unwrap()
-                            .connection_failures += 1;
-                        pause(&stop, settings.reconnect_delay);
-                        continue;
-                    }
+        let mut ack_failed = false;
+        if let Some(active) = &connection {
+            loop {
+                let ack =
+                    received_ack
+                        .take()
+                        .or_else(|| match active.acknowledgements.try_recv() {
+                            Ok(ack) => Some(ack),
+                            Err(mpsc::TryRecvError::Empty) => None,
+                            Err(mpsc::TryRecvError::Disconnected) => Some(Err(io::Error::new(
+                                io::ErrorKind::ConnectionAborted,
+                                "ACK reader stopped",
+                            ))),
+                        });
+                let Some(ack) = ack else { break };
+                if retire_ack(
+                    ack,
+                    &mut pending,
+                    &mut pending_bytes,
+                    &committee,
+                    peer,
+                    &stats,
+                )
+                .is_err()
+                {
+                    ack_failed = true;
+                    break;
                 }
             }
-            if attempted {
-                stats.lock().unwrap().peers.get_mut(&peer).unwrap().retries += 1;
-            }
-            attempted = true;
-            let socket = stream.as_mut().unwrap();
-            let (written, result) = write_counted(socket, &frame.bytes, &stop);
+            if pending
+                .front()
+                .and_then(|entry| entry.sent_at)
+                .is_some_and(|at| at.elapsed() >= settings.ack_timeout)
             {
-                let mut stats = stats.lock().unwrap();
-                let counters = stats.peers.get_mut(&peer).unwrap();
-                let layer = counters.layers.entry(frame.auth.layer).or_default();
-                layer.data_bytes_written += written as u64;
-                layer.payload_bytes_written += written.saturating_sub(frame.payload_offset) as u64;
-                if result.is_ok() {
-                    layer.full_frames_written += 1;
-                } else {
-                    counters.write_failures += 1;
-                    counters.partial_frame_bytes_written += written as u64;
-                }
+                ack_failed = true;
             }
-            if result.is_err() {
-                stream = None;
-                pause(&stop, settings.reconnect_delay);
-                continue;
-            }
-            let ack = read_frame(socket, MAX_AUTH_BYTES, &stop, false, &mut |n| {
-                stats
-                    .lock()
-                    .unwrap()
-                    .peers
-                    .get_mut(&peer)
-                    .unwrap()
-                    .ack_bytes_read += n as u64;
-            });
-            let valid = ack
-                .ok()
-                .is_some_and(|bytes| verify_ack(&committee, &frame.auth, &bytes).is_ok());
-            if valid {
-                let mut stats = stats.lock().unwrap();
-                let counters = stats.peers.get_mut(&peer).unwrap();
-                counters
-                    .layers
-                    .entry(frame.auth.layer)
-                    .or_default()
-                    .acknowledged_frames += 1;
-                counters.outstanding_frames -= 1;
-                break;
-            }
-            if !stop.load(Ordering::Acquire) {
+        }
+        if ack_failed {
+            // An idle peer closing is normal and does not fail any frame's ACK.
+            if !pending.is_empty() {
                 stats
                     .lock()
                     .unwrap()
@@ -614,10 +710,145 @@ fn writer(
                     .unwrap()
                     .ack_failures += 1;
             }
-            stream = None;
+            connection.take();
+            for entry in &mut pending {
+                entry.sent_at = None;
+            }
             pause(&stop, settings.reconnect_delay);
+            continue;
+        }
+
+        // Replay the retained suffix completely before admitting new frames.
+        if connection.is_some() {
+            if let Some(entry) = pending.iter_mut().find(|entry| entry.sent_at.is_none()) {
+                if entry.attempted {
+                    stats.lock().unwrap().peers.get_mut(&peer).unwrap().retries += 1;
+                }
+                entry.attempted = true;
+                let (written, result) = write_counted(
+                    &mut connection.as_mut().unwrap().stream,
+                    &entry.frame.bytes,
+                    &stop,
+                );
+                {
+                    let mut stats = stats.lock().unwrap();
+                    let counters = stats.peers.get_mut(&peer).unwrap();
+                    let layer = counters.layers.entry(entry.frame.auth.layer).or_default();
+                    layer.data_bytes_written += written as u64;
+                    layer.payload_bytes_written +=
+                        written.saturating_sub(entry.frame.payload_offset) as u64;
+                    if result.is_ok() {
+                        layer.full_frames_written += 1;
+                    } else {
+                        counters.write_failures += 1;
+                        counters.partial_frame_bytes_written += written as u64;
+                    }
+                }
+                if result.is_ok() {
+                    entry.sent_at = Some(Instant::now());
+                } else {
+                    connection.take();
+                    for entry in &mut pending {
+                        entry.sent_at = None;
+                    }
+                    pause(&stop, settings.reconnect_delay);
+                }
+                continue;
+            }
+        }
+
+        if staged.is_none() && pending.len() < settings.max_inflight_frames {
+            // Fresh sends wake recv_timeout immediately. With traffic in flight,
+            // an ACK waits at most 1ms here; a full window waits on ACKs directly.
+            match rx.recv_timeout(if pending.is_empty() {
+                Duration::from_millis(20)
+            } else {
+                Duration::from_millis(1)
+            }) {
+                Ok(frame) => staged = Some(frame),
+                Err(RecvTimeoutError::Disconnected) => break,
+                Err(RecvTimeoutError::Timeout) => {}
+            }
+        }
+        if connection.is_none() && (!pending.is_empty() || staged.is_some()) {
+            stats
+                .lock()
+                .unwrap()
+                .peers
+                .get_mut(&peer)
+                .unwrap()
+                .connection_attempts += 1;
+            match WriterConnection::open(address, peer, &settings, stats.clone()) {
+                Ok(active) => {
+                    stats
+                        .lock()
+                        .unwrap()
+                        .peers
+                        .get_mut(&peer)
+                        .unwrap()
+                        .established_connections += 1;
+                    connection = Some(active);
+                }
+                Err(_) => {
+                    stats
+                        .lock()
+                        .unwrap()
+                        .peers
+                        .get_mut(&peer)
+                        .unwrap()
+                        .connection_failures += 1;
+                    pause(&stop, settings.reconnect_delay);
+                }
+            }
+            // In particular, reconnect must replay pending before staged.
+            continue;
+        }
+        if connection.is_none() {
+            continue;
+        }
+        if staged.as_ref().is_some_and(|frame| {
+            pending.len() < settings.max_inflight_frames
+                && frame.bytes.len() <= settings.max_inflight_bytes - pending_bytes
+        }) {
+            let frame = staged.take().unwrap();
+            pending_bytes += frame.bytes.len();
+            pending.push_back(PendingFrame {
+                frame,
+                attempted: false,
+                sent_at: None,
+            });
+            let mut stats = stats.lock().unwrap();
+            let counters = stats.peers.get_mut(&peer).unwrap();
+            counters.inflight_frames = pending.len() as u64;
+            counters.inflight_bytes = pending_bytes as u64;
+            counters.maximum_inflight_frames = counters
+                .maximum_inflight_frames
+                .max(counters.inflight_frames);
+            counters.maximum_inflight_bytes =
+                counters.maximum_inflight_bytes.max(counters.inflight_bytes);
+            continue;
+        }
+        if !pending.is_empty()
+            && (staged.is_some() || pending.len() == settings.max_inflight_frames)
+        {
+            match connection
+                .as_ref()
+                .unwrap()
+                .acknowledgements
+                .recv_timeout(Duration::from_millis(20))
+            {
+                Ok(ack) => received_ack = Some(ack),
+                Err(RecvTimeoutError::Disconnected) => {
+                    received_ack = Some(Err(io::Error::new(
+                        io::ErrorKind::ConnectionAborted,
+                        "ACK reader stopped",
+                    )));
+                }
+                Err(RecvTimeoutError::Timeout) => {}
+            }
         }
     }
+    // Drop closes the socket and joins its ACK reader, including on shutdown.
 }
 
 fn verify_ack(committee: &Committee, frame: &FrameAuth, bytes: &[u8]) -> Result<(), String> {
@@ -759,6 +990,14 @@ fn reader(
                     .unwrap()
                     .duplicate_frames += 1;
             } else {
+                // Replays on old/new sockets may overlap, but a gap must never
+                // advance the high-water mark and discard an earlier frame.
+                if highest.checked_add(1) != Some(auth.sequence) {
+                    let mut stats = stats.lock().unwrap();
+                    stats.rejected_frames += 1;
+                    stats.peers.get_mut(&auth.from).unwrap().incoming_errors += 1;
+                    return;
+                }
                 let mut incoming = Received {
                     from: auth.from,
                     sequence: auth.sequence,
@@ -863,6 +1102,41 @@ mod tests {
     }
 
     #[test]
+    fn ordering_bundle_uses_the_same_authenticated_frame_and_payload_binding() {
+        let c = committee();
+        let payload = vec![2, 0, 0, 0, 1, 0, 0, 0, 5, 1, 0, 0, 0, 6];
+        let frame = make_frame(
+            &c,
+            &wire::fixture_key(0),
+            0,
+            1,
+            7,
+            Layer::OrderingBundle,
+            payload.clone(),
+        )
+        .unwrap();
+        let (auth, decoded) = verify_frame(&c, 1, &frame.bytes[4..]).unwrap();
+        assert_eq!(auth.layer, Layer::OrderingBundle);
+        assert_eq!(auth.sequence, 7);
+        assert_eq!(decoded, payload);
+        let mut changed = frame.bytes.clone();
+        *changed.last_mut().unwrap() ^= 1;
+        assert!(verify_frame(&c, 1, &changed[4..]).is_err());
+        assert!(verify_frame(&c, 2, &frame.bytes[4..]).is_err());
+        // Appending the new layer preserves both existing discriminants and
+        // framing/signature sizes; it does not change canonical protocol bytes.
+        assert_eq!(wire::encode(&Layer::Ordering).unwrap(), 0u32.to_le_bytes());
+        assert_eq!(
+            wire::encode(&Layer::Dissemination).unwrap(),
+            1u32.to_le_bytes()
+        );
+        assert_eq!(
+            wire::encode(&Layer::OrderingBundle).unwrap(),
+            2u32.to_le_bytes()
+        );
+    }
+
+    #[test]
     fn maximum_protocol_payload_fits_separate_transport_frame() {
         let c = committee();
         let frame = make_frame(
@@ -930,6 +1204,40 @@ mod tests {
             assert!(Instant::now() < deadline, "TCP test condition timed out");
             thread::sleep(Duration::from_millis(5));
         }
+    }
+
+    #[test]
+    #[ignore = "requires permission to bind localhost TCP sockets"]
+    fn accepted_socket_waits_for_read_timeout_instead_of_busy_polling() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        listener.set_nonblocking(true).unwrap();
+        let mut client = TcpStream::connect(listener.local_addr().unwrap()).unwrap();
+        let deadline = Instant::now() + Duration::from_secs(2);
+        let mut accepted = loop {
+            match listener.accept() {
+                Ok((stream, _)) => break stream,
+                Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
+                    assert!(Instant::now() < deadline, "loopback accept timed out");
+                    thread::sleep(Duration::from_millis(1));
+                }
+                Err(error) => panic!("loopback accept failed: {error}"),
+            }
+        };
+        configure(&accepted, Duration::from_millis(40)).unwrap();
+        let start = Instant::now();
+        let error = accepted.read(&mut [0u8; 1]).unwrap_err();
+        assert!(matches!(
+            error.kind(),
+            io::ErrorKind::WouldBlock | io::ErrorKind::TimedOut
+        ));
+        assert!(
+            start.elapsed() >= Duration::from_millis(20),
+            "accepted socket ignored its blocking timeout and would spin in read_frame"
+        );
+        client.write_all(&[7]).unwrap();
+        let mut byte = [0u8; 1];
+        accepted.read_exact(&mut byte).unwrap();
+        assert_eq!(byte, [7]);
     }
 
     #[test]

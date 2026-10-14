@@ -1,0 +1,161 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "classification": "read_only_derived_transport_audit_of_two_completed_delugi_trials",
+  "analysis": {
+    "path": "results/local/delugi-timing-transport-audit-20261013/analysis.json",
+    "absolute_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-timing-transport-audit-20261013/analysis.json",
+    "sha256": "43cd9151f3de1a5ab0723660517cb6e61334dcb4c2b321af5cd010f9ed685188",
+    "bytes": 46651
+  },
+  "readme": {
+    "path": "results/local/delugi-timing-transport-audit-20261013/README.txt",
+    "absolute_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-timing-transport-audit-20261013/README.txt",
+    "sha256": "21c3c59a46c7ac3bebad696eee8a18bbb14cbd187bb922734812caf0da106023",
+    "bytes": 3110
+  },
+  "nominal_model": {
+    "one_way_delay_ms": 10,
+    "injected_rtt_ms": 20,
+    "directed_streams": 12,
+    "one_outstanding_frame_per_stream": true,
+    "ideal_frame_service_ceiling_per_stream": 50,
+    "batch_frames_per_stream_per_second": 10,
+    "ordinary_control_frames_per_round": 60,
+    "ideal_round_service_ceiling_per_second": 8
+  },
+  "trials": [
+    {
+      "name": "comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0",
+      "manifest": {
+        "path": "results/local/comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0/manifest.json",
+        "absolute_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0/manifest.json",
+        "sha256": "2917c53bc0e94de5d12b282a52ea67c36fc0f88481f05edc839897778cb23606",
+        "bytes": 26544
+      },
+      "snapshots": {
+        "path": "results/local/comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0/trial/snapshots.json",
+        "absolute_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0/trial/snapshots.json",
+        "sha256": "47ada7f9981b6d3c39f9ad8c64ecc24418ee64848749bbdac5b420e1dda7bb8c",
+        "bytes": 103686
+      },
+      "comparison": {
+        "offered_tx_s": 40,
+        "measurement_seconds": 9.9997155,
+        "generated_count": 400,
+        "completion_count": 395,
+        "generation_tps": 40.00113830592443,
+        "unique_completion_tps": 39.501111870599814,
+        "mean_latency_ms": 781.5270582278481,
+        "pending_at_start": 26,
+        "pending_at_end": 31,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "drain_complete": true
+      },
+      "aggregate": {
+        "directed_peer_stream_count": 12,
+        "acked_frames_per_second_min": 48.90268475739318,
+        "acked_frames_per_second_max": 49.00737561002931,
+        "acked_frames_per_second_mean": 48.98472604621019,
+        "outstanding_frames_start_min": 4,
+        "outstanding_frames_start_max": 8,
+        "outstanding_frames_end_min": 3,
+        "outstanding_frames_end_max": 10,
+        "transport_retries_delta": 0,
+        "transport_ack_failures_delta": 0,
+        "sent_protocol_message_deltas": {
+          "BATCH": 1200,
+          "CER": 939,
+          "CLOSED": 939,
+          "HISTORY3": 234,
+          "OBS": 233,
+          "PROG": 936,
+          "PROPOSE": 234,
+          "REPORT": 234,
+          "VOTE": 945
+        },
+        "proposed_rounds_in_node_windows": 78.0,
+        "sent_control_frames_in_node_windows": 4694,
+        "sent_control_frames_per_proposed_round": 60.17948717948718,
+        "sent_batch_frames_per_directed_stream_second": 10.000284508094255,
+        "maximum_generation_schedule_lag_ms_at_end": 14.622,
+        "no_payload_fetch_or_data_sent_over_entire_run": true,
+        "all_boundary_pending_materialization_zero": true
+      }
+    },
+    {
+      "name": "comparison-delta10-bound100-20261013/delugi-1000-repeat-0",
+      "manifest": {
+        "path": "results/local/comparison-delta10-bound100-20261013/delugi-1000-repeat-0/manifest.json",
+        "absolute_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-20261013/delugi-1000-repeat-0/manifest.json",
+        "sha256": "7db4d44b70019fbe6230b24dd7be49192573e2a1cad605d989ebdf3c0ea42109",
+        "bytes": 27374
+      },
+      "snapshots": {
+        "path": "results/local/comparison-delta10-bound100-20261013/delugi-1000-repeat-0/trial/snapshots.json",
+        "absolute_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-20261013/delugi-1000-repeat-0/trial/snapshots.json",
+        "sha256": "aaccccce488c07dbe0635e2e09fa69be9705857fc7e6e75574e2c4645493d2ee",
+        "bytes": 118179
+      },
+      "comparison": {
+        "offered_tx_s": 1000,
+        "measurement_seconds": 30.008333,
+        "generated_count": 30002,
+        "completion_count": 30050,
+        "generation_tps": 999.7891538401669,
+        "unique_completion_tps": 1001.3874430321493,
+        "mean_latency_ms": 758.4494816306157,
+        "pending_at_start": 775,
+        "pending_at_end": 727,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "drain_complete": true
+      },
+      "aggregate": {
+        "directed_peer_stream_count": 12,
+        "acked_frames_per_second_min": 48.83132799346373,
+        "acked_frames_per_second_max": 48.93132388696571,
+        "acked_frames_per_second_mean": 48.87531358675162,
+        "outstanding_frames_start_min": 7,
+        "outstanding_frames_start_max": 10,
+        "outstanding_frames_end_min": 5,
+        "outstanding_frames_end_max": 10,
+        "transport_retries_delta": 0,
+        "transport_ack_failures_delta": 0,
+        "sent_protocol_message_deltas": {
+          "BATCH": 3600,
+          "CER": 2793,
+          "CLOSED": 2793,
+          "HISTORY3": 698,
+          "OBS": 701,
+          "PROG": 2799,
+          "PROPOSE": 702,
+          "REPORT": 699,
+          "VOTE": 2802
+        },
+        "proposed_rounds_in_node_windows": 234.0,
+        "sent_control_frames_in_node_windows": 13987,
+        "sent_control_frames_per_proposed_round": 59.77350427350427,
+        "sent_batch_frames_per_directed_stream_second": 9.997223104662295,
+        "maximum_generation_schedule_lag_ms_at_end": 27.729,
+        "no_payload_fetch_or_data_sent_over_entire_run": true,
+        "all_boundary_pending_materialization_zero": true
+      }
+    }
+  ],
+  "conclusions": [
+    "Every directed stream acknowledges about49frames/s in both runs; explicit one-frame/ACK serialization and a20ms injected RTT yield an ideal50frames/s ceiling. This is evidence of a frame-service ceiling, including under low transaction load.",
+    "Both input rates use100ms producer cadence and about10BATCHframes/s per directed stream; changing transactions per batch changes payload volume without eliminating control-frame pressure.",
+    "Approximately60directed controlframes/proposedround and12streams predict about8rounds/s after reserving10BATCHframes/s/stream. Observed round progress is about7.8/s. This is an aggregate consistency check, not a per-transaction path decomposition.",
+    "No FETCH/DATA is sent during either entire trial, and boundary materialization queues are empty. The recorded runs do not implicate payload-repair traffic as a latency source.",
+    "700ms main timeout is configured, but positive CER/commit transitions can complete before expiry. The current archives cannot show how many expiries changed an Open outcome to NoCer or lay on a transaction critical path."
+  ],
+  "limitations": [
+    "Only two completed trials are audited:40tx/s preflight and first1000tx/s matrix trial, not the final matrix population.",
+    "Boundary snapshots are partial observations of continuous operation. Queue depths are endpoint samples, not means/maxima or proof of continuously nonempty queues. Per-replica windows differ slightly; message ratios can straddle different round boundaries.",
+    "Latency is a completion-window population at each origin, including transactions inserted before the window. It is not an arrival cohort or an all-replica barrier.",
+    "Zero retries and ACK failures means zero deltas in these Delugi application-transport counters over the audited measurement windows. It does not measure kernel TCP retransmissions or establish any corresponding property for other protocols.",
+    "No stage-level timeline is retained in sustained mode: round admission, main/catchup arms/expiries, observations/input-ready, direct-commit, ordering release and materialization events are filtered from stdout; compact snapshots omit their maps.",
+    "Generator schedule lag is a cumulative maximum at the window endpoint, not a measurement-window percentile or a direct handler/queue latency measurement.",
+    "This audit does not attribute a numerical fraction of the758\u2013782ms means to transport, timers, construction, signature checking, scanner release or local materialization; same-run correlation is not an intervention."
+  ]
+}

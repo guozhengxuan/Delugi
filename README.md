@@ -6,18 +6,32 @@ transaction path from signed batches through availability proofs, ordered
 descriptors, payload retrieval and materialization. Deterministic traces exercise
 protocol semantics; independent replica processes exercise the same state
 machines over real TCP and measure local end-to-end latency and traffic.
+The default ordering schedule paces originating PROG messages against proposal
+readiness, with a Δ release deadline, and immediately bundles already-enabled
+ordering messages per peer.
+
+The sustained-load harness runs four independent replicas with paced transaction
+generation and measures unique completions, latency, queue growth and TCP traffic.
+The [matched comparison](benchmarks/MATCHED_COMPARISON.md) runs Delugi and pinned
+Raptr/Mysticeti paper artifacts with the same offered rates, serialized transaction
+size and ingress cadence. [Baseline documentation](benchmarks/README.md) also retains
+the earlier native workload measurements. The
+[timing-controlled rerun](benchmarks/TIMING_COMPARISON.md) matches added one-way
+delay 10 ms and bound 100 ms across all three. The
+[Vantage architecture review](benchmarks/ARCHITECTURE_COMPARISON.md) records local
+tests and the recommended framework for formal evaluation.
 
 ## Implemented ordering
 
 - `src/wire.rs`: canonical, bounded Ed25519/SHA-256 messages; instance,
-  configuration, role, leader and value/history bindings. The full ordering v2
+  configuration, role, leader and value/history bindings. The Option A v3
   profile carries explicit history and its exact signed projection.
 - `src/history.rs`: nonrecursive CER proofs, usable HISTORY3 reports, compact
   histories, greatest known pivots, predecessor bridges and negative assertions.
 - `src/slot.rs`: once-only full-validation VOTEs, CER amplification, immutable
   terminal outcomes and independent direct commitments.
 - `src/replica.rs`: complete generic ordering handlers, predecessor-closed PROG
-  admission, exact reports followed by CLOSED, independent 7Δ/3Δ timers, retained
+  admission, default PROG pacing, exact reports followed by CLOSED, independent 7Δ/3Δ timers, retained
   old-round work, atomic in-memory effects and immediate local self-delivery.
 - `src/scanner.rs`: coherent descending classification, nearest-authority barriers,
   fixed signed entries and contiguous once-only descriptor delivery.
@@ -40,41 +54,45 @@ requests metadata and cannot delay an enabled logical send.
   storage, indefinite custody, and atomic suffix reconstruction. Batches are
   bounded at 256 KiB; cumulative retrieval uses independently verified DATA parts
   within the 1 MiB wire limit, including reordered parts.
-- `src/availability.rs`: one complete signed observation per opportunity, exact
-  n−f current pools, f+1 distinct witnesses per coordinate, at least n−f current
-  coordinates, and current/historical verification. Honest construction requires
-  the entire exact source suffix and indexed proof state; it prefers the highest
-  feasible current target before historical fallback.
-- `src/composed.rs`: immutable captured Q configuration, once-only reporting,
-  frozen pools, retries on source arrival, retained original historical sources,
-  asynchronous ordering input, exact FETCH/DATA service, and ordered materialization.
-- `src/end_to_end.rs` and `tests/end_to_end_scenarios.rs`: real signed/serialized
-  transaction-path traces through round 4, silence and recovery, missing payloads,
-  descriptor-only recipients, duplicates, and seven replicas.
+- `src/availability.rs`: authenticated earlier bases, signed REPORT/OBS bindings,
+  exact n−f current pools and f+1 actual OBS signers per WA. Q checks only supplied
+  immutable evidence. The reference constructor chooses each highest feasible
+  current advance, otherwise an empty suffix supported by current reports.
+  Historical-source verification remains available with explicit source bytes.
+- `src/composed.rs`: automatic leader REPORT on round admission, greatest locally
+  held eligible base, one response to the first valid request, frozen pools,
+  immediate all-current construction, exact FETCH/DATA service and FIFO output.
+- `src/end_to_end.rs` and `tests/end_to_end_scenarios.rs`: signed transaction-path
+  traces through round 4, silent-leader recovery, missing payloads,
+  descriptor-only recipients, duplicates and seven replicas.
 - `scripts/run_end_to_end.py`: source/spec snapshots and repeated signed traces.
 
-The named-base registry is an explicit trusted adapter input. It matches supplied
-immutable opportunity/base/authentication tuples and never checks a changing local
-frontier inside Q. Independent tests cover authorized non-genesis bases and
-historical source reuse. End-to-end scenarios assign public genesis separately to
-concurrently prepared opportunities and use nonforking producers, with an optional
-completely silent replica. This is a fixture premise, not a frozen-epoch repair or
-an implementation of the missing common-base coordination service.
+A non-genesis base contains an earlier leader's signed header, its bound
+frontier descriptor and n−f distinct matching short CER signatures. Its round
+must precede the current opportunity. Genesis always remains eligible. Neither
+base selection nor Q waits for payload execution. Correct reporters answer a
+valid REPORT even before their own admission to that round.
 
-Ordering starts at tick zero; batches are produced without receipt gates, reports
-snapshot after dissemination, and input arrives asynchronously. Readiness is logged
-separately and never resets ordering timers. These runs therefore do not assume or
-establish the theorem's ready-input-at-entry premise.
+For every advancing target, the constructor holds the exact source suffixes and
+indexed proof state. If none is feasible, it reuses f+1 current reports' supplied
+base-to-source proofs for target=base; this empty suffix needs no payload.
+Every coordinate is current and the reference historical source table is empty.
+Availability-specific parser budgets reserve space for the complete accepted pool,
+base evidence and all constructed WAs within the 1 MiB message profile.
 
-Materialization waits for the oldest ordered descriptor's authenticated bytes,
-preflights every coordinate's compatibility, then expands by ordering round,
-producer index, batch height, and transaction position. Exact batches are emitted
-once; the workload defines duplicate transaction IDs as deterministic no-ops and
-hashes each newly executed ID/payload into a state digest. This measures payload
-integrity and deterministic materialization, not application smart-contract work.
-A conflicting committed frontier produces an explicit composition error before
-partial execution. An executable SAFE-2 regression shows that two incompatible
-frontiers can each satisfy availability Q; this research obligation is still open.
+Option A allows distinct Byzantine forks in the common output. Materialization
+processes ordering round, producer index and suffix height, suppressing only an
+already emitted `(producer, height, unsigned-header digest)` identity. A lower
+raw target can contribute an unseen fork. Cumulative heights take a maximum and
+never filter output. The logical batch log contains unsigned authenticated fields
+and ordered payload, excluding signature encodings. FIFO processing materializes
+each earlier certified base before its reference.
+
+The workload application treats repeated transaction IDs and malformed application
+payloads as deterministic no-ops while retaining every distinct authenticated
+batch in the logical output. Its state hash measures deterministic application
+output; the exact batch log is checked separately. Custody and execution state
+remain in memory.
 
 ## Run
 
@@ -92,6 +110,7 @@ cargo run --offline --locked --bin end-to-end-trace -- --delay-payload --data-de
 python3 scripts/run_end_to_end.py
 python3 scripts/run_network.py
 python3 scripts/run_network.py --scenario silent --repeats 3 --bound-ms 250
+python3 scripts/run_sustained.py --rate 1000 --ingress-batch-ms 100 --warmup 10 --duration 30
 ```
 
 A fresh machine must first fetch the locked dependencies with
@@ -114,12 +133,13 @@ worst-case history overhead before accepting bounded external values/witnesses.
 
 ## Acceptance scenarios
 
-With n=4, δ=10 and Δ=100, the all-honest run proposes rounds 1–4 at ticks
+In the recorded canonical reference schedule with n=4, δ=10 and Δ=100,
+the all-honest run proposes rounds 1–4 at ticks
 0/10/20/30 and directly commits at 30/40/50/60. Round 4 contains actual signed
 HISTORY3(1) evidence and a CER proof, not an empty-history shortcut.
 
-With replica 0 silent, rounds 2 and 3 directly commit but ordered delivery waits
-at round 1. Its main timer expires at tick 720; exact reports permit proposal 4
+In that reference schedule with replica 0 silent, rounds 2 and 3 directly commit
+but ordered delivery waits at round 1. Its main timer expires at tick 720; exact reports permit proposal 4
 at 730. The three honest anchors resolve round 1 as to-skip and deliver rounds
 2/3/4 at tick 760. A second silent round 5 is resolved by anchors 6/7/8.
 These timings describe these precise virtual schedules, not a uniform recovery bound.
@@ -131,12 +151,11 @@ CER before proposal, late matching VOTEs, absent or bad VOTE attachments, exact
 catch-up deadlines and report obligations, distinct signer thresholds, metadata
 waiting, duplicates, 7-member quorums and deterministic replay.
 
-For the composed δ=10, Δ=100 workload, batch waves begin at ticks 0/30/60/90,
-inputs and proposals are ready at 30/60/90/120, and honest round-4 materialization
-finishes at 150. With replica 0 silent, three honest anchors release rounds 2–4
-at tick 760, including the height-one batches covered cumulatively by round 2.
-These endpoints include reporting and proof preparation, unlike the pre-ready
-ordering-only trace above. Exact per-replica events are archived by the runner.
+The composed fixture prepares its finite batch workload at tick zero and starts
+ordering at 2δ. Signed REPORT/OBS exchanges then prepare inputs automatically.
+Delayed-payload tests keep one receiver missing selected bytes, exercise empty
+fallback and retrieve committed suffixes while ordering continues. Exact input,
+proposal, commit and materialization events are archived by the runner.
 
 ## Independent replicas over TCP
 
@@ -152,28 +171,113 @@ fixtures, retained with the local archive.
 
 The transport signs each bounded frame, binding its instance, sender, recipient,
 sequence, layer and payload hash. It signs acknowledgments after authenticated
-mailbox acceptance. One writer per peer sends FIFO, waits for the signed
-acknowledgment, and retries the exact frame after a failed connection or missing
-acknowledgment. Receiver sequence state suppresses duplicate delivery across
-reconnections. This stop-and-wait design and its extra signatures are included
-in measured costs; it is an initial reliable transport, not a throughput-optimized
-network stack. Bounded output saturation fails the run explicitly. Sequence
+mailbox acceptance. One writer per peer pipelines FIFO frames while an independent
+reader collects signed acknowledgments. The default window holds up to 64 frames
+and 8 MiB of encoded data; a full window waits for ACKs. A separate 4,096-frame
+outbox and at most one staged frame bound queued memory. Reconnection replays
+the exact unacknowledged suffix before new frames. Only a valid FIFO-head ACK
+retires a frame; receiver sequence state suppresses duplicate delivery and rejects
+gaps. The oldest written frame has a configurable 2-second ACK timeout, while
+idle connections remain open. The signed framing and ACK costs remain included
+in measurements. Bounded output saturation fails the run explicitly. Sequence
 state and custody are in memory; reconnecting is supported, process restart
 recovery is not.
 
-A separate loopback TCP control client submits four finite batch waves, with two
-unique transactions per honest producer per wave. Before each once-only report,
-the experiment waits until every honest node holds that wave. It then submits
-the next wave without waiting for consensus commitment or ordered output.
-This is a coordinated test workload and external reporting event, not a new
-producer receipt gate or consensus rule. The wait is included in end-to-end
-latency. Reports still bind the supplied immutable common genesis bases, and
-ordering inputs arrive asynchronously. With the silent configuration, the
-fourth process remains available for authenticated transport and acknowledgments
-but performs no protocol handling, batch production or reporting.
+The [transport pipeline report](benchmarks/TRANSPORT_PIPELINE.md) records the
+14 October fix, real TCP fault regressions, accepted-socket timeout correction
+on macOS, and native before/after measurements.
+The subsequent [settlement profiling report](benchmarks/SETTLEMENT_PROFILING.md)
+tracks repeated validation and retained-history work on the delivery path,
+causal timing, and sustained reruns with the same transport and timer settings.
+
+The default process configuration and the network, sustained, and TCP-delay
+runners use **PROG-only pacing plus immediate per-peer ordering bundling**.
+Originating PROG(`k`) waits after entry to `k` until a complete valid proposal at
+`k-1` or `k` is available, or until the release deadline Δ expires. PROG(1) and
+`f+1` PROG amplification remain immediate. PROPOSE, VOTE, CER, HISTORY3, and
+CLOSED leave as soon as their original guards enable them. The same-round
+proposal escape prevents a missing predecessor from forcing an otherwise valid
+proposal to wait for the deadline. This rule changes the paper's PROG-origin
+timing; it is now the implementation default.
+
+Immediate bundling combines already-enabled ordering messages for each recipient
+at the end of an effect drain, without a batching timer or waiting for additional
+messages. A physical frame carries at most 32 independently verified messages
+and at most 1 MiB of encoded payload. HISTORY3 remains unicast to its collector.
+Logical message counters and physical frame/ACK byte counters are retained
+separately; trace packet identities include a bundle member index.
+
+The explicit comparison modes are `--ordering-mode canonical`, which uses the
+original PROG-origin rule, and `--ordering-mode barrier`, which uses the full
+outgoing round barrier described below. `--ordering-mode progress` selects the
+default explicitly. Bundling stays enabled in every mode unless
+`--no-ordering-batch` is supplied; canonical scheduling with that flag reproduces
+the scheduling and framing choices of the earlier canonical comparisons.
+Archived binaries from before explicit ordering modes must use their archived
+harness; the current delay runner rejects them before starting a trial.
+`--ordering-batch` remains accepted as an explicit enable flag.
+
+Process JSON uses `ordering_mode` (`progress`, `canonical`, or `barrier`) and
+`ordering_batch` (default `true`). Omitted mode selects `progress`, except that
+`round_barrier_ms` selects `barrier` when no mode is given. The optional
+`progress_pacing_ms` and `round_barrier_ms` deadline aliases select the corresponding
+mode and override its Δ default; each must be positive and at most `bound_ms`.
+Conflicting modes or both deadline aliases are rejected. With `--bound-ms 100`,
+the default pacing deadline is 100 ms.
+
+For example, after building and stamping the release binary, the default run is:
+
+```sh
+python3 scripts/run_tcp_delay.py --output results/local/progress-trial \
+  --scenario sustained --rate 4000 --transaction-size 512 \
+  --ingress-batch-ms 100 --warmup 10 --duration 30 \
+  --delay-ms 10 --bound-ms 100
+```
+
+The [measured comparison](PROGRESS.md#ordering-pacing-experiments-and-measured-backlog-removal)
+was collected before this default change, with PROG pacing and bundling explicitly
+enabled. It removed observed backlog growth and measured approximately 33 ms
+PROPOSE-to-direct-commit latency at 10 ms one-way delay. The default change does
+not extend the paper's canonical latency theorem: the aligned 3δ path requires
+origin PROG for the round to have been released by proposal broadcast. The
+independent `7Δ` and `3Δ` timers, signature/Q checks, and terminal outcome guards
+are unchanged.
+
+[Fresh default validation](PROGRESS.md#default-ordering-schedule) passed the full
+test suite and real-process recovery checks, and sustained 4,000 tx/s at 71.0 ms
+mean transaction latency without backlog growth over the measured 60 seconds.
+
+The full outgoing barrier remains an experimental comparison mode. Barrier `r`
+waits for a fully validated proposal and own VOTE at `r`, plus the terminal own
+outcome and exact report at `r-1` (omitted at `r=1`). It then releases
+PROG(`r+1`), VOTE(`r`), CER(`r-1`) when present, and the related HISTORY3/CLOSED.
+Its independent deadline starts on entry to `r+1`; it releases only enabled
+messages and never fabricates a certificate or CLOSED. Later-enabled messages
+at an already-released barrier leave immediately. PROG amplification remains
+immediate. A held origin PROG is not signed or counted locally, and a held own
+CLOSED does not count toward a catch-up threshold before emission.
+
+In this full-barrier mode, an authenticated remote CLOSED(`h`) or an actually
+emitted own CLOSED(`h`) releases pending and future barriers through `h+1`.
+This is a send scheduling hint, not additional quorum evidence or a terminal
+outcome. A Byzantine signer can use a distant CLOSED hint to disable pacing;
+the experiment does not claim phase alignment under Byzantine scheduling.
+PROG-only pacing does not hold positive messages or use this CLOSED scheduling
+hint. Neither pacing mode automatically inherits the canonical latency theorem.
+
+A separate loopback TCP control client prepares four finite batch waves, with
+two unique transactions per honest producer per wave. The `prepare` phase enables
+production and dissemination before ordering starts; the harness confirms every
+honest replica holds the workload, then starts ordering. Leaders automatically
+issue signed REPORT requests on entry and replicas answer once. The controller
+sends no reporting commands. This finite acceptance schedule differs from the
+older interleaved fixture, so their measured latencies should be interpreted
+with their respective workload boundaries. Submission-to-completion includes
+preparation. The silent process accepts transport frames and acknowledgments but
+performs no protocol handling, batch production or reporting.
 
 The runner checks every submitted transaction at every honest replica, exact
-transaction order and final state hash, matching ordered descriptors, direct
+transaction order and final state hash, matching logical batch logs, all-current signed reporting evidence, direct
 commitment of all honest anchors, and `Skip` for silent round 1. After all honest
 outputs complete, it declares the observation endpoint and quiesces protocol
 dispatch, then drains already-enqueued transport work before final counters and
@@ -211,15 +315,23 @@ real-network performance, transaction throughput, substantive application
 execution, formal verification, or proof that full Delugi composes.
 The ordering-only runner delivers generic descriptors; the composed runner adds
 a finite transaction workload and deterministic payload materialization. The
-separate TCP runner measures independent processes on one host; durable recovery,
-load sweeps, deployment across hosts and counterpart measurements remain work.
+separate TCP runners measure independent processes on one host, including sustained
+loads and matched counterpart trials. Durable recovery, larger load sweeps and
+deployment across hosts remain work. Counterpart runs are recorded in `benchmarks/`.
+
+Sustained latency uses each origin replica's local clock from insertion immediately
+before signed batch production to post-handler materialization. The mean covers
+transactions completed inside the measurement window; pending transactions and
+achieved completion rate are reported alongside it. A successful later drain
+checks completeness and agreement without adding those late completions to the
+window's latency population.
 
 Every nonself send is charged, including silent recipients and deliveries pending
 at observation end. HISTORY3/CLOSED charge to h+3; other sends charge to their
 original round. Opaque x/pi copies are separated from metadata and framing;
 injected duplicates are separated from prescribed sends. Transport overhead,
 CPU/queue latency is not represented in these simulators. Composed runs additionally charge BATCH,
-OBS, FETCH and segmented DATA, separating payload copies from control bytes.
+REPORT, OBS, FETCH and segmented DATA, separating payload copies from control bytes.
 Availability witnesses are charged only where actually sent in PROPOSE; there is
 no second virtual dissemination charge for the same evidence.
 
@@ -227,12 +339,14 @@ The runners create unique ignored `results/local/ordering-*` or
 `results/local/composed-*` directories,
 preserves unsuccessful runs and requires identical signed replays. It rejects
 changed source files during archival and changed canonical specification hashes.
-There is no shared artifact storage or implementation Git history yet; preserve
-local result directories separately. Current paper working-tree hashes and Git
-HEAD are pinned in `provenance/spec-2026-10-12.json`.
+Raw archives remain local and ignored; preserve them separately. Current paper
+working-tree hashes and Git HEAD are pinned in `provenance/spec-2026-10-13.json`.
+The earlier snapshot and its measurements remain available for historical replay.
 
 [PROGRESS.md](PROGRESS.md) links the latest verified run.
 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) maps the formal modules and next
-stages. Common-base authorization, input readiness for composed Delugi and
-concurrent Byzantine frontier compatibility remain explicit research obligations.
-No coordinate projection, mutable Q, or other implicit repair is adopted.
+stages. The current composition implements the 13 October Option A revision.
+The bounded availability profile supports 4 or 7 replicas, reserving complete
+u64-height proof vectors; larger committees require a larger message profile.
+The specification’s singleton procedure is not implemented. Durable recovery,
+bounded custody and distributed-host evaluation remain subsequent engineering work.

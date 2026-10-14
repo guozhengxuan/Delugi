@@ -1,0 +1,980 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "status": "passed",
+  "classification": "timing_controlled_four_replica_sustained_localhost_comparison",
+  "settings": {
+    "rates": [
+      40
+    ],
+    "repeats": 1,
+    "warmup_seconds": 5,
+    "measurement_seconds": 10,
+    "serialized_transaction_bytes": 512,
+    "ingress_batch_ms": 100,
+    "replicas": 4,
+    "faults": 0,
+    "network": "localhost TCP",
+    "execution": "sequential; no overlapping protocol trials",
+    "order": "rate, repeat, protocol; protocol order rotates by repeat",
+    "one_way_network_delay_ms": 10,
+    "bound_ms": 100
+  },
+  "machine": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "cpu_count": 12,
+    "python": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]"
+  },
+  "measurement_boundaries": {
+    "throughput": "Unique origin-node completions per second, using disjoint origin observations; replicas are not summed as replicated system output.",
+    "latency": "Transaction-weighted mean origin-node payload-ready consensus completion latency in a steady-state completion window. Each adapter records its precise start point; client ingress differs.",
+    "traffic": "Sum of successful replica TCP stream writes, including protocol data, authentication, framing and application ACKs. Excludes metrics/client control, TCP/IP headers and kernel retransmissions. Reads recorded separately, never added to writes.",
+    "conditions": "Matched node count, hardware, offered rate, serialized transaction size,100ms origin ingress cadence, warmup and measurement duration. Native internal consensus batching, worker counts, timeouts, cryptography and storage are retained and recorded per implementation. Configured one-way kernel delay and protocol bound are matched; native timer multipliers and independent batching remain implementation-specific. Mysticeti maps its leader-readiness timeout to the requested bound.",
+    "capacity": "Two offered-load points measure sustained delivery under these conditions; no maximum capacity is inferred."
+  },
+  "artifact_identities": {
+    "delugi": {
+      "binary": "5acf60d12526b2a8e52cea476551afe4d319168fe79fa186c2efaaf27eb947d2",
+      "sources": {
+        "Cargo.toml": "9c4d92fa15aa7906016bebd4fafc46a58f8d1d1196fb5049b4a0e0f907ae0430",
+        "Cargo.lock": "7427a739706c4ee13cbfd3871b271323f81e26b497358013c8dcab6e958e42ec",
+        "scripts/run_sustained.py": "8e3d9ba8c7c339861a3d3be3b8cbff44e3b06dea84cf9f4cfc1877815840e56a",
+        "scripts/run_network.py": "905550921dfe8ca724d00c2fd68a0e848ed39d3bdb92a87f4c98a44c66b43aae",
+        "scripts/network_delay.py": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37",
+        "tests/sustained_runner_test.py": "aef77e7ad3b4cd4b6a26a8c7da2fa57ef92992bf5af93619f617af62846f9645",
+        "provenance/spec-2026-10-13.json": "e52e6534f7ec0fbd69f5009fe1d434a8eabacc34fed59620c6348b44fd74713b",
+        "src/availability.rs": "ad4df708d301f156bf8a78a96f85a74dc384c4fe5a445779200e8b4b9483a127",
+        "src/batch.rs": "13285a37d62d4b0f947a209bb4c6d671ba9722a93f20db040733b6dfd2949650",
+        "src/bin/delugi_replica.rs": "df52f0f21a7f8072dbee89bf95c138228f4b790771b43f18b5e2480e80467746",
+        "src/bin/end_to_end_trace.rs": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2",
+        "src/bin/ordering_trace.rs": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9",
+        "src/composed.rs": "c380b6c510398b5d0dd86d1cf25f88d04346082c46583c8174f0a02d87110b02",
+        "src/end_to_end.rs": "38a7cb9757420557e8aacabeabc3173f0973402a52a3cea9c607b32ca06b71a9",
+        "src/history.rs": "8bdbbbe2afef6f808697e79fe83926a174cfca1e512c6dd6f790c2c326a6308a",
+        "src/lib.rs": "24e552921ff6c61daa98574811be992810f1b11164e07a62f3e5d89f281f1901",
+        "src/mmr.rs": "6cac3708e9e4d76bb39c4d343610deed59f1ff018ec5fa298160d16441bc24a9",
+        "src/process.rs": "f4e8f9be6f30dd2b04ff0b926340e632012001f51b8b169e3f34a9f24fad6b6a",
+        "src/replica.rs": "9bc095a3d1f1c41af8b772f8708f5e75b8007a91bb35278c9e620153238f1ec7",
+        "src/scanner.rs": "eb35bee0a5b765ea6016bc236a2b11cdddf0f536b37e2dde9cef1e026841c4c1",
+        "src/simulation.rs": "7446dbf5e155d802604eced471a486bfefd5cd3b5bef3fcfe4ec135f76e0bdc3",
+        "src/slot.rs": "bd695eff64f8186fde52b61a361549fa97dd3d2e88ef816799c2303f3af108e6",
+        "src/transport.rs": "3004dd6a9daef06656880ef20dd28903e8c7302918142dc024efec3406176543",
+        "src/wire.rs": "848cfc964ea4c030343eca88813ea63482bdeecaec20af4b2742627659e32658"
+      }
+    },
+    "raptr": {
+      "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+      "build_stamp": {
+        "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+        "source_diff_sha256": "f6f3e6bddf6843eb90da2b83bd4bce7e6d4f6d93e78be0c29e69f55163576fb0",
+        "patch_sha256": "f6f3e6bddf6843eb90da2b83bd4bce7e6d4f6d93e78be0c29e69f55163576fb0",
+        "lock_sha256": "1468f49033cafb29e5b156678ddc9044e8a216cf474cd23db9ace9c646af2d41",
+        "rustc_verbose": "rustc 1.78.0 (9b00956e5 2024-04-29)\nbinary: rustc\ncommit-hash: 9b00956e56009bab2aa15d7bff10916599e3d6d6\ncommit-date: 2024-04-29\nhost: aarch64-apple-darwin\nrelease: 1.78.0\nLLVM version: 18.1.2\n",
+        "profile": "release",
+        "node_features": "consensus-only-perf-test,failpoints,smoke-test",
+        "build_environment": {
+          "CFLAGS": "-Dfdopen=fdopen",
+          "CXXFLAGS": null,
+          "RUSTFLAGS": null,
+          "CONSENSUS_ONLY_PERF_TEST": "1"
+        },
+        "forge_sha256": "f3aa5bb96ba739760ead7961afbd278713e9266c06bff59e548bf0ddb72ae80e"
+      },
+      "binaries": {
+        "forge": "f3aa5bb96ba739760ead7961afbd278713e9266c06bff59e548bf0ddb72ae80e",
+        "aptos-node": "f6f398534c31cca1fb03d3395c198a522c8712400bb68177ddf34d3a949fbc47"
+      },
+      "runner": "3664d8185ce268a2dbc31935160e1a76660a4d8d9047b430c298d24eadb1ce62"
+    },
+    "mysticeti": {
+      "source_commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+      "source_diff": "e19dd65cc174392d0771b87c4233bbe09c88b9d426d848b8207e4ab65dfbbe81",
+      "binary": "fc4dd3de1a07fb5dedf929ef8e57f471282b7d64b2a897a5e795b02b74d03118",
+      "runner": "f3efcb5ddea0f546cbcd3aeb9d4028acbaae933f6e477f82f324b5725dd541a6"
+    }
+  },
+  "source_manifest": {
+    "path": "results/local/comparison-delta10-bound100-preflight-20261013/manifest.json",
+    "sha256": "19bf17376b546fa28263286ca8fa4ca0f9fe3b3fa29d0665dc39d0a39bafa8c3"
+  },
+  "calibration_before": {
+    "status": "passed",
+    "requested_one_way_delay_ms": 10,
+    "baseline_rtt_ms": [
+      0.077709,
+      0.072875,
+      0.065042,
+      0.063875,
+      0.059209,
+      0.059334,
+      0.069625,
+      0.05975,
+      0.068541,
+      0.058333,
+      0.058708,
+      0.059292,
+      0.059041,
+      0.059042,
+      0.059292,
+      0.060583,
+      0.065208,
+      0.064584,
+      0.064625,
+      0.063709
+    ],
+    "shaping": {
+      "protocol": "calibration",
+      "replica_ports": [
+        51212
+      ],
+      "one_way_delay_ms": 10,
+      "backend": "macOS_dummynet",
+      "interface": "lo0",
+      "direction": "out_only",
+      "anchor": "com.apple/delugi-f67dd7ce6c86",
+      "pipes": [
+        60000,
+        60001
+      ],
+      "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 51212 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 51212 } pipe 60001\n",
+      "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+      "configured_unix_ns": 1791887897063689000,
+      "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap",
+      "client_sha256": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37"
+    },
+    "shaped_rtt_ms": [
+      20.7175,
+      20.705292,
+      20.733333,
+      20.693125,
+      20.835833,
+      20.725625,
+      21.199084,
+      19.966667,
+      19.893041,
+      20.953833,
+      21.147958,
+      21.011084,
+      21.154042,
+      20.619375,
+      20.820084,
+      19.668541,
+      20.9925,
+      21.080542,
+      20.938334,
+      19.964958,
+      19.98425,
+      20.830416,
+      20.921458,
+      20.933542,
+      21.043666,
+      21.134417,
+      21.110709,
+      21.125,
+      19.902,
+      20.019625
+    ],
+    "control_rtt_ms": [
+      0.648083,
+      0.358583,
+      0.296042,
+      0.27825,
+      0.241917,
+      0.219958,
+      0.206292,
+      0.221416,
+      0.224833,
+      0.207333,
+      0.196125,
+      0.196083,
+      0.205167,
+      0.204417,
+      0.201375,
+      0.202166,
+      0.20575,
+      0.176416,
+      0.21125,
+      0.17025
+    ],
+    "median_added_rtt_ms": 20.770978500000002,
+    "cleanup": {
+      "active": {
+        "protocol": "calibration",
+        "replica_ports": [
+          51212
+        ],
+        "one_way_delay_ms": 10,
+        "backend": "macOS_dummynet",
+        "interface": "lo0",
+        "direction": "out_only",
+        "anchor": "com.apple/delugi-f67dd7ce6c86",
+        "pipes": [
+          60000,
+          60001
+        ],
+        "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 51212 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 51212 } pipe 60001\n",
+        "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+        "configured_unix_ns": 1791887897063689000,
+        "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap"
+      },
+      "pipes": {
+        "60000": "60000: unlimited   10 ms  100 sl. 1 queues (64 buckets) droptail\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n 19 tcp        127.0.0.1/51212       127.0.0.1/51213   60     5040  0    0   0\n",
+        "60001": ""
+      }
+    }
+  },
+  "calibration_after": {
+    "status": "passed",
+    "requested_one_way_delay_ms": 10,
+    "baseline_rtt_ms": [
+      0.087042,
+      0.071125,
+      0.071542,
+      0.060958,
+      0.059792,
+      0.058584,
+      0.108917,
+      0.106625,
+      0.074,
+      0.060334,
+      0.06075,
+      0.06475,
+      0.059833,
+      0.059333,
+      0.061833,
+      0.081709,
+      0.076083,
+      0.076,
+      0.072042,
+      0.065625
+    ],
+    "shaping": {
+      "protocol": "calibration",
+      "replica_ports": [
+        52088
+      ],
+      "one_way_delay_ms": 10,
+      "backend": "macOS_dummynet",
+      "interface": "lo0",
+      "direction": "out_only",
+      "anchor": "com.apple/delugi-f67dd7ce6c86",
+      "pipes": [
+        60000,
+        60001
+      ],
+      "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 52088 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 52088 } pipe 60001\n",
+      "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+      "configured_unix_ns": 1791888012067021000,
+      "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap",
+      "client_sha256": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37"
+    },
+    "shaped_rtt_ms": [
+      20.748792,
+      20.639875,
+      20.708125,
+      20.715292,
+      20.645708,
+      20.75875,
+      20.780625,
+      20.622167,
+      20.755166,
+      20.7935,
+      19.914,
+      20.787792,
+      20.970792,
+      21.013708,
+      21.005916,
+      21.074,
+      21.073833,
+      21.095833,
+      20.977292,
+      21.075917,
+      19.908958,
+      20.033,
+      20.055083,
+      20.078167,
+      21.242125,
+      21.390292,
+      21.273416,
+      20.165833,
+      20.962625,
+      20.873792
+    ],
+    "control_rtt_ms": [
+      0.346208,
+      0.326667,
+      0.368542,
+      0.366709,
+      0.316833,
+      0.340792,
+      2.130958,
+      0.411958,
+      0.3355,
+      0.359667,
+      0.336125,
+      0.306625,
+      0.253125,
+      0.255959,
+      0.149583,
+      0.16125,
+      0.148167,
+      0.136709,
+      0.134875,
+      0.158709
+    ],
+    "median_added_rtt_ms": 20.7158335,
+    "cleanup": {
+      "active": {
+        "protocol": "calibration",
+        "replica_ports": [
+          52088
+        ],
+        "one_way_delay_ms": 10,
+        "backend": "macOS_dummynet",
+        "interface": "lo0",
+        "direction": "out_only",
+        "anchor": "com.apple/delugi-f67dd7ce6c86",
+        "pipes": [
+          60000,
+          60001
+        ],
+        "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 52088 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 52088 } pipe 60001\n",
+        "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+        "configured_unix_ns": 1791888012067021000,
+        "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap"
+      },
+      "pipes": {
+        "60000": "60000: unlimited   10 ms  100 sl. 1 queues (64 buckets) droptail\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n 15 tcp        127.0.0.1/52088       127.0.0.1/52089   60     5040  0    0   0\n",
+        "60001": ""
+      }
+    }
+  },
+  "trials": [
+    {
+      "protocol": "delugi",
+      "rate": 40,
+      "repeat": 0,
+      "label": "delugi-40-repeat-0",
+      "command": [
+        "/usr/local/bin/python3",
+        "/Users/zhengxuanguo/gitrepo/Delugi/scripts/run_sustained.py",
+        "--rate",
+        "40",
+        "--transaction-size",
+        "512",
+        "--warmup",
+        "5",
+        "--duration",
+        "10",
+        "--ingress-batch-ms",
+        "100",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0",
+        "--skip-build",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "started_unix_ns": 1791887897746626000,
+      "returncode": 0,
+      "finished_unix_ns": 1791887915054400000,
+      "manifest": {
+        "path": "results/local/comparison-delta10-bound100-preflight-20261013/delugi-40-repeat-0/manifest.json",
+        "sha256": "2917c53bc0e94de5d12b282a52ea67c36fc0f88481f05edc839897778cb23606"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 40,
+        "transaction_bytes": 512,
+        "warmup_seconds": 5.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 9.9997155,
+        "unique_completion_tps": 39.501111870599814,
+        "mean_latency_ms": 781.5270582278481,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 10340416,
+        "replica_tcp_read_bytes": 10321641,
+        "replica_tcp_written_bytes_per_second": 1034070.7706355671,
+        "completion_count": 395,
+        "generated_count": 400,
+        "generation_tps": 40.00113830592443,
+        "pending_at_start": 26,
+        "pending_at_end": 31,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "protocol_bound_ms": 100,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 26178.269969286943,
+        "offered_load_completion_fraction": 0.9875277967649954,
+        "achieved_generation_fraction": 1.0000284576481107,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "timing": {
+        "one_way_network_delay_ms": 10,
+        "bound_ms": 100,
+        "shaping": {
+          "protocol": "delugi",
+          "replica_ports": [
+            51221,
+            51222,
+            51223,
+            51224
+          ],
+          "one_way_delay_ms": 10,
+          "backend": "macOS_dummynet",
+          "interface": "lo0",
+          "direction": "out_only",
+          "anchor": "com.apple/delugi-f67dd7ce6c86",
+          "pipes": [
+            60000,
+            60001
+          ],
+          "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 51221, 51222, 51223, 51224 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 51221, 51222, 51223, 51224 } pipe 60001\n",
+          "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+          "configured_unix_ns": 1791887897966792000,
+          "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap",
+          "client_sha256": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37"
+        },
+        "cleanup": {
+          "active": {
+            "protocol": "delugi",
+            "replica_ports": [
+              51221,
+              51222,
+              51223,
+              51224
+            ],
+            "one_way_delay_ms": 10,
+            "backend": "macOS_dummynet",
+            "interface": "lo0",
+            "direction": "out_only",
+            "anchor": "com.apple/delugi-f67dd7ce6c86",
+            "pipes": [
+              60000,
+              60001
+            ],
+            "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 51221, 51222, 51223, 51224 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 51221, 51222, 51223, 51224 } pipe 60001\n",
+            "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+            "configured_unix_ns": 1791887897966792000,
+            "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap"
+          },
+          "pipes": {
+            "60000": "60000: unlimited   10 ms  100 sl. 12 queues (64 buckets) droptail\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n  1 tcp        127.0.0.1/51222       127.0.0.1/51241 1640   242348  0    0   0\n  0 ip           0.4.0.6/0       200.23.200.43/0     242644 17179869184  0    0   0\n-584752107 ip           0.0.0.0/0             0.0.0.0/0     21474836480        0 1642    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0 15935252897877458944 242644    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0     15935252897877458944        0  0   13   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0        0  0    0 3710215189\n  0 ip           0.0.0.0/0             0.0.0.0/0        0 3710215189  0 3710215189   1\n  0 ip           0.0.0.0/0             0.0.0.0/0     3710215189        1  0    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        1        0  0    0   0\n2130706433 ip           0.0.0.0/0             0.0.0.0/0        0        0 3710215189    0 2130706433\n262150 ip           0.0.0.0/0             0.0.0.0/1640     0 9151314449242521601  1    0 3357001767\n  0 ip           0.0.0.0/3           0.0.6.104/45740 60001       10  0    0   0\n",
+            "60001": ""
+          }
+        }
+      },
+      "agreement": {
+        "common_prefix_count": 596,
+        "common_prefix_state_hash": [
+          241,
+          190,
+          111,
+          6,
+          201,
+          4,
+          247,
+          152,
+          49,
+          253,
+          161,
+          238,
+          40,
+          255,
+          129,
+          62,
+          4,
+          197,
+          22,
+          20,
+          81,
+          155,
+          201,
+          119,
+          206,
+          233,
+          43,
+          66,
+          96,
+          216,
+          58,
+          135
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 596,
+          "1": 596,
+          "2": 596,
+          "3": 596
+        },
+        "unique_generated_transactions": 596,
+        "executed_per_replica": 596,
+        "state_hash": [
+          241,
+          190,
+          111,
+          6,
+          201,
+          4,
+          247,
+          152,
+          49,
+          253,
+          161,
+          238,
+          40,
+          255,
+          129,
+          62,
+          4,
+          197,
+          22,
+          20,
+          81,
+          155,
+          201,
+          119,
+          206,
+          233,
+          43,
+          66,
+          96,
+          216,
+          58,
+          135
+        ],
+        "replicas_agree": true
+      },
+      "drain_seconds": 0.33827625028789043,
+      "global_pending_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "raw_manifest_verified": true
+    },
+    {
+      "protocol": "raptr",
+      "rate": 40,
+      "repeat": 0,
+      "label": "raptr-40-repeat-0",
+      "command": [
+        "/usr/local/bin/python3",
+        "/Users/zhengxuanguo/gitrepo/Delugi/scripts/baselines/raptr.py",
+        "--rate",
+        "40",
+        "--transaction-size",
+        "512",
+        "--warmup",
+        "5",
+        "--duration",
+        "10",
+        "--ingress-batch-ms",
+        "100",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-preflight-20261013/raptr-40-repeat-0",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "started_unix_ns": 1791887915055332000,
+      "returncode": 0,
+      "finished_unix_ns": 1791887993342912000,
+      "manifest": {
+        "path": "results/local/comparison-delta10-bound100-preflight-20261013/raptr-40-repeat-0/manifest.json",
+        "sha256": "c1c1d3c973b2c0509fd3722bc9e807827affb7778f3e3edbecd41ef132a62000"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 40,
+        "transaction_bytes": 512,
+        "warmup_seconds": 5,
+        "ingress_batch_ms": 100,
+        "protocol_bound_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 10.054516687523574,
+        "unique_completion_tps": 39.78311563163957,
+        "mean_latency_ms": 159.30766405249997,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 4264274.0,
+        "replica_tcp_read_bytes": 4261387.0,
+        "replica_tcp_written_bytes_per_second": 424115.2640674855,
+        "completion_count": 400.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 403.0,
+        "admission_tps": 40.081488998876864,
+        "pending_local_transactions_start": 4.0,
+        "pending_local_transactions_end": 7.0,
+        "pending_snapshot_skew_detected": false,
+        "pending_estimate_scope": "Signed differences of independently scraped cumulative admission and completion counters; not atomic queue gauges. Negative estimates are preserved and flagged, never clamped.",
+        "tcp_written_bytes_per_completion": 10660.685000000001,
+        "offered_load_completion_fraction": 0.9945778907909892,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "timing": {
+        "one_way_network_delay_ms": 10,
+        "bound_ms": 100,
+        "shaping": {
+          "protocol": "raptr",
+          "replica_ports": [
+            24000,
+            24001,
+            24003,
+            24010,
+            24011,
+            24013,
+            24020,
+            24021,
+            24023,
+            24030,
+            24031,
+            24033
+          ],
+          "one_way_delay_ms": 10,
+          "backend": "macOS_dummynet",
+          "interface": "lo0",
+          "direction": "out_only",
+          "anchor": "com.apple/delugi-f67dd7ce6c86",
+          "pipes": [
+            60000,
+            60001
+          ],
+          "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 24000, 24001, 24003, 24010, 24011, 24013, 24020, 24021, 24023, 24030, 24031, 24033 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 24000, 24001, 24003, 24010, 24011, 24013, 24020, 24021, 24023, 24030, 24031, 24033 } pipe 60001\n",
+          "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+          "configured_unix_ns": 1791887941085103000,
+          "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap",
+          "client_sha256": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37"
+        },
+        "cleanup": {
+          "active": {
+            "protocol": "raptr",
+            "replica_ports": [
+              24000,
+              24001,
+              24003,
+              24010,
+              24011,
+              24013,
+              24020,
+              24021,
+              24023,
+              24030,
+              24031,
+              24033
+            ],
+            "one_way_delay_ms": 10,
+            "backend": "macOS_dummynet",
+            "interface": "lo0",
+            "direction": "out_only",
+            "anchor": "com.apple/delugi-f67dd7ce6c86",
+            "pipes": [
+              60000,
+              60001
+            ],
+            "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 24000, 24001, 24003, 24010, 24011, 24013, 24020, 24021, 24023, 24030, 24031, 24033 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 24000, 24001, 24003, 24010, 24011, 24013, 24020, 24021, 24023, 24030, 24031, 24033 } pipe 60001\n",
+            "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+            "configured_unix_ns": 1791887941085103000,
+            "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap"
+          },
+          "pipes": {
+            "60000": "60000: unlimited   10 ms  100 sl. 18 queues (64 buckets) droptail\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n  0 tcp        127.0.0.1/24001       127.0.0.1/51618  715   366581  0    0   0\n  0 ip           0.4.0.6/0      93.222.201.237/0     1838791 4294967296  0    0   0\n-584674045 ip           0.0.0.0/0             0.0.0.0/0     12884901888        0 9852    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0 15935588296168570880 366529    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0     15935588283283668992        0  0   13   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0        0  0    0 3710293262\n  0 ip           0.0.0.0/0             0.0.0.0/0        0 3710293291  0 3710293291   1\n  0 ip           0.0.0.0/0             0.0.0.0/0     3710293291        1  0    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        1        0  0    0   0\n2130706433 ip           0.0.0.0/0             0.0.0.0/0        0        0 3710293298    0 2130706433\n262150 ip           0.0.0.0/0             0.0.0.0/1429     0 9151314449242521601  1    0 1574291870\n  0 ip           0.0.0.0/5           0.0.2.202/38849 9151314449242521601 1125927250217457  0    0   0\n  0 idrp         0.0.0.0/0        0.27.252.198/0     1125927250872816        0  0    0   0\n  0 ip          0.0.0.49/0             0.0.0.0/0        0        0 2130706433 2130706433   0\n  0 tp++         0.0.0.0/0             0.0.0.0/0        0        0 1573112217 262150   0\n  0 ip     221.38.149.25/0             0.0.0.0/0        0        0  0    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0        0  0    0   0\n  0 ip           0.0.0.0/56614         0.0.0.0/38169    0        0  0    0   0\n",
+            "60001": ""
+          }
+        }
+      },
+      "raw_manifest_verified": true
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 40,
+      "repeat": 0,
+      "label": "mysticeti-40-repeat-0",
+      "command": [
+        "/usr/local/bin/python3",
+        "/Users/zhengxuanguo/gitrepo/Delugi/scripts/baselines/mysticeti.py",
+        "--rate",
+        "40",
+        "--transaction-size",
+        "512",
+        "--warmup",
+        "5",
+        "--duration",
+        "10",
+        "--ingress-batch-ms",
+        "100",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/comparison-delta10-bound100-preflight-20261013/mysticeti-40-repeat-0",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "started_unix_ns": 1791887993343910000,
+      "returncode": 0,
+      "finished_unix_ns": 1791888012046697000,
+      "manifest": {
+        "path": "results/local/comparison-delta10-bound100-preflight-20261013/mysticeti-40-repeat-0/manifest.json",
+        "sha256": "44d5829b7d608868cffdcb797593da01f07bbedd7b5ef7c10723225f6c93e3ad"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 39.949201761556694,
+        "all_replica_commit_tps_min": 39.94310927710389,
+        "bound_mapping": "Experiment mapping: native leader-readiness timeout T = 1 * Delta; quorum-clock gating remains unchanged.",
+        "bound_ms": 100,
+        "completion_count": 400,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 400,
+        "generation_tps": 39.946657937379165,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "leader_timeout_ms": 100,
+        "mean_latency_ms": 47.06560249999998,
+        "measurement_seconds": 10.013353323,
+        "offered_tx_s": 40,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 4551828,
+        "replica_tcp_written_bytes": 4552164,
+        "replica_tcp_written_bytes_per_second": 454609.34545712924,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 39.946657937379165,
+        "warmup_seconds": 5.0,
+        "tcp_written_bytes_per_completion": 11380.41,
+        "offered_load_completion_fraction": 0.9986664484344792,
+        "achieved_generation_fraction": 0.9986664484344792,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "timing": {
+        "one_way_network_delay_ms": 10,
+        "bound_ms": 100,
+        "shaping": {
+          "anchor": "com.apple/delugi-f67dd7ce6c86",
+          "backend": "macOS_dummynet",
+          "client_sha256": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37",
+          "configured_unix_ns": 1791887996849606000,
+          "direction": "out_only",
+          "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+          "interface": "lo0",
+          "one_way_delay_ms": 10,
+          "pipes": [
+            60000,
+            60001
+          ],
+          "protocol": "mysticeti",
+          "replica_ports": [
+            2575,
+            2690,
+            3712,
+            3715
+          ],
+          "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 2575, 2690, 3712, 3715 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 2575, 2690, 3712, 3715 } pipe 60001\n",
+          "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap"
+        },
+        "cleanup": {
+          "active": {
+            "anchor": "com.apple/delugi-f67dd7ce6c86",
+            "backend": "macOS_dummynet",
+            "configured_unix_ns": 1791887996849606000,
+            "direction": "out_only",
+            "helper_sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e",
+            "interface": "lo0",
+            "one_way_delay_ms": 10,
+            "pipes": [
+              60000,
+              60001
+            ],
+            "protocol": "mysticeti",
+            "replica_ports": [
+              2575,
+              2690,
+              3712,
+              3715
+            ],
+            "rules": "dummynet out quick on lo0 inet proto tcp from 127.0.0.1 port { 2575, 2690, 3712, 3715 } to 127.0.0.1 pipe 60000\ndummynet out quick on lo0 inet proto tcp from 127.0.0.1 to 127.0.0.1 port { 2575, 2690, 3712, 3715 } pipe 60001\n",
+            "scope": "selected loopback IPv4 TCP ports, both byte directions and kernel TCP ACKs; no bandwidth cap"
+          },
+          "pipes": {
+            "60000": "60000: unlimited   10 ms  100 sl. 6 queues (64 buckets) droptail\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n    mask: 0xff 0xffffffff/0xffff -> 0xffffffff/0xffff\nBKT Prot ___Source IP/port____ ____Dest. IP/port____ Tot_pkt/bytes Pkt/Byte Drp\n  6 tcp        127.0.0.1/3715        127.0.0.1/37120 3970   774271  0    0   0\n  0 ip           0.4.0.6/0        10.130.145.0/0     775155 30064771072  0    0   0\n-584655207 ip           0.0.0.0/0             0.0.0.0/0     42949672960        0 3969    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0 15935669080208441344 774011    0   0\n  0 ip           0.0.0.0/0             0.0.0.0/0     15935669080208441344        0  0   43   0\n  0 ip           0.0.0.0/0             0.0.0.0/0        0        0  0    0 3710312089\n",
+            "60001": ""
+          }
+        }
+      },
+      "raw_manifest_verified": true
+    }
+  ],
+  "aggregate": [
+    {
+      "protocol": "delugi",
+      "offered_tx_s": 40,
+      "successful_trials": 1,
+      "unique_completion_tps": {
+        "median": 39.501111870599814,
+        "min": 39.501111870599814,
+        "max": 39.501111870599814
+      },
+      "mean_latency_ms": {
+        "median": 781.5270582278481,
+        "min": 781.5270582278481,
+        "max": 781.5270582278481
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 1034070.7706355671,
+        "min": 1034070.7706355671,
+        "max": 1034070.7706355671
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 26178.269969286943,
+        "min": 26178.269969286943,
+        "max": 26178.269969286943
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9875277967649954,
+        "min": 0.9875277967649954,
+        "max": 0.9875277967649954
+      },
+      "generation_tps": {
+        "median": 40.00113830592443,
+        "min": 40.00113830592443,
+        "max": 40.00113830592443
+      },
+      "latency_endpoints": [
+        "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true
+    },
+    {
+      "protocol": "mysticeti",
+      "offered_tx_s": 40,
+      "successful_trials": 1,
+      "unique_completion_tps": {
+        "median": 39.946657937379165,
+        "min": 39.946657937379165,
+        "max": 39.946657937379165
+      },
+      "mean_latency_ms": {
+        "median": 47.06560249999998,
+        "min": 47.06560249999998,
+        "max": 47.06560249999998
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 454609.34545712924,
+        "min": 454609.34545712924,
+        "max": 454609.34545712924
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 11380.41,
+        "min": 11380.41,
+        "max": 11380.41
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9986664484344792,
+        "min": 0.9986664484344792,
+        "max": 0.9986664484344792
+      },
+      "generation_tps": {
+        "median": 39.946657937379165,
+        "min": 39.946657937379165,
+        "max": 39.946657937379165
+      },
+      "latency_endpoints": [
+        "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution."
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true
+    },
+    {
+      "protocol": "raptr",
+      "offered_tx_s": 40,
+      "successful_trials": 1,
+      "unique_completion_tps": {
+        "median": 39.78311563163957,
+        "min": 39.78311563163957,
+        "max": 39.78311563163957
+      },
+      "mean_latency_ms": {
+        "median": 159.30766405249997,
+        "min": 159.30766405249997,
+        "max": 159.30766405249997
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 424115.2640674855,
+        "min": 424115.2640674855,
+        "max": 424115.2640674855
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 10660.685000000001,
+        "min": 10660.685000000001,
+        "max": 10660.685000000001
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9945778907909892,
+        "min": 0.9945778907909892,
+        "max": 0.9945778907909892
+      },
+      "generation_tps": null,
+      "latency_endpoints": [
+        "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true
+    }
+  ],
+  "valid_trials": 3,
+  "failed_attempts": 0,
+  "network_scope": "Nominal 10 ms outbound lo0 dummynet delay on both directions of selected replica TCP connections; no bandwidth cap;100-slot per-flow droptail queues. Echo RTT calibrated before/after. Native dnctl flow statistics are malformed on this host and do not establish zero drops. Application stream-write traffic excludes kernel retransmissions and TCP/IP headers.",
+  "counterpart_scope": "Four independent replica processes. Native internal batching, worker counts, cryptography, storage and latency start/end semantics remain recorded implementation differences. Mysticeti uses explicit leader-readiness timeout T=Delta.",
+  "validation": "Every raw child-manifest SHA verified; successful trial metrics and timing evidence revalidated; aggregate recomputed without omitting failed attempts.",
+  "validation_artifacts": [
+    {
+      "path": "results/local/timing-preset-validation-20261013/python-tests.log",
+      "sha256": "8e5a13cc82014e16f911fe1b8f9d0bb13d7fb5862011a96c3aac149137b19fe0"
+    },
+    {
+      "path": "results/local/timing-preset-validation-20261013/calibration-recovery.json",
+      "sha256": "6abf64d31009093cc12ea045c4d693389bff56bbc7dae24991c2b5aa1127d44c"
+    },
+    {
+      "path": "results/local/timing-preset-validation-20261013/final-helper/status.json",
+      "sha256": "5c053096e7becd9a9f3efc5346d8691944d791d635c634f8f902ff4fe694bb4d"
+    },
+    {
+      "path": "results/local/timing-preset-validation-20261013/final-helper/commands.jsonl",
+      "sha256": "4a9fcfb856eecf78a8bbff9f6c1e8c75fce37e2b93bd99a7c9d32471edc33759"
+    },
+    {
+      "path": "results/local/timing-preset-validation-20261013/final-helper/dummynet_helper.py",
+      "sha256": "15a71ebff8d49004eac97e398048e980a195701d0ce18c23148de7bfcab2410e"
+    },
+    {
+      "path": "results/local/timing-matrix-audit-20261013.json",
+      "sha256": "ef50c84a4bbc6317037c421c894f0b2747019f720e4022eea9df8d52e1e6939a"
+    },
+    {
+      "path": "results/local/raptr-delta100-provenance-20261013/validation.json",
+      "sha256": "5d28e0c51bfb7187057cdc2afd5b6775cd79dc30b7fbe11647535726db1e3244"
+    },
+    {
+      "path": "results/local/mysticeti-network-preset-build-20261013/validation.json",
+      "sha256": "9b3b065ff90dc6de6c37e72e18275c0761ef0bb80f1e34e16d6c701db8f74ace"
+    },
+    {
+      "path": "results/local/delugi-network-shaping-integration-20261013/validation.json",
+      "sha256": "b99b95563cd8b9378bc28e78f1f86631139d7990e9cbd0eea5dba8aa1e0b8cd7"
+    },
+    {
+      "path": "results/local/timing-preset-validation-20261013/process-cleanup.json",
+      "sha256": "86752db836bc0e22f36cbba7ee96d02b0cee111be28465ae9b64a711439f2a87"
+    }
+  ]
+}

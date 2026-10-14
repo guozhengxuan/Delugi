@@ -1,7 +1,8 @@
-use delugi::availability::{self, AvailabilityConfig, AvailabilityProof, Descriptor};
+use delugi::availability::{
+    AvailabilityConfig, AvailabilityProof, Descriptor, SourceRef, WeakAvailability,
+};
 use delugi::batch::BatchStore;
 use delugi::end_to_end::{self, Config, PayloadDelay, Run};
-use delugi::mmr;
 use delugi::scanner::Status;
 use delugi::wire::{self, Committee, Message};
 use std::collections::BTreeSet;
@@ -36,6 +37,12 @@ fn assert_complete(run: &Run) {
         "empty frontiers are not useful output"
     );
     for node in &correct {
+        assert_eq!(
+            node.ordering.ordering_schedule(),
+            delugi::replica::OrderingSchedule::ProgressPacing {
+                release_delay_ms: run.config.bound
+            }
+        );
         assert_eq!(node.executed, correct[0].executed);
         assert_eq!(node.state_hash(), correct[0].state_hash());
         assert_eq!(node.executed_rounds, expected_rounds);
@@ -58,7 +65,7 @@ fn assert_complete(run: &Run) {
                 wire::decode(&record.payload).unwrap();
             assert!(transactions.iter().any(|tx| tx.id == executed.transaction));
         }
-        assert_eq!(node.observations.len(), run.config.rounds as usize);
+        assert_eq!(node.observations.len(), expected_rounds.len());
         for round in 1..=run.config.rounds {
             if run.config.silent == Some(((round - 1) % u64::from(run.config.nodes)) as u32) {
                 assert_eq!(node.ordering.statuses()[&round], Status::Skip);
@@ -84,6 +91,7 @@ fn honest_round_four_orders_and_materializes_real_batches() {
     assert!(run.sends.iter().any(|send| send.kind == "HISTORY3"));
     assert!(run.sends.iter().any(|send| send.kind == "CLOSED"));
     assert!(run.sends.iter().any(|send| send.kind == "OBS"));
+    assert!(run.sends.iter().any(|send| send.kind == "REPORT"));
     assert!(run.nodes.iter().all(|node| node.store.custody_count() > 0));
 }
 
@@ -112,6 +120,37 @@ fn silent_first_leader_preserves_three_honest_anchors_and_their_batches() {
         );
     }
     assert!(run.sends.iter().any(|send| send.to == 0));
+}
+
+#[test]
+fn default_progress_pacing_materializes_round_four_and_silent_recovery_near_delay_bound() {
+    for silent in [None, Some(0)] {
+        let run = end_to_end::run(Config {
+            delta: 99,
+            bound: 100,
+            until: 2500,
+            silent,
+            ..Config::default()
+        })
+        .unwrap();
+        assert_complete(&run);
+        for node in run.nodes.iter().filter(|n| Some(n.id) != silent) {
+            for round in 1..=4 {
+                if silent == Some(((round - 1) % 4) as u32) {
+                    assert_eq!(node.ordering.terminal(round), delugi::slot::Terminal::NoCer);
+                } else {
+                    assert!(matches!(
+                        node.ordering.terminal(round),
+                        delugi::slot::Terminal::Cer(_)
+                    ));
+                }
+            }
+            assert_eq!(
+                node.ordering.snapshot()["progress_pacing"]["peak_held_messages"],
+                0
+            );
+        }
+    }
 }
 
 #[test]
@@ -253,25 +292,14 @@ fn seven_replicas_recover_from_silent_leader_with_real_five_signer_quorums() {
 }
 
 #[test]
-fn q_uses_canonical_supplied_evidence_and_immutable_base_authorization() {
+fn q_uses_canonical_supplied_evidence_and_self_contained_base_authentication() {
     let run = end_to_end::run(Config::default()).unwrap();
     let committee = Committee::new(
         [23; 32],
         (0..4).map(|id| wire::fixture_key(id).public).collect(),
     )
     .unwrap();
-    let config = mmr::Config {
-        context: committee.context.clone(),
-        chunk_capacity: 4,
-    };
-    let verifier = AvailabilityConfig::new(
-        committee.clone(),
-        4,
-        (1..=4)
-            .map(|r| availability::genesis_binding(&config, r, 4))
-            .collect(),
-    )
-    .unwrap();
+    let verifier = AvailabilityConfig::new(committee.clone(), 4).unwrap();
     let proposal = run
         .messages
         .iter()
@@ -295,6 +323,9 @@ fn q_uses_canonical_supplied_evidence_and_immutable_base_authorization() {
     bad_witness.push(0);
     assert!(!verifier.q(4, &proposal.value, &bad_witness));
     let mut proof: AvailabilityProof = wire::decode(&proposal.witness).unwrap();
+    assert!(proof.sources.is_empty());
+    assert!(proof.coordinates.iter().all(|wa| matches!(wa,
+        WeakAvailability::Witnesses { witnesses, .. } if witnesses.iter().all(|w| matches!(w.source, SourceRef::Current(_))))));
     proof.pool[0].signature[0] ^= 1;
     assert!(!verifier.q(4, &proposal.value, &wire::encode(&proof).unwrap()));
     // A new local held frontier cannot change the truth of the old input.

@@ -19,6 +19,12 @@ fn successful(run: &Run, expected: &[u64]) {
         if run.config.silent == Some(id as u32) {
             continue;
         }
+        assert_eq!(
+            node.ordering_schedule(),
+            delugi::replica::OrderingSchedule::ProgressPacing {
+                release_delay_ms: run.config.bound
+            }
+        );
         assert_eq!(rounds(node), expected, "replica {id}");
         if let Some(deliveries) = first {
             assert_eq!(node.deliveries(), deliveries);
@@ -35,7 +41,7 @@ fn successful(run: &Run, expected: &[u64]) {
 
 #[test]
 fn all_honest_pipeline_through_round_four_has_three_delay_commitments() {
-    for delta in [10, 20] {
+    for delta in [10, 20, 99] {
         let run = simulation::run(Config {
             delta,
             until: 7 * delta,
@@ -123,22 +129,24 @@ fn silent_first_leader_requires_history_wait_then_three_honest_anchors() {
     }
     let run = simulation::run(config).unwrap();
     successful(&run, &[2, 3, 4]);
-    assert_eq!(run.proposal_times[&4], 730);
+    // Missing proposal1 lets round2's valid proposal release PROG2. This
+    // adds one delta before entry3, and therefore before the unchanged 7Δ timer.
+    assert_eq!(run.proposal_times[&4], 740);
     for id in 1..4 {
         let node = &run.nodes[id as usize];
         assert_eq!(node.terminal(1), Terminal::NoCer);
         assert_eq!(node.statuses().get(&1), Some(&Status::Skip));
-        assert_eq!(node.main_deadline(1), Some(720));
+        assert_eq!(node.main_deadline(1), Some(730));
         assert!(node.catchup_deadline(1).is_some());
         assert!(node.own_reports()[&1].header.body.positives.is_empty());
-        assert_eq!(run.direct_commits[&(id, 4)], 760);
+        assert_eq!(run.direct_commits[&(id, 4)], 770);
         assert!(run
             .trace
             .iter()
             .filter(
                 |event| event["event"] == "ordered_descriptor_delivery" && event["replica"] == id
             )
-            .all(|event| event["at"] == 760));
+            .all(|event| event["at"] == 770));
     }
     // A failed opportunity is counted, and traffic to the silent node is charged.
     assert!(!run.proposal_times.contains_key(&1));
@@ -165,9 +173,9 @@ fn recurring_silent_leader_is_resolved_by_a_second_honest_triple() {
             Some(&Status::Skip)
         );
         assert_eq!(run.nodes[id as usize].terminal(5), Terminal::NoCer);
-        assert_eq!(run.direct_commits[&(id, 8)], 1470);
+        assert_eq!(run.direct_commits[&(id, 8)], 1480);
     }
-    assert_eq!(run.proposal_times[&8], 1440);
+    assert_eq!(run.proposal_times[&8], 1450);
 }
 
 #[test]

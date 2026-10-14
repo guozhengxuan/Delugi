@@ -1,12 +1,15 @@
 //! Signed cumulative observations and the immutable availability predicate.
 //!
-//! Named-base authorization is an explicit external contract: this reference
-//! profile compares with a supplied, immutable registry. It does not infer a
-//! common base from a replica's changing execution or ordering frontier.
+//! Bases are authenticated by earlier directly certified ordering descriptors.
+//! Validation uses only supplied evidence; it never consults a mutable frontier.
+//! The reference constructor uses current observations at every coordinate.
 
 use crate::batch::BatchStore;
+use crate::history::{Entries, Entry};
 use crate::mmr::{self, Checkpoint, Config as MmrConfig, PrefixProof};
-use crate::wire::{self, Committee, Context, Digest, Id, Signed, SigningDomain};
+use crate::wire::{
+    self, Committee, Context, Digest, Header, Id, Kind, Signed, SigningDomain, Statement,
+};
 use ed25519_dalek::Keypair;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, BTreeSet};
@@ -14,7 +17,7 @@ use std::collections::{BTreeMap, BTreeSet};
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct NamedBase {
     pub opportunity: u64,
-    pub identity: Digest,
+    pub identity: u64,
     pub frontier: Vec<Checkpoint>,
     pub authentication: Vec<u8>,
 }
@@ -24,10 +27,32 @@ pub fn genesis_binding(config: &MmrConfig, opportunity: u64, n: usize) -> NamedB
     let frontier: Vec<_> = (0..n).map(|id| mmr::genesis(config, id as Id)).collect();
     NamedBase {
         opportunity,
-        identity: wire::hash(&("dissemination-genesis-base", &frontier)),
+        identity: 0,
         frontier,
         authentication: Vec::new(),
     }
+}
+
+/// A bounded, nonrecursive certificate for the target frontier of an earlier
+/// ordering proposal. Short CER signatures certify the unsigned header digest.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct BaseCertificate {
+    pub header: Signed<Header>,
+    pub value: Vec<u8>,
+    pub cers: Vec<Signed<Statement>>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+pub struct ReportRequest {
+    pub context: Context,
+    pub opportunity: u64,
+    pub base: u64,
+    pub frontier_hash: Digest,
+    pub authentication_hash: Digest,
+}
+
+impl SigningDomain for ReportRequest {
+    const DOMAIN: &'static str = "dissemination-report";
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -40,7 +65,7 @@ pub struct Observed {
 pub struct Observation {
     pub context: Context,
     pub opportunity: u64,
-    pub base: Digest,
+    pub base: u64,
     pub frontier_hash: Digest,
     pub coordinates: Vec<Observed>,
 }
@@ -51,7 +76,7 @@ impl SigningDomain for Observation {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub struct Descriptor {
-    pub base: Digest,
+    pub base: u64,
     pub frontier: Vec<Checkpoint>,
     pub targets: Vec<Checkpoint>,
 }
@@ -66,7 +91,7 @@ pub struct Source {
 impl Source {
     pub fn digest(&self) -> Result<Digest, String> {
         let preimage = ("dissemination-source", self);
-        wire::encode(&preimage)?;
+        wire::encoded_size(&preimage)?;
         Ok(wire::hash(&preimage))
     }
 }
@@ -121,62 +146,103 @@ pub struct CachedCoordinate {
     pub witnesses: Vec<CachedWitness>,
 }
 
+/// Conservative canonical upper bound for any u64-height PrefixProof. A basic
+/// proof has at most 64 peaks and 128 dyadic-cover roots. Crossing adds two
+/// such proofs, a completed root, and at most 64 top peaks. This does not cap
+/// checkpoint heights beyond their u64 representation.
+pub const MAX_PREFIX_PROOF_BYTES: usize =
+    4 + 2 * (4 + 8 + 64 * 36 + 8 + 128 * 32) + 32 + 8 + 64 * 36;
+
 /// A clone contains only immutable public validation inputs. In particular, Q
 /// neither observes a local cache nor asks a network service for source bytes.
 #[derive(Clone, Debug)]
 pub struct AvailabilityConfig {
     pub committee: Committee,
     pub mmr: MmrConfig,
-    bases: BTreeMap<u64, NamedBase>,
+    observation_budget: usize,
+    base_certificate_budget: usize,
+    #[cfg(test)]
+    base_verification_calls: std::sync::Arc<std::sync::atomic::AtomicUsize>,
 }
 
 impl AvailabilityConfig {
-    pub fn new(
-        committee: Committee,
-        chunk_capacity: u64,
-        bases: Vec<NamedBase>,
-    ) -> Result<Self, String> {
-        if chunk_capacity == 0 {
-            return Err("chunk capacity must be positive".into());
-        }
+    pub fn new(committee: Committee, chunk_capacity: u64) -> Result<Self, String> {
         let mmr = MmrConfig {
             context: committee.context.clone(),
             chunk_capacity,
         };
         mmr.validate()?;
-        let mut config = Self {
+        let (observation_budget, base_certificate_budget) = compatible_budgets(&committee, &mmr)?;
+        Ok(Self {
             committee,
             mmr,
-            bases: BTreeMap::new(),
-        };
-        let mut identities = BTreeMap::<Digest, (Vec<Checkpoint>, Vec<u8>)>::new();
-        for base in bases {
-            wire::encode(&base)?;
-            if base.opportunity == 0 || base.opportunity > wire::MAX_ROUND {
-                return Err("base opportunity outside supported positive range".into());
-            }
-            config.verify_frontier(&base.frontier)?;
-            if let Some((frontier, authentication)) = identities.get(&base.identity) {
-                if frontier != &base.frontier || authentication != &base.authentication {
-                    return Err("one base identity names conflicting immutable contents".into());
-                }
-            } else {
-                identities.insert(
-                    base.identity,
-                    (base.frontier.clone(), base.authentication.clone()),
-                );
-            }
-            if config.bases.insert(base.opportunity, base).is_some() {
-                return Err("duplicate authorized reporting opportunity".into());
-            }
-        }
-        Ok(config)
+            observation_budget,
+            base_certificate_budget,
+            #[cfg(test)]
+            base_verification_calls: Default::default(),
+        })
     }
 
-    pub fn binding(&self, opportunity: u64) -> Result<&NamedBase, String> {
-        self.bases
-            .get(&opportunity)
-            .ok_or_else(|| "reporting opportunity has no authorized named base".into())
+    /// Maximum complete signed OBS accepted by this configuration. The reserve
+    /// admits every pool of n-f accepted observations plus every all-current WA.
+    pub fn observation_budget(&self) -> usize {
+        self.observation_budget
+    }
+
+    pub fn verify_named_base(&self, base: &NamedBase) -> Result<(), String> {
+        wire::encoded_size(base)?;
+        self.verify_base(
+            base.opportunity,
+            base.identity,
+            &base.frontier,
+            &base.authentication,
+        )
+    }
+
+    pub fn report(
+        &self,
+        base: &NamedBase,
+        key: &Keypair,
+        id: Id,
+    ) -> Result<Signed<ReportRequest>, String> {
+        self.verify_named_base(base)?;
+        if self.committee.keys.get(id as usize).map(|k| k.as_bytes()) != Some(key.public.as_bytes())
+        {
+            return Err("REPORT key does not match signer".into());
+        }
+        let request = wire::sign(
+            key,
+            id,
+            ReportRequest {
+                context: self.committee.context.clone(),
+                opportunity: base.opportunity,
+                base: base.identity,
+                frontier_hash: wire::hash(&base.frontier),
+                authentication_hash: wire::hash(&base.authentication),
+            },
+        );
+        self.verify_report(&request, base)?;
+        Ok(request)
+    }
+
+    pub fn verify_report(
+        &self,
+        request: &Signed<ReportRequest>,
+        base: &NamedBase,
+    ) -> Result<(), String> {
+        wire::encoded_size(request)?;
+        self.verify_named_base(base)?;
+        self.committee.verify_signature(request)?;
+        if request.signer != ((base.opportunity - 1) % self.committee.keys.len() as u64) as Id
+            || request.body.context != self.committee.context
+            || request.body.opportunity != base.opportunity
+            || request.body.base != base.identity
+            || request.body.frontier_hash != wire::hash(&base.frontier)
+            || request.body.authentication_hash != wire::hash(&base.authentication)
+        {
+            return Err("REPORT leader, context, base, or attachment binding mismatch".into());
+        }
+        Ok(())
     }
 
     fn verify_frontier(&self, frontier: &[Checkpoint]) -> Result<(), String> {
@@ -192,42 +258,85 @@ impl AvailabilityConfig {
         Ok(())
     }
 
-    fn verify_base(
+    pub fn verify_base(
         &self,
         r: u64,
-        b: &Digest,
+        b: u64,
         frontier: &[Checkpoint],
         eta: &[u8],
     ) -> Result<(), String> {
-        let expected = self.binding(r)?;
-        if b != &expected.identity
-            || frontier != expected.frontier
-            || eta != expected.authentication
-        {
+        #[cfg(test)]
+        self.base_verification_calls
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        wire::encoded_size(&(r, b, frontier, eta))?;
+        if r == 0 || r > wire::MAX_ROUND || b >= r {
+            return Err("base must be an earlier round of a supported opportunity".into());
+        }
+        self.verify_frontier(frontier)?;
+        let n = self.committee.keys.len();
+        let f = (n - 1) / 3;
+        if b == 0 {
+            let genesis = genesis_binding(&self.mmr, r, n);
+            return if frontier == genesis.frontier && eta.is_empty() {
+                Ok(())
+            } else {
+                Err("genesis requires the public frontier and empty evidence".into())
+            };
+        }
+        if f == 0 {
+            return Err("zero-fault configuration requires a genesis base".into());
+        }
+        if eta.len() > self.base_certificate_budget {
+            return Err("base certificate exceeds its compatible component budget".into());
+        }
+        let cert: BaseCertificate = wire::decode(eta)?;
+        self.committee.verify_header(&cert.header)?;
+        if cert.header.body.round != b || cert.header.body.value_hash != wire::hash(&cert.value) {
+            return Err("base certificate header round or value binding mismatch".into());
+        }
+        let descriptor = self.decode_descriptor(&cert.value)?;
+        if descriptor.base >= b || descriptor.targets != frontier {
             return Err(
-                "named base does not match its externally authorized immutable binding".into(),
+                "base certificate descriptor is malformed or targets another frontier".into(),
             );
+        }
+        if cert.cers.len() != n - f {
+            return Err("base certificate requires exactly n-f CER signatures".into());
+        }
+        let digest = wire::proposal_digest(&cert.header.body);
+        let mut signers = BTreeSet::new();
+        for cer in &cert.cers {
+            self.committee.verify_statement(cer)?;
+            if cer.body.kind != Kind::Cer
+                || cer.body.round != b
+                || cer.body.digest != Some(digest)
+                || !signers.insert(cer.signer)
+            {
+                return Err("base certificate has a mismatched or duplicate CER".into());
+            }
         }
         Ok(())
     }
 
     pub fn verify_observation(
         &self,
-        r: u64,
+        base: &NamedBase,
         observation: &Signed<Observation>,
     ) -> Result<(), String> {
-        let base = self.binding(r)?;
-        self.verify_observation_at(r, base.identity, &base.frontier, observation)
+        self.verify_named_base(base)?;
+        self.verify_observation_at(base.opportunity, base.identity, &base.frontier, observation)
     }
 
     fn verify_observation_at(
         &self,
         r: u64,
-        b: Digest,
+        b: u64,
         frontier: &[Checkpoint],
         observation: &Signed<Observation>,
     ) -> Result<(), String> {
-        wire::encode(observation)?;
+        if wire::encoded_size(observation)? > self.observation_budget as u64 {
+            return Err("observation exceeds its compatible component budget".into());
+        }
         self.committee.verify_signature(observation)?;
         let body = &observation.body;
         if body.context != self.committee.context
@@ -256,7 +365,7 @@ impl AvailabilityConfig {
     /// before the signature is formed; failures may conservatively retain more.
     pub fn observe(
         &self,
-        r: u64,
+        base: &NamedBase,
         store: &mut BatchStore,
         key: &Keypair,
         id: Id,
@@ -265,7 +374,7 @@ impl AvailabilityConfig {
         {
             return Err("observation key does not match reporter".into());
         }
-        let base = self.binding(r)?;
+        self.verify_named_base(base)?;
         let mut coordinates = Vec::with_capacity(base.frontier.len());
         for (k, a) in base.frontier.iter().enumerate() {
             let mut candidates = store.checkpoints(k as Id);
@@ -290,18 +399,25 @@ impl AvailabilityConfig {
         }
         let body = Observation {
             context: self.committee.context.clone(),
-            opportunity: r,
+            opportunity: base.opportunity,
             base: base.identity,
             frontier_hash: wire::hash(&base.frontier),
             coordinates,
         };
         // Reserve the complete signature-domain framing before the infallible
         // local signing helper. Incoming checks use its fallible verifier.
-        if wire::encode(&body)?.len() > wire::MAX_WIRE_BYTES - 512 {
+        if wire::encoded_size(&body)? > (wire::MAX_WIRE_BYTES - 512) as u64 {
             return Err("observation leaves insufficient signature framing space".into());
         }
         let observation = wire::sign(key, id, body);
-        self.verify_observation(r, &observation)?;
+        // The same immutable base was verified before construction. Keep all
+        // signed observation and prefix checks without rechecking its certificate.
+        self.verify_observation_at(
+            base.opportunity,
+            base.identity,
+            &base.frontier,
+            &observation,
+        )?;
         Ok(observation)
     }
 
@@ -329,12 +445,14 @@ impl AvailabilityConfig {
         x: &Descriptor,
         pi: &AvailabilityProof,
     ) -> Result<(), String> {
-        let xb = wire::encode(x)?;
-        let pb = wire::encode(pi)?;
-        self.committee.validate_input_size(&xb, &pb)?;
+        // Each bounded size is at most 1 MiB and therefore fits usize. Keep the
+        // same x, pi, then combined-input guard order without allocating bytes.
+        let xb = wire::encoded_size(x)? as usize;
+        let pb = wire::encoded_size(pi)? as usize;
+        self.committee.validate_input_lengths(xb, pb)?;
         self.verify_frontier(&x.frontier)?;
         self.verify_frontier(&x.targets)?;
-        self.verify_base(r, &x.base, &x.frontier, &pi.authentication)?;
+        self.verify_base(r, x.base, &x.frontier, &pi.authentication)?;
         let n = self.committee.keys.len();
         let f = (n - 1) / 3;
         if pi.pool.len() != n - f || pi.coordinates.len() != n {
@@ -342,7 +460,7 @@ impl AvailabilityConfig {
         }
         let mut reporters = BTreeSet::new();
         for observation in &pi.pool {
-            self.verify_observation(r, observation)?;
+            self.verify_observation_at(r, x.base, &x.frontier, observation)?;
             if !reporters.insert(observation.signer) {
                 return Err("duplicate current reporter".into());
             }
@@ -381,9 +499,6 @@ impl AvailabilityConfig {
             let mut identities = BTreeSet::new();
             let mut is_current = true;
             for witness in witnesses {
-                if !identities.insert(witness.reporter) {
-                    return Err("duplicate WA reporter".into());
-                }
                 let observation = match &witness.source {
                     SourceRef::Current(index) => {
                         if witness.base_bridge != PrefixProof::Empty {
@@ -411,6 +526,9 @@ impl AvailabilityConfig {
                 if observation.signer != witness.reporter {
                     return Err("WA reporter does not match source signer".into());
                 }
+                if !identities.insert(observation.signer) {
+                    return Err("duplicate verified WA signer".into());
+                }
                 mmr::verify_prefix(
                     &self.mmr,
                     c,
@@ -432,7 +550,7 @@ impl AvailabilityConfig {
     }
 
     fn verify_historical_source(&self, r: u64, source: &Source) -> Result<(), String> {
-        wire::encode(source)?;
+        wire::encoded_size(source)?;
         let old = &source.observation.body;
         if old.opportunity >= r {
             return Err("historical source is not from an earlier opportunity".into());
@@ -440,7 +558,7 @@ impl AvailabilityConfig {
         self.verify_frontier(&source.frontier)?;
         self.verify_base(
             old.opportunity,
-            &old.base,
+            old.base,
             &source.frontier,
             &source.authentication,
         )?;
@@ -452,28 +570,15 @@ impl AvailabilityConfig {
         )
     }
 
-    /// Build every current coordinate using the strict source-holding rule.
-    /// Historical sources are complete originals; extra material is never
-    /// embedded unless selected by a coordinate witness.
-    pub fn build(
+    /// Construct all coordinates from a frozen current pool. Empty selections
+    /// copy the reporters' already verified proofs and need no source payload.
+    pub fn build_all_current(
         &self,
-        r: u64,
+        base: &NamedBase,
         pool: &[Signed<Observation>],
         store: &BatchStore,
-        historical: &[Source],
-    ) -> Result<Option<(Vec<u8>, Vec<u8>)>, String> {
-        self.build_with_cache(r, pool, store, historical, &[])
-    }
-
-    pub fn build_with_cache(
-        &self,
-        r: u64,
-        pool: &[Signed<Observation>],
-        store: &BatchStore,
-        historical: &[Source],
-        cache: &[CachedCoordinate],
-    ) -> Result<Option<(Vec<u8>, Vec<u8>)>, String> {
-        let base = self.binding(r)?;
+    ) -> Result<(Vec<u8>, Vec<u8>), String> {
+        self.verify_named_base(base)?;
         let n = self.committee.keys.len();
         let f = (n - 1) / 3;
         if pool.len() != n - f {
@@ -481,53 +586,24 @@ impl AvailabilityConfig {
         }
         let mut reporters = BTreeSet::new();
         for observation in pool {
-            self.verify_observation(r, observation)?;
+            // The base is fixed and was checked once above; every observation
+            // still needs its own signature, binding, shape, and prefix checks.
+            self.verify_observation_at(
+                base.opportunity,
+                base.identity,
+                &base.frontier,
+                observation,
+            )?;
             if !reporters.insert(observation.signer) {
                 return Err("construction pool has duplicate reporters".into());
             }
         }
-        for source in historical {
-            self.verify_historical_source(r, source)?;
-        }
         let mut targets = Vec::with_capacity(n);
         let mut coordinates = Vec::with_capacity(n);
-        let mut sources = BTreeMap::new();
-        let mut current_count = 0;
         for k in 0..n {
-            let a = &base.frontier[k];
-            if let Some((target, wa, selected)) =
-                self.build_coordinate(a, k, pool, store, &[], false)?
-            {
-                current_count += 1;
-                targets.push(target);
-                coordinates.push(wa);
-                sources.extend(selected);
-                continue;
-            }
-            let mut alternatives = Vec::new();
-            if let Some(item) = self.build_coordinate(a, k, pool, store, historical, true)? {
-                alternatives.push(item);
-            }
-            for cached in cache
-                .iter()
-                .filter(|cached| cached.target.producer == k as Id)
-            {
-                if let Ok(Some(item)) = self.rebase_cached(r, a, k, cached, store) {
-                    alternatives.push(item);
-                }
-            }
-            alternatives.sort_by(|left, right| checkpoint_order(&left.0, &right.0));
-            if let Some((target, wa, selected)) = alternatives.into_iter().next() {
-                targets.push(target);
-                coordinates.push(wa);
-                sources.extend(selected);
-            } else {
-                targets.push(a.clone());
-                coordinates.push(WeakAvailability::Base);
-            }
-        }
-        if current_count < n - f {
-            return Ok(None);
+            let (target, wa) = self.build_coordinate(&base.frontier[k], k, pool, store)?;
+            targets.push(target);
+            coordinates.push(wa);
         }
         let x = Descriptor {
             base: base.identity,
@@ -538,10 +614,19 @@ impl AvailabilityConfig {
             authentication: base.authentication.clone(),
             pool: pool.to_vec(),
             coordinates,
-            sources: sources.into_iter().collect(),
+            sources: Vec::new(),
         };
-        self.verify_availability(r, &x, &pi)?;
-        Ok(Some((wire::encode(&x)?, wire::encode(&pi)?)))
+        self.verify_availability(base.opportunity, &x, &pi)?;
+        Ok((wire::encode(&x)?, wire::encode(&pi)?))
+    }
+
+    pub fn construct(
+        &self,
+        base: &NamedBase,
+        store: &BatchStore,
+        pool: &[Signed<Observation>],
+    ) -> Result<(Vec<u8>, Vec<u8>), String> {
+        self.build_all_current(base, pool, store)
     }
 
     fn build_coordinate(
@@ -550,41 +635,18 @@ impl AvailabilityConfig {
         k: usize,
         pool: &[Signed<Observation>],
         store: &BatchStore,
-        historical: &[Source],
-        require_historical: bool,
-    ) -> Result<Option<(Checkpoint, WeakAvailability, BTreeMap<Digest, Source>)>, String> {
+    ) -> Result<(Checkpoint, WeakAvailability), String> {
         let threshold = (self.committee.keys.len() - 1) / 3 + 1;
-        let mut sources = Vec::new();
-        for (index, observation) in pool.iter().enumerate() {
-            sources.push((
-                observation,
-                SourceRef::Current(index as u32),
-                PrefixProof::Empty,
-                None,
-            ));
-        }
-        for source in historical {
-            if let Ok(bridge) = store.proof(&source.frontier[k], a) {
-                sources.push((
-                    &source.observation,
-                    SourceRef::Historical(source.digest()?),
-                    bridge,
-                    Some(source),
-                ));
-            }
-        }
         let mut candidates = store.checkpoints(k as Id);
-        candidates.push(a.clone());
+        candidates.retain(|target| target.height > a.height);
         sort_checkpoints(&mut candidates);
         for target in candidates {
             let Ok(base_to_target) = store.proof(a, &target) else {
                 continue;
             };
             let mut usable = Vec::new();
-            for (observation, reference, bridge, original) in &sources {
+            for (index, observation) in pool.iter().enumerate() {
                 let source_cp = &observation.body.coordinates[k].checkpoint;
-                // Even a base target requires complete possession of the exact
-                // advertised source suffix, not merely the base proof/root.
                 if !store.holds(a, source_cp) {
                     continue;
                 }
@@ -594,65 +656,51 @@ impl AvailabilityConfig {
                 usable.push((
                     source_cp.height,
                     observation.signer,
-                    reference.clone(),
-                    bridge.clone(),
+                    index,
                     target_to_source,
-                    *original,
                 ));
             }
-            usable.sort_by(|left, right| {
-                right
-                    .0
-                    .cmp(&left.0)
-                    .then_with(|| left.1.cmp(&right.1))
-                    .then_with(|| source_order(&left.2, &right.2))
-            });
-            let mut distinct = BTreeSet::new();
-            usable.retain(|entry| distinct.insert(entry.1));
+            usable.sort_by(|left, right| right.0.cmp(&left.0).then_with(|| left.1.cmp(&right.1)));
             if usable.len() < threshold {
                 continue;
             }
-            let mut chosen: Vec<_> = usable.iter().take(threshold).cloned().collect();
-            if require_historical && !chosen.iter().any(|entry| entry.5.is_some()) {
-                if let Some(old) = usable
-                    .iter()
-                    .skip(threshold)
-                    .find(|entry| entry.5.is_some())
-                {
-                    chosen.pop();
-                    chosen.push(old.clone());
-                } else {
-                    continue;
-                }
-            }
-            let mut selected = BTreeMap::new();
-            let witnesses = chosen
+            let witnesses = usable
                 .into_iter()
-                .map(
-                    |(_, reporter, source, base_bridge, target_to_source, original)| {
-                        if let (SourceRef::Historical(digest), Some(original)) = (&source, original)
-                        {
-                            selected.insert(*digest, original.clone());
-                        }
-                        Witness {
-                            reporter,
-                            source,
-                            base_bridge,
-                            target_to_source,
-                        }
-                    },
-                )
+                .take(threshold)
+                .map(|(_, reporter, index, target_to_source)| Witness {
+                    reporter,
+                    source: SourceRef::Current(index as u32),
+                    base_bridge: PrefixProof::Empty,
+                    target_to_source,
+                })
                 .collect();
-            return Ok(Some((
+            return Ok((
                 target,
                 WeakAvailability::Witnesses {
                     base_to_target,
                     witnesses,
                 },
-                selected,
-            )));
+            ));
         }
-        Ok(None)
+        let mut ordered: Vec<_> = pool.iter().enumerate().collect();
+        ordered.sort_by_key(|(_, observation)| observation.signer);
+        let witnesses = ordered
+            .into_iter()
+            .take(threshold)
+            .map(|(index, observation)| Witness {
+                reporter: observation.signer,
+                source: SourceRef::Current(index as u32),
+                base_bridge: PrefixProof::Empty,
+                target_to_source: observation.body.coordinates[k].proof.clone(),
+            })
+            .collect();
+        Ok((
+            a.clone(),
+            WeakAvailability::Witnesses {
+                base_to_target: PrefixProof::Empty,
+                witnesses,
+            },
+        ))
     }
 
     /// Retain complete original signed sources and selected prefix proofs.
@@ -698,69 +746,109 @@ impl AvailabilityConfig {
         }
         Ok(result)
     }
+}
 
-    fn rebase_cached(
-        &self,
-        r: u64,
-        a: &Checkpoint,
-        k: usize,
-        cached: &CachedCoordinate,
-        store: &BatchStore,
-    ) -> Result<Option<(Checkpoint, WeakAvailability, BTreeMap<Digest, Source>)>, String> {
-        if cached.target.height < a.height {
-            return Ok(None);
-        }
-        let base_to_target = if cached.base == *a {
-            cached.base_to_target.clone()
-        } else {
-            store.proof(a, &cached.target)?
-        };
-        mmr::verify_prefix(&self.mmr, a, &cached.target, &base_to_target)?;
-        let threshold = (self.committee.keys.len() - 1) / 3 + 1;
-        if cached.witnesses.len() != threshold {
-            return Err("cached WA witness count mismatch".into());
-        }
-        let mut identities = BTreeSet::new();
-        let mut selected = BTreeMap::new();
-        let mut witnesses = Vec::new();
-        for witness in &cached.witnesses {
-            self.verify_historical_source(r, &witness.source)?;
-            if !identities.insert(witness.source.observation.signer) {
-                return Err("cached WA duplicate reporter".into());
-            }
-            let original_base = &witness.source.frontier[k];
-            let bridge = if original_base == a {
-                PrefixProof::Empty
-            } else if cached.base == *a {
-                witness.base_bridge.clone()
-            } else {
-                store.proof(original_base, a)?
-            };
-            mmr::verify_prefix(&self.mmr, original_base, a, &bridge)?;
-            mmr::verify_prefix(
-                &self.mmr,
-                &cached.target,
-                &witness.source.observation.body.coordinates[k].checkpoint,
-                &witness.target_to_source,
-            )?;
-            let digest = witness.source.digest()?;
-            selected.insert(digest, witness.source.clone());
-            witnesses.push(Witness {
-                reporter: witness.source.observation.signer,
-                source: SourceRef::Historical(digest),
-                base_bridge: bridge,
-                target_to_source: witness.target_to_source.clone(),
-            });
-        }
-        Ok(Some((
-            cached.target.clone(),
-            WeakAvailability::Witnesses {
-                base_to_target,
-                witnesses,
+/// Fixed-width wire lengths let us reserve exact framing plus a conservative
+/// canonical proof bound without allocating a worst-case aggregate message.
+fn compatible_budgets(committee: &Committee, mmr: &MmrConfig) -> Result<(usize, usize), String> {
+    let n = committee.keys.len();
+    let f = (n - 1) / 3;
+    let quorum = n - f;
+    let frontier = genesis_binding(mmr, 1, n).frontier;
+    let descriptor = Descriptor {
+        base: 0,
+        frontier: frontier.clone(),
+        targets: frontier.clone(),
+    };
+    let value = wire::encode(&descriptor)?;
+    let header = Signed {
+        signer: 0,
+        body: Header {
+            context: committee.context.clone(),
+            round: 6,
+            value_hash: [0; 32],
+            witness_hash: [0; 32],
+            history_hash: [0; 32],
+            entries: Entries {
+                horizon: 3,
+                pivot: 3,
+                digest: Some([0; 32]),
+                previous: vec![(1, Entry::Cer([0; 32])), (2, Entry::Cer([0; 32]))],
             },
-            selected,
-        )))
+        },
+        signature: vec![0; 64],
+    };
+    let statement = Signed {
+        signer: 0,
+        body: Statement {
+            context: committee.context.clone(),
+            kind: Kind::Cer,
+            round: 1,
+            digest: Some([0; 32]),
+        },
+        signature: vec![0; 64],
+    };
+    let cert = BaseCertificate {
+        header,
+        value: value.clone(),
+        cers: vec![],
+    };
+    let certificate_bytes = wire::encode(&cert)?
+        .len()
+        .checked_add(
+            quorum
+                .checked_mul(wire::encode(&statement)?.len())
+                .ok_or("certificate size overflow")?,
+        )
+        .ok_or("certificate size overflow")?;
+    let witness_bytes = 4 + 8 + 4 + MAX_PREFIX_PROOF_BYTES; // reporter, current ref, empty bridge, target proof
+    let wa_bytes = 4
+        + MAX_PREFIX_PROOF_BYTES
+        + 8
+        + (f + 1)
+            .checked_mul(witness_bytes)
+            .ok_or("WA size overflow")?;
+    let fixed = value
+        .len()
+        .checked_add(32)
+        .and_then(|v| v.checked_add(certificate_bytes))
+        .and_then(|v| n.checked_mul(wa_bytes).and_then(|wa| v.checked_add(wa)))
+        .ok_or("availability size overflow")?;
+    let remaining = committee
+        .input_budget()
+        .checked_sub(fixed)
+        .ok_or("committee all-current proof reserve exceeds the ordering input budget")?;
+    let observation_budget = remaining / quorum;
+    let minimum = Signed {
+        signer: 0,
+        body: Observation {
+            context: committee.context.clone(),
+            opportunity: 1,
+            base: 0,
+            frontier_hash: [0; 32],
+            coordinates: frontier
+                .into_iter()
+                .map(|checkpoint| Observed {
+                    checkpoint,
+                    proof: PrefixProof::Empty,
+                })
+                .collect(),
+        },
+        signature: vec![0; 64],
+    };
+    let maximum_observation = wire::encode(&minimum)?
+        .len()
+        .checked_add(
+            n.checked_mul(MAX_PREFIX_PROOF_BYTES - 4)
+                .ok_or("observation size overflow")?,
+        )
+        .ok_or("observation size overflow")?;
+    if observation_budget < maximum_observation {
+        return Err(
+            "committee cannot fit all canonical current observation vectors and WAs".into(),
+        );
     }
+    Ok((observation_budget, certificate_bytes))
 }
 
 fn checkpoint_order(a: &Checkpoint, b: &Checkpoint) -> std::cmp::Ordering {
@@ -774,15 +862,6 @@ fn sort_checkpoints(checkpoints: &mut Vec<Checkpoint>) {
     checkpoints.dedup();
 }
 
-fn source_order(a: &SourceRef, b: &SourceRef) -> std::cmp::Ordering {
-    match (a, b) {
-        (SourceRef::Current(a), SourceRef::Current(b)) => a.cmp(b),
-        (SourceRef::Historical(a), SourceRef::Historical(b)) => a.cmp(b),
-        (SourceRef::Current(_), _) => std::cmp::Ordering::Less,
-        (_, SourceRef::Current(_)) => std::cmp::Ordering::Greater,
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -792,110 +871,557 @@ mod tests {
         let committee =
             Committee::new([71; 32], (0..4).map(|id| fixture_key(id).public).collect()).unwrap();
         let store = BatchStore::new(committee.clone(), 4).unwrap();
-        let bases = (1..=5)
-            .map(|r| genesis_binding(store.config(), r, 4))
-            .collect();
-        (AvailabilityConfig::new(committee, 4, bases).unwrap(), store)
+        (AvailabilityConfig::new(committee, 4).unwrap(), store)
+    }
+
+    fn same_bounded_size<T: Serialize>(value: &T) {
+        assert_eq!(
+            wire::encoded_size(value),
+            wire::encode(value).map(|bytes| bytes.len() as u64)
+        );
+    }
+
+    #[test]
+    fn size_only_guards_match_all_availability_types_and_nested_oversize_errors() {
+        let (config, mut store) = fixture();
+        let binding = base(&config, 1);
+        let pool = observations(&config, &binding, &mut store);
+        let (x, pi) = decoded(&config, &binding, &pool, &store);
+        let request = config.report(&binding, &fixture_key(0), 0).unwrap();
+        let source = Source {
+            frontier: binding.frontier.clone(),
+            authentication: binding.authentication.clone(),
+            observation: pool[0].clone(),
+        };
+        same_bounded_size(&binding);
+        same_bounded_size(&(
+            binding.opportunity,
+            binding.identity,
+            binding.frontier.as_slice(),
+            binding.authentication.as_slice(),
+        ));
+        same_bounded_size(&request);
+        same_bounded_size(&pool[0]);
+        same_bounded_size(&pool[0].body);
+        same_bounded_size(&x);
+        same_bounded_size(&pi);
+        same_bounded_size(&source);
+        same_bounded_size(&("dissemination-source", &source));
+        assert_eq!(
+            source.digest().unwrap(),
+            wire::hash(&("dissemination-source", &source))
+        );
+
+        let mut oversized_base = binding.clone();
+        oversized_base.authentication = vec![0; wire::MAX_WIRE_BYTES];
+        same_bounded_size(&oversized_base);
+        assert_eq!(
+            config.verify_named_base(&oversized_base),
+            wire::encode(&oversized_base).map(|_| ())
+        );
+        let mut oversized_request = request;
+        oversized_request.signature = vec![0; wire::MAX_WIRE_BYTES];
+        same_bounded_size(&oversized_request);
+        assert_eq!(
+            config.verify_report(&oversized_request, &oversized_base),
+            wire::encode(&oversized_request).map(|_| ())
+        );
+        let mut oversized_source = source;
+        oversized_source.observation.body.coordinates[0].proof = PrefixProof::Within {
+            inner: mmr::BasicProof::Extension {
+                peaks: vec![],
+                suffix: vec![[0; 32]; wire::MAX_WIRE_BYTES / 32],
+            },
+        };
+        same_bounded_size(&oversized_source);
+        same_bounded_size(&oversized_source.observation);
+        same_bounded_size(&oversized_source.observation.body);
+        assert_eq!(
+            oversized_source.digest(),
+            wire::encode(&("dissemination-source", &oversized_source)).map(|_| [0; 32])
+        );
+
+        let mut large_pi = pi;
+        for length in [config.committee.input_budget(), wire::MAX_WIRE_BYTES] {
+            large_pi.authentication = vec![0; length];
+            same_bounded_size(&large_pi);
+            let old_guards = wire::encode(&x).and_then(|xb| {
+                wire::encode(&large_pi)
+                    .and_then(|pb| config.committee.validate_input_size(&xb, &pb))
+            });
+            assert!(old_guards.is_err());
+            assert_eq!(config.verify_availability(1, &x, &large_pi), old_guards);
+        }
+    }
+
+    fn base(config: &AvailabilityConfig, r: u64) -> NamedBase {
+        genesis_binding(&config.mmr, r, config.committee.keys.len())
     }
 
     fn observations(
         config: &AvailabilityConfig,
-        r: u64,
+        base: &NamedBase,
         store: &mut BatchStore,
     ) -> Vec<Signed<Observation>> {
         (0..3)
-            .map(|id| config.observe(r, store, &fixture_key(id), id).unwrap())
+            .map(|id| config.observe(base, store, &fixture_key(id), id).unwrap())
             .collect()
     }
 
     fn decoded(
         config: &AvailabilityConfig,
-        r: u64,
+        base: &NamedBase,
         pool: &[Signed<Observation>],
         store: &BatchStore,
     ) -> (Descriptor, AvailabilityProof) {
-        let (x, pi) = config.build(r, pool, store, &[]).unwrap().unwrap();
+        let (x, pi) = config.build_all_current(base, pool, store).unwrap();
         (wire::decode(&x).unwrap(), wire::decode(&pi).unwrap())
     }
 
+    fn certified(
+        config: &AvailabilityConfig,
+        b: u64,
+        r: u64,
+        targets: Vec<Checkpoint>,
+    ) -> NamedBase {
+        let value = wire::encode(&Descriptor {
+            base: 0,
+            frontier: base(config, b).frontier,
+            targets: targets.clone(),
+        })
+        .unwrap();
+        let leader = ((b - 1) % config.committee.keys.len() as u64) as Id;
+        let header = wire::sign(
+            &fixture_key(leader),
+            leader,
+            Header {
+                context: config.committee.context.clone(),
+                round: b,
+                value_hash: wire::hash(&value),
+                witness_hash: [44; 32],
+                history_hash: wire::empty_history_hash(),
+                entries: Entries::empty(),
+            },
+        );
+        let digest = wire::proposal_digest(&header.body);
+        let cers = (0..3)
+            .map(|id| {
+                wire::sign(
+                    &fixture_key(id),
+                    id,
+                    Statement {
+                        context: config.committee.context.clone(),
+                        kind: Kind::Cer,
+                        round: b,
+                        digest: Some(digest),
+                    },
+                )
+            })
+            .collect();
+        NamedBase {
+            opportunity: r,
+            identity: b,
+            frontier: targets,
+            authentication: wire::encode(&BaseCertificate {
+                header,
+                value,
+                cers,
+            })
+            .unwrap(),
+        }
+    }
+
+    // Pre-optimization construction path: independently validate the same base
+    // through every public observation check, then validate the assembled input.
+    fn strict_build_all_current(
+        config: &AvailabilityConfig,
+        binding: &NamedBase,
+        pool: &[Signed<Observation>],
+        store: &BatchStore,
+    ) -> Result<(Vec<u8>, Vec<u8>), String> {
+        config.verify_named_base(binding)?;
+        let n = config.committee.keys.len();
+        let f = (n - 1) / 3;
+        if pool.len() != n - f {
+            return Err("construction requires a frozen exact n-f pool".into());
+        }
+        let mut reporters = BTreeSet::new();
+        for observation in pool {
+            config.verify_observation(binding, observation)?;
+            if !reporters.insert(observation.signer) {
+                return Err("construction pool has duplicate reporters".into());
+            }
+        }
+        let mut targets = Vec::with_capacity(n);
+        let mut coordinates = Vec::with_capacity(n);
+        for k in 0..n {
+            let (target, wa) = config.build_coordinate(&binding.frontier[k], k, pool, store)?;
+            targets.push(target);
+            coordinates.push(wa);
+        }
+        let x = Descriptor {
+            base: binding.identity,
+            frontier: binding.frontier.clone(),
+            targets,
+        };
+        let pi = AvailabilityProof {
+            authentication: binding.authentication.clone(),
+            pool: pool.to_vec(),
+            coordinates,
+            sources: Vec::new(),
+        };
+        config.verify_availability(binding.opportunity, &x, &pi)?;
+        Ok((wire::encode(&x)?, wire::encode(&pi)?))
+    }
+
     #[test]
-    fn complete_observation_signature_and_original_binding_are_required() {
+    fn same_base_rechecks_are_removed_without_changing_signed_or_constructed_bytes() {
+        use std::sync::atomic::Ordering;
+        let (config, mut source) = fixture();
+        for id in 0..4 {
+            source
+                .produce(&fixture_key(id), id, vec![id as u8])
+                .unwrap();
+        }
+        for binding in [
+            base(&config, 1),
+            certified(&config, 1, 3, base(&config, 1).frontier),
+        ] {
+            let coordinates = binding
+                .frontier
+                .iter()
+                .enumerate()
+                .map(|(id, a)| {
+                    let checkpoint = source
+                        .checkpoints(id as Id)
+                        .into_iter()
+                        .max_by_key(|cp| cp.height)
+                        .unwrap();
+                    Observed {
+                        proof: source.proof(a, &checkpoint).unwrap(),
+                        checkpoint,
+                    }
+                })
+                .collect();
+            let expected = wire::sign(
+                &fixture_key(0),
+                0,
+                Observation {
+                    context: config.committee.context.clone(),
+                    opportunity: binding.opportunity,
+                    base: binding.identity,
+                    frontier_hash: wire::hash(&binding.frontier),
+                    coordinates,
+                },
+            );
+            config.base_verification_calls.store(0, Ordering::Relaxed);
+            let actual = config
+                .observe(&binding, &mut source, &fixture_key(0), 0)
+                .unwrap();
+            assert_eq!(config.base_verification_calls.load(Ordering::Relaxed), 1);
+            assert_eq!(
+                wire::encode(&actual).unwrap(),
+                wire::encode(&expected).unwrap()
+            );
+            config.verify_observation(&binding, &actual).unwrap();
+            let mut pool = observations(&config, &binding, &mut source);
+            pool.swap(0, 2);
+            let missing = BatchStore::new(config.committee.clone(), 4).unwrap();
+            for store in [&source, &missing] {
+                config.base_verification_calls.store(0, Ordering::Relaxed);
+                let actual = config.build_all_current(&binding, &pool, store).unwrap();
+                assert_eq!(config.base_verification_calls.load(Ordering::Relaxed), 2);
+                config.base_verification_calls.store(0, Ordering::Relaxed);
+                let expected = strict_build_all_current(&config, &binding, &pool, store).unwrap();
+                assert_eq!(config.base_verification_calls.load(Ordering::Relaxed), 5);
+                assert_eq!(actual, expected);
+            }
+        }
+    }
+
+    #[test]
+    fn construction_still_rejects_invalid_bases_and_each_observation_binding() {
         let (config, mut store) = fixture();
+        store.produce(&fixture_key(0), 0, vec![1]).unwrap();
+        let binding = certified(&config, 1, 3, base(&config, 1).frontier);
+        let pool = observations(&config, &binding, &mut store);
+        let compare_rejection = |binding: &NamedBase, pool: &[Signed<Observation>]| {
+            let previous = strict_build_all_current(&config, binding, pool, &store);
+            let optimized = config.build_all_current(binding, pool, &store);
+            assert!(previous.is_err());
+            assert_eq!(optimized, previous);
+        };
+        for change in 0..5 {
+            let mut changed = binding.clone();
+            match change {
+                0 => {
+                    let mut certificate: BaseCertificate =
+                        wire::decode(&changed.authentication).unwrap();
+                    certificate.cers[0].signature[0] ^= 1;
+                    changed.authentication = wire::encode(&certificate).unwrap();
+                }
+                1 => changed.opportunity = changed.identity,
+                2 => changed.identity = 0,
+                3 => changed.frontier[0].producer = 1,
+                _ => changed.authentication.push(0),
+            }
+            compare_rejection(&changed, &pool);
+            let mut receiver = store.clone();
+            assert!(config
+                .observe(&changed, &mut receiver, &fixture_key(0), 0)
+                .is_err());
+        }
+        for change in 0..8 {
+            let mut changed = pool.clone();
+            match change {
+                0 => changed[0].signature[0] ^= 1,
+                1 => changed[0].body.opportunity += 1,
+                2 => changed[0].body.base = 0,
+                3 => changed[0].body.frontier_hash = [99; 32],
+                4 => changed[0].body.context.instance = [99; 32],
+                5 => {
+                    changed[0].body.coordinates.pop();
+                }
+                6 => changed[0].body.coordinates[0].proof = PrefixProof::Empty,
+                _ => changed[1] = changed[0].clone(),
+            }
+            // Except the explicit signature-corruption case, malformed contents
+            // carry a valid signature: structural/prefix checks must still run.
+            if (1..=6).contains(&change) {
+                changed[0] = wire::sign(&fixture_key(0), 0, changed[0].body.clone());
+            }
+            compare_rejection(&binding, &changed);
+        }
+        compare_rejection(&binding, &pool[..2]);
+        assert!(config
+            .observe(&binding, &mut store, &fixture_key(1), 0)
+            .is_err());
+    }
+
+    #[test]
+    fn genesis_and_authenticated_earlier_base_need_no_registry_or_payload() {
+        let (config, mut store) = fixture();
+        let first = base(&config, 1);
+        config.verify_named_base(&first).unwrap();
+        store.produce(&fixture_key(0), 0, vec![1]).unwrap();
+        let pool = observations(&config, &first, &mut store);
+        let (x, _) = decoded(&config, &first, &pool, &store);
+        let authenticated = certified(&config, 1, 3, x.targets);
+        config.verify_named_base(&authenticated).unwrap();
+        // Q/base verification does not reconstruct old Q or fetch old history.
+        let mut missing = BatchStore::new(config.committee.clone(), 4).unwrap();
+        let empty_pool = observations(&config, &authenticated, &mut missing);
+        let (x, pi) = decoded(&config, &authenticated, &empty_pool, &missing);
+        assert_eq!(x.targets, authenticated.frontier);
+        assert!(pi.sources.is_empty());
+        config.verify_availability(3, &x, &pi).unwrap();
+    }
+
+    #[test]
+    fn base_certificate_rejects_malformed_or_mismatched_authentication() {
+        let (config, _) = fixture();
+        let valid = certified(&config, 1, 2, base(&config, 1).frontier);
+        let original: BaseCertificate = wire::decode(&valid.authentication).unwrap();
+        let reject = |cert: BaseCertificate| {
+            let mut changed = valid.clone();
+            changed.authentication = wire::encode(&cert).unwrap();
+            assert!(config.verify_named_base(&changed).is_err());
+        };
+        let mut cert = original.clone();
+        cert.cers.pop();
+        reject(cert);
+        let mut cert = original.clone();
+        cert.cers.push(cert.cers[0].clone());
+        reject(cert);
+        let mut cert = original.clone();
+        cert.cers[1] = cert.cers[0].clone();
+        reject(cert);
+        let mut cert = original.clone();
+        cert.value[0] ^= 1;
+        reject(cert);
+        let mut cert = original.clone();
+        cert.header.signature[0] ^= 1;
+        reject(cert);
+        let mut cert = original.clone();
+        cert.header = wire::sign(&fixture_key(1), 1, cert.header.body.clone());
+        reject(cert);
+        for change in 0..4 {
+            let mut cert = original.clone();
+            let mut body = cert.cers[0].body.clone();
+            match change {
+                0 => body.kind = Kind::Vote,
+                1 => body.round += 1,
+                2 => body.digest = Some([12; 32]),
+                _ => body.context.instance = [99; 32],
+            }
+            cert.cers[0] = wire::sign(&fixture_key(0), 0, body);
+            reject(cert);
+        }
+        let mut changed = valid.clone();
+        changed.identity = 0;
+        assert!(config.verify_named_base(&changed).is_err());
+        let mut changed = valid.clone();
+        changed.opportunity = 1;
+        assert!(config.verify_named_base(&changed).is_err());
+        let mut changed = valid.clone();
+        changed.identity = 2;
+        assert!(config.verify_named_base(&changed).is_err());
+        let mut changed = valid;
+        changed.authentication.push(0);
+        assert!(config.verify_named_base(&changed).is_err());
+    }
+
+    #[test]
+    fn certificate_targets_and_original_descriptor_fields_are_bound() {
+        let (config, mut store) = fixture();
+        let mut frontier = base(&config, 1).frontier;
+        store.produce(&fixture_key(0), 0, vec![1]).unwrap();
+        frontier[0] = store
+            .checkpoints(0)
+            .into_iter()
+            .max_by_key(|c| c.height)
+            .unwrap();
+        let mut authenticated = certified(&config, 1, 2, frontier);
+        authenticated.frontier = base(&config, 1).frontier;
+        assert!(config.verify_named_base(&authenticated).is_err());
+        let mut cert: BaseCertificate = wire::decode(&authenticated.authentication).unwrap();
+        let mut descriptor: Descriptor = wire::decode(&cert.value).unwrap();
+        descriptor.base = 1; // The prior descriptor cannot name itself as base.
+        cert.value = wire::encode(&descriptor).unwrap();
+        cert.header.body.value_hash = wire::hash(&cert.value);
+        cert.header = wire::sign(&fixture_key(0), 0, cert.header.body);
+        let digest = wire::proposal_digest(&cert.header.body);
+        for cer in &mut cert.cers {
+            cer.body.digest = Some(digest);
+            *cer = wire::sign(&fixture_key(cer.signer), cer.signer, cer.body.clone());
+        }
+        authenticated.frontier = descriptor.targets;
+        authenticated.authentication = wire::encode(&cert).unwrap();
+        assert!(config.verify_named_base(&authenticated).is_err());
+    }
+
+    #[test]
+    fn profile_excludes_zero_fault_committees() {
+        // VerifyBase retains the specification's f=0/genesis guard, while
+        // this fixed ordering profile explicitly supports n=3f+1 >=4 only.
+        assert!(Committee::new([71; 32], vec![fixture_key(0).public]).is_err());
+    }
+
+    #[test]
+    fn signed_report_authenticates_leader_opportunity_and_attachments() {
+        let (config, _) = fixture();
+        let binding = certified(&config, 1, 2, base(&config, 1).frontier);
+        let request = config.report(&binding, &fixture_key(1), 1).unwrap();
+        config.verify_report(&request, &binding).unwrap();
+        assert!(config.report(&binding, &fixture_key(0), 0).is_err());
+        let mut other = binding.clone();
+        other.opportunity = 3;
+        assert!(config.verify_report(&request, &other).is_err());
+        // Reordering valid CERs preserves certificate validity but must not
+        // preserve the request's exact evidence attachment hash.
+        let mut cert: BaseCertificate = wire::decode(&binding.authentication).unwrap();
+        cert.cers.swap(0, 1);
+        other = binding.clone();
+        other.authentication = wire::encode(&cert).unwrap();
+        config.verify_named_base(&other).unwrap();
+        assert!(config.verify_report(&request, &other).is_err());
+        let mut tampered = request.clone();
+        tampered.body.frontier_hash = [7; 32];
+        assert!(config.verify_report(&tampered, &binding).is_err());
+    }
+
+    #[test]
+    fn observations_bind_complete_vector_and_register_custody() {
+        let (config, mut store) = fixture();
+        let binding = base(&config, 1);
         store
             .produce(&fixture_key(0), 0, b"batch".to_vec())
             .unwrap();
-        let observation = config.observe(1, &mut store, &fixture_key(0), 0).unwrap();
+        let observation = config
+            .observe(&binding, &mut store, &fixture_key(0), 0)
+            .unwrap();
         assert_eq!(store.custody_count(), 1);
-        config.verify_observation(1, &observation).unwrap();
-        assert!(config.verify_observation(2, &observation).is_err());
-        let mut tampered = observation;
-        tampered.body.coordinates[0].checkpoint.height = 0;
-        assert!(config.verify_observation(1, &tampered).is_err());
+        config.verify_observation(&binding, &observation).unwrap();
+        assert!(config
+            .verify_observation(&base(&config, 2), &observation)
+            .is_err());
+        let mut changed = observation;
+        changed.body.coordinates[0].checkpoint.height = 0;
+        assert!(config.verify_observation(&binding, &changed).is_err());
     }
 
     #[test]
-    fn empty_current_coordinates_still_need_f_plus_one_distinct_sources() {
-        let (config, mut store) = fixture();
-        let pool = observations(&config, 1, &mut store);
-        let (x, mut pi) = decoded(&config, 1, &pool, &store);
-        assert!(x.targets.iter().all(|cp| cp.height == 0));
-        assert!(pi.coordinates.iter().all(
-            |wa| matches!(wa, WeakAvailability::Witnesses { witnesses, .. } if witnesses.len() == 2)
-        ));
-        pi.coordinates[0] = WeakAvailability::Base;
-        config.verify_availability(1, &x, &pi).unwrap();
-        pi.coordinates[1] = WeakAvailability::Base;
-        assert!(config.verify_availability(1, &x, &pi).is_err());
-    }
-
-    #[test]
-    fn duplicate_pool_or_wa_reporters_are_rejected() {
-        let (config, mut store) = fixture();
-        let pool = observations(&config, 1, &mut store);
-        let (x, pi) = decoded(&config, 1, &pool, &store);
-        let mut duplicate_pool = pi.clone();
-        duplicate_pool.pool[1] = duplicate_pool.pool[0].clone();
-        assert!(config.verify_availability(1, &x, &duplicate_pool).is_err());
-        let mut duplicate_wa = pi;
-        if let WeakAvailability::Witnesses { witnesses, .. } = &mut duplicate_wa.coordinates[0] {
-            witnesses[1] = witnesses[0].clone();
-        }
-        assert!(config.verify_availability(1, &x, &duplicate_wa).is_err());
-    }
-
-    #[test]
-    fn build_requires_complete_source_suffix_even_for_a_base_target() {
+    fn empty_fallback_copies_current_proofs_without_source_payloads() {
         let (config, mut source_store) = fixture();
-        source_store
-            .produce(&fixture_key(0), 0, b"unreceived payload".to_vec())
-            .unwrap();
-        let pool = observations(&config, 1, &mut source_store);
-        let leader = BatchStore::new(config.committee.clone(), 4).unwrap();
-        let (x, pi) = decoded(&config, 1, &pool, &leader);
-        assert_eq!(x.targets[0].height, 0);
-        assert_eq!(pi.coordinates[0], WeakAvailability::Base);
-        assert!(pi.coordinates[1..]
-            .iter()
-            .all(|wa| matches!(wa, WeakAvailability::Witnesses { .. })));
-        // Public validity is independent of receiver holdings and accepts the
-        // higher proof once constructed by a holder.
-        let (higher_x, higher_pi) = decoded(&config, 1, &pool, &source_store);
-        assert_eq!(higher_x.targets[0].height, 1);
-        config
-            .verify_availability(1, &higher_x, &higher_pi)
-            .unwrap();
+        let binding = base(&config, 1);
+        for id in 0..4 {
+            source_store
+                .produce(&fixture_key(id), id, vec![id as u8])
+                .unwrap();
+        }
+        let mut pool = observations(&config, &binding, &mut source_store);
+        pool.swap(0, 2);
+        let missing = BatchStore::new(config.committee.clone(), 4).unwrap();
+        let (x, pi) = decoded(&config, &binding, &pool, &missing);
+        assert_eq!(x.targets, binding.frontier);
+        assert!(pi.sources.is_empty());
+        for (k, wa) in pi.coordinates.iter().enumerate() {
+            let WeakAvailability::Witnesses {
+                base_to_target,
+                witnesses,
+            } = wa
+            else {
+                panic!()
+            };
+            assert_eq!(*base_to_target, PrefixProof::Empty);
+            assert_eq!(
+                witnesses.iter().map(|w| w.reporter).collect::<Vec<_>>(),
+                vec![0, 1]
+            );
+            for witness in witnesses {
+                let SourceRef::Current(index) = witness.source else {
+                    panic!()
+                };
+                assert_eq!(
+                    witness.target_to_source,
+                    pool[index as usize].body.coordinates[k].proof
+                );
+            }
+        }
+        config.verify_availability(1, &x, &pi).unwrap();
+        let (advancing, _) = decoded(&config, &binding, &pool, &source_store);
+        assert!(advancing.targets.iter().all(|c| c.height == 1));
     }
 
     #[test]
-    fn highest_target_uses_highest_source_heights_then_identity() {
+    fn advancing_construction_requires_complete_source_suffix() {
+        let (config, mut source) = fixture();
+        let binding = base(&config, 1);
+        source.produce(&fixture_key(0), 0, vec![1]).unwrap();
+        let leader = source.clone();
+        source.produce(&fixture_key(0), 0, vec![2]).unwrap();
+        let pool = observations(&config, &binding, &mut source);
+        let (x, _) = decoded(&config, &binding, &pool, &leader);
+        assert_eq!(x.targets[0].height, 0); // Holding target 1 alone is insufficient.
+    }
+
+    #[test]
+    fn highest_target_then_highest_source_heights_then_signer_identity() {
         let (config, mut store) = fixture();
+        let binding = base(&config, 1);
         store.produce(&fixture_key(0), 0, vec![1]).unwrap();
-        let low = config.observe(1, &mut store, &fixture_key(0), 0).unwrap();
+        let low = config
+            .observe(&binding, &mut store, &fixture_key(0), 0)
+            .unwrap();
         store.produce(&fixture_key(0), 0, vec![2]).unwrap();
-        let middle = config.observe(1, &mut store, &fixture_key(1), 1).unwrap();
+        let middle = config
+            .observe(&binding, &mut store, &fixture_key(1), 1)
+            .unwrap();
         store.produce(&fixture_key(0), 0, vec![3]).unwrap();
-        let high = config.observe(1, &mut store, &fixture_key(2), 2).unwrap();
-        let (x, pi) = decoded(&config, 1, &[low, middle, high], &store);
+        let high = config
+            .observe(&binding, &mut store, &fixture_key(2), 2)
+            .unwrap();
+        let (x, pi) = decoded(&config, &binding, &[low, middle, high], &store);
         assert_eq!(x.targets[0].height, 2);
         let WeakAvailability::Witnesses { witnesses, .. } = &pi.coordinates[0] else {
             panic!()
@@ -907,28 +1433,76 @@ mod tests {
     }
 
     #[test]
-    fn historical_cache_retains_full_original_sources_and_rejects_unused_entries() {
+    fn empty_current_coordinates_require_distinct_verified_sources() {
+        let (config, mut store) = fixture();
+        let binding = base(&config, 1);
+        let pool = observations(&config, &binding, &mut store);
+        let (x, pi) = decoded(&config, &binding, &pool, &store);
+        let mut changed = pi.clone();
+        changed.pool[1] = changed.pool[0].clone();
+        assert!(config.verify_availability(1, &x, &changed).is_err());
+        let mut changed = pi.clone();
+        if let WeakAvailability::Witnesses { witnesses, .. } = &mut changed.coordinates[0] {
+            witnesses[1] = witnesses[0].clone();
+        }
+        assert!(config.verify_availability(1, &x, &changed).is_err());
+        let mut changed = pi;
+        changed.coordinates[0] = WeakAvailability::Base;
+        config.verify_availability(1, &x, &changed).unwrap();
+        changed.coordinates[1] = WeakAvailability::Base;
+        assert!(config.verify_availability(1, &x, &changed).is_err());
+    }
+
+    fn use_historical_coordinate(
+        pi: &mut AvailabilityProof,
+        k: usize,
+        old_x: &Descriptor,
+        old_pi: &AvailabilityProof,
+    ) {
+        let WeakAvailability::Witnesses {
+            base_to_target,
+            witnesses,
+        } = &old_pi.coordinates[k]
+        else {
+            panic!()
+        };
+        let mut historical = Vec::new();
+        for witness in witnesses {
+            let SourceRef::Current(index) = witness.source else {
+                panic!()
+            };
+            let source = Source {
+                frontier: old_x.frontier.clone(),
+                authentication: old_pi.authentication.clone(),
+                observation: old_pi.pool[index as usize].clone(),
+            };
+            let digest = source.digest().unwrap();
+            pi.sources.push((digest, source));
+            historical.push(Witness {
+                reporter: witness.reporter,
+                source: SourceRef::Historical(digest),
+                base_bridge: PrefixProof::Empty,
+                target_to_source: witness.target_to_source.clone(),
+            });
+        }
+        pi.sources.sort_by_key(|(digest, _)| *digest);
+        pi.coordinates[k] = WeakAvailability::Witnesses {
+            base_to_target: base_to_target.clone(),
+            witnesses: historical,
+        };
+    }
+
+    #[test]
+    fn historical_extension_validates_original_sources_and_rejects_unused_entries() {
         let (config, mut store) = fixture();
         store.produce(&fixture_key(0), 0, vec![1]).unwrap();
-        let old_pool = observations(&config, 1, &mut store);
-        let (old_x, old_pi) = decoded(&config, 1, &old_pool, &store);
-        let cached = config.cache(1, &old_x, &old_pi).unwrap();
-        store.produce(&fixture_key(0), 0, vec![2]).unwrap();
-        let new_pool = observations(&config, 2, &mut store);
-        let missing = BatchStore::new(config.committee.clone(), 4).unwrap();
-        let (xb, pb) = config
-            .build_with_cache(2, &new_pool, &missing, &[], &cached)
-            .unwrap()
-            .unwrap();
-        let x: Descriptor = wire::decode(&xb).unwrap();
-        let mut pi: AvailabilityProof = wire::decode(&pb).unwrap();
-        assert_eq!(x.targets[0].height, 1);
-        assert_eq!(pi.sources.len(), 2);
-        assert!(pi
-            .sources
-            .iter()
-            .all(|(_, source)| source.observation.body.opportunity == 1
-                && source.frontier == old_x.frontier));
+        let old_pool = observations(&config, &base(&config, 1), &mut store);
+        let (old_x, old_pi) = decoded(&config, &base(&config, 1), &old_pool, &store);
+        let mut missing = BatchStore::new(config.committee.clone(), 4).unwrap();
+        let pool = observations(&config, &base(&config, 2), &mut missing);
+        let (mut x, mut pi) = decoded(&config, &base(&config, 2), &pool, &missing);
+        x.targets[0] = old_x.targets[0].clone();
+        use_historical_coordinate(&mut pi, 0, &old_x, &old_pi);
         config.verify_availability(2, &x, &pi).unwrap();
         let extra = Source {
             frontier: old_x.frontier.clone(),
@@ -941,153 +1515,82 @@ mod tests {
     }
 
     #[test]
-    fn feasible_current_base_beats_a_higher_historical_cache() {
-        let (config, mut full) = fixture();
-        full.produce(&fixture_key(0), 0, vec![1]).unwrap();
-        let old = observations(&config, 1, &mut full);
-        let (old_x, old_pi) = decoded(&config, 1, &old, &full);
-        let cached = config.cache(1, &old_x, &old_pi).unwrap();
-        let mut empty = BatchStore::new(config.committee.clone(), 4).unwrap();
-        let current = observations(&config, 2, &mut empty);
-        let (xb, pb) = config
-            .build_with_cache(2, &current, &empty, &[], &cached)
-            .unwrap()
-            .unwrap();
-        let x: Descriptor = wire::decode(&xb).unwrap();
-        let pi: AvailabilityProof = wire::decode(&pb).unwrap();
-        assert_eq!(x.targets[0].height, 0);
-        assert!(pi.sources.is_empty());
-    }
-
-    #[test]
-    fn historical_sources_keep_old_bases_across_an_authorized_base_advance() {
-        let (old_config, mut store) = fixture();
-        store.produce(&fixture_key(0), 0, vec![1]).unwrap();
-        let new_base = store
-            .checkpoints(0)
-            .into_iter()
-            .find(|cp| cp.height == 1)
-            .unwrap();
-        store.produce(&fixture_key(0), 0, vec![2]).unwrap();
-        let old_pool = observations(&old_config, 1, &mut store);
-        let (old_x, old_pi) = decoded(&old_config, 1, &old_pool, &store);
-        let cache = old_config.cache(1, &old_x, &old_pi).unwrap();
-        let mut binding = old_config.binding(2).unwrap().clone();
-        binding.frontier[0] = new_base;
-        binding.authentication = b"externally authorized checkpoint".to_vec();
-        binding.identity = wire::hash(&("external-base", &binding.frontier));
-        let config = AvailabilityConfig::new(
-            old_config.committee.clone(),
-            4,
-            vec![old_config.binding(1).unwrap().clone(), binding.clone()],
-        )
-        .unwrap();
-        let mut advanced = store.clone();
-        advanced.produce(&fixture_key(0), 0, vec![3]).unwrap();
-        let pool = observations(&config, 2, &mut advanced);
-        // Store lacks all current sources at height 3; it retains enough nodes
-        // to bridge the historical genesis base to the new height-1 base.
-        let (xb, pb) = config
-            .build_with_cache(2, &pool, &store, &[], &cache)
-            .unwrap()
-            .unwrap();
-        let x: Descriptor = wire::decode(&xb).unwrap();
-        let pi: AvailabilityProof = wire::decode(&pb).unwrap();
-        assert_eq!(x.frontier[0].height, 1);
-        assert_eq!(x.targets[0].height, 2);
-        assert!(pi
-            .sources
-            .iter()
-            .all(|(_, source)| source.frontier[0].height == 0));
-        config.verify_availability(2, &x, &pi).unwrap();
-        let mut relabeled = pi;
-        relabeled.sources[0].1.frontier = binding.frontier;
-        assert!(config.verify_availability(2, &x, &relabeled).is_err());
-    }
-
-    #[test]
-    fn cached_historical_bridge_survives_without_original_payload_or_proof_nodes() {
-        let (original, mut store) = fixture();
-        store.produce(&fixture_key(0), 0, vec![1]).unwrap();
-        let base_cp = store
-            .checkpoints(0)
-            .into_iter()
-            .find(|cp| cp.height == 1)
-            .unwrap();
-        let boundary = store.boundary(&base_cp).unwrap();
-        store.produce(&fixture_key(0), 0, vec![2]).unwrap();
-        let old_pool = observations(&original, 1, &mut store);
-        let (old_x, old_pi) = decoded(&original, 1, &old_pool, &store);
-        let old_cache = original.cache(1, &old_x, &old_pi).unwrap();
-        let mut base2 = original.binding(2).unwrap().clone();
-        base2.frontier[0] = base_cp;
-        base2.authentication = vec![9];
-        base2.identity = wire::hash(&("external-base", &base2.frontier));
-        let mut base3 = base2.clone();
-        base3.opportunity = 3;
-        let config = AvailabilityConfig::new(
-            original.committee.clone(),
-            4,
-            vec![original.binding(1).unwrap().clone(), base2, base3],
-        )
-        .unwrap();
-        let mut advanced = store.clone();
-        advanced.produce(&fixture_key(0), 0, vec![3]).unwrap();
-        let pool2 = observations(&config, 2, &mut advanced);
-        let (x2b, p2b) = config
-            .build_with_cache(2, &pool2, &store, &[], &old_cache)
-            .unwrap()
-            .unwrap();
-        let x2: Descriptor = wire::decode(&x2b).unwrap();
-        let p2: AvailabilityProof = wire::decode(&p2b).unwrap();
-        let retained = config.cache(2, &x2, &p2).unwrap();
-        let pool3 = observations(&config, 3, &mut advanced);
-        let mut metadata_only = BatchStore::new(config.committee.clone(), 4).unwrap();
-        metadata_only.install_boundary(&boundary).unwrap();
-        assert_eq!(metadata_only.record_count(), 0);
-        assert!(metadata_only
-            .proof(&old_x.frontier[0], &x2.frontier[0])
-            .is_err());
-        let (x3b, p3b) = config
-            .build_with_cache(3, &pool3, &metadata_only, &[], &retained)
-            .unwrap()
-            .unwrap();
-        let x3: Descriptor = wire::decode(&x3b).unwrap();
-        assert_eq!(x3.targets[0].height, 2);
-        config.verify_encoded(3, &x3b, &p3b).unwrap();
-    }
-
-    #[test]
-    fn q_is_false_on_oversized_or_malformed_input_without_fetches() {
-        let (config, _) = fixture();
-        assert!(!config.q(1, &[255; 10], &[255; 10]));
-        assert!(!config.q(1, &vec![0; wire::MAX_WIRE_BYTES], &[]));
-        let mut source = Source {
-            frontier: config.binding(1).unwrap().frontier.clone(),
-            authentication: vec![0; wire::MAX_WIRE_BYTES],
-            observation: wire::sign(
-                &fixture_key(0),
-                0,
-                Observation {
-                    context: config.committee.context.clone(),
-                    opportunity: 1,
-                    base: [0; 32],
-                    frontier_hash: [0; 32],
-                    coordinates: vec![],
-                },
-            ),
+    fn historical_source_labels_cannot_duplicate_a_real_signer() {
+        let (config, mut store) = fixture();
+        let old_pool = observations(&config, &base(&config, 1), &mut store);
+        let (old_x, old_pi) = decoded(&config, &base(&config, 1), &old_pool, &store);
+        let pool = observations(&config, &base(&config, 3), &mut store);
+        let (x, mut pi) = decoded(&config, &base(&config, 3), &pool, &store);
+        use_historical_coordinate(&mut pi, 0, &old_x, &old_pi);
+        // A second genuinely signed source at another opportunity is still the
+        // same reporter. Its distinct source digest adds no holder identity.
+        let repeated = Source {
+            frontier: base(&config, 2).frontier,
+            authentication: vec![],
+            observation: config
+                .observe(&base(&config, 2), &mut store, &fixture_key(0), 0)
+                .unwrap(),
         };
-        assert!(source.digest().is_err());
-        source.authentication.clear();
-        assert!(config.verify_historical_source(1, &source).is_err());
+        let digest = repeated.digest().unwrap();
+        pi.sources
+            .retain(|(_, source)| source.observation.signer == 0);
+        pi.sources.push((digest, repeated));
+        pi.sources.sort_by_key(|(digest, _)| *digest);
+        let WeakAvailability::Witnesses { witnesses, .. } = &mut pi.coordinates[0] else {
+            panic!()
+        };
+        witnesses[1].source = SourceRef::Historical(digest);
+        assert!(config.verify_availability(3, &x, &pi).is_err()); // Claimed signer 1 is false.
+        let WeakAvailability::Witnesses { witnesses, .. } = &mut pi.coordinates[0] else {
+            panic!()
+        };
+        witnesses[1].reporter = 0;
+        assert!(config.verify_availability(3, &x, &pi).is_err()); // Actual signer is duplicated.
     }
 
     #[test]
-    fn safe2_individually_available_byzantine_forks_do_not_imply_compatible_frontiers() {
-        // Producer/reporter 0 equivocates. Honest 1 holds branch A and honest
-        // 2 holds B. Each f+1 coordinate quorum has an honest obligated holder,
-        // yet the quorums intersect only at Byzantine 0. Q intentionally does
-        // not claim a cross-round frontier-compatibility rule.
+    fn historical_sources_preserve_authenticated_original_base_and_bridge() {
+        let (config, mut store) = fixture();
+        store.produce(&fixture_key(0), 0, vec![1]).unwrap();
+        let intermediate = store
+            .checkpoints(0)
+            .into_iter()
+            .max_by_key(|c| c.height)
+            .unwrap();
+        store.produce(&fixture_key(0), 0, vec![2]).unwrap();
+        let old_pool = observations(&config, &base(&config, 1), &mut store);
+        let (old_x, old_pi) = decoded(&config, &base(&config, 1), &old_pool, &store);
+        let mut frontier = old_x.frontier.clone();
+        frontier[0] = intermediate;
+        let binding = certified(&config, 1, 3, frontier);
+        let pool = observations(&config, &binding, &mut store);
+        let (x, mut pi) = decoded(&config, &binding, &pool, &store);
+        use_historical_coordinate(&mut pi, 0, &old_x, &old_pi);
+        let WeakAvailability::Witnesses {
+            base_to_target,
+            witnesses,
+        } = &mut pi.coordinates[0]
+        else {
+            panic!()
+        };
+        *base_to_target = store.proof(&x.frontier[0], &x.targets[0]).unwrap();
+        for witness in witnesses {
+            witness.base_bridge = store.proof(&old_x.frontier[0], &x.frontier[0]).unwrap();
+        }
+        config.verify_availability(3, &x, &pi).unwrap();
+        // Authenticated old metadata is not relabelled to the new frontier.
+        let mut changed = pi.clone();
+        changed.sources[0].1.frontier = x.frontier.clone();
+        assert!(config.verify_availability(3, &x, &changed).is_err());
+        let WeakAvailability::Witnesses { witnesses, .. } = &mut pi.coordinates[0] else {
+            panic!()
+        };
+        witnesses[0].base_bridge = PrefixProof::Empty;
+        assert!(config.verify_availability(3, &x, &pi).is_err());
+    }
+
+    #[test]
+    fn byzantine_producer_forks_are_independently_valid_at_equal_heights() {
         let (config, mut branch_a) = fixture();
         let mut branch_b = branch_a.clone();
         let mut empty = branch_a.clone();
@@ -1097,41 +1600,156 @@ mod tests {
         branch_b
             .produce(&fixture_key(0), 0, b"fork B".to_vec())
             .unwrap();
+        let a = base(&config, 1);
+        let b = base(&config, 2);
         let pool_a = vec![
             config
-                .observe(1, &mut branch_a, &fixture_key(0), 0)
+                .observe(&a, &mut branch_a, &fixture_key(0), 0)
                 .unwrap(),
             config
-                .observe(1, &mut branch_a, &fixture_key(1), 1)
+                .observe(&a, &mut branch_a, &fixture_key(1), 1)
                 .unwrap(),
-            config.observe(1, &mut empty, &fixture_key(2), 2).unwrap(),
+            config.observe(&a, &mut empty, &fixture_key(2), 2).unwrap(),
         ];
         let pool_b = vec![
             config
-                .observe(2, &mut branch_b, &fixture_key(0), 0)
+                .observe(&b, &mut branch_b, &fixture_key(0), 0)
                 .unwrap(),
-            config.observe(2, &mut empty, &fixture_key(1), 1).unwrap(),
+            config.observe(&b, &mut empty, &fixture_key(1), 1).unwrap(),
             config
-                .observe(2, &mut branch_b, &fixture_key(2), 2)
+                .observe(&b, &mut branch_b, &fixture_key(2), 2)
                 .unwrap(),
         ];
-        let (xa, pa) = config.build(1, &pool_a, &branch_a, &[]).unwrap().unwrap();
-        let (xb, pb) = config.build(2, &pool_b, &branch_b, &[]).unwrap().unwrap();
+        let (xa, pa) = config.build_all_current(&a, &pool_a, &branch_a).unwrap();
+        let (xb, pb) = config.build_all_current(&b, &pool_b, &branch_b).unwrap();
         assert!(config.q(1, &xa, &pa));
         assert!(config.q(2, &xb, &pb));
         let xa: Descriptor = wire::decode(&xa).unwrap();
         let xb: Descriptor = wire::decode(&xb).unwrap();
-        assert_eq!(xa.frontier, xb.frontier);
-        assert_eq!(xa.targets[0].height, 1);
-        assert_eq!(xb.targets[0].height, 1);
+        assert_eq!(xa.targets[0].height, xb.targets[0].height);
         assert_ne!(xa.targets[0], xb.targets[0]);
-        assert!(mmr::verify_prefix(
-            &config.mmr,
-            &xa.targets[0],
-            &xb.targets[0],
-            &PrefixProof::Empty
-        )
-        .is_err());
         assert!(branch_a.proof(&xa.targets[0], &xb.targets[0]).is_err());
+    }
+
+    #[test]
+    fn compatible_component_budgets_reserve_the_complete_current_aggregate() {
+        use crate::mmr::{BasicProof, Peak};
+        let basic = BasicProof::Extension {
+            peaks: vec![
+                Peak {
+                    height: 0,
+                    root: [0; 32]
+                };
+                64
+            ],
+            suffix: vec![[0; 32]; 128],
+        };
+        let maximum = PrefixProof::Crossing {
+            completion: basic.clone(),
+            completed_root: [0; 32],
+            top_peaks: vec![
+                Peak {
+                    height: 0,
+                    root: [0; 32]
+                };
+                64
+            ],
+            remaining: basic,
+        };
+        assert_eq!(
+            wire::encode(&maximum).unwrap().len(),
+            MAX_PREFIX_PROOF_BYTES
+        );
+        for n in [4, 7] {
+            let committee =
+                Committee::new([71; 32], (0..n).map(|id| fixture_key(id).public).collect())
+                    .unwrap();
+            let config = AvailabilityConfig::new(committee, 4).unwrap();
+            let f = (n as usize - 1) / 3;
+            let quorum = n as usize - f;
+            let binding = base(&config, 1);
+            let maximum_observation = Signed {
+                signer: 0,
+                body: Observation {
+                    context: config.committee.context.clone(),
+                    opportunity: 1,
+                    base: 0,
+                    frontier_hash: [0; 32],
+                    coordinates: binding
+                        .frontier
+                        .iter()
+                        .cloned()
+                        .map(|checkpoint| Observed {
+                            checkpoint,
+                            proof: maximum.clone(),
+                        })
+                        .collect(),
+                },
+                signature: vec![0; 64],
+            };
+            assert!(
+                wire::encode(&maximum_observation).unwrap().len() <= config.observation_budget()
+            );
+            let value = wire::encode(&Descriptor {
+                base: 0,
+                frontier: binding.frontier.clone(),
+                targets: binding.frontier,
+            })
+            .unwrap();
+            let wa = WeakAvailability::Witnesses {
+                base_to_target: maximum.clone(),
+                witnesses: (0..=f)
+                    .map(|i| Witness {
+                        reporter: i as Id,
+                        source: SourceRef::Current(i as u32),
+                        base_bridge: PrefixProof::Empty,
+                        target_to_source: maximum.clone(),
+                    })
+                    .collect(),
+            };
+            let fixed = value.len()
+                + 32
+                + config.base_certificate_budget
+                + n as usize * wire::encode(&wa).unwrap().len();
+            assert!(
+                fixed + quorum * config.observation_budget() <= config.committee.input_budget()
+            );
+            assert!(
+                fixed + quorum * (config.observation_budget() + 1)
+                    > config.committee.input_budget()
+            );
+        }
+        for n in [10, 13] {
+            let committee =
+                Committee::new([71; 32], (0..n).map(|id| fixture_key(id).public).collect())
+                    .unwrap();
+            assert!(AvailabilityConfig::new(committee, 4).is_err());
+        }
+    }
+
+    #[test]
+    fn malformed_oversized_and_noncanonical_inputs_fail_without_fetches() {
+        let (config, mut store) = fixture();
+        assert!(!config.q(1, &[255; 10], &[255; 10]));
+        assert!(!config.q(1, &vec![0; wire::MAX_WIRE_BYTES], &[]));
+        let binding = base(&config, 1);
+        let mut observation = config
+            .observe(&binding, &mut store, &fixture_key(0), 0)
+            .unwrap();
+        observation.signature = vec![0; config.observation_budget()];
+        assert!(config
+            .verify_observation(&binding, &observation)
+            .unwrap_err()
+            .contains("component budget"));
+        let pool = observations(&config, &binding, &mut store);
+        let (x, mut pi) = decoded(&config, &binding, &pool, &store);
+        let WeakAvailability::Witnesses { witnesses, .. } = &mut pi.coordinates[0] else {
+            panic!()
+        };
+        witnesses[0].source = SourceRef::Current(99);
+        assert!(config.verify_availability(1, &x, &pi).is_err());
+        let mut binding = binding;
+        binding.opportunity = 0;
+        assert!(config.verify_named_base(&binding).is_err());
     }
 }

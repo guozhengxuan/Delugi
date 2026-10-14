@@ -1,0 +1,2259 @@
+{
+  "schema": 1,
+  "date": "2026-10-13",
+  "status": "completed_with_preserved_failed_attempt",
+  "valid_trials": 18,
+  "failed_attempts": 1,
+  "classification": "matched_four_replica_sustained_localhost_comparison",
+  "settings": {
+    "rates": [
+      1000,
+      4000
+    ],
+    "repeats": 3,
+    "warmup_seconds": 10,
+    "measurement_seconds": 30,
+    "serialized_transaction_bytes": 512,
+    "ingress_batch_ms": 100,
+    "replicas": 4,
+    "faults": 0,
+    "network": "localhost TCP",
+    "execution": "sequential; no overlapping protocol trials",
+    "order": "rate, repeat, protocol; protocol order rotates by repeat"
+  },
+  "machine": {
+    "system": "Darwin",
+    "release": "25.6.0",
+    "architecture": "arm64",
+    "processor": "arm",
+    "logical_cpus": 12,
+    "model": "Mac16,11",
+    "cpu_model": "Apple M4 Pro",
+    "memory_bytes": 25769803776,
+    "physical_cpus": 12
+  },
+  "source_head": "156c2062f7a321d630b29c2a4ba8a6ef3ac42278",
+  "protocol_artifact_identities": {
+    "delugi": {
+      "binary": "5acf60d12526b2a8e52cea476551afe4d319168fe79fa186c2efaaf27eb947d2",
+      "sources": {
+        "Cargo.toml": "9c4d92fa15aa7906016bebd4fafc46a58f8d1d1196fb5049b4a0e0f907ae0430",
+        "Cargo.lock": "7427a739706c4ee13cbfd3871b271323f81e26b497358013c8dcab6e958e42ec",
+        "scripts/run_sustained.py": "4ac54542bde2a4186f2dd07f26bb6b0fe87f853964dce78d823826eb40105976",
+        "scripts/run_network.py": "905550921dfe8ca724d00c2fd68a0e848ed39d3bdb92a87f4c98a44c66b43aae",
+        "tests/sustained_runner_test.py": "f5944ca560b2e15c651c7b544b214461a2f08b76be23434fba32a28a04e8ce10",
+        "provenance/spec-2026-10-13.json": "e52e6534f7ec0fbd69f5009fe1d434a8eabacc34fed59620c6348b44fd74713b",
+        "src/availability.rs": "ad4df708d301f156bf8a78a96f85a74dc384c4fe5a445779200e8b4b9483a127",
+        "src/batch.rs": "13285a37d62d4b0f947a209bb4c6d671ba9722a93f20db040733b6dfd2949650",
+        "src/bin/delugi_replica.rs": "df52f0f21a7f8072dbee89bf95c138228f4b790771b43f18b5e2480e80467746",
+        "src/bin/end_to_end_trace.rs": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2",
+        "src/bin/ordering_trace.rs": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9",
+        "src/composed.rs": "c380b6c510398b5d0dd86d1cf25f88d04346082c46583c8174f0a02d87110b02",
+        "src/end_to_end.rs": "38a7cb9757420557e8aacabeabc3173f0973402a52a3cea9c607b32ca06b71a9",
+        "src/history.rs": "8bdbbbe2afef6f808697e79fe83926a174cfca1e512c6dd6f790c2c326a6308a",
+        "src/lib.rs": "24e552921ff6c61daa98574811be992810f1b11164e07a62f3e5d89f281f1901",
+        "src/mmr.rs": "6cac3708e9e4d76bb39c4d343610deed59f1ff018ec5fa298160d16441bc24a9",
+        "src/process.rs": "f4e8f9be6f30dd2b04ff0b926340e632012001f51b8b169e3f34a9f24fad6b6a",
+        "src/replica.rs": "9bc095a3d1f1c41af8b772f8708f5e75b8007a91bb35278c9e620153238f1ec7",
+        "src/scanner.rs": "eb35bee0a5b765ea6016bc236a2b11cdddf0f536b37e2dde9cef1e026841c4c1",
+        "src/simulation.rs": "7446dbf5e155d802604eced471a486bfefd5cd3b5bef3fcfe4ec135f76e0bdc3",
+        "src/slot.rs": "bd695eff64f8186fde52b61a361549fa97dd3d2e88ef816799c2303f3af108e6",
+        "src/transport.rs": "3004dd6a9daef06656880ef20dd28903e8c7302918142dc024efec3406176543",
+        "src/wire.rs": "848cfc964ea4c030343eca88813ea63482bdeecaec20af4b2742627659e32658"
+      }
+    },
+    "raptr": {
+      "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+      "build_stamp": {
+        "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+        "source_diff_sha256": "dff19aa071b616f948f72beb09480277daed06bff27cd3c8302d999b7e817c13",
+        "patch_sha256": "dff19aa071b616f948f72beb09480277daed06bff27cd3c8302d999b7e817c13",
+        "lock_sha256": "1468f49033cafb29e5b156678ddc9044e8a216cf474cd23db9ace9c646af2d41",
+        "rustc_verbose": "rustc 1.78.0 (9b00956e5 2024-04-29)\nbinary: rustc\ncommit-hash: 9b00956e56009bab2aa15d7bff10916599e3d6d6\ncommit-date: 2024-04-29\nhost: aarch64-apple-darwin\nrelease: 1.78.0\nLLVM version: 18.1.2\n",
+        "profile": "release",
+        "node_features": "consensus-only-perf-test,failpoints,smoke-test",
+        "build_environment": {
+          "CFLAGS": "-Dfdopen=fdopen",
+          "CXXFLAGS": null,
+          "RUSTFLAGS": null,
+          "CONSENSUS_ONLY_PERF_TEST": "1"
+        },
+        "forge_sha256": "4e0b36f97be8be62d4423ed9203b44f83f8c09ae54133f46c62ee44ba6075752"
+      },
+      "binaries": {
+        "forge": "4e0b36f97be8be62d4423ed9203b44f83f8c09ae54133f46c62ee44ba6075752",
+        "aptos-node": "3d8abc2b8c0e2436350c84eedc6cc5915cb734a2e7e3668dac6d2bf91c33679a"
+      },
+      "runner": "5f7673eb86c0e0d755b910f18e0b618c8ca1e98691035ff03e28ca529a633a60"
+    },
+    "mysticeti": {
+      "source_commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+      "source_diff": "d2c9c310acf77d6f02cff55096b0bfa37ab7bc6399f30bbb657311094ec9c651",
+      "binary": "f1aa0f2aba73612e6bb51c235b469607247905a737461607d1b33aced6a86e0e",
+      "runner": "d3d62eddfb266bba78032c94214ec12d80297a75d42c25fb405cdbd5b8bc0e2e"
+    }
+  },
+  "replacement_raptr_artifact_identity": {
+    "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+    "build_stamp": {
+      "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+      "source_diff_sha256": "dff19aa071b616f948f72beb09480277daed06bff27cd3c8302d999b7e817c13",
+      "patch_sha256": "dff19aa071b616f948f72beb09480277daed06bff27cd3c8302d999b7e817c13",
+      "lock_sha256": "1468f49033cafb29e5b156678ddc9044e8a216cf474cd23db9ace9c646af2d41",
+      "rustc_verbose": "rustc 1.78.0 (9b00956e5 2024-04-29)\nbinary: rustc\ncommit-hash: 9b00956e56009bab2aa15d7bff10916599e3d6d6\ncommit-date: 2024-04-29\nhost: aarch64-apple-darwin\nrelease: 1.78.0\nLLVM version: 18.1.2\n",
+      "profile": "release",
+      "node_features": "consensus-only-perf-test,failpoints,smoke-test",
+      "build_environment": {
+        "CFLAGS": "-Dfdopen=fdopen",
+        "CXXFLAGS": null,
+        "RUSTFLAGS": null,
+        "CONSENSUS_ONLY_PERF_TEST": "1"
+      },
+      "forge_sha256": "4e0b36f97be8be62d4423ed9203b44f83f8c09ae54133f46c62ee44ba6075752"
+    },
+    "binaries": {
+      "forge": "4e0b36f97be8be62d4423ed9203b44f83f8c09ae54133f46c62ee44ba6075752",
+      "aptos-node": "3d8abc2b8c0e2436350c84eedc6cc5915cb734a2e7e3668dac6d2bf91c33679a"
+    },
+    "runner": "eff3f6a644cdd7b52c0ecdc24a8df7859846afe6db065ce6c446c74ce881cff3"
+  },
+  "archives": {
+    "original_matrix": {
+      "path": "results/local/comparison-20261013-final/manifest.json",
+      "sha256": "35a35b1a9395f4b508c8e4783aff5ff234f3b2e8ab722b839d5a2a71482cefd2"
+    },
+    "replacement_trial": {
+      "path": "results/local/raptr-sustained-parser-retry-20261013/manifest.json",
+      "sha256": "291c1a139f6000af518f3beeec55fa4f539eff7388451e4a8e6b80429f7b55c7"
+    }
+  },
+  "measurement_boundaries": {
+    "throughput": "Unique origin-node completions per second, using disjoint origin observations; replicas are not summed as replicated system output.",
+    "latency": "Transaction-weighted mean origin-node payload-ready consensus completion latency in a steady-state completion window. Each adapter records its precise start point; client ingress differs.",
+    "traffic": "Sum of successful replica TCP stream writes, including protocol data, authentication, framing and application ACKs. Excludes metrics/client control, TCP/IP headers and kernel retransmissions. Reads recorded separately, never added to writes.",
+    "conditions": "Matched node count, hardware, offered rate, serialized transaction size,100ms origin ingress cadence, warmup and measurement duration. Native internal consensus batching, worker counts, timeouts, cryptography and storage are retained and recorded per implementation.",
+    "capacity": "Two offered-load points measure sustained delivery under these conditions; no maximum capacity is inferred."
+  },
+  "method_notes": [
+    "Summary cells are medians of three per-trial values, with min/max ranges; means within a trial are transaction-weighted over completions in that window.",
+    "Actual ingress is native generation for Delugi/Mysticeti and native API admission for Raptr. Raptr client generation and HTTP ingress precede its latency clock.",
+    "Mysticeti timestamps commit-handler entry, before interpreter/callback processing; Delugi timestamps post-handler materialization.",
+    "Traffic is successful replica TCP writes, including empty/control rounds, authentication and framing. Reads are retained separately. TCP/IP headers, kernel retransmissions and control/client connections are excluded.",
+    "Bytes per completion are window ratios under changing queues, not drained-cohort communication cost.",
+    "Native crypto, worker allocation, internal consensus batching, storage and logging are retained; Delugi is in memory, Raptr stores Quorum Store payloads in RocksDB, Mysticeti retains its WAL.",
+    "Delugi permits bounded post-window drain followed by common-prefix agreement; all six measured trials fully drained and passed full output agreement. Native baseline counters do not establish full transaction-order agreement.",
+    "All main matrix trials ran sequentially with rotated protocol order; one parser-only replacement ran afterward using identical protocol binaries. No result was excluded based on low throughput or high latency."
+  ],
+  "raptr_retry": {
+    "failed_trial": "raptr-1000-repeat-2",
+    "cause": "Independent admissions/completions scrape fields produced a derived pending estimate of -25; real counters were finite and increasing. The old parser falsely classified the difference as a counter regression.",
+    "correction": "Retain signed pending estimates with observed-skew flags; validate actual cumulative counters and deltas; persist measurement timing before parsing.",
+    "original_interval_missing": true,
+    "original_failed_throughput_not_reconstructed": true,
+    "native_binaries_unchanged": true,
+    "all_five_original_valid_raptr_measurements_recomputed_unchanged": true,
+    "validation": {
+      "path": "results/local/raptr-sustained-parser-correction-20261013/validation.json",
+      "sha256": "9d5e7e048ae2f9409361c2e3e7e2cf30cb66443fed7c4e5bd7f8da01ccb1de6d"
+    }
+  },
+  "validation": {
+    "delugi_rust_tests_passed": 142,
+    "delugi_rust_includes_explicit_localhost_tests": 5,
+    "python_tests_passed": 101,
+    "mysticeti_native_tests_passed": 55,
+    "mysticeti_upstream_tests_ignored": 1,
+    "raptr_new_native_instrumentation_tests_passed": 5,
+    "rust_format_and_git_diff_checks": "passed",
+    "native_and_parser_archives": [
+      {
+        "path": "results/local/raptr-sustained-matched-build-20261013/validation.json",
+        "sha256": "e03f609345f4b4a224d122d69a1a6ce60feb2636567518f0e6c012d8ecf12a03"
+      },
+      {
+        "path": "results/local/raptr-sustained-parser-correction-20261013/validation.json",
+        "sha256": "9d5e7e048ae2f9409361c2e3e7e2cf30cb66443fed7c4e5bd7f8da01ccb1de6d"
+      },
+      {
+        "path": "results/local/baseline-mysticeti-sustained-build-2/validation.json",
+        "sha256": "e4fb21f5d639e39d31dce10bceec78d769b6dcf97db12d3ebad81ea51adae2d1"
+      }
+    ]
+  },
+  "attempts": [
+    {
+      "label": "delugi-1000-repeat-0",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-1000-repeat-0/manifest.json",
+        "sha256": "acb28420861c93fb0b12d680dd4fbd5384650be24ad765ce51a41214fd8fb56c"
+      }
+    },
+    {
+      "label": "raptr-1000-repeat-0",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-1000-repeat-0/manifest.json",
+        "sha256": "8d0b089cd1690f257ba4b2d32bf0b314e813236c6cb51778fd04128da4634c70"
+      }
+    },
+    {
+      "label": "mysticeti-1000-repeat-0",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-1000-repeat-0/manifest.json",
+        "sha256": "7f85854da97957ac24ad21a898b5317cc82c3fd787b14039bd35685e19a41fc3"
+      }
+    },
+    {
+      "label": "raptr-1000-repeat-1",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-1000-repeat-1/manifest.json",
+        "sha256": "f95bf3cb5157ec7672076759046105be56a30f6ef65f7c9bd46f768eceec483a"
+      }
+    },
+    {
+      "label": "mysticeti-1000-repeat-1",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-1000-repeat-1/manifest.json",
+        "sha256": "7d36866d03883baeefc1f71b5238e277c4defff74065ef86979cef9b1d5a8c83"
+      }
+    },
+    {
+      "label": "delugi-1000-repeat-1",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-1000-repeat-1/manifest.json",
+        "sha256": "bbaffd6e9ede820eb5741963e40a20c249e44be0d07cab903ab8f3f82ac30d61"
+      }
+    },
+    {
+      "label": "mysticeti-1000-repeat-2",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-1000-repeat-2/manifest.json",
+        "sha256": "ae3d476e2641281501d411e212f1c771ea3d6247bf6b931cffdd704b8de5a1bf"
+      }
+    },
+    {
+      "label": "delugi-1000-repeat-2",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-1000-repeat-2/manifest.json",
+        "sha256": "69b47b1b57346717e70f7841ab8bd02682ee23f680c2f1c431ae29de8e82413c"
+      }
+    },
+    {
+      "label": "raptr-1000-repeat-2",
+      "status": "failed",
+      "included": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-1000-repeat-2/manifest.json",
+        "sha256": "ae7abbce892dc151bd31ee18506e9a62b9a199f0afb16c8479b1095f51f406b7"
+      },
+      "error": "Adapter exited 1: Native completion counters regressed or became nonfinite"
+    },
+    {
+      "label": "delugi-4000-repeat-0",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-4000-repeat-0/manifest.json",
+        "sha256": "ca7b9220935ef74a94d9a2c6c4cc28b887e5ee97fa945660addf31db3a3d30c6"
+      }
+    },
+    {
+      "label": "raptr-4000-repeat-0",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-4000-repeat-0/manifest.json",
+        "sha256": "55cab7e6d78b554275dc0e27e683577f0d76487c56c73defa5d353da02b20df5"
+      }
+    },
+    {
+      "label": "mysticeti-4000-repeat-0",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-4000-repeat-0/manifest.json",
+        "sha256": "4d564808cc04d84587a4baa157822dba72597108d644bb8deace73f24cfcafe3"
+      }
+    },
+    {
+      "label": "raptr-4000-repeat-1",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-4000-repeat-1/manifest.json",
+        "sha256": "16b7b31e7dbf68938996a7fd306871b157d9c8ac7e8923f4616e5aa167ba88fd"
+      }
+    },
+    {
+      "label": "mysticeti-4000-repeat-1",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-4000-repeat-1/manifest.json",
+        "sha256": "2d57fefe1bd4dd74660b3ac04d8b8ad90930a997ef0bc63e16405d87e458838b"
+      }
+    },
+    {
+      "label": "delugi-4000-repeat-1",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-4000-repeat-1/manifest.json",
+        "sha256": "07e55390b155ff468aaede39009c83426cce3ca4786e51d31db566dca138b6c7"
+      }
+    },
+    {
+      "label": "mysticeti-4000-repeat-2",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-4000-repeat-2/manifest.json",
+        "sha256": "30c1c94f8b1d25c00ec144219f9ef4f9038598f72ca0b1f06b44eba245363db6"
+      }
+    },
+    {
+      "label": "delugi-4000-repeat-2",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-4000-repeat-2/manifest.json",
+        "sha256": "df62e377338dc3211c579d276be162f4a866a8b9ce3760702f4171c3ceed4c2a"
+      }
+    },
+    {
+      "label": "raptr-4000-repeat-2",
+      "status": "passed",
+      "included": true,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-4000-repeat-2/manifest.json",
+        "sha256": "2f15735ce93eecd45ec48c5753c5a394fa2490ac444f01286796cf0e6a0297e1"
+      }
+    },
+    {
+      "label": "raptr-1000-repeat-2-replacement",
+      "status": "passed",
+      "included": true,
+      "replaces": "raptr-1000-repeat-2",
+      "manifest": {
+        "path": "results/local/raptr-sustained-parser-retry-20261013/manifest.json",
+        "sha256": "291c1a139f6000af518f3beeec55fa4f539eff7388451e4a8e6b80429f7b55c7"
+      }
+    }
+  ],
+  "trials": [
+    {
+      "protocol": "delugi",
+      "rate": 1000,
+      "repeat": 0,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-1000-repeat-0/manifest.json",
+        "sha256": "acb28420861c93fb0b12d680dd4fbd5384650be24ad765ce51a41214fd8fb56c"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.001461,
+        "unique_completion_tps": 930.921347783912,
+        "mean_latency_ms": 1519.7401269289987,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 104676205,
+        "replica_tcp_read_bytes": 104649588,
+        "replica_tcp_written_bytes_per_second": 3489036.8005549675,
+        "completion_count": 27929,
+        "generated_count": 30005,
+        "generation_tps": 1000.1179220976911,
+        "pending_at_start": 620,
+        "pending_at_end": 2696,
+        "generation_target_met": true,
+        "completion_target_met": false,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 3747.9394031093293,
+        "offered_load_completion_fraction": 0.930921347783912,
+        "achieved_generation_fraction": 1.000117922097691,
+        "completion_rate_at_least_95_percent_of_target": false
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 1000.1179220976911,
+      "backlog": {
+        "start": 620,
+        "end": 2696,
+        "scope": "origin-local pending map at native window boundaries",
+        "drain_complete": true,
+        "drain_seconds": 3.2172885830514133,
+        "final_origin_pending": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "agreement": {
+          "common_prefix_count": 39911,
+          "common_prefix_state_hash": [
+            53,
+            85,
+            68,
+            50,
+            21,
+            30,
+            193,
+            74,
+            44,
+            10,
+            191,
+            108,
+            36,
+            247,
+            103,
+            156,
+            151,
+            36,
+            119,
+            234,
+            127,
+            132,
+            212,
+            12,
+            233,
+            14,
+            63,
+            150,
+            165,
+            138,
+            68,
+            125
+          ],
+          "replicas_agree_on_common_prefix": true,
+          "executed_counts": {
+            "0": 39911,
+            "1": 39911,
+            "2": 39911,
+            "3": 39911
+          },
+          "unique_generated_transactions": 39911,
+          "executed_per_replica": 39911,
+          "state_hash": [
+            53,
+            85,
+            68,
+            50,
+            21,
+            30,
+            193,
+            74,
+            44,
+            10,
+            191,
+            108,
+            36,
+            247,
+            103,
+            156,
+            151,
+            36,
+            119,
+            234,
+            127,
+            132,
+            212,
+            12,
+            233,
+            14,
+            63,
+            150,
+            165,
+            138,
+            68,
+            125
+          ],
+          "replicas_agree": true
+        },
+        "measurement_start_skew_us": 1638,
+        "measurement_end_skew_us": 3341
+      }
+    },
+    {
+      "protocol": "delugi",
+      "rate": 1000,
+      "repeat": 1,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-1000-repeat-1/manifest.json",
+        "sha256": "bbaffd6e9ede820eb5741963e40a20c249e44be0d07cab903ab8f3f82ac30d61"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.001621749999998,
+        "unique_completion_tps": 956.0150824366393,
+        "mean_latency_ms": 1464.5510025451501,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 104533198,
+        "replica_tcp_read_bytes": 104466681,
+        "replica_tcp_written_bytes_per_second": 3484251.541538097,
+        "completion_count": 28682,
+        "generated_count": 30006,
+        "generation_tps": 1000.1459468035907,
+        "pending_at_start": 805,
+        "pending_at_end": 2129,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 3644.5570844527115,
+        "offered_load_completion_fraction": 0.9560150824366394,
+        "achieved_generation_fraction": 1.0001459468035907,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 1000.1459468035907,
+      "backlog": {
+        "start": 805,
+        "end": 2129,
+        "scope": "origin-local pending map at native window boundaries",
+        "drain_complete": true,
+        "drain_seconds": 2.4082043329253793,
+        "final_origin_pending": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "agreement": {
+          "common_prefix_count": 39911,
+          "common_prefix_state_hash": [
+            9,
+            163,
+            216,
+            65,
+            111,
+            58,
+            67,
+            73,
+            70,
+            47,
+            85,
+            34,
+            178,
+            9,
+            96,
+            143,
+            238,
+            40,
+            152,
+            165,
+            222,
+            211,
+            38,
+            57,
+            92,
+            17,
+            14,
+            152,
+            83,
+            84,
+            48,
+            220
+          ],
+          "replicas_agree_on_common_prefix": true,
+          "executed_counts": {
+            "0": 39911,
+            "1": 39911,
+            "2": 39911,
+            "3": 39911
+          },
+          "unique_generated_transactions": 39911,
+          "executed_per_replica": 39911,
+          "state_hash": [
+            9,
+            163,
+            216,
+            65,
+            111,
+            58,
+            67,
+            73,
+            70,
+            47,
+            85,
+            34,
+            178,
+            9,
+            96,
+            143,
+            238,
+            40,
+            152,
+            165,
+            222,
+            211,
+            38,
+            57,
+            92,
+            17,
+            14,
+            152,
+            83,
+            84,
+            48,
+            220
+          ],
+          "replicas_agree": true
+        },
+        "measurement_start_skew_us": 3069,
+        "measurement_end_skew_us": 6198
+      }
+    },
+    {
+      "protocol": "delugi",
+      "rate": 1000,
+      "repeat": 2,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-1000-repeat-2/manifest.json",
+        "sha256": "69b47b1b57346717e70f7841ab8bd02682ee23f680c2f1c431ae29de8e82413c"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.011436,
+        "unique_completion_tps": 922.9145994388929,
+        "mean_latency_ms": 1675.7446799407899,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 100969237,
+        "replica_tcp_read_bytes": 100906212,
+        "replica_tcp_written_bytes_per_second": 3364361.3577524177,
+        "completion_count": 27698,
+        "generated_count": 30007,
+        "generation_tps": 999.8554252403493,
+        "pending_at_start": 450,
+        "pending_at_end": 2759,
+        "generation_target_met": true,
+        "completion_target_met": false,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 3645.365844031353,
+        "offered_load_completion_fraction": 0.9229145994388929,
+        "achieved_generation_fraction": 0.9998554252403493,
+        "completion_rate_at_least_95_percent_of_target": false
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 999.8554252403493,
+      "backlog": {
+        "start": 450,
+        "end": 2759,
+        "scope": "origin-local pending map at native window boundaries",
+        "drain_complete": true,
+        "drain_seconds": 3.5178794590756297,
+        "final_origin_pending": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "agreement": {
+          "common_prefix_count": 39919,
+          "common_prefix_state_hash": [
+            84,
+            37,
+            251,
+            37,
+            120,
+            175,
+            46,
+            175,
+            200,
+            246,
+            135,
+            11,
+            175,
+            89,
+            82,
+            20,
+            124,
+            97,
+            58,
+            87,
+            202,
+            142,
+            151,
+            176,
+            235,
+            250,
+            224,
+            8,
+            173,
+            239,
+            17,
+            198
+          ],
+          "replicas_agree_on_common_prefix": true,
+          "executed_counts": {
+            "0": 39919,
+            "1": 39919,
+            "2": 39919,
+            "3": 39919
+          },
+          "unique_generated_transactions": 39919,
+          "executed_per_replica": 39919,
+          "state_hash": [
+            84,
+            37,
+            251,
+            37,
+            120,
+            175,
+            46,
+            175,
+            200,
+            246,
+            135,
+            11,
+            175,
+            89,
+            82,
+            20,
+            124,
+            97,
+            58,
+            87,
+            202,
+            142,
+            151,
+            176,
+            235,
+            250,
+            224,
+            8,
+            173,
+            239,
+            17,
+            198
+          ],
+          "replicas_agree": true
+        },
+        "measurement_start_skew_us": 30760,
+        "measurement_end_skew_us": 74984
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 1000,
+      "repeat": 0,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-1000-repeat-0/manifest.json",
+        "sha256": "7f85854da97957ac24ad21a898b5317cc82c3fd787b14039bd35685e19a41fc3"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 999.8569773917258,
+        "all_replica_commit_tps_min": 999.8420041333052,
+        "completion_count": 30000,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 30000,
+        "generation_tps": 999.8508593879067,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "mean_latency_ms": 1.481764999999996,
+        "measurement_seconds": 30.00447488575,
+        "offered_tx_s": 1000,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 889144848,
+        "replica_tcp_written_bytes": 889143420,
+        "replica_tcp_written_bytes_per_second": 29633693.75353675,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 999.8508593879067,
+        "warmup_seconds": 10.0,
+        "tcp_written_bytes_per_completion": 29638.114,
+        "offered_load_completion_fraction": 0.9998508593879066,
+        "achieved_generation_fraction": 0.9998508593879066,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 999.8508593879067,
+      "backlog": {
+        "start": null,
+        "end": 0,
+        "scope": "origin generation minus origin commit observations at final scrape",
+        "drain_complete": null,
+        "shutdown_exit_codes": [
+          -15,
+          -15,
+          -15,
+          -15
+        ],
+        "agreement": {
+          "common_prefix_length": 501008,
+          "common_prefix_sha256": "19ff951daa0f2f3cc710cbac22fe627006c8aab5c3c16da81099f601659e54e5",
+          "scope": "Native debug references contain only leader authority and round, not block digest or transaction order.",
+          "sequence_lengths": [
+            501008,
+            501008,
+            501008,
+            501008
+          ]
+        }
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 1000,
+      "repeat": 1,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-1000-repeat-1/manifest.json",
+        "sha256": "7d36866d03883baeefc1f71b5238e277c4defff74065ef86979cef9b1d5a8c83"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 999.8719407012843,
+        "all_replica_commit_tps_min": 999.8565782060948,
+        "completion_count": 30000,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 30000,
+        "generation_tps": 999.8637430434883,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "mean_latency_ms": 1.6034100000000273,
+        "measurement_seconds": 30.00408826575,
+        "offered_tx_s": 1000,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 826866319,
+        "replica_tcp_written_bytes": 826866379,
+        "replica_tcp_written_bytes_per_second": 27558457.09012519,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 999.8637430434883,
+        "warmup_seconds": 10.0,
+        "tcp_written_bytes_per_completion": 27562.212633333336,
+        "offered_load_completion_fraction": 0.9998637430434882,
+        "achieved_generation_fraction": 0.9998637430434882,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 999.8637430434883,
+      "backlog": {
+        "start": null,
+        "end": 0,
+        "scope": "origin generation minus origin commit observations at final scrape",
+        "drain_complete": null,
+        "shutdown_exit_codes": [
+          -15,
+          -15,
+          -15,
+          -15
+        ],
+        "agreement": {
+          "common_prefix_length": 468792,
+          "common_prefix_sha256": "410faebd4b9fb2b316a4ed8faa4e2578eb32452e405d96eacfe3e0b84f59237f",
+          "scope": "Native debug references contain only leader authority and round, not block digest or transaction order.",
+          "sequence_lengths": [
+            468792,
+            468792,
+            468792,
+            468792
+          ]
+        }
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 1000,
+      "repeat": 2,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-1000-repeat-2/manifest.json",
+        "sha256": "ae3d476e2641281501d411e212f1c771ea3d6247bf6b931cffdd704b8de5a1bf"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 999.8594593211254,
+        "all_replica_commit_tps_min": 999.845755061838,
+        "completion_count": 30000,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 30000,
+        "generation_tps": 999.8540060506788,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "mean_latency_ms": 1.9003566666666616,
+        "measurement_seconds": 30.004380458,
+        "offered_tx_s": 1000,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 833949369,
+        "replica_tcp_written_bytes": 833949891,
+        "replica_tcp_written_bytes_per_second": 27794271.312062565,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 999.8540060506788,
+        "warmup_seconds": 10.0,
+        "tcp_written_bytes_per_completion": 27798.329700000002,
+        "offered_load_completion_fraction": 0.9998540060506788,
+        "achieved_generation_fraction": 0.9998540060506788,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 999.8540060506788,
+      "backlog": {
+        "start": null,
+        "end": 0,
+        "scope": "origin generation minus origin commit observations at final scrape",
+        "drain_complete": null,
+        "shutdown_exit_codes": [
+          -15,
+          -15,
+          -15,
+          -15
+        ],
+        "agreement": {
+          "common_prefix_length": 468942,
+          "common_prefix_sha256": "343494c5a796f6f190562ff33e6a0e78829293918ee32877080f079d27a65a74",
+          "scope": "Native debug references contain only leader authority and round, not block digest or transaction order.",
+          "sequence_lengths": [
+            468942,
+            468942,
+            468942,
+            468942
+          ]
+        }
+      }
+    },
+    {
+      "protocol": "raptr",
+      "rate": 1000,
+      "repeat": 0,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-1000-repeat-0/manifest.json",
+        "sha256": "8d0b089cd1690f257ba4b2d32bf0b314e813236c6cb51778fd04128da4634c70"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10,
+        "ingress_batch_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 30.061571458354592,
+        "unique_completion_tps": 1002.9415808075074,
+        "mean_latency_ms": 99.4987534901823,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 90714923.0,
+        "replica_tcp_read_bytes": 90716189.0,
+        "replica_tcp_written_bytes_per_second": 3017637.422104521,
+        "completion_count": 30150.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 30100.0,
+        "admission_tps": 1001.2783277713423,
+        "pending_local_transactions_start": 100.0,
+        "pending_local_transactions_end": 50.0,
+        "tcp_written_bytes_per_completion": 3008.786832504146,
+        "offered_load_completion_fraction": 1.0029415808075075,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "admission",
+      "actual_ingress_tps": 1001.2783277713423,
+      "backlog": {
+        "start": 100.0,
+        "end": 50.0,
+        "scope": "signed difference of independently scraped native admission/completion counters; not an atomic queue gauge",
+        "observed_negative_snapshot_skew": false,
+        "drain_complete": null,
+        "shutdown": {
+          "mode": "natural native benchmark duration elapsed",
+          "returncode": 0
+        },
+        "remaining_owned_processes": []
+      }
+    },
+    {
+      "protocol": "raptr",
+      "rate": 1000,
+      "repeat": 1,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-1000-repeat-1/manifest.json",
+        "sha256": "f95bf3cb5157ec7672076759046105be56a30f6ef65f7c9bd46f768eceec483a"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10,
+        "ingress_batch_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 30.07123114587739,
+        "unique_completion_tps": 998.4626121340652,
+        "mean_latency_ms": 88.0325277534055,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 89052264.0,
+        "replica_tcp_read_bytes": 89053152.0,
+        "replica_tcp_written_bytes_per_second": 2961377.389838214,
+        "completion_count": 30025.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 30075.0,
+        "admission_tps": 1000.1253308886598,
+        "pending_local_transactions_start": 100.0,
+        "pending_local_transactions_end": 150.0,
+        "tcp_written_bytes_per_completion": 2965.937185678601,
+        "offered_load_completion_fraction": 0.9984626121340653,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "admission",
+      "actual_ingress_tps": 1000.1253308886598,
+      "backlog": {
+        "start": 100.0,
+        "end": 150.0,
+        "scope": "signed difference of independently scraped native admission/completion counters; not an atomic queue gauge",
+        "observed_negative_snapshot_skew": false,
+        "drain_complete": null,
+        "shutdown": {
+          "mode": "natural native benchmark duration elapsed",
+          "returncode": 0
+        },
+        "remaining_owned_processes": []
+      }
+    },
+    {
+      "protocol": "raptr",
+      "rate": 1000,
+      "repeat": 2,
+      "status": "passed",
+      "replacement": true,
+      "manifest": {
+        "path": "results/local/raptr-sustained-parser-retry-20261013/manifest.json",
+        "sha256": "291c1a139f6000af518f3beeec55fa4f539eff7388451e4a8e6b80429f7b55c7"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 1000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10,
+        "ingress_batch_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 30.06363525055349,
+        "unique_completion_tps": 999.5464536992998,
+        "mean_latency_ms": 91.34243887933451,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 92621234.0,
+        "replica_tcp_read_bytes": 92580201.0,
+        "replica_tcp_written_bytes_per_second": 3080839.4669535113,
+        "completion_count": 30050.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 30100.0,
+        "admission_tps": 1001.2095925573685,
+        "pending_local_transactions_start": 50.0,
+        "pending_local_transactions_end": 100.0,
+        "pending_snapshot_skew_detected": false,
+        "pending_estimate_scope": "Signed differences of independently scraped cumulative admission and completion counters; not atomic queue gauges. Negative estimates are preserved and flagged, never clamped.",
+        "tcp_written_bytes_per_completion": 3082.237404326123,
+        "offered_load_completion_fraction": 0.9995464536992998,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "admission",
+      "actual_ingress_tps": 1001.2095925573685,
+      "backlog": {
+        "start": 50.0,
+        "end": 100.0,
+        "scope": "signed difference of independently scraped native admission/completion counters; not an atomic queue gauge",
+        "observed_negative_snapshot_skew": false,
+        "drain_complete": null,
+        "shutdown": {
+          "mode": "natural native benchmark duration elapsed",
+          "returncode": 0
+        },
+        "remaining_owned_processes": []
+      }
+    },
+    {
+      "protocol": "delugi",
+      "rate": 4000,
+      "repeat": 0,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-4000-repeat-0/manifest.json",
+        "sha256": "ca7b9220935ef74a94d9a2c6c4cc28b887e5ee97fa945660addf31db3a3d30c6"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 29.99711525,
+        "unique_completion_tps": 3759.594343372712,
+        "mean_latency_ms": 1379.3707243852914,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 242980620,
+        "replica_tcp_read_bytes": 242764168,
+        "replica_tcp_written_bytes_per_second": 8100133.467480594,
+        "completion_count": 112777,
+        "generated_count": 120057,
+        "generation_tps": 4002.285151717368,
+        "pending_at_start": 3673,
+        "pending_at_end": 10953,
+        "generation_target_met": true,
+        "completion_target_met": false,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 2154.523261734139,
+        "offered_load_completion_fraction": 0.939898585843178,
+        "achieved_generation_fraction": 1.000571287929342,
+        "completion_rate_at_least_95_percent_of_target": false
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 4002.285151717368,
+      "backlog": {
+        "start": 3673,
+        "end": 10953,
+        "scope": "origin-local pending map at native window boundaries",
+        "drain_complete": true,
+        "drain_seconds": 2.478952584322542,
+        "final_origin_pending": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "agreement": {
+          "common_prefix_count": 159659,
+          "common_prefix_state_hash": [
+            67,
+            51,
+            221,
+            167,
+            17,
+            149,
+            25,
+            189,
+            99,
+            67,
+            169,
+            63,
+            158,
+            16,
+            248,
+            87,
+            212,
+            72,
+            71,
+            250,
+            241,
+            160,
+            94,
+            232,
+            231,
+            20,
+            14,
+            100,
+            81,
+            134,
+            229,
+            167
+          ],
+          "replicas_agree_on_common_prefix": true,
+          "executed_counts": {
+            "0": 159659,
+            "1": 159659,
+            "2": 159659,
+            "3": 159659
+          },
+          "unique_generated_transactions": 159659,
+          "executed_per_replica": 159659,
+          "state_hash": [
+            67,
+            51,
+            221,
+            167,
+            17,
+            149,
+            25,
+            189,
+            99,
+            67,
+            169,
+            63,
+            158,
+            16,
+            248,
+            87,
+            212,
+            72,
+            71,
+            250,
+            241,
+            160,
+            94,
+            232,
+            231,
+            20,
+            14,
+            100,
+            81,
+            134,
+            229,
+            167
+          ],
+          "replicas_agree": true
+        },
+        "measurement_start_skew_us": 12865,
+        "measurement_end_skew_us": 2351
+      }
+    },
+    {
+      "protocol": "delugi",
+      "rate": 4000,
+      "repeat": 1,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-4000-repeat-1/manifest.json",
+        "sha256": "07e55390b155ff468aaede39009c83426cce3ca4786e51d31db566dca138b6c7"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.02056975,
+        "unique_completion_tps": 3819.6144710693447,
+        "mean_latency_ms": 1402.015596937218,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 244684412,
+        "replica_tcp_read_bytes": 244369830,
+        "replica_tcp_written_bytes_per_second": 8150561.319802094,
+        "completion_count": 114667,
+        "generated_count": 119979,
+        "generation_tps": 3996.560979582893,
+        "pending_at_start": 2383,
+        "pending_at_end": 7695,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 2133.870154052551,
+        "offered_load_completion_fraction": 0.9549036177673362,
+        "achieved_generation_fraction": 0.9991402448957233,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 3996.560979582893,
+      "backlog": {
+        "start": 2383,
+        "end": 7695,
+        "scope": "origin-local pending map at native window boundaries",
+        "drain_complete": true,
+        "drain_seconds": 1.6959005831740797,
+        "final_origin_pending": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "agreement": {
+          "common_prefix_count": 159604,
+          "common_prefix_state_hash": [
+            135,
+            3,
+            194,
+            100,
+            99,
+            50,
+            17,
+            174,
+            133,
+            170,
+            220,
+            187,
+            146,
+            53,
+            180,
+            4,
+            195,
+            11,
+            31,
+            128,
+            218,
+            96,
+            161,
+            206,
+            144,
+            25,
+            214,
+            241,
+            112,
+            77,
+            136,
+            214
+          ],
+          "replicas_agree_on_common_prefix": true,
+          "executed_counts": {
+            "0": 159604,
+            "1": 159604,
+            "2": 159604,
+            "3": 159604
+          },
+          "unique_generated_transactions": 159604,
+          "executed_per_replica": 159604,
+          "state_hash": [
+            135,
+            3,
+            194,
+            100,
+            99,
+            50,
+            17,
+            174,
+            133,
+            170,
+            220,
+            187,
+            146,
+            53,
+            180,
+            4,
+            195,
+            11,
+            31,
+            128,
+            218,
+            96,
+            161,
+            206,
+            144,
+            25,
+            214,
+            241,
+            112,
+            77,
+            136,
+            214
+          ],
+          "replicas_agree": true
+        },
+        "measurement_start_skew_us": 29409,
+        "measurement_end_skew_us": 79377
+      }
+    },
+    {
+      "protocol": "delugi",
+      "rate": 4000,
+      "repeat": 2,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/delugi-4000-repeat-2/manifest.json",
+        "sha256": "df62e377338dc3211c579d276be162f4a866a8b9ce3760702f4171c3ceed4c2a"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10.0,
+        "ingress_batch_ms": 100,
+        "measurement_seconds": 30.01413725,
+        "unique_completion_tps": 3831.2863502266637,
+        "mean_latency_ms": 1531.075026540746,
+        "latency_endpoint": "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 241439287,
+        "replica_tcp_read_bytes": 241160015,
+        "replica_tcp_written_bytes_per_second": 8044193.423521079,
+        "completion_count": 114993,
+        "generated_count": 120014,
+        "generation_tps": 3998.587343965089,
+        "pending_at_start": 2602,
+        "pending_at_end": 7623,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "drain_complete": true,
+        "tcp_written_bytes_per_completion": 2099.606421494748,
+        "offered_load_completion_fraction": 0.9578215875566659,
+        "achieved_generation_fraction": 0.9996468359912722,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 3998.587343965089,
+      "backlog": {
+        "start": 2602,
+        "end": 7623,
+        "scope": "origin-local pending map at native window boundaries",
+        "drain_complete": true,
+        "drain_seconds": 1.9359895000234246,
+        "final_origin_pending": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "agreement": {
+          "common_prefix_count": 159631,
+          "common_prefix_state_hash": [
+            201,
+            247,
+            80,
+            242,
+            136,
+            156,
+            89,
+            105,
+            185,
+            198,
+            235,
+            148,
+            194,
+            247,
+            27,
+            214,
+            245,
+            92,
+            192,
+            251,
+            183,
+            80,
+            96,
+            62,
+            210,
+            184,
+            83,
+            241,
+            3,
+            122,
+            142,
+            91
+          ],
+          "replicas_agree_on_common_prefix": true,
+          "executed_counts": {
+            "0": 159631,
+            "1": 159631,
+            "2": 159631,
+            "3": 159631
+          },
+          "unique_generated_transactions": 159631,
+          "executed_per_replica": 159631,
+          "state_hash": [
+            201,
+            247,
+            80,
+            242,
+            136,
+            156,
+            89,
+            105,
+            185,
+            198,
+            235,
+            148,
+            194,
+            247,
+            27,
+            214,
+            245,
+            92,
+            192,
+            251,
+            183,
+            80,
+            96,
+            62,
+            210,
+            184,
+            83,
+            241,
+            3,
+            122,
+            142,
+            91
+          ],
+          "replicas_agree": true
+        },
+        "measurement_start_skew_us": 26965,
+        "measurement_end_skew_us": 62701
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 4000,
+      "repeat": 0,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-4000-repeat-0/manifest.json",
+        "sha256": "4d564808cc04d84587a4baa157822dba72597108d644bb8deace73f24cfcafe3"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 3999.455943476108,
+        "all_replica_commit_tps_min": 3999.3651674357557,
+        "completion_count": 120000,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 120000,
+        "generation_tps": 3999.415476396111,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "mean_latency_ms": 2.59655749999994,
+        "measurement_seconds": 30.00438456775,
+        "offered_tx_s": 4000,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 1017318806,
+        "replica_tcp_written_bytes": 1017318008,
+        "replica_tcp_written_bytes_per_second": 33905644.88009719,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 3999.415476396111,
+        "warmup_seconds": 10.0,
+        "tcp_written_bytes_per_completion": 8477.650066666667,
+        "offered_load_completion_fraction": 0.9998538690990277,
+        "achieved_generation_fraction": 0.9998538690990277,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 3999.415476396111,
+      "backlog": {
+        "start": null,
+        "end": 0,
+        "scope": "origin generation minus origin commit observations at final scrape",
+        "drain_complete": null,
+        "shutdown_exit_codes": [
+          -15,
+          -15,
+          -15,
+          -15
+        ],
+        "agreement": {
+          "common_prefix_length": 496104,
+          "common_prefix_sha256": "da5f76d34aea9ea2e6fe327631750233103fa3fc71b5911c15f52bd9e8c35d1a",
+          "scope": "Native debug references contain only leader authority and round, not block digest or transaction order.",
+          "sequence_lengths": [
+            496104,
+            496104,
+            496104,
+            496104
+          ]
+        }
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 4000,
+      "repeat": 1,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-4000-repeat-1/manifest.json",
+        "sha256": "2d57fefe1bd4dd74660b3ac04d8b8ad90930a997ef0bc63e16405d87e458838b"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 3999.156483517533,
+        "all_replica_commit_tps_min": 3999.0889464852326,
+        "completion_count": 120000,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 120000,
+        "generation_tps": 3999.1309693779167,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "mean_latency_ms": 2.082560833333367,
+        "measurement_seconds": 30.006519146000002,
+        "offered_tx_s": 4000,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 1020013692,
+        "replica_tcp_written_bytes": 1020014503,
+        "replica_tcp_written_bytes_per_second": 33993096.56801603,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 3999.1309693779167,
+        "warmup_seconds": 10.0,
+        "tcp_written_bytes_per_completion": 8500.120858333332,
+        "offered_load_completion_fraction": 0.9997827423444792,
+        "achieved_generation_fraction": 0.9997827423444792,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 3999.1309693779167,
+      "backlog": {
+        "start": null,
+        "end": 0,
+        "scope": "origin generation minus origin commit observations at final scrape",
+        "drain_complete": null,
+        "shutdown_exit_codes": [
+          -15,
+          -15,
+          -15,
+          -15
+        ],
+        "agreement": {
+          "common_prefix_length": 496352,
+          "common_prefix_sha256": "5fab5b61afe7e732a131e50f74cbcfeb5370a81ce6991557f9f5290ef571f4ad",
+          "scope": "Native debug references contain only leader authority and round, not block digest or transaction order.",
+          "sequence_lengths": [
+            496352,
+            496352,
+            496352,
+            496352
+          ]
+        }
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 4000,
+      "repeat": 2,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/mysticeti-4000-repeat-2/manifest.json",
+        "sha256": "30c1c94f8b1d25c00ec144219f9ef4f9038598f72ca0b1f06b44eba245363db6"
+      },
+      "comparison": {
+        "all_replica_commit_tps_max": 3998.955639410138,
+        "all_replica_commit_tps_min": 3998.9047110632764,
+        "completion_count": 120000,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "generated_count": 120000,
+        "generation_tps": 3998.927117013349,
+        "ingress_batch_ms": 100,
+        "latency_endpoint": "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution.",
+        "mean_latency_ms": 1.9350099999999637,
+        "measurement_seconds": 30.00804878125,
+        "offered_tx_s": 4000,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 1011902337,
+        "replica_tcp_written_bytes": 1011902958,
+        "replica_tcp_written_bytes_per_second": 33721051.4877685,
+        "replicas": 4,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 512,
+        "unique_completion_tps": 3998.927117013349,
+        "warmup_seconds": 10.0,
+        "tcp_written_bytes_per_completion": 8432.524650000001,
+        "offered_load_completion_fraction": 0.9997317792533372,
+        "achieved_generation_fraction": 0.9997317792533372,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "generation",
+      "actual_ingress_tps": 3998.927117013349,
+      "backlog": {
+        "start": null,
+        "end": 0,
+        "scope": "origin generation minus origin commit observations at final scrape",
+        "drain_complete": null,
+        "shutdown_exit_codes": [
+          -15,
+          -15,
+          -15,
+          -15
+        ],
+        "agreement": {
+          "common_prefix_length": 495022,
+          "common_prefix_sha256": "ce519cf70b4f30f45cf3ceb0dcb45b2e05d4ec2816b6c16255b1548ea7684d4b",
+          "scope": "Native debug references contain only leader authority and round, not block digest or transaction order.",
+          "sequence_lengths": [
+            495022,
+            495024,
+            495024,
+            495024
+          ]
+        }
+      }
+    },
+    {
+      "protocol": "raptr",
+      "rate": 4000,
+      "repeat": 0,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-4000-repeat-0/manifest.json",
+        "sha256": "55cab7e6d78b554275dc0e27e683577f0d76487c56c73defa5d353da02b20df5"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10,
+        "ingress_batch_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 30.074044520501047,
+        "unique_completion_tps": 4000.1270836050403,
+        "mean_latency_ms": 92.30845550162914,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 226771530.0,
+        "replica_tcp_read_bytes": 226665258.0,
+        "replica_tcp_written_bytes_per_second": 7540440.057718645,
+        "completion_count": 120300.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 120400.0,
+        "admission_tps": 4003.452210025327,
+        "pending_local_transactions_start": 500.0,
+        "pending_local_transactions_end": 600.0,
+        "tcp_written_bytes_per_completion": 1885.0501246882795,
+        "offered_load_completion_fraction": 1.00003177090126,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "admission",
+      "actual_ingress_tps": 4003.452210025327,
+      "backlog": {
+        "start": 500.0,
+        "end": 600.0,
+        "scope": "signed difference of independently scraped native admission/completion counters; not an atomic queue gauge",
+        "observed_negative_snapshot_skew": false,
+        "drain_complete": null,
+        "shutdown": {
+          "mode": "natural native benchmark duration elapsed",
+          "returncode": 0
+        },
+        "remaining_owned_processes": []
+      }
+    },
+    {
+      "protocol": "raptr",
+      "rate": 4000,
+      "repeat": 1,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-4000-repeat-1/manifest.json",
+        "sha256": "16b7b31e7dbf68938996a7fd306871b157d9c8ac7e8923f4616e5aa167ba88fd"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10,
+        "ingress_batch_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 30.0763645414263,
+        "unique_completion_tps": 4009.793132873127,
+        "mean_latency_ms": 116.15152000655071,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 228070948.0,
+        "replica_tcp_read_bytes": 227964408.0,
+        "replica_tcp_written_bytes_per_second": 7583062.363998873,
+        "completion_count": 120600.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 120400.0,
+        "admission_tps": 4003.1433930176163,
+        "pending_local_transactions_start": 600.0,
+        "pending_local_transactions_end": 400.0,
+        "tcp_written_bytes_per_completion": 1891.1355555555558,
+        "offered_load_completion_fraction": 1.0024482832182817,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "admission",
+      "actual_ingress_tps": 4003.1433930176163,
+      "backlog": {
+        "start": 600.0,
+        "end": 400.0,
+        "scope": "signed difference of independently scraped native admission/completion counters; not an atomic queue gauge",
+        "observed_negative_snapshot_skew": false,
+        "drain_complete": null,
+        "shutdown": {
+          "mode": "natural native benchmark duration elapsed",
+          "returncode": 0
+        },
+        "remaining_owned_processes": []
+      }
+    },
+    {
+      "protocol": "raptr",
+      "rate": 4000,
+      "repeat": 2,
+      "status": "passed",
+      "replacement": false,
+      "manifest": {
+        "path": "results/local/comparison-20261013-final/raptr-4000-repeat-2/manifest.json",
+        "sha256": "2f15735ce93eecd45ec48c5753c5a394fa2490ac444f01286796cf0e6a0297e1"
+      },
+      "comparison": {
+        "protocol": "raptr",
+        "replicas": 4,
+        "offered_tx_s": 4000,
+        "transaction_bytes": 512,
+        "warmup_seconds": 10,
+        "ingress_batch_ms": 100,
+        "ingress_mode": "matched_batch_requests",
+        "measurement_seconds": 30.06838950049132,
+        "unique_completion_tps": 3990.9021398714817,
+        "mean_latency_ms": 107.40811625985836,
+        "latency_endpoint": "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 226346124.0,
+        "replica_tcp_read_bytes": 226346236.0,
+        "replica_tcp_written_bytes_per_second": 7527710.255193464,
+        "completion_count": 120000.0,
+        "generated_count": null,
+        "generation_tps": null,
+        "admitted_count": 120200.0,
+        "admission_tps": 3997.553643437934,
+        "pending_local_transactions_start": 400.0,
+        "pending_local_transactions_end": 600.0,
+        "tcp_written_bytes_per_completion": 1886.2177,
+        "offered_load_completion_fraction": 0.9977255349678704,
+        "achieved_generation_fraction": null,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "actual_ingress_kind": "admission",
+      "actual_ingress_tps": 3997.553643437934,
+      "backlog": {
+        "start": 400.0,
+        "end": 600.0,
+        "scope": "signed difference of independently scraped native admission/completion counters; not an atomic queue gauge",
+        "observed_negative_snapshot_skew": false,
+        "drain_complete": null,
+        "shutdown": {
+          "mode": "natural native benchmark duration elapsed",
+          "returncode": 0
+        },
+        "remaining_owned_processes": []
+      }
+    }
+  ],
+  "aggregate": [
+    {
+      "protocol": "delugi",
+      "offered_tx_s": 1000,
+      "successful_trials": 3,
+      "unique_completion_tps": {
+        "median": 930.921347783912,
+        "min": 922.9145994388929,
+        "max": 956.0150824366393
+      },
+      "mean_latency_ms": {
+        "median": 1519.7401269289987,
+        "min": 1464.5510025451501,
+        "max": 1675.7446799407899
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 3484251.541538097,
+        "min": 3364361.3577524177,
+        "max": 3489036.8005549675
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 3645.365844031353,
+        "min": 3644.5570844527115,
+        "max": 3747.9394031093293
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.930921347783912,
+        "min": 0.9229145994388929,
+        "max": 0.9560150824366394
+      },
+      "generation_tps": {
+        "median": 1000.1179220976911,
+        "min": 999.8554252403493,
+        "max": 1000.1459468035907
+      },
+      "latency_endpoints": [
+        "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": false,
+      "actual_ingress_tps": {
+        "median": 1000.1179220976911,
+        "min": 999.8554252403493,
+        "max": 1000.1459468035907
+      },
+      "pending_end": {
+        "median": 2696,
+        "min": 2129,
+        "max": 2759
+      },
+      "pending_start": {
+        "median": 620,
+        "min": 450,
+        "max": 805
+      },
+      "post_window_drain_seconds": {
+        "median": 3.2172885830514133,
+        "min": 2.4082043329253793,
+        "max": 3.5178794590756297
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "offered_tx_s": 1000,
+      "successful_trials": 3,
+      "unique_completion_tps": {
+        "median": 999.8540060506788,
+        "min": 999.8508593879067,
+        "max": 999.8637430434883
+      },
+      "mean_latency_ms": {
+        "median": 1.6034100000000273,
+        "min": 1.481764999999996,
+        "max": 1.9003566666666616
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 27794271.312062565,
+        "min": 27558457.09012519,
+        "max": 29633693.75353675
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 27798.329700000002,
+        "min": 27562.212633333336,
+        "max": 29638.114
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9998540060506788,
+        "min": 0.9998508593879066,
+        "max": 0.9998637430434882
+      },
+      "generation_tps": {
+        "median": 999.8540060506788,
+        "min": 999.8508593879067,
+        "max": 999.8637430434883
+      },
+      "latency_endpoints": [
+        "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution."
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true,
+      "actual_ingress_tps": {
+        "median": 999.8540060506788,
+        "min": 999.8508593879067,
+        "max": 999.8637430434883
+      },
+      "pending_end": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "pending_start": null
+    },
+    {
+      "protocol": "raptr",
+      "offered_tx_s": 1000,
+      "successful_trials": 3,
+      "unique_completion_tps": {
+        "median": 999.5464536992998,
+        "min": 998.4626121340652,
+        "max": 1002.9415808075074
+      },
+      "mean_latency_ms": {
+        "median": 91.34243887933451,
+        "min": 88.0325277534055,
+        "max": 99.4987534901823
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 3017637.422104521,
+        "min": 2961377.389838214,
+        "max": 3080839.4669535113
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 3008.786832504146,
+        "min": 2965.937185678601,
+        "max": 3082.237404326123
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9995464536992998,
+        "min": 0.9984626121340653,
+        "max": 1.0029415808075075
+      },
+      "generation_tps": null,
+      "latency_endpoints": [
+        "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true,
+      "actual_ingress_tps": {
+        "median": 1001.2095925573685,
+        "min": 1000.1253308886598,
+        "max": 1001.2783277713423
+      },
+      "pending_end": {
+        "median": 100.0,
+        "min": 50.0,
+        "max": 150.0
+      },
+      "pending_start": {
+        "median": 100.0,
+        "min": 50.0,
+        "max": 100.0
+      }
+    },
+    {
+      "protocol": "delugi",
+      "offered_tx_s": 4000,
+      "successful_trials": 3,
+      "unique_completion_tps": {
+        "median": 3819.6144710693447,
+        "min": 3759.594343372712,
+        "max": 3831.2863502266637
+      },
+      "mean_latency_ms": {
+        "median": 1402.015596937218,
+        "min": 1379.3707243852914,
+        "max": 1531.075026540746
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 8100133.467480594,
+        "min": 8044193.423521079,
+        "max": 8150561.319802094
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 2133.870154052551,
+        "min": 2099.606421494748,
+        "max": 2154.523261734139
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9549036177673362,
+        "min": 0.939898585843178,
+        "max": 0.9578215875566659
+      },
+      "generation_tps": {
+        "median": 3998.587343965089,
+        "min": 3996.560979582893,
+        "max": 4002.285151717368
+      },
+      "latency_endpoints": [
+        "local producer insertion immediately before signed batch production to post-handler local materialization; completed-in-window population"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": false,
+      "actual_ingress_tps": {
+        "median": 3998.587343965089,
+        "min": 3996.560979582893,
+        "max": 4002.285151717368
+      },
+      "pending_end": {
+        "median": 7695,
+        "min": 7623,
+        "max": 10953
+      },
+      "pending_start": {
+        "median": 2602,
+        "min": 2383,
+        "max": 3673
+      },
+      "post_window_drain_seconds": {
+        "median": 1.9359895000234246,
+        "min": 1.6959005831740797,
+        "max": 2.478952584322542
+      }
+    },
+    {
+      "protocol": "mysticeti",
+      "offered_tx_s": 4000,
+      "successful_trials": 3,
+      "unique_completion_tps": {
+        "median": 3999.1309693779167,
+        "min": 3998.927117013349,
+        "max": 3999.415476396111
+      },
+      "mean_latency_ms": {
+        "median": 2.082560833333367,
+        "min": 1.9350099999999637,
+        "max": 2.59655749999994
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 33905644.88009719,
+        "min": 33721051.4877685,
+        "max": 33993096.56801603
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 8477.650066666667,
+        "min": 8432.524650000001,
+        "max": 8500.120858333332
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9997827423444792,
+        "min": 0.9997317792533372,
+        "max": 0.9998538690990277
+      },
+      "generation_tps": {
+        "median": 3999.1309693779167,
+        "min": 3998.927117013349,
+        "max": 3999.415476396111
+      },
+      "latency_endpoints": [
+        "Generation UTC timestamp (millisecond resolution) to payload-ready consensus commit callback at the transaction's originating replica; no application execution."
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true,
+      "actual_ingress_tps": {
+        "median": 3999.1309693779167,
+        "min": 3998.927117013349,
+        "max": 3999.415476396111
+      },
+      "pending_end": {
+        "median": 0,
+        "min": 0,
+        "max": 0
+      },
+      "pending_start": null
+    },
+    {
+      "protocol": "raptr",
+      "offered_tx_s": 4000,
+      "successful_trials": 3,
+      "unique_completion_tps": {
+        "median": 4000.1270836050403,
+        "min": 3990.9021398714817,
+        "max": 4009.793132873127
+      },
+      "mean_latency_ms": {
+        "median": 107.40811625985836,
+        "min": 92.30845550162914,
+        "max": 116.15152000655071
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 7540440.057718645,
+        "min": 7527710.255193464,
+        "max": 7583062.363998873
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 1886.2177,
+        "min": 1885.0501246882795,
+        "max": 1891.1355555555558
+      },
+      "offered_load_completion_fraction": {
+        "median": 1.00003177090126,
+        "min": 0.9977255349678704,
+        "max": 1.0024482832182817
+      },
+      "generation_tps": null,
+      "latency_endpoints": [
+        "Native API mempool insertion to payload-ready commit notification at the transaction's ingress replica; transaction weighted completion-window mean, excludes client generation and HTTP ingress"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true,
+      "actual_ingress_tps": {
+        "median": 4003.1433930176163,
+        "min": 3997.553643437934,
+        "max": 4003.452210025327
+      },
+      "pending_end": {
+        "median": 600.0,
+        "min": 400.0,
+        "max": 600.0
+      },
+      "pending_start": {
+        "median": 500.0,
+        "min": 400.0,
+        "max": 600.0
+      }
+    }
+  ],
+  "development_diagnostics_excluded": {
+    "reason": "Earlier source versions or short functional smoke windows; none are included in the fixed final comparison population.",
+    "archives": [
+      {
+        "path": "results/local/sustained-functional-smoke-20261013/manifest.json",
+        "sha256": "ba17aaf90ce9b594717026dbce2b41bea1ab374223cc2ef2ea3742fd0381ebb7"
+      },
+      {
+        "path": "results/local/sustained-indexed-functional-smoke-20261013/manifest.json",
+        "sha256": "af58cdf0424954a62aa389785c1d2b78f4aefc0d3a1e37f821af64ebf85255af"
+      },
+      {
+        "path": "results/local/sustained-indexed-isolated-20261013/manifest.json",
+        "sha256": "2dc44eae4d7b467762306fb2839a6b557e3219b6dd2bea102d7df84d963dc3f3"
+      },
+      {
+        "path": "results/local/sustained-final-functional-smoke-20261013/manifest.json",
+        "sha256": "549939ac74c845b99a48208e6136d156e8a162b85b0a8837e6b7e9cba070739b"
+      },
+      {
+        "path": "results/local/raptr-sustained-matched-smoke-20261013/manifest.json",
+        "sha256": "209ae0dbe8ada1308439ed7612c172301d1c73ce40549d279dcb7befc93ed39e"
+      },
+      {
+        "path": "results/local/baseline-mysticeti-sustained-smoke/manifest.json",
+        "sha256": "aa014e3f7be36da0ec1e95b5e9cfb9d69a9dc4f5927779421e70c2b69cd1ef05"
+      }
+    ]
+  }
+}

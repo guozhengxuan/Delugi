@@ -1,0 +1,484 @@
+{
+  "schema": 1,
+  "implementation": "Delugi Option A distributed reference",
+  "date": "2026-10-13",
+  "specification": {
+    "path": "provenance/spec-2026-10-13.json",
+    "sha256": "e52e6534f7ec0fbd69f5009fe1d434a8eabacc34fed59620c6348b44fd74713b"
+  },
+  "network_manifest": {
+    "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/manifest.json",
+    "sha256": "9cd9c4b582e52e4e00a2b5e6cfb2bc82bc97f03b675c102ef8be2c2548ca0bae"
+  },
+  "semantic_manifest": {
+    "path": "results/local/composed-a079a8a98b6e4deebc0d09f4ceeb5bb6/manifest.json",
+    "sha256": "4628f60c1265b4a5cebef72d590adf93430354c29af8317568ee9e91a113c8c1"
+  },
+  "binary_sha256": "e07472826498e19ca50cc61dfd87dbda3e1603ee681d295e4c0fa2b34ec768fc",
+  "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: aarch64-apple-darwin\nrelease: 1.92.0\nLLVM version: 21.1.3",
+  "machine": {
+    "system": "Darwin",
+    "release": "25.6.0",
+    "architecture": "arm64",
+    "processor": "arm",
+    "logical_cpus": 12,
+    "model": "Mac16,11",
+    "cpu_model": "Apple M4 Pro",
+    "memory_bytes": 25769803776,
+    "physical_cpus": 12
+  },
+  "validation": {
+    "ordinary_rust_tests_passed": 130,
+    "real_socket_and_process_tests_passed": 5,
+    "network_python_tests_passed": 24,
+    "reproduced_semantic_traces": 18,
+    "real_network_trials": 6,
+    "byzantine_fork_checks": "Genuine signed/Q-valid proposals with current WAs and authenticated earlier bases materialize the same exact batch log at four replicas; divergent/lower raw targets, shared-prefix overlap, exact dedup, signature-independent output, and malformed application payloads covered.",
+    "authenticated_base_use_in_semantic_run": {
+      "scenario": "recurring-silent-repeat-0",
+      "round_7_base": 2,
+      "round_8_base": 3
+    },
+    "bounded_byzantine_input": "Real authenticated transport peer sends invalid REPORT then valid BATCH; honest process rejects one input and continues receiving."
+  },
+  "settings": {
+    "replicas": 4,
+    "bound_ms": 250,
+    "batch_waves": 4,
+    "transactions_per_batch": 2,
+    "transaction_payload_bytes": 32,
+    "workload": "Four finite waves prepared and disseminated before ordering start; leaders automatically REPORT on entry, all-current inputs with empty fallback; workload opportunities1..4, uncapped ordering admission."
+  },
+  "measurement_boundaries": {
+    "latency": "Controller monotonic time from first TCP submission to receipt of post-handler stdout events; includes finite workload preparation and telemetry. Transaction completion may precede final descriptor delivery because preloaded data can be covered by the first honest proposal.",
+    "traffic": "Separate logical protocol bytes, authenticated envelope/framing bytes, actual successful TCP stream reads/writes, and client control bytes; excludes TCP/IP/link overhead and kernel retransmissions",
+    "shutdown": "After all correct output completes, explicit quiesce freezes handlers/timers; pre-cutoff transport drains and ACKs post-cutoff discarded deliveries; pending outbound frames zero and counters stable100ms before final snapshots and graceful stop",
+    "storage": "In-memory custody and protocol state; reconnect supported, no durable restart.",
+    "profile": "4 or7 replicas; 1MiB wire budget with full-u64 proof reserves; singleton procedure excluded.",
+    "comparison": "Changed preload/automatic-report workload differs from earlier October12 interleaved fixture and from native sustained Raptr/Mysticeti runs."
+  },
+  "aggregate": [
+    {
+      "scenario": "honest-round-four",
+      "trials": 3,
+      "batches_per_correct_replica": 16,
+      "transactions_per_correct_replica": 32,
+      "median_all_correct_transaction_completion_ms": 98.248833,
+      "median_all_correct_descriptor_delivery_through_round_four_ms": 116.967583,
+      "median_total_socket_written_bytes": 444996
+    },
+    {
+      "scenario": "silent-first-three-anchors",
+      "trials": 3,
+      "batches_per_correct_replica": 12,
+      "transactions_per_correct_replica": 24,
+      "median_all_correct_transaction_completion_ms": 1851.904875,
+      "median_all_correct_descriptor_delivery_through_round_four_ms": 1850.3905419999999,
+      "median_total_socket_written_bytes": 4358234
+    }
+  ],
+  "trials": [
+    {
+      "label": "honest-round-four-repeat-0",
+      "result": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/honest-round-four-repeat-0/result.json",
+        "sha256": "54cbbbb7689c6ab184be52236ac915704d97831da68ebf0459aa309df2408ea8"
+      },
+      "snapshots": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/honest-round-four-repeat-0/snapshots.json",
+        "sha256": "e47e1c1e3e6cc283dfe8df4cce3059538a155c4228949bfa4a0bd32eda6d5075"
+      },
+      "scenario": {
+        "label": "honest-round-four",
+        "silent": null
+      },
+      "batches_per_correct_replica": 16,
+      "transactions_per_correct_replica": 32,
+      "composition": {
+        "construction": "all-current",
+        "signed_reports": 4,
+        "signed_observations": 16,
+        "inputs": 4,
+        "historical_sources": 0,
+        "empty_coordinates": 0
+      },
+      "round_four_history": {
+        "horizon": 1,
+        "pivot": 1,
+        "reporters": [
+          0,
+          2,
+          3
+        ],
+        "has_cer_proof": true
+      },
+      "all_correct_transaction_completion_ms": 114.34433299999999,
+      "all_correct_descriptor_delivery_through_round_four_ms": 122.6125,
+      "traffic": {
+        "protocol_enqueued_bytes": 260856,
+        "protocol_payload_written_bytes": 260856,
+        "data_frame_written_bytes": 355716,
+        "data_frame_read_bytes": 355716,
+        "ack_written_bytes": 89280,
+        "ack_read_bytes": 89280,
+        "enqueued_frames": 465,
+        "acknowledged_frames": 465,
+        "accepted_frames": 465,
+        "outstanding_frames": 0,
+        "retries": 0,
+        "partial_frame_written_bytes": 0,
+        "connection_failures": 0,
+        "rejected_frames": 0,
+        "queue_full_failures": 0,
+        "workload_index_enqueued_bytes": 206991,
+        "beyond_workload_enqueued_bytes": 53865,
+        "workload_index_enqueued_frames": 243,
+        "beyond_workload_enqueued_frames": 222,
+        "auth_and_framing_written_bytes": 94860,
+        "socket_written_bytes": 444996,
+        "socket_read_bytes": 444996
+      },
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "honest-round-four-repeat-1",
+      "result": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/honest-round-four-repeat-1/result.json",
+        "sha256": "e7d352bf021a93d37d2a008061eb5d70698018d65c12c78a7aad5872a95956f5"
+      },
+      "snapshots": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/honest-round-four-repeat-1/snapshots.json",
+        "sha256": "d1beccdeb969e1b2ee99027e966668ee35bb7e6ff9f45c6db523a776ed9104a6"
+      },
+      "scenario": {
+        "label": "honest-round-four",
+        "silent": null
+      },
+      "batches_per_correct_replica": 16,
+      "transactions_per_correct_replica": 32,
+      "composition": {
+        "construction": "all-current",
+        "signed_reports": 4,
+        "signed_observations": 16,
+        "inputs": 4,
+        "historical_sources": 0,
+        "empty_coordinates": 0
+      },
+      "round_four_history": {
+        "horizon": 1,
+        "pivot": 1,
+        "reporters": [
+          0,
+          1,
+          3
+        ],
+        "has_cer_proof": true
+      },
+      "all_correct_transaction_completion_ms": 98.248833,
+      "all_correct_descriptor_delivery_through_round_four_ms": 100.555375,
+      "traffic": {
+        "protocol_enqueued_bytes": 260385,
+        "protocol_payload_written_bytes": 260385,
+        "data_frame_written_bytes": 354633,
+        "data_frame_read_bytes": 354633,
+        "ack_written_bytes": 88704,
+        "ack_read_bytes": 88704,
+        "enqueued_frames": 462,
+        "acknowledged_frames": 462,
+        "accepted_frames": 462,
+        "outstanding_frames": 0,
+        "retries": 0,
+        "partial_frame_written_bytes": 0,
+        "connection_failures": 0,
+        "rejected_frames": 0,
+        "queue_full_failures": 0,
+        "workload_index_enqueued_bytes": 206991,
+        "beyond_workload_enqueued_bytes": 53394,
+        "workload_index_enqueued_frames": 243,
+        "beyond_workload_enqueued_frames": 219,
+        "auth_and_framing_written_bytes": 94248,
+        "socket_written_bytes": 443337,
+        "socket_read_bytes": 443337
+      },
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "honest-round-four-repeat-2",
+      "result": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/honest-round-four-repeat-2/result.json",
+        "sha256": "14a29b8514305572f3179a50da9c444a24029a3ebda28efe4f5507649181f65b"
+      },
+      "snapshots": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/honest-round-four-repeat-2/snapshots.json",
+        "sha256": "ea54c67d8d612f1845cef2e95b2d4133ef88270e1df45c39878e523cd3244de4"
+      },
+      "scenario": {
+        "label": "honest-round-four",
+        "silent": null
+      },
+      "batches_per_correct_replica": 16,
+      "transactions_per_correct_replica": 32,
+      "composition": {
+        "construction": "all-current",
+        "signed_reports": 4,
+        "signed_observations": 16,
+        "inputs": 4,
+        "historical_sources": 0,
+        "empty_coordinates": 0
+      },
+      "round_four_history": {
+        "horizon": 1,
+        "pivot": 1,
+        "reporters": [
+          0,
+          2,
+          3
+        ],
+        "has_cer_proof": true
+      },
+      "all_correct_transaction_completion_ms": 94.90920799999999,
+      "all_correct_descriptor_delivery_through_round_four_ms": 116.967583,
+      "traffic": {
+        "protocol_enqueued_bytes": 279696,
+        "protocol_payload_written_bytes": 279696,
+        "data_frame_written_bytes": 399036,
+        "data_frame_read_bytes": 399036,
+        "ack_written_bytes": 112320,
+        "ack_read_bytes": 112320,
+        "enqueued_frames": 585,
+        "acknowledged_frames": 585,
+        "accepted_frames": 585,
+        "outstanding_frames": 0,
+        "retries": 0,
+        "partial_frame_written_bytes": 0,
+        "connection_failures": 0,
+        "rejected_frames": 0,
+        "queue_full_failures": 0,
+        "workload_index_enqueued_bytes": 206991,
+        "beyond_workload_enqueued_bytes": 72705,
+        "workload_index_enqueued_frames": 243,
+        "beyond_workload_enqueued_frames": 342,
+        "auth_and_framing_written_bytes": 119340,
+        "socket_written_bytes": 511356,
+        "socket_read_bytes": 511356
+      },
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "silent-first-three-anchors-repeat-0",
+      "result": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/silent-first-three-anchors-repeat-0/result.json",
+        "sha256": "8ee108c59070a4be8a887f8ec57acbd5db42ad776afff0023926cfe2cee40666"
+      },
+      "snapshots": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/silent-first-three-anchors-repeat-0/snapshots.json",
+        "sha256": "abbd6c1684f1c8ab4945814b55bcfb7592840bd710c8d5dd5148247d012acaa7"
+      },
+      "scenario": {
+        "label": "silent-first-three-anchors",
+        "silent": 0
+      },
+      "batches_per_correct_replica": 12,
+      "transactions_per_correct_replica": 24,
+      "composition": {
+        "construction": "all-current",
+        "signed_reports": 3,
+        "signed_observations": 9,
+        "inputs": 3,
+        "historical_sources": 0,
+        "empty_coordinates": 3
+      },
+      "round_four_history": {
+        "horizon": 1,
+        "pivot": 0,
+        "reporters": [
+          1,
+          2,
+          3
+        ],
+        "has_cer_proof": false
+      },
+      "all_correct_transaction_completion_ms": 1861.608459,
+      "all_correct_descriptor_delivery_through_round_four_ms": 1860.16575,
+      "traffic": {
+        "protocol_enqueued_bytes": 1319330,
+        "protocol_payload_written_bytes": 1319330,
+        "data_frame_written_bytes": 2884826,
+        "data_frame_read_bytes": 2884826,
+        "ack_written_bytes": 1473408,
+        "ack_read_bytes": 1473408,
+        "enqueued_frames": 7674,
+        "acknowledged_frames": 7674,
+        "accepted_frames": 7674,
+        "outstanding_frames": 0,
+        "retries": 0,
+        "partial_frame_written_bytes": 0,
+        "connection_failures": 0,
+        "rejected_frames": 0,
+        "queue_full_failures": 0,
+        "workload_index_enqueued_bytes": 129468,
+        "beyond_workload_enqueued_bytes": 1189862,
+        "workload_index_enqueued_frames": 161,
+        "beyond_workload_enqueued_frames": 7513,
+        "auth_and_framing_written_bytes": 1565496,
+        "socket_written_bytes": 4358234,
+        "socket_read_bytes": 4358234
+      },
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "silent-first-three-anchors-repeat-1",
+      "result": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/silent-first-three-anchors-repeat-1/result.json",
+        "sha256": "d953edc737ff0b2cee6b6aab97471120a7d8a62cc96b74d7647c374a01755b1a"
+      },
+      "snapshots": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/silent-first-three-anchors-repeat-1/snapshots.json",
+        "sha256": "624408ce8c7e544f85bf2a7096e478ca0919ff346d5e987060f7a04ef3edf54b"
+      },
+      "scenario": {
+        "label": "silent-first-three-anchors",
+        "silent": 0
+      },
+      "batches_per_correct_replica": 12,
+      "transactions_per_correct_replica": 24,
+      "composition": {
+        "construction": "all-current",
+        "signed_reports": 3,
+        "signed_observations": 9,
+        "inputs": 3,
+        "historical_sources": 0,
+        "empty_coordinates": 3
+      },
+      "round_four_history": {
+        "horizon": 1,
+        "pivot": 0,
+        "reporters": [
+          1,
+          2,
+          3
+        ],
+        "has_cer_proof": false
+      },
+      "all_correct_transaction_completion_ms": 1848.423708,
+      "all_correct_descriptor_delivery_through_round_four_ms": 1847.558125,
+      "traffic": {
+        "protocol_enqueued_bytes": 1279766,
+        "protocol_payload_written_bytes": 1279766,
+        "data_frame_written_bytes": 2793854,
+        "data_frame_read_bytes": 2793854,
+        "ack_written_bytes": 1425024,
+        "ack_read_bytes": 1425024,
+        "enqueued_frames": 7422,
+        "acknowledged_frames": 7422,
+        "accepted_frames": 7422,
+        "outstanding_frames": 0,
+        "retries": 0,
+        "partial_frame_written_bytes": 0,
+        "connection_failures": 0,
+        "rejected_frames": 0,
+        "queue_full_failures": 0,
+        "workload_index_enqueued_bytes": 129468,
+        "beyond_workload_enqueued_bytes": 1150298,
+        "workload_index_enqueued_frames": 161,
+        "beyond_workload_enqueued_frames": 7261,
+        "auth_and_framing_written_bytes": 1514088,
+        "socket_written_bytes": 4218878,
+        "socket_read_bytes": 4218878
+      },
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "label": "silent-first-three-anchors-repeat-2",
+      "result": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/silent-first-three-anchors-repeat-2/result.json",
+        "sha256": "9e1ffdc5d4db030c9715c3eca601e27d8b18cbbcfb266183ab05e641dda39d8e"
+      },
+      "snapshots": {
+        "path": "results/local/network-e9a90648a8f14267bb4d516b2ee27267/silent-first-three-anchors-repeat-2/snapshots.json",
+        "sha256": "928e2abc48c7ab409322b9cdf6c8a818dc54cb5f47a9b4ded7cd4422c11e3295"
+      },
+      "scenario": {
+        "label": "silent-first-three-anchors",
+        "silent": 0
+      },
+      "batches_per_correct_replica": 12,
+      "transactions_per_correct_replica": 24,
+      "composition": {
+        "construction": "all-current",
+        "signed_reports": 3,
+        "signed_observations": 9,
+        "inputs": 3,
+        "historical_sources": 0,
+        "empty_coordinates": 3
+      },
+      "round_four_history": {
+        "horizon": 1,
+        "pivot": 0,
+        "reporters": [
+          1,
+          2,
+          3
+        ],
+        "has_cer_proof": false
+      },
+      "all_correct_transaction_completion_ms": 1851.904875,
+      "all_correct_descriptor_delivery_through_round_four_ms": 1850.3905419999999,
+      "traffic": {
+        "protocol_enqueued_bytes": 1357010,
+        "protocol_payload_written_bytes": 1357010,
+        "data_frame_written_bytes": 2971466,
+        "data_frame_read_bytes": 2971466,
+        "ack_written_bytes": 1519488,
+        "ack_read_bytes": 1519488,
+        "enqueued_frames": 7914,
+        "acknowledged_frames": 7914,
+        "accepted_frames": 7914,
+        "outstanding_frames": 0,
+        "retries": 0,
+        "partial_frame_written_bytes": 0,
+        "connection_failures": 0,
+        "rejected_frames": 0,
+        "queue_full_failures": 0,
+        "workload_index_enqueued_bytes": 129468,
+        "beyond_workload_enqueued_bytes": 1227542,
+        "workload_index_enqueued_frames": 161,
+        "beyond_workload_enqueued_frames": 7753,
+        "auth_and_framing_written_bytes": 1614456,
+        "socket_written_bytes": 4490954,
+        "socket_read_bytes": 4490954
+      },
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

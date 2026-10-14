@@ -7,7 +7,7 @@ use crate::mmr::{self, Boundary, Checkpoint, Config, PrefixProof, State};
 use crate::wire::{encode, hash, sign, Committee, Context, Digest, Id, Signed, SigningDomain};
 use ed25519_dalek::Keypair;
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 /// Bound each batch independently; complete DATA responses also obey the wire cap.
 pub const MAX_BATCH_PAYLOAD: usize = 256 * 1024;
@@ -86,8 +86,19 @@ pub struct BatchStore {
     committee: Committee,
     config: Config,
     records: BTreeMap<(Id, Digest), Record>,
-    /// Separate entries preserve producer forks and independently imported bases.
-    branches: BTreeMap<(Digest, Digest), Branch>,
+    /// One mutable tip per fork and independently imported base. Each State already
+    /// retains every historical checkpoint and proof node; prefix copies are not
+    /// separate branches.
+    branches: BTreeMap<usize, Branch>,
+    /// Verified records waiting for this exact predecessor (including its height).
+    children: BTreeMap<(Id, u64, Digest), BTreeSet<Digest>>,
+    /// A representative retained State for each prefix under each custody anchor.
+    prefixes: BTreeMap<(Id, u64, Digest), BTreeMap<Digest, usize>>,
+    checkpoint_branches: BTreeMap<Digest, BTreeMap<Digest, usize>>,
+    checkpoints: BTreeMap<(Id, u64, Digest), Checkpoint>,
+    attached: BTreeSet<(Digest, Digest)>,
+    #[cfg(test)]
+    extension_attempts: usize,
     produced: BTreeMap<Id, (u64, Digest)>,
     custody: BTreeSet<(Digest, Digest)>,
 }
@@ -98,26 +109,30 @@ impl BatchStore {
             chunk_capacity,
         };
         config.validate()?;
-        let mut branches = BTreeMap::new();
-        for k in 0..committee.keys.len() as Id {
-            let anchor = mmr::genesis(&config, k);
-            let id = mmr::checkpoint_digest(&anchor);
-            branches.insert(
-                (id, id),
-                Branch {
-                    anchor,
-                    state: State::genesis(&config, k),
-                },
-            );
-        }
-        Ok(Self {
+        let mut store = Self {
             committee,
             config,
             records: BTreeMap::new(),
-            branches,
+            branches: BTreeMap::new(),
+            children: BTreeMap::new(),
+            prefixes: BTreeMap::new(),
+            checkpoint_branches: BTreeMap::new(),
+            checkpoints: BTreeMap::new(),
+            attached: BTreeSet::new(),
+            #[cfg(test)]
+            extension_attempts: 0,
             produced: BTreeMap::new(),
             custody: BTreeSet::new(),
-        })
+        };
+        for k in 0..store.committee.keys.len() as Id {
+            let branch = Branch {
+                anchor: mmr::genesis(&store.config, k),
+                state: State::genesis(&store.config, k),
+            };
+            let id = store.add_branch(branch);
+            store.index_position(id, 0)?;
+        }
+        Ok(store)
     }
     pub fn config(&self) -> &Config {
         &self.config
@@ -176,83 +191,159 @@ impl BatchStore {
     /// disconnected record stays buffered and cannot advance a held checkpoint.
     pub fn receive(&mut self, record: Record) -> Result<bool, String> {
         verify_record(&self.committee, &record)?;
-        let id = (record.header.body.producer, record_digest(&record));
-        if self.records.contains_key(&id) {
+        let digest = record_digest(&record);
+        let producer = record.header.body.producer;
+        if !self.insert_record(record) {
             return Ok(false);
         }
-        self.records.insert(id, record);
-        self.extend_buffered()?;
+        let mut pending = VecDeque::new();
+        self.queue_record(producer, digest, &mut pending);
+        self.extend_buffered(pending)?;
         Ok(true)
     }
-    fn extend_buffered(&mut self) -> Result<(), String> {
-        loop {
-            let mut pending = Vec::new();
-            for record in self.records.values() {
-                let h = &record.header.body;
-                for branch in self.branches.values() {
-                    let tail = branch.state.checkpoint();
-                    if tail.producer != h.producer || tail.height.checked_add(1) != Some(h.height) {
-                        continue;
-                    }
-                    let previous = if tail.height == 0 {
-                        genesis_digest(&self.config, h.producer)
-                    } else {
+    fn insert_record(&mut self, record: Record) -> bool {
+        let h = &record.header.body;
+        let digest = record_digest(&record);
+        let key = (h.producer, digest);
+        if self.records.contains_key(&key) {
+            return false;
+        }
+        self.children
+            .entry((h.producer, h.height, h.previous))
+            .or_default()
+            .insert(digest);
+        self.records.insert(key, record);
+        true
+    }
+    fn add_branch(&mut self, branch: Branch) -> usize {
+        let id = self.branches.len();
+        self.branches.insert(id, branch);
+        id
+    }
+    /// Index historical positions once. Existing representatives remain valid
+    /// when their tip advances, since State retains the exact historical roots.
+    fn index_position(&mut self, id: usize, height: u64) -> Result<(), String> {
+        let branch = &self.branches[&id];
+        let cp = branch
+            .state
+            .checkpoint_at(height)
+            .ok_or("branch checkpoint missing while indexing")?
+            .clone();
+        let anchor = mmr::checkpoint_digest(&branch.anchor);
+        let digest = if height == 0 {
+            genesis_digest(&self.config, cp.producer)
+        } else {
+            branch
+                .state
+                .digest_at(height)
+                .ok_or("branch terminal digest missing")?
+        };
+        let checkpoint = mmr::checkpoint_digest(&cp);
+        self.prefixes
+            .entry((cp.producer, height, digest))
+            .or_default()
+            .entry(anchor)
+            .or_insert(id);
+        self.checkpoint_branches
+            .entry(checkpoint)
+            .or_default()
+            .entry(anchor)
+            .or_insert(id);
+        self.checkpoints
+            .entry((cp.producer, height, checkpoint))
+            .or_insert(cp);
+        // An imported metadata boundary has no custody of its own record.
+        if height > branch.anchor.height {
+            self.attached.insert((anchor, digest));
+        }
+        Ok(())
+    }
+    fn queue_record(&self, producer: Id, digest: Digest, pending: &mut VecDeque<(usize, Digest)>) {
+        let h = &self.records[&(producer, digest)].header.body;
+        if let Some(prefixes) = self.prefixes.get(&(producer, h.height - 1, h.previous)) {
+            pending.extend(prefixes.values().map(|id| (*id, digest)));
+        }
+    }
+    fn queue_children(
+        &self,
+        id: usize,
+        height: u64,
+        pending: &mut VecDeque<(usize, Digest)>,
+    ) -> Result<(), String> {
+        let branch = &self.branches[&id];
+        let cp = branch
+            .state
+            .checkpoint_at(height)
+            .ok_or("branch checkpoint missing")?;
+        let previous = if height == 0 {
+            genesis_digest(&self.config, cp.producer)
+        } else {
+            branch
+                .state
+                .digest_at(height)
+                .ok_or("branch terminal digest missing")?
+        };
+        if let Some(children) = self.children.get(&(cp.producer, height + 1, previous)) {
+            pending.extend(children.iter().map(|digest| (id, *digest)));
+        }
+        Ok(())
+    }
+    fn extend_buffered(&mut self, mut pending: VecDeque<(usize, Digest)>) -> Result<(), String> {
+        while let Some((id, digest)) = pending.pop_front() {
+            #[cfg(test)]
+            {
+                self.extension_attempts += 1;
+            }
+            let branch = &self.branches[&id];
+            let anchor = mmr::checkpoint_digest(&branch.anchor);
+            if self.attached.contains(&(anchor, digest)) {
+                continue;
+            }
+            let producer = branch.anchor.producer;
+            let height = self.records[&(producer, digest)].header.body.height;
+            let id = if branch.state.checkpoint().height + 1 == height {
+                // Honest traffic has one mutable State, not one cloned State
+                // per historical height.
+                self.branches.get_mut(&id).unwrap().state.append(digest)?;
+                id
+            } else {
+                // A late fork needs its own retained State. Reconstruct only
+                // its common prefix; keep the original anchor's custody limit.
+                let boundary = branch.state.boundary(&branch.anchor)?;
+                let mut state = State::from_boundary(&self.config, &boundary)?;
+                for h in branch.anchor.height + 1..height {
+                    state.append(
                         branch
                             .state
-                            .digest_at(tail.height)
-                            .ok_or("held branch has no terminal digest")?
-                    };
-                    if previous != h.previous {
-                        continue;
-                    }
-                    let mut state = branch.state.clone();
-                    state.append(record_digest(record))?;
-                    let key = (
-                        mmr::checkpoint_digest(&branch.anchor),
-                        mmr::checkpoint_digest(&state.checkpoint()),
-                    );
-                    if !self.branches.contains_key(&key) {
-                        pending.push((
-                            key,
-                            Branch {
-                                anchor: branch.anchor.clone(),
-                                state,
-                            },
-                        ));
-                    }
+                            .digest_at(h)
+                            .ok_or("fork prefix digest missing")?,
+                    )?;
                 }
-            }
-            if pending.is_empty() {
-                break;
-            }
-            for (key, branch) in pending {
-                self.branches.insert(key, branch);
-            }
+                state.append(digest)?;
+                let anchor = branch.anchor.clone();
+                self.add_branch(Branch { anchor, state })
+            };
+            self.index_position(id, height)?;
+            self.queue_children(id, height, &mut pending)?;
         }
         Ok(())
     }
     pub fn checkpoints(&self, producer: Id) -> Vec<Checkpoint> {
-        let mut seen = BTreeMap::new();
-        for branch in self.branches.values() {
-            let cp = branch.state.checkpoint();
-            if cp.producer == producer {
-                seen.insert(mmr::checkpoint_digest(&cp), cp);
-            }
-        }
-        let mut result: Vec<_> = seen.into_values().collect();
-        result.sort_by(|a, b| {
-            a.height
-                .cmp(&b.height)
-                .then_with(|| mmr::checkpoint_digest(a).cmp(&mmr::checkpoint_digest(b)))
-        });
-        result
+        self.checkpoints
+            .range((producer, 0, [0; 32])..=(producer, u64::MAX, [255; 32]))
+            .map(|(_, cp)| cp.clone())
+            .collect()
     }
     fn matching_branch(&self, a: &Checkpoint, b: &Checkpoint) -> Option<&Branch> {
-        self.branches.values().find(|branch| {
-            a.height >= branch.anchor.height
-                && branch.state.checkpoint_at(a.height) == Some(a)
-                && branch.state.checkpoint_at(b.height) == Some(b)
-        })
+        self.checkpoint_branches
+            .get(&mmr::checkpoint_digest(b))?
+            .values()
+            .filter_map(|id| self.branches.get(id))
+            .find(|branch| {
+                a.height >= branch.anchor.height
+                    && branch.state.checkpoint_at(a.height) == Some(a)
+                    && branch.state.checkpoint_at(b.height) == Some(b)
+            })
     }
     pub fn holds(&self, a: &Checkpoint, b: &Checkpoint) -> bool {
         if self.check_endpoint(a).is_err()
@@ -289,9 +380,11 @@ impl BatchStore {
     }
     pub fn boundary(&self, p: &Checkpoint) -> Result<Boundary, String> {
         self.check_endpoint(p)?;
-        for branch in self.branches.values() {
-            if let Ok(boundary) = branch.state.boundary(p) {
-                return Ok(boundary);
+        if let Some(branches) = self.checkpoint_branches.get(&mmr::checkpoint_digest(p)) {
+            for id in branches.values() {
+                if let Ok(boundary) = self.branches[id].state.boundary(p) {
+                    return Ok(boundary);
+                }
             }
         }
         Err("boundary proof state unavailable".into())
@@ -303,11 +396,19 @@ impl BatchStore {
         let state = State::from_boundary(&self.config, boundary)?;
         let anchor = boundary.checkpoint.clone();
         let id = mmr::checkpoint_digest(&anchor);
-        if self.branches.contains_key(&(id, id)) {
+        if self
+            .checkpoint_branches
+            .get(&id)
+            .is_some_and(|branches| branches.contains_key(&id))
+        {
             return Ok(false);
         }
-        self.branches.insert((id, id), Branch { anchor, state });
-        self.extend_buffered()?;
+        let height = anchor.height;
+        let branch = self.add_branch(Branch { anchor, state });
+        self.index_position(branch, height)?;
+        let mut pending = VecDeque::new();
+        self.queue_children(branch, height, &mut pending)?;
+        self.extend_buffered(pending)?;
         Ok(true)
     }
     pub fn register_custody(&mut self, a: &Checkpoint, b: &Checkpoint) -> Result<(), String> {
@@ -319,6 +420,31 @@ impl BatchStore {
                 .insert((mmr::checkpoint_digest(a), mmr::checkpoint_digest(b)));
         }
         Ok(())
+    }
+    /// Borrow a locally held exact suffix in height order. Local consumers need
+    /// neither transport segments nor their serialized proof envelopes. This
+    /// deliberately accepts suffixes larger than one network frame.
+    pub fn local_records(&self, a: &Checkpoint, b: &Checkpoint) -> Result<Vec<&Record>, String> {
+        if !self.holds(a, b) {
+            return Err("requested exact local suffix not held".into());
+        }
+        if a == b {
+            return Ok(Vec::new());
+        }
+        let branch = self
+            .matching_branch(a, b)
+            .ok_or("local suffix branch unavailable")?;
+        (a.height + 1..=b.height)
+            .map(|height| {
+                let digest = branch
+                    .state
+                    .digest_at(height)
+                    .ok_or("local suffix digest unavailable")?;
+                self.records
+                    .get(&(a.producer, digest))
+                    .ok_or_else(|| "local suffix payload unavailable".into())
+            })
+            .collect()
     }
     pub fn serve(&self, a: &Checkpoint, b: &Checkpoint) -> Result<Data, String> {
         if !self.holds(a, b) {
@@ -394,20 +520,33 @@ impl BatchStore {
             return Err("DATA reconstruction does not match committed endpoint".into());
         }
         let anchor = data.from.clone();
-        let key = (
-            mmr::checkpoint_digest(&anchor),
-            mmr::checkpoint_digest(&data.to),
-        );
-        let mut changed = !self.branches.contains_key(&key);
+        let anchor_id = mmr::checkpoint_digest(&anchor);
+        let endpoint = mmr::checkpoint_digest(&data.to);
+        let already_held = self
+            .checkpoint_branches
+            .get(&endpoint)
+            .is_some_and(|branches| branches.contains_key(&anchor_id));
+        let mut changed = !already_held;
+        let mut new_records = Vec::new();
         for record in &data.records {
-            let id = (record.header.body.producer, record_digest(record));
-            if let std::collections::btree_map::Entry::Vacant(e) = self.records.entry(id) {
-                e.insert(record.clone());
+            if self.insert_record(record.clone()) {
+                new_records.push(record_digest(record));
                 changed = true;
             }
         }
-        self.branches.insert(key, Branch { anchor, state });
-        self.extend_buffered()?;
+        let mut pending = VecDeque::new();
+        if !already_held {
+            let branch = self.add_branch(Branch { anchor, state });
+            for height in data.from.height..=data.to.height {
+                self.index_position(branch, height)?;
+                self.queue_children(branch, height, &mut pending)?;
+            }
+        }
+        // New payloads may also attach to earlier independently held anchors.
+        for digest in new_records {
+            self.queue_record(data.from.producer, digest, &mut pending);
+        }
+        self.extend_buffered(pending)?;
         Ok(changed)
     }
     pub fn accept_requested_data(
@@ -695,5 +834,261 @@ mod tests {
         assert!(receiver
             .accept_requested_part(&base, &end, &forged)
             .is_err());
+    }
+    #[test]
+    fn long_chain_retains_one_state_and_late_forks_keep_historical_proofs() {
+        let mut source = store();
+        let key = fixture_key(0);
+        let records: Vec<_> = (0..2048)
+            .map(|i| {
+                source
+                    .produce(&key, 0, (i as u64).to_le_bytes().to_vec())
+                    .unwrap()
+            })
+            .collect();
+        assert_eq!(
+            source.branches.len(),
+            4,
+            "historical prefixes must not clone entire MMR states"
+        );
+        assert_eq!(
+            source.extension_attempts,
+            records.len(),
+            "each normal append visits one indexed parent"
+        );
+        let checkpoints: BTreeMap<_, _> = source
+            .checkpoints(0)
+            .into_iter()
+            .map(|cp| (cp.height, cp))
+            .collect();
+        for (a, b) in [
+            (0, 2048),
+            (17, 512),
+            (511, 1024),
+            (1024, 1555),
+            (2047, 2048),
+        ] {
+            assert!(source.holds(&checkpoints[&a], &checkpoints[&b]));
+            mmr::verify_prefix(
+                source.config(),
+                &checkpoints[&a],
+                &checkpoints[&b],
+                &source.proof(&checkpoints[&a], &checkpoints[&b]).unwrap(),
+            )
+            .unwrap();
+        }
+        let mut previous = record_digest(&records[1023]);
+        let mut fork = Vec::new();
+        let mut expected = State::genesis(source.config(), 0);
+        for record in &records[..1024] {
+            expected.append(record_digest(record)).unwrap();
+        }
+        for height in 1025..=1036 {
+            let payload = format!("late fork {height}").into_bytes();
+            let record = Record {
+                header: sign(
+                    &key,
+                    0,
+                    BatchHeader {
+                        context: source.config.context.clone(),
+                        producer: 0,
+                        height,
+                        previous,
+                        payload_hash: payload_hash(&payload),
+                    },
+                ),
+                payload,
+            };
+            previous = record_digest(&record);
+            expected.append(previous).unwrap();
+            fork.push(record);
+        }
+        let fork_end = expected.checkpoint();
+        for record in fork.iter().rev() {
+            source.receive(record.clone()).unwrap();
+        }
+        assert_eq!(
+            source.branches.len(),
+            5,
+            "only the actual fork adds a state"
+        );
+        assert_eq!(source.extension_attempts, records.len() + fork.len());
+        assert_eq!(source.checkpoints(0).len(), records.len() + fork.len() + 1);
+        assert!(source.holds(&checkpoints[&1024], &fork_end));
+        assert!(!source.holds(&checkpoints[&1025], &fork_end));
+        for base in [&checkpoints[&0], &checkpoints[&17], &checkpoints[&1024]] {
+            let actual = source.proof(base, &fork_end).unwrap();
+            assert_eq!(actual, expected.proof(base, &fork_end).unwrap());
+            mmr::verify_prefix(source.config(), base, &fork_end, &actual).unwrap();
+        }
+        // Imported anchors attach buffered records but never gain old payloads.
+        let mut receiver = store();
+        for record in fork.iter().rev() {
+            receiver.receive(record.clone()).unwrap();
+        }
+        receiver
+            .install_boundary(&source.boundary(&checkpoints[&1024]).unwrap())
+            .unwrap();
+        assert!(receiver.holds(&checkpoints[&1024], &fork_end));
+        assert!(!receiver.holds(&checkpoints[&0], &fork_end));
+        assert_eq!(receiver.branches.len(), 5);
+        let data = source.serve(&checkpoints[&1024], &fork_end).unwrap();
+        assert!(!receiver.accept_data(&data).unwrap());
+        assert!(!receiver.install_boundary(&data.boundary).unwrap());
+        assert_eq!(
+            receiver.branches.len(),
+            5,
+            "duplicate DATA and boundaries must not add states"
+        );
+        assert_eq!(
+            receiver.serve(&checkpoints[&1024], &fork_end).unwrap(),
+            data
+        );
+    }
+
+    /// Independent, deliberately exhaustive oracle using the original retained
+    /// prefix algorithm. Small fork trees make all-pair comparison affordable.
+    fn exhaustive_branches(
+        config: &Config,
+        records: &[Record],
+        boundaries: &[Boundary],
+    ) -> Vec<Branch> {
+        let mut branches = BTreeMap::new();
+        for producer in 0..4 {
+            let anchor = mmr::genesis(config, producer);
+            let digest = mmr::checkpoint_digest(&anchor);
+            branches.insert(
+                (digest, digest),
+                Branch {
+                    anchor,
+                    state: State::genesis(config, producer),
+                },
+            );
+        }
+        for boundary in boundaries {
+            let anchor = boundary.checkpoint.clone();
+            let digest = mmr::checkpoint_digest(&anchor);
+            branches.insert(
+                (digest, digest),
+                Branch {
+                    anchor,
+                    state: State::from_boundary(config, boundary).unwrap(),
+                },
+            );
+        }
+        loop {
+            let mut added = Vec::new();
+            for record in records {
+                let h = &record.header.body;
+                for branch in branches.values() {
+                    let tail = branch.state.checkpoint();
+                    if tail.producer != h.producer || tail.height + 1 != h.height {
+                        continue;
+                    }
+                    let previous = if tail.height == 0 {
+                        genesis_digest(config, h.producer)
+                    } else {
+                        branch.state.digest_at(tail.height).unwrap()
+                    };
+                    if previous != h.previous {
+                        continue;
+                    }
+                    let mut state = branch.state.clone();
+                    state.append(record_digest(record)).unwrap();
+                    let key = (
+                        mmr::checkpoint_digest(&branch.anchor),
+                        mmr::checkpoint_digest(&state.checkpoint()),
+                    );
+                    if !branches.contains_key(&key) {
+                        added.push((
+                            key,
+                            Branch {
+                                anchor: branch.anchor.clone(),
+                                state,
+                            },
+                        ));
+                    }
+                }
+            }
+            if added.is_empty() {
+                break;
+            }
+            branches.extend(added);
+        }
+        branches.into_values().collect()
+    }
+
+    #[test]
+    fn indexed_fork_tree_matches_exhaustive_prefix_oracle() {
+        let mut main = store();
+        let mut records = Vec::new();
+        for i in 0..3 {
+            records.push(main.produce(&fixture_key(0), 0, vec![i]).unwrap());
+        }
+        let mut fork = main.clone();
+        for i in 3..8 {
+            records.push(main.produce(&fixture_key(0), 0, vec![i]).unwrap());
+        }
+        for i in 13..18 {
+            records.push(fork.produce(&fixture_key(0), 0, vec![i]).unwrap());
+        }
+        let boundaries = vec![
+            main.boundary(&at(&main, 5)).unwrap(),
+            fork.boundary(&at(&fork, 4)).unwrap(),
+        ];
+        let mut receiver = store();
+        // Install overlapping, independent custody anchors among reverse arrivals.
+        for record in records.iter().rev().take(6) {
+            receiver.receive(record.clone()).unwrap();
+        }
+        for boundary in &boundaries {
+            receiver.install_boundary(boundary).unwrap();
+        }
+        for record in records.iter().rev().skip(6) {
+            receiver.receive(record.clone()).unwrap();
+        }
+        let oracle = exhaustive_branches(receiver.config(), &records, &boundaries);
+        let mut expected = BTreeMap::new();
+        for branch in &oracle {
+            let cp = branch.state.checkpoint();
+            if cp.producer == 0 {
+                expected.insert((cp.height, mmr::checkpoint_digest(&cp)), cp);
+            }
+        }
+        let checkpoints = receiver.checkpoints(0);
+        assert_eq!(checkpoints, expected.into_values().collect::<Vec<_>>());
+        assert_eq!(
+            receiver.branches.len(),
+            7,
+            "four producers, one fork, two metadata anchors"
+        );
+        for a in &checkpoints {
+            for b in &checkpoints {
+                if a.height > b.height {
+                    continue;
+                }
+                let held = a == b
+                    || oracle.iter().any(|branch| {
+                        a.height >= branch.anchor.height
+                            && branch.state.checkpoint_at(a.height) == Some(a)
+                            && branch.state.checkpoint_at(b.height) == Some(b)
+                    });
+                assert_eq!(
+                    receiver.holds(a, b),
+                    held,
+                    "wrong suffix result for {a:?} -> {b:?}"
+                );
+                if held {
+                    let proof = receiver.proof(a, b).unwrap();
+                    mmr::verify_prefix(receiver.config(), a, b, &proof).unwrap();
+                    let data = receiver.serve(a, b).unwrap();
+                    let mut recovered = store();
+                    recovered.accept_data(&data).unwrap();
+                    assert!(recovered.holds(a, b));
+                } else {
+                    assert!(receiver.proof(a, b).is_err());
+                }
+            }
+        }
     }
 }

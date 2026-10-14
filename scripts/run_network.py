@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Run independent replicas over real loopback TCP and archive finite workload measurements.
 
-This is a coordinated, non-saturating integration experiment.  Only the harness
-waits for payload holdings before asking for each once-only observation report;
-replica production and consensus have no such inter-round completion barrier.
+This is a coordinated, non-saturating integration experiment. The harness
+preloads four batch waves before starting ordering. Leaders then issue signed
+REPORT requests and replicas answer automatically; the controller never asks
+for an observation. Preloading is fixture coordination, not a protocol rule.
 """
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
@@ -123,7 +124,6 @@ def verify_outputs(snapshots, live, rounds, silent, submitted, events):
     """Validate exact useful output and ordering, including silent-slot resolution."""
     expected_rounds = [r for r in range(1, rounds + 1) if (r - 1) % len(snapshots) != silent]
     expected_ids = {digest_key(tx) for record in submitted for tx in record["transactions"]}
-    source_rounds = {digest_key(tx): record["round"] for record in submitted for tx in record["transactions"]}
     expected_count = sum(len(record["transactions"]) for record in submitted)
     if len(expected_ids) != expected_count or not expected_ids:
         raise AssertionError("fixture transaction IDs must be distinct and nonempty")
@@ -138,11 +138,20 @@ def verify_outputs(snapshots, live, rounds, silent, submitted, events):
         if len(actual_ids) != expected_count or set(actual_ids) != expected_ids:
             raise AssertionError(f"replica {node_id}: missing, unexpected, or duplicate transactions")
         for entry in node["executed"]:
-            expected_slot = next(r for r in expected_rounds if r >= source_rounds[digest_key(entry["transaction"])] )
-            if entry["round"] != expected_slot:
-                raise AssertionError(f"replica {node_id}: transaction was materialized in an unexpected workload round")
+            if entry["round"] != expected_rounds[0]:
+                raise AssertionError(f"replica {node_id}: preloaded transaction was not materialized in the first honest slot")
         if node["pending_materialization"] != 0:
             raise AssertionError(f"replica {node_id}: incomplete materialization")
+        batches = node.get("materialized_batches", [])
+        if not batches or batches != first.get("materialized_batches"):
+            raise AssertionError(f"replica {node_id}: missing or divergent exact batch output")
+        expected_batches = [(producer, height) for producer in live for height in range(1, rounds + 1)]
+        actual_batches = [(batch["header"]["producer"], batch["header"]["height"]) for batch in batches]
+        if actual_batches != expected_batches or any(not batch.get("payload") for batch in batches):
+            raise AssertionError(f"replica {node_id}: missing, duplicate, or misordered preloaded batches")
+        expected_heights = [rounds if i in live else 0 for i in range(len(snapshots))]
+        if node.get("cumulative_heights") != expected_heights:
+            raise AssertionError(f"replica {node_id}: wrong cumulative output heights")
         deliveries = node["ordering"]["deliveries"]
         if deliveries != first["ordering"]["deliveries"]:
             raise AssertionError(f"replica {node_id}: ordered descriptors differ")
@@ -162,14 +171,113 @@ def verify_outputs(snapshots, live, rounds, silent, submitted, events):
     if silent is not None:
         if snapshots[silent]["executed"]:
             raise AssertionError("silent replica executed transactions")
-        if any(event.get("event") in {"proposal", "direct_commit", "ordered_descriptor", "transaction_materialized"}
+        if any(event.get("event") in {"proposal", "direct_commit", "ordered_descriptor", "transaction_materialized",
+                                      "report_broadcast", "observation_snapshot"}
                for event in events[silent]):
             raise AssertionError("silent replica performed protocol work")
     history = verify_round_four_history(events, silent)
+    composition = verify_composition(snapshots, events, live, rounds, expected_rounds)
     return {"expected_rounds": expected_rounds, "transactions_per_correct_replica": expected_count, "round_four_history": history,
+            "composition": composition,
             "state_hash": first["state_hash"],
             "ordered_descriptor_digests": [{"round": d["round"], "digest": d["digest"]}
                                            for d in first["ordering"]["deliveries"]]}
+
+
+def verify_composition(snapshots, events, live, rounds, expected_rounds):
+    """Require automatic signed REPORT/OBS and inspect the actual input proofs.
+
+    Signature validity is checked by the native protocol. This archive check
+    binds each signed object's slot/signer/base and requires distinct current
+    sources for every coordinate, including empty suffixes.
+    """
+    n = len(snapshots)
+    f = (n - 1) // 3
+    reports, observations, inputs = {}, {}, {}
+    for node_id, node_events in events.items():
+        for event in node_events:
+            r = event.get("round")
+            if not isinstance(r, int) or not 1 <= r <= rounds:
+                continue
+            kind = event.get("event")
+            if kind not in {"report_broadcast", "observation_snapshot", "proposal"}:
+                continue
+            if r not in expected_rounds or node_id not in live:
+                raise AssertionError("silent slot or replica performed composition work")
+            if kind == "report_broadcast":
+                key, target = r, reports
+                if node_id != (r - 1) % n:
+                    raise AssertionError("REPORT came from the wrong leader")
+                signed = event.get("report", {})
+                if signed.get("signer") != node_id or len(signed.get("signature", [])) != 64:
+                    raise AssertionError("REPORT lacks its leader signature")
+                if signed.get("body", {}).get("opportunity") != r:
+                    raise AssertionError("REPORT signed the wrong opportunity")
+            elif kind == "observation_snapshot":
+                key, target = (r, node_id), observations
+                signed = snapshots[node_id].get("observation_evidence", {}).get(str(r), {})
+                if signed.get("signer") != node_id or len(signed.get("signature", [])) != 64:
+                    raise AssertionError("OBS lacks its reporter signature")
+                if signed.get("body", {}).get("opportunity") != r:
+                    raise AssertionError("OBS signed the wrong opportunity")
+            else:
+                key, target = r, inputs
+                if node_id != (r - 1) % n:
+                    raise AssertionError("input constructed by the wrong leader")
+            if key in target:
+                raise AssertionError(f"duplicate {kind} event")
+            target[key] = signed if kind == "observation_snapshot" else event
+    if set(reports) != set(expected_rounds):
+        raise AssertionError("missing automatic signed REPORT")
+    if set(observations) != {(r, i) for r in expected_rounds for i in live}:
+        raise AssertionError("missing automatic signed OBS")
+    if set(inputs) != set(expected_rounds):
+        raise AssertionError("missing inspected availability input")
+    empty_coordinates = 0
+    for r, event in inputs.items():
+        descriptor, proof = event.get("descriptor", {}), event.get("availability_proof", {})
+        report_body = reports[r]["report"]["body"]
+        if descriptor.get("base") != report_body.get("base"):
+            raise AssertionError("input base differs from signed REPORT")
+        if len(descriptor.get("frontier", [])) != n or len(descriptor.get("targets", [])) != n:
+            raise AssertionError("input lacks its full descriptor")
+        if proof.get("sources") != []:
+            raise AssertionError("reference input contains historical sources")
+        pool, coordinates = proof.get("pool", []), proof.get("coordinates", [])
+        if len(pool) != n - f or len({o.get("signer") for o in pool}) != n - f:
+            raise AssertionError("input lacks a distinct current observation pool")
+        for observation in pool:
+            own = observations.get((r, observation.get("signer")))
+            if observation != own:
+                raise AssertionError("input pool does not match emitted current OBS")
+            if observation["body"].get("base") != descriptor["base"]:
+                raise AssertionError("current OBS names another base")
+        if len(coordinates) != n:
+            raise AssertionError("input lacks all current coordinates")
+        for k, coordinate in enumerate(coordinates):
+            if not isinstance(coordinate, dict) or "Witnesses" not in coordinate:
+                raise AssertionError("reference input has a noncurrent coordinate")
+            witnesses = coordinate["Witnesses"].get("witnesses", [])
+            if len(witnesses) != f + 1:
+                raise AssertionError("current coordinate lacks f+1 witnesses")
+            signers = []
+            for witness in witnesses:
+                source = witness.get("source")
+                if not isinstance(source, dict) or set(source) != {"Current"}:
+                    raise AssertionError("reference witness is historical")
+                index = source["Current"]
+                if not isinstance(index, int) or not 0 <= index < len(pool):
+                    raise AssertionError("current witness index is invalid")
+                signer = pool[index]["signer"]
+                if witness.get("reporter") != signer:
+                    raise AssertionError("current witness label differs from actual signer")
+                signers.append(signer)
+            if len(set(signers)) != f + 1:
+                raise AssertionError("current witnesses reuse an OBS signer")
+            empty_coordinates += descriptor["targets"][k] == descriptor["frontier"][k]
+    return {"construction": "all-current", "signed_reports": len(reports),
+            "signed_observations": len(observations), "inputs": len(inputs),
+            "historical_sources": 0, "empty_coordinates": empty_coordinates}
 
 
 def collect_latency(live, submitted, events, first_submission_us, start_us, rounds):
@@ -394,7 +502,7 @@ def aggregate_traffic(snapshots, silent, workload_rounds=4):
             return sum(layer[name] for layer in layers)
         def peer_total(name):
             return sum(peer[name] for peer in peers)
-        row = {"protocol_enqueued_bytes": layer_total("enqueued_payload_bytes"),
+        row = {"transport_enqueued_payload_bytes": layer_total("enqueued_payload_bytes"),
                "protocol_payload_written_bytes": layer_total("payload_bytes_written"),
                "data_frame_written_bytes": layer_total("data_bytes_written"),
                "data_frame_read_bytes": transport["data_bytes_read"],
@@ -412,9 +520,18 @@ def aggregate_traffic(snapshots, silent, workload_rounds=4):
         indices = snapshot["protocol"]["by_index"]
         row["workload_index_enqueued_bytes"] = sum(counter["encoded_bytes"] for index, counter in indices.items() if int(index) <= workload_rounds)
         row["beyond_workload_enqueued_bytes"] = sum(counter["encoded_bytes"] for index, counter in indices.items() if int(index) > workload_rounds)
-        row["workload_index_enqueued_frames"] = sum(counter["messages"] for index, counter in indices.items() if int(index) <= workload_rounds)
-        row["beyond_workload_enqueued_frames"] = sum(counter["messages"] for index, counter in indices.items() if int(index) > workload_rounds)
-        if row["workload_index_enqueued_bytes"] + row["beyond_workload_enqueued_bytes"] != row["protocol_enqueued_bytes"]:
+        row["workload_index_enqueued_messages"] = sum(counter["messages"] for index, counter in indices.items() if int(index) <= workload_rounds)
+        row["beyond_workload_enqueued_messages"] = sum(counter["messages"] for index, counter in indices.items() if int(index) > workload_rounds)
+        row["protocol_enqueued_bytes"] = row["workload_index_enqueued_bytes"] + row["beyond_workload_enqueued_bytes"]
+        row["protocol_enqueued_messages"] = row["workload_index_enqueued_messages"] + row["beyond_workload_enqueued_messages"]
+        row["ordering_bundle_frames"] = sum(peer["layers"].get("OrderingBundle", {}).get("enqueued_frames", 0) for peer in peers)
+        singles = row["enqueued_frames"] - row["ordering_bundle_frames"]
+        row["ordering_bundle_members"] = row["protocol_enqueued_messages"] - singles
+        if not 2 * row["ordering_bundle_frames"] <= row["ordering_bundle_members"] <= 32 * row["ordering_bundle_frames"]:
+            raise AssertionError("logical message counts disagree with bounded transport bundles")
+        # The bundle layout is a u32 count followed by one u32 length per member.
+        row["bundle_enqueued_envelope_bytes"] = 4 * (row["ordering_bundle_frames"] + row["ordering_bundle_members"])
+        if row["protocol_enqueued_bytes"] + row["bundle_enqueued_envelope_bytes"] != row["transport_enqueued_payload_bytes"]:
             raise AssertionError("logical protocol index counters disagree with transport enqueue counters")
         row["auth_and_framing_written_bytes"] = row["data_frame_written_bytes"] - row["protocol_payload_written_bytes"]
         row["socket_written_bytes"] = row["data_frame_written_bytes"] + row["ack_written_bytes"]
@@ -431,7 +548,43 @@ def aggregate_traffic(snapshots, silent, workload_rounds=4):
             "accounting": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic"}
 
 
-def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes):
+def ordering_options(bound_ms, ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None,
+                     ordering_mode=None):
+    """Resolve and record the default bundled PROG schedule or an explicit comparison."""
+    if bound_ms <= 0:
+        raise ValueError("bound_ms must be positive")
+    if round_barrier_ms is not None and progress_pacing_ms is not None:
+        raise ValueError("round barrier and progress pacing are mutually exclusive")
+    for deadline in (round_barrier_ms, progress_pacing_ms):
+        if deadline is not None and not 0 < deadline <= bound_ms:
+            raise ValueError("ordering release deadline must be positive and at most bound_ms")
+    mode = ordering_mode or ("barrier" if round_barrier_ms is not None else "progress")
+    options = {"ordering_batch": bool(ordering_batch), "ordering_mode": mode}
+    if mode == "progress" and round_barrier_ms is None:
+        options["progress_pacing_ms"] = progress_pacing_ms if progress_pacing_ms is not None else bound_ms
+    elif mode == "barrier" and progress_pacing_ms is None:
+        options["round_barrier_ms"] = round_barrier_ms if round_barrier_ms is not None else bound_ms
+    elif mode != "canonical" or round_barrier_ms is not None or progress_pacing_ms is not None:
+        raise ValueError("ordering mode and release deadline options conflict")
+    return options
+
+
+def add_ordering_arguments(parser):
+    parser.add_argument("--ordering-mode", choices=("progress", "canonical", "barrier"),
+                        help="ordering schedule (default: progress; a barrier deadline selects barrier)")
+    batching = parser.add_mutually_exclusive_group()
+    batching.add_argument("--ordering-batch", action="store_true", default=True,
+                          help="immediately bundle enabled ordering messages (default)")
+    batching.add_argument("--no-ordering-batch", dest="ordering_batch", action="store_false",
+                          help="disable bundling for an explicit comparison")
+    parser.add_argument("--round-barrier-ms", type=int,
+                        help="select the full round barrier with this release deadline")
+    parser.add_argument("--progress-pacing-ms", type=int,
+                        help="PROG release deadline (default: bound-ms)")
+
+
+def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
+              ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None, ordering_mode=None):
     directory.mkdir(parents=True)
     result = {"label": directory.name, "scenario": scenario, "status": "incomplete", "pass": False}
     children = []
@@ -450,7 +603,8 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes)
                   "control_addresses": addresses[4:], "control_token": secrets.token_hex(32),
                   "public_keys": key_data["public_keys"], "key_files": key_data["key_files"],
                   "bound_ms": bound_ms, "chunk_capacity": 4, "workload_rounds": 4,
-                  "silent": scenario.get("silent"), "max_runtime_ms": int((timeout + 5) * 1000)}
+                  "silent": scenario.get("silent"), "max_runtime_ms": int((timeout + 5) * 1000),
+                  **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
         config_path = directory / "config.json"
         config_path.write_text(json.dumps(config, indent=2) + "\n")
         os.chmod(config_path, 0o600)
@@ -463,8 +617,7 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes)
                 raise TimeoutError("replicas did not become ready")
             time.sleep(.01)
         live = [i for i in range(4) if i != scenario.get("silent")]
-        starts = controller.many(list(range(4)), "start")
-        start_us = min(record["start_unix_us"] for record in starts)
+        controller.many(list(range(4)), "prepare")
         submitted = []
         gates = []
         for r in range(1, 5):
@@ -480,10 +633,9 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes)
                                                  for producer in live) for i in live),
                             deadline, f"wave {r} dissemination")
             gate_us = time.time_ns() // 1000
-            report_records = controller.many(live, "report", round=r)
-            gates.append({"round": r, "all_honest_hold_wave_unix_us": gate_us,
-                          "report_commands": [{"replica": item["replica"], "start_unix_us": item["start_unix_us"],
-                                               "duration_us": item["duration_us"]} for item in report_records]})
+            gates.append({"wave": r, "all_honest_hold_wave_unix_us": gate_us})
+        starts = controller.many(list(range(4)), "start")
+        start_us = min(record["start_unix_us"] for record in starts)
         expected_rounds = [r for r in range(1, 5) if (r - 1) % 4 != scenario.get("silent")]
         expected_txs = 4 * len(live) * 2
         controller.wait(lambda nodes: all(nodes[i]["executed_rounds"] == expected_rounds and
@@ -520,7 +672,9 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes)
             raise AssertionError(f"realtime clock diverged from monotonic clock by {drift_us} us")
         result.update({"pass": True, "status": "passed", "correctness": correctness,
                        "latency": latency, "clock_drift_us": drift_us, "submitted": submitted,
-                       "report_readiness_gates": gates,
+                       "preload_readiness_gates": gates,
+                       "ordering_start_commands": [{"replica": item["replica"], "start_unix_us": item["start_unix_us"],
+                                                    "duration_us": item["duration_us"]} for item in starts],
                        "measurement_cutoffs": [{"id": item["replica"], "reply": item["reply"]} for item in cutoff_records],
                        "traffic": aggregate_traffic(snapshots, scenario.get("silent")),
                        "replicas": [{"id": i, "pid": children[i].process.pid,
@@ -553,19 +707,20 @@ def main():
     parser.add_argument("--transaction-bytes", type=int, default=32)
     parser.add_argument("--skip-checks", action="store_true", help="development only: skip format/unit checks, still build release")
     parser.add_argument("--scenario", choices=["all", "honest", "silent"], default="all")
+    add_ordering_arguments(parser)
     args = parser.parse_args()
     if args.repeats < 1 or not 10 <= args.bound_ms <= 10000 or args.timeout <= 0 or not 1 <= args.transaction_bytes <= 4096:
         parser.error("invalid bounded experiment arguments")
     run = ROOT / "results" / "local" / ("network-" + uuid.uuid4().hex)
     run.mkdir(parents=True)
-    manifest = {"schema": 1, "classification": "real_process_loopback_tcp_integration",
+    manifest = {"schema": 2, "classification": "real_process_loopback_tcp_option_a_integration",
                 "status": "incomplete", "started_utc": datetime.now(timezone.utc).isoformat(),
-                "scope": "Four independent replica processes, authenticated framed loopback TCP, real Ed25519/MMR/availability/ordering/materialization; optional protocol-silent process; immutable externally supplied common genesis bases and nonforking producers",
+                "scope": "Four independent replica processes, authenticated framed loopback TCP, real Ed25519/MMR/Option A availability/ordering/materialization; optional protocol-silent process; signed leader REPORT requests, authenticated earlier bases, all-current construction and exact-batch output. This network fixture uses nonforking producers; Byzantine forks and non-genesis base validation are exercised separately by Rust tests",
                 "machine": machine_metadata(),
-                "method": {"workload": "4 finite coordinated batch waves, 2 distinct transactions per honest producer per wave; no warmup; not saturation throughput",
-                           "report_gate": "Harness waits until all correct nodes hold each batch wave, then requests each once-only report and proceeds to the next wave without waiting for commit; this is fixture coordination, not a protocol production rule",
+                "method": {"workload": "4 finite batch waves preloaded before ordering starts, 2 distinct transactions per honest producer per wave; no warmup; not saturation throughput",
+                           "preload_gate": "Prepare enables dissemination without ordering; harness waits until all correct replicas hold each wave, then starts ordering after wave four. Leaders issue signed REPORTs and replicas answer automatically. There are no controller report commands. Preload gates are fixture coordination, not protocol rules",
                            "traffic": "Separate logical protocol bytes, authenticated envelope/framing bytes, actual successful TCP stream reads/writes, and client control bytes; excludes TCP/IP/link overhead and kernel retransmissions",
-                           "latency": "Headline: controller monotonic TCP submission start to post-handler stdout completion-event receipt; separate same-host server event timestamps minus submission/admission with realtime clock drift check. Includes readiness coordination and cryptographic work; stdout receipt overhead included in headline",
+                           "latency": "Headline: controller monotonic TCP submission start to post-handler stdout completion-event receipt; separate same-host server event timestamps minus submission/admission with realtime clock drift check. Includes all remaining preload gates, delayed ordering start and cryptographic work; stdout receipt overhead included in headline. This preloaded workload is not latency-comparable to the earlier interleaved controller-report fixture",
                            "storage": "Independent in-memory replica state; no crash recovery or persistent custody",
                            "keys": "Fresh OS-random per-run private keys stored mode0600 solely as archived experiment fixtures",
                            "shutdown": "After all correct output completes, explicit quiesce freezes handlers/timers; pre-cutoff transport drains and ACKs post-cutoff discarded deliveries; pending outbound frames zero and counters stable100ms before final snapshots and graceful stop",
@@ -583,7 +738,7 @@ def main():
 
     try:
         sources = [ROOT / item for item in ("Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-                                            "scripts/run_network.py", "provenance/spec-2026-10-12.json")]
+                                            "scripts/run_network.py", "provenance/spec-2026-10-13.json")]
         sources += sorted((ROOT / "src").rglob("*.rs")) + sorted((ROOT / "tests").rglob("*.rs"))
         sources += sorted((ROOT / "tests").glob("*network*.py"))
         for source in sources:
@@ -592,7 +747,7 @@ def main():
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
-        spec = json.loads((ROOT / "provenance/spec-2026-10-12.json").read_text())
+        spec = json.loads((ROOT / "provenance/spec-2026-10-13.json").read_text())
         for entry in spec["files"]:
             data = (Path(spec["paper_repository"]) / entry["path"]).read_bytes()
             if sha(data) != entry["sha256"]:
@@ -619,7 +774,8 @@ def main():
         for scenario in scenarios:
             for repeat in range(args.repeats):
                 label = f"{scenario['label']}-repeat-{repeat}"
-                trial = run_trial(binary, run / label, scenario, args.bound_ms, args.timeout, args.transaction_bytes)
+                trial = run_trial(binary, run / label, scenario, args.bound_ms, args.timeout, args.transaction_bytes,
+                                  args.ordering_batch, args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode)
                 manifest["trials"].append(trial)
                 print(json.dumps({"trial": label, "status": trial["status"], "error": trial.get("error")}), flush=True)
                 if not trial["pass"]:

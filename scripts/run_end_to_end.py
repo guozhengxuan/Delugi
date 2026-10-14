@@ -24,12 +24,12 @@ def main():
         "classification": "deterministic_semantic_trace",
         "started_utc": datetime.now(timezone.utc).isoformat(),
         "machine": {"system": platform.system(), "release": platform.release(), "arch": platform.machine()},
-        "scope": "Signed BATCH/MMR/OBS/WA through ordering and payload retrieval to deterministic transaction materialization; honest sequential producers and optional silent replica, externally assigned immutable public-genesis bases; no real transport or performance measurement",
+        "scope": "Signed BATCH/MMR/OBS/WA through ordering and payload retrieval to deterministic transaction materialization; Option A authenticated bases and automatic signed reporting, honest sequential producers and optional silent replica; no real transport or performance measurement",
         "source_files": [], "trials": [], "status": "incomplete",
         "crypto_keys": "Public deterministic fixture_key(id) seeds; never deployment keys",
         "event_order": "Arrival tick then increasing insertion sequence; synchronous engine self-delivery",
         "storage": "In-memory evidence and once-only state, retained for full run; no crash recovery",
-        "input_readiness": "Inputs are constructed asynchronously from emitted payloads, collected observations and retained proofs; readiness is logged separately and late inputs do not reset ordering timers",
+        "input_readiness": "Finite batch workload is prepared before ordering starts; each leader automatically requests reports on entry; all-current construction with empty fallback; readiness and proposal time recorded separately",
         "accounting": "Every nonself packet, including silent recipients, injected duplicates, and control traffic beyond workload; serialization bytes exclude transport overhead",
         "warmup": "None; finite semantic traces, not performance trials",
     }
@@ -48,7 +48,7 @@ def main():
     try:
         sources = [ROOT / name for name in (
             "Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-            "scripts/run_end_to_end.py", "provenance/spec-2026-10-12.json",
+            "scripts/run_end_to_end.py", "provenance/spec-2026-10-13.json",
         )]
         sources += sorted((ROOT / "src").rglob("*.rs"))
         sources += sorted((ROOT / "tests").rglob("*.rs"))
@@ -59,7 +59,7 @@ def main():
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
-        spec = json.loads((ROOT / "provenance/spec-2026-10-12.json").read_text())
+        spec = json.loads((ROOT / "provenance/spec-2026-10-13.json").read_text())
         for entry in spec["files"]:
             data = (Path(spec["paper_repository"]) / entry["path"]).read_bytes()
             if sha(data) != entry["sha256"]:

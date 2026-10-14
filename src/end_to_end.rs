@@ -2,7 +2,7 @@
 //! deterministic materialization. All protocol messages use actual bounded
 //! serialization and signature verification. Local CPU and execution take zero
 //! modeled time; this is deliberately not a distributed performance benchmark.
-use crate::availability::{self, AvailabilityConfig};
+use crate::availability::AvailabilityConfig;
 use crate::composed::{self, Effect, Node, Transaction};
 use crate::mmr;
 use crate::replica::Effect as OrderingEffect;
@@ -89,10 +89,7 @@ enum Event {
         producer: Id,
         height: u64,
     },
-    Report {
-        node: Id,
-        round: u64,
-    },
+    Start(Id),
 }
 
 pub struct Run {
@@ -152,24 +149,19 @@ pub fn run(config: Config) -> Result<Run, String> {
         chunk_capacity: config.chunk_capacity,
     };
     mmr_config.validate()?;
-    // Every opportunity is externally assigned an immutable authenticated public
-    // genesis base. These are concurrent common-base fixture assignments, NOT an
-    // epoch-freezing compatibility policy. Q permits any valid supported branch;
-    // this experiment supplies only honest sequential producer branches.
-    let bases = (1..=config.rounds)
-        .map(|r| availability::genesis_binding(&mmr_config, r, config.nodes as usize))
-        .collect();
-    let availability = AvailabilityConfig::new(committee.clone(), config.chunk_capacity, bases)?;
+    let availability = AvailabilityConfig::new(committee.clone(), config.chunk_capacity)?;
     let nodes = (0..config.nodes)
         .map(|id| {
-            Node::new(
+            let mut node = Node::new(
                 committee.clone(),
                 id,
                 wire::fixture_key(id),
                 config.bound,
                 availability.clone(),
                 config.chunk_capacity,
-            )
+            )?;
+            node.set_opportunity_limit(config.rounds)?;
+            Ok::<_, String>(node)
         })
         .collect::<Result<Vec<_>, _>>()?;
     let mut run = Run {
@@ -185,7 +177,7 @@ pub fn run(config: Config) -> Result<Run, String> {
         now: 0,
     };
     for r in 1..=run.config.rounds {
-        let at = (r - 1) * 3 * run.config.delta;
+        let at = 0;
         for id in 0..run.config.nodes {
             run.schedule(
                 at,
@@ -194,16 +186,14 @@ pub fn run(config: Config) -> Result<Run, String> {
                     height: r,
                 },
             );
-            run.schedule(
-                at + 2 * run.config.delta,
-                Event::Report { node: id, round: r },
-            );
         }
     }
     for id in 0..run.config.nodes {
         if run.config.silent != Some(id) {
-            let effects = run.nodes[id as usize].start(0)?;
-            run.emit(id, effects)?;
+            // Prepare the finite workload before ordering begins. Delayed
+            // payload experiments still leave the selected receiver missing
+            // bytes; its automatic REPORT response uses the empty fallback.
+            run.schedule(2 * run.config.delta, Event::Start(id));
         }
     }
     while let Some((&(at, _), _)) = run.events.first_key_value() {
@@ -216,7 +206,7 @@ pub fn run(config: Config) -> Result<Run, String> {
             Event::Packet { to, .. } => *to,
             Event::Timer(id) => *id,
             Event::Produce { producer, .. } => *producer,
-            Event::Report { node, .. } => *node,
+            Event::Start(id) => *id,
         };
         if run.config.silent == Some(id) {
             continue;
@@ -233,7 +223,7 @@ pub fn run(config: Config) -> Result<Run, String> {
                 }
             },
             Event::Timer(_) => run.nodes[id as usize].tick(at)?,
-            Event::Report { round, .. } => run.nodes[id as usize].report(at, round)?,
+            Event::Start(_) => run.nodes[id as usize].start(at)?,
             Event::Produce { height, .. } => {
                 let txs = transactions(
                     id,
@@ -321,6 +311,7 @@ impl Run {
                             ("BATCH", r.header.body.height, r.payload.len())
                         }
                         composed::Message::Observation(o) => ("OBS", o.body.opportunity, 0),
+                        composed::Message::Report { base, .. } => ("REPORT", base.opportunity, 0),
                         composed::Message::Fetch { target, .. } => ("FETCH", target.height, 0),
                         composed::Message::Data(d) => (
                             "DATA",
@@ -454,14 +445,14 @@ impl Run {
         json!({"schema":1,"experiment":"composed-end-to-end","classification":"deterministic_semantic_trace",
             "pass":pass,"config":self.config,"proposal_times":self.proposals,"expected_rounds":expected_rounds,
             "expected_distinct_transactions":expected_transactions,
-            "scope":"honest sequential producers plus optional completely silent replica; common named-base authorization supplied by fixture; deterministic transaction materialization",
-            "base_contract":"independent immutable public-genesis assignments for concurrently prepared opportunities; no latest-local-frontier check in Q; no general common-base service or Byzantine branch-compatibility repair",
-            "readiness":"ordering starts at tick 0; asynchronous real batch/OBS/proof work supplies input later, without resetting ordering timers; readiness and proposal times logged separately",
+            "scope":"Option A authenticated bases, autonomous signed REPORT/OBS, all-current construction and exact-batch materialization; honest producers plus optional silent replica",
+            "base_contract":"leader chooses greatest locally held earlier direct certificate or genesis; Q checks supplied immutable evidence; Byzantine forks use distinct exact batch identities",
+            "readiness":"finite workload emitted at tick 0; ordering begins at 2delta and each leader requests reports on entry; selected delayed BATCH packets remain unavailable; readiness and proposal times logged separately",
             "execution":"ordering round, producer index, height, transaction position; repeated exact batches suppressed; repeated transaction IDs deterministic no-op; zero modeled CPU/service time; indefinite in-memory custody",
             "network_contract":"authenticated scheduler peer IDs; real bounded canonical messages, Ed25519 and SHA-256; eventual old packets; no real transport or wall-clock performance claims",
             "replicas":correct.iter().map(|n|json!({"replica":n.id,"input_ready":n.input_ready,
                 "ordered_at":n.ordered_at,"materialized_at":n.executed_at,"executed_rounds":n.executed_rounds,
-                "executed":n.executed,"state_hash":n.state_hash(),"requested_suffixes":n.requested_count(),
+                "executed":n.executed,"materialized_batches":n.materialized_batches,"cumulative_heights":n.cumulative_heights(),"state_hash":n.state_hash(),"requested_suffixes":n.requested_count(),
                 "served_suffixes":n.served_count(),"pending_materialization":n.pending_materialization(),
                 "observation_count":n.observations.len(),"ordering":n.ordering.snapshot()})).collect::<Vec<_>>(),
             "bytes_by_kind":by_kind,"network_serialized_bytes":total,"x_copy_bytes":x,"pi_copy_bytes":pi,

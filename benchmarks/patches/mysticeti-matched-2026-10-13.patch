@@ -1,0 +1,473 @@
+diff --git a/crates/mysticeti-core/src/block_handler.rs b/crates/mysticeti-core/src/block_handler.rs
+index acd5969..4bd019c 100644
+--- a/crates/mysticeti-core/src/block_handler.rs
++++ b/crates/mysticeti-core/src/block_handler.rs
+@@ -24,11 +24,7 @@ use crate::{
+     syncer::CommitObserver,
+     transactions_generator::TransactionGenerator,
+     types::{
+-        AuthorityIndex,
+-        BaseStatement,
+-        BlockReference,
+-        StatementBlock,
+-        Transaction,
++        AuthorityIndex, BaseStatement, BlockReference, StatementBlock, Transaction,
+         TransactionLocator,
+     },
+ };
+@@ -390,6 +386,7 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
+         block_creation: Option<&TimeInstant>,
+         current_timestamp: Duration,
+         transaction: &Transaction,
++        origin: AuthorityIndex,
+     ) {
+         // Record inter-block latency.
+         if let Some(instant) = block_creation {
+@@ -417,6 +414,10 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
+             .latency_s
+             .with_label_values(&["shared"])
+             .observe(latency.as_secs_f64());
++        self.metrics
++            .benchmark_origin_latency_s
++            .with_label_values(&[&origin.to_string()])
++            .observe(latency.as_secs_f64());
+         self.metrics
+             .latency_squared_s
+             .with_label_values(&["shared"])
+@@ -459,6 +460,7 @@ impl<H: ProcessedTransactionHandler<TransactionLocator> + Send + Sync> CommitObs
+                         transaction_time.get(&locator),
+                         current_timestamp,
+                         transaction,
++                        block.author(),
+                     );
+                 }
+             }
+diff --git a/crates/mysticeti-core/src/metrics.rs b/crates/mysticeti-core/src/metrics.rs
+index 7dbfd5b..d12dba5 100644
+--- a/crates/mysticeti-core/src/metrics.rs
++++ b/crates/mysticeti-core/src/metrics.rs
+@@ -9,19 +9,10 @@ use std::{
+ };
+ 
+ use prometheus::{
+-    register_counter_vec_with_registry,
+-    register_histogram_vec_with_registry,
+-    register_int_counter_vec_with_registry,
+-    register_int_counter_with_registry,
+-    register_int_gauge_vec_with_registry,
+-    register_int_gauge_with_registry,
+-    CounterVec,
+-    HistogramVec,
+-    IntCounter,
+-    IntCounterVec,
+-    IntGauge,
+-    IntGaugeVec,
+-    Registry,
++    register_counter_vec_with_registry, register_histogram_vec_with_registry,
++    register_int_counter_vec_with_registry, register_int_counter_with_registry,
++    register_int_gauge_vec_with_registry, register_int_gauge_with_registry, CounterVec,
++    HistogramVec, IntCounter, IntCounterVec, IntGauge, IntGaugeVec, Registry,
+ };
+ use tabled::{Table, Tabled};
+ use tokio::time::Instant;
+@@ -35,7 +26,8 @@ use crate::{
+ };
+ 
+ const LATENCY_SEC_BUCKETS: &[f64] = &[
+-    0.1, 0.25, 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2., 2.5, 3.0, 4.0, 5., 10., 20., 30., 60., 90.,
++    0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.25, 0.5, 0.75, 1., 1.25, 1.5, 1.75, 2., 2.5, 3.0,
++    4.0, 5., 10., 20., 30., 60., 90.,
+ ];
+ 
+ /// Metrics collected by the benchmark.
+@@ -47,6 +39,7 @@ pub const LATENCY_SQUARED_S: &str = "latency_squared_s";
+ pub struct Metrics {
+     pub benchmark_duration: IntCounter,
+     pub latency_s: HistogramVec,
++    pub benchmark_origin_latency_s: HistogramVec,
+     pub latency_squared_s: CounterVec,
+     pub committed_leaders_total: IntCounterVec,
+     pub leader_timeout_total: IntCounter,
+@@ -84,6 +77,12 @@ pub struct Metrics {
+ 
+     pub utilization_timer: IntCounterVec,
+     pub submitted_transactions: IntCounter,
++    pub benchmark_tcp_written_bytes: IntCounter,
++    pub benchmark_tcp_read_bytes: IntCounter,
++    pub benchmark_enqueued_transactions: IntCounter,
++    pub benchmark_enqueued_transaction_bytes: IntCounter,
++    pub benchmark_enqueued_encoded_transaction_bytes: IntCounter,
++    pub benchmark_transaction_encoded_size_bytes: IntGauge,
+ }
+ 
+ pub struct MetricReporter {
+@@ -204,6 +203,21 @@ impl Metrics {
+                 registry,
+             )
+             .unwrap(),
++            benchmark_origin_latency_s: register_histogram_vec_with_registry!(
++                "benchmark_origin_latency_s",
++                "Generation to payload-ready consensus commit latency by producer authority",
++                &["origin"], LATENCY_SEC_BUCKETS.to_vec(), registry,
++            ).unwrap(),
++            benchmark_transaction_encoded_size_bytes: register_int_gauge_with_registry!(
++                "benchmark_transaction_encoded_size_bytes",
++                "Expected canonical bincode Transaction size, asserted on every generated transaction",
++                registry,
++            ).unwrap(),
++            benchmark_enqueued_encoded_transaction_bytes: register_int_counter_with_registry!(
++                "benchmark_enqueued_encoded_transaction_bytes",
++                "Exact bincode-encoded Transaction bytes enqueued to local block handler",
++                registry,
++            ).unwrap(),
+             latency_squared_s: register_counter_vec_with_registry!(
+                 LATENCY_SQUARED_S,
+                 "Square of total end-to-end latency of a workload in seconds",
+@@ -231,6 +245,26 @@ impl Metrics {
+                 registry,
+             )
+             .unwrap(),
++            benchmark_tcp_written_bytes: register_int_counter_with_registry!(
++                "benchmark_tcp_written_bytes",
++                "Bytes successfully written to replica TCP streams including native framing",
++                registry,
++            ).unwrap(),
++            benchmark_tcp_read_bytes: register_int_counter_with_registry!(
++                "benchmark_tcp_read_bytes",
++                "Bytes successfully read from replica TCP streams including native framing",
++                registry,
++            ).unwrap(),
++            benchmark_enqueued_transactions: register_int_counter_with_registry!(
++                "benchmark_enqueued_transactions",
++                "Exact number of generated transactions enqueued to the local block handler",
++                registry,
++            ).unwrap(),
++            benchmark_enqueued_transaction_bytes: register_int_counter_with_registry!(
++                "benchmark_enqueued_transaction_bytes",
++                "Exact opaque transaction bytes enqueued to the local block handler",
++                registry,
++            ).unwrap(),
+             leader_timeout_total: register_int_counter_with_registry!(
+                 "leader_timeout_total",
+                 "Total number of leader timeouts",
+diff --git a/crates/mysticeti-core/src/network.rs b/crates/mysticeti-core/src/network.rs
+index 26d8274..77d3c57 100644
+--- a/crates/mysticeti-core/src/network.rs
++++ b/crates/mysticeti-core/src/network.rs
+@@ -1,7 +1,16 @@
+ // Copyright (c) Mysten Labs, Inc.
+ // SPDX-License-Identifier: Apache-2.0
+ 
+-use std::{collections::HashMap, io, net::SocketAddr, ops::Range, sync::Arc, time::Duration};
++use std::{
++    collections::HashMap,
++    io,
++    net::SocketAddr,
++    ops::Range,
++    pin::Pin,
++    sync::Arc,
++    task::{Context, Poll},
++    time::Duration,
++};
+ 
+ use futures::{
+     future::{select, select_all, Either},
+@@ -10,13 +19,8 @@ use futures::{
+ use rand::{prelude::ThreadRng, Rng};
+ use serde::{Deserialize, Serialize};
+ use tokio::{
+-    io::{AsyncReadExt, AsyncWriteExt},
+-    net::{
+-        tcp::{OwnedReadHalf, OwnedWriteHalf},
+-        TcpListener,
+-        TcpSocket,
+-        TcpStream,
+-    },
++    io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt, ReadBuf, ReadHalf, WriteHalf},
++    net::{TcpListener, TcpSocket, TcpStream},
+     runtime::Handle,
+     select,
+     sync::mpsc,
+@@ -32,6 +36,59 @@ use crate::{
+     types::{AuthorityIndex, BlockReference, RoundNumber, StatementBlock},
+ };
+ 
++// Counts completed socket operations, including partial progress before a later failure.
++// This wrapper is used only for replica streams; metrics HTTP traffic is excluded.
++struct MeteredStream<T> {
++    inner: T,
++    written: prometheus::IntCounter,
++    read: prometheus::IntCounter,
++}
++
++impl<T> MeteredStream<T> {
++    fn new(inner: T, metrics: &Metrics) -> Self {
++        Self {
++            inner,
++            written: metrics.benchmark_tcp_written_bytes.clone(),
++            read: metrics.benchmark_tcp_read_bytes.clone(),
++        }
++    }
++}
++
++impl<T: AsyncRead + Unpin> AsyncRead for MeteredStream<T> {
++    fn poll_read(
++        self: Pin<&mut Self>,
++        cx: &mut Context<'_>,
++        buf: &mut ReadBuf<'_>,
++    ) -> Poll<io::Result<()>> {
++        let this = self.get_mut();
++        let before = buf.filled().len();
++        let result = Pin::new(&mut this.inner).poll_read(cx, buf);
++        this.read.inc_by((buf.filled().len() - before) as u64);
++        result
++    }
++}
++
++impl<T: AsyncWrite + Unpin> AsyncWrite for MeteredStream<T> {
++    fn poll_write(
++        self: Pin<&mut Self>,
++        cx: &mut Context<'_>,
++        buf: &[u8],
++    ) -> Poll<io::Result<usize>> {
++        let this = self.get_mut();
++        let result = Pin::new(&mut this.inner).poll_write(cx, buf);
++        if let Poll::Ready(Ok(count)) = &result {
++            this.written.inc_by(*count as u64);
++        }
++        result
++    }
++    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
++        Pin::new(&mut self.get_mut().inner).poll_flush(cx)
++    }
++    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
++        Pin::new(&mut self.get_mut().inner).poll_shutdown(cx)
++    }
++}
++
+ const PING_INTERVAL: Duration = Duration::from_secs(30);
+ 
+ #[derive(Debug, Serialize, Deserialize)]
+@@ -113,6 +170,7 @@ impl Network {
+                     connection_sender: connection_sender.clone(),
+                     bind_addr: bind_addr(local_addr),
+                     active_immediately: id < our_id,
++                    metrics: metrics.clone(),
+                     latency_sender: metrics.connection_latency_sender.get(id).expect("Can not locate connection_latency_sender metric - did you initialize metrics with correct committee?").clone()
+                 }
+                 .run(receiver),
+@@ -176,6 +234,7 @@ fn bind_addr(mut local_peer: SocketAddr) -> SocketAddr {
+ }
+ 
+ struct Worker {
++    metrics: Arc<Metrics>,
+     peer: SocketAddr,
+     peer_id: usize,
+     connection_sender: mpsc::Sender<Connection>,
+@@ -225,7 +284,7 @@ impl Worker {
+     async fn connect_and_handle(&self, delay: Duration, peer: SocketAddr) -> io::Result<()> {
+         // this is critical to avoid race between active and passive connections
+         runtime::sleep(delay).await;
+-        let mut stream = loop {
++        let stream = loop {
+             let socket = if self.bind_addr.is_ipv4() {
+                 TcpSocket::new_v4().unwrap()
+             } else {
+@@ -241,6 +300,7 @@ impl Worker {
+             }
+         };
+         stream.set_nodelay(true)?;
++        let mut stream = MeteredStream::new(stream, &self.metrics);
+         stream.write_u64(Self::ACTIVE_HANDSHAKE).await?;
+         let handshake = stream.read_u64().await?;
+         if handshake != Self::PASSIVE_HANDSHAKE {
+@@ -254,8 +314,9 @@ impl Worker {
+         Self::handle_stream(stream, connection).await
+     }
+ 
+-    async fn handle_passive_stream(&self, mut stream: TcpStream) -> io::Result<()> {
++    async fn handle_passive_stream(&self, stream: TcpStream) -> io::Result<()> {
+         stream.set_nodelay(true)?;
++        let mut stream = MeteredStream::new(stream, &self.metrics);
+         stream.write_u64(Self::PASSIVE_HANDSHAKE).await?;
+         let handshake = stream.read_u64().await?;
+         if handshake != Self::ACTIVE_HANDSHAKE {
+@@ -269,7 +330,10 @@ impl Worker {
+         Self::handle_stream(stream, connection).await
+     }
+ 
+-    async fn handle_stream(stream: TcpStream, connection: WorkerConnection) -> io::Result<()> {
++    async fn handle_stream(
++        stream: MeteredStream<TcpStream>,
++        connection: WorkerConnection,
++    ) -> io::Result<()> {
+         let WorkerConnection {
+             sender,
+             receiver,
+@@ -277,7 +341,7 @@ impl Worker {
+             latency_sender,
+         } = connection;
+         tracing::debug!("Connected to {}", peer_id);
+-        let (reader, writer) = stream.into_split();
++        let (reader, writer) = tokio::io::split(stream);
+         let (pong_sender, pong_receiver) = mpsc::channel(16);
+         let write_fut =
+             Self::handle_write_stream(writer, receiver, pong_receiver, latency_sender).boxed();
+@@ -288,7 +352,7 @@ impl Worker {
+     }
+ 
+     async fn handle_write_stream(
+-        mut writer: OwnedWriteHalf,
++        mut writer: WriteHalf<MeteredStream<TcpStream>>,
+         mut receiver: mpsc::Receiver<NetworkMessage>,
+         mut pong_receiver: mpsc::Receiver<i64>,
+         latency_sender: HistogramSender<Duration>,
+@@ -363,7 +427,7 @@ impl Worker {
+     }
+ 
+     async fn handle_read_stream(
+-        mut stream: OwnedReadHalf,
++        mut stream: ReadHalf<MeteredStream<TcpStream>>,
+         sender: mpsc::Sender<NetworkMessage>,
+         pong_sender: mpsc::Sender<i64>,
+     ) -> io::Result<()> {
+@@ -449,6 +513,42 @@ mod test {
+ 
+     use crate::{committee::Committee, metrics::Metrics, test_util::networks_and_addresses};
+ 
++    #[tokio::test]
++    async fn benchmark_byte_counters_include_partial_io_and_eof() {
++        use super::MeteredStream;
++        use tokio::io::{AsyncReadExt, AsyncWriteExt};
++        let (left, mut right) = tokio::io::duplex(3);
++        let (metrics, _) = Metrics::new(&Registry::default(), None);
++        let mut left = MeteredStream::new(left, &metrics);
++        let sending = tokio::spawn(async move {
++            left.write_all(b"123456789").await.unwrap();
++            left.shutdown().await.unwrap();
++            let mut response = Vec::new();
++            left.read_to_end(&mut response).await.unwrap();
++            response
++        });
++        let mut request = Vec::new();
++        right.read_to_end(&mut request).await.unwrap();
++        assert_eq!(request, b"123456789");
++        right.write_all(b"abcd").await.unwrap();
++        right.shutdown().await.unwrap();
++        assert_eq!(sending.await.unwrap(), b"abcd");
++        assert_eq!(metrics.benchmark_tcp_written_bytes.get(), 9);
++        assert_eq!(metrics.benchmark_tcp_read_bytes.get(), 4);
++    }
++
++    #[tokio::test]
++    async fn benchmark_failed_write_does_not_count_requested_bytes() {
++        use super::MeteredStream;
++        use tokio::io::AsyncWriteExt;
++        let (left, right) = tokio::io::duplex(3);
++        let (metrics, _) = Metrics::new(&Registry::default(), None);
++        let mut left = MeteredStream::new(left, &metrics);
++        drop(right);
++        assert!(left.write_all(b"not-written").await.is_err());
++        assert_eq!(metrics.benchmark_tcp_written_bytes.get(), 0);
++    }
++
+     #[ignore]
+     #[tokio::test]
+     async fn network_connect_test() {
+diff --git a/crates/mysticeti-core/src/transactions_generator.rs b/crates/mysticeti-core/src/transactions_generator.rs
+index aa02fe1..9e9e17a 100644
+--- a/crates/mysticeti-core/src/transactions_generator.rs
++++ b/crates/mysticeti-core/src/transactions_generator.rs
+@@ -33,6 +33,9 @@ impl TransactionGenerator {
+         metrics: Arc<Metrics>,
+     ) {
+         assert!(client_parameters.transaction_size > 8 + 8); // 8 bytes timestamp + 8 bytes random
++        metrics
++            .benchmark_transaction_encoded_size_bytes
++            .set((client_parameters.transaction_size + 8) as i64);
+         tracing::info!(
+             "Starting generator with {} transactions per second, initial delay {:?}",
+             client_parameters.load,
+@@ -81,7 +84,13 @@ impl TransactionGenerator {
+                 transaction.extend_from_slice(&random.to_le_bytes()); // 8 bytes
+                 transaction.extend_from_slice(&zeros[..]);
+ 
+-                block.push(Transaction::new(transaction));
++                assert_eq!(transaction.len(), self.client_parameters.transaction_size);
++                let transaction = Transaction::new(transaction);
++                assert_eq!(
++                    bincode::serialized_size(&transaction).unwrap(),
++                    (self.client_parameters.transaction_size + 8) as u64
++                );
++                block.push(transaction);
+                 block_size += self.client_parameters.transaction_size;
+                 counter += 1;
+                 tx_to_report += 1;
+@@ -90,13 +99,25 @@ impl TransactionGenerator {
+                     if self.sender.send(block.clone()).await.is_err() {
+                         return;
+                     }
++                    self.record_enqueued(&block);
+                     block.clear();
+                     block_size = 0;
+                 }
+             }
+ 
+-            if !block.is_empty() && self.sender.send(block).await.is_err() {
+-                return;
++            if !block.is_empty() {
++                let count = block.len() as u64;
++                let bytes = block.iter().map(|tx| tx.as_bytes().len() as u64).sum();
++                if self.sender.send(block).await.is_err() {
++                    return;
++                }
++                self.metrics.benchmark_enqueued_transactions.inc_by(count);
++                self.metrics
++                    .benchmark_enqueued_transaction_bytes
++                    .inc_by(bytes);
++                self.metrics
++                    .benchmark_enqueued_encoded_transaction_bytes
++                    .inc_by(bytes + 8 * count);
+             }
+ 
+             if counter % 10_000 == 0 {
+@@ -106,6 +127,23 @@ impl TransactionGenerator {
+         }
+     }
+ 
++    fn record_enqueued(&self, block: &[Transaction]) {
++        self.metrics
++            .benchmark_enqueued_transactions
++            .inc_by(block.len() as u64);
++        self.metrics
++            .benchmark_enqueued_transaction_bytes
++            .inc_by(block.iter().map(|tx| tx.as_bytes().len() as u64).sum());
++        self.metrics
++            .benchmark_enqueued_encoded_transaction_bytes
++            .inc_by(
++                block
++                    .iter()
++                    .map(|tx| bincode::serialized_size(tx).unwrap())
++                    .sum(),
++            );
++    }
++
+     pub fn extract_timestamp(transaction: &Transaction) -> Duration {
+         let bytes = transaction.as_bytes()[0..8]
+             .try_into()
+@@ -113,3 +151,15 @@ impl TransactionGenerator {
+         Duration::from_millis(u64::from_le_bytes(bytes))
+     }
+ }
++
++#[cfg(test)]
++mod benchmark_tests {
++    use super::*;
++
++    #[test]
++    fn encoded_transaction_size_includes_vector_length() {
++        let transaction = Transaction::new(vec![0u8; 504]);
++        assert_eq!(transaction.as_bytes().len(), 504);
++        assert_eq!(bincode::serialize(&transaction).unwrap().len(), 512);
++    }
++}

@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "purpose": "Pinned upstream paper artifacts for local baseline builds and benchmarks",
+  "baselines": {
+    "raptr": {
+      "repository": "https://github.com/aptos-labs/aptos-core.git",
+      "reference": "raptr-public",
+      "commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+      "paper": "https://arxiv.org/html/2504.18649v2",
+      "checkout": "benchmarks/baselines/raptr",
+      "scope": "Raptr paper implementation; do not substitute Baby Raptr or current Aptos main"
+    },
+    "mysticeti": {
+      "repository": "https://github.com/asonnino/mysticeti.git",
+      "reference": "paper",
+      "commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+      "paper": "https://arxiv.org/html/2310.14821v6",
+      "checkout": "benchmarks/baselines/mysticeti",
+      "scope": "Unmaintained paper artifact; do not substitute current Sui consensus"
+    },
+    "vantage": {
+      "repository": "https://github.com/polinikita/vantage-bft.git",
+      "reference": "main",
+      "commit": "199098c4978e4a97a7d3707ec9aac6de086969db",
+      "checkout": "benchmarks/baselines/vantage",
+      "scope": "Pinned shared Vantage artifact containing vantage, autobahn-optimistic, autobahn-seamless, simple-it, and simple-it-bracha; native local-benchmark runs all authorities in one process"
+    }
+  }
+}
