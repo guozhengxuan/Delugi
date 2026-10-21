@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "scope": "standalone pure output contract; no native core or network execution",
+  "command": "CARGO_BUILD_JOBS=1 CARGO_INCREMENTAL=0 CARGO_TARGET_DIR=/private/tmp/delugi-raptr-output-contract-20261021 cargo test --manifest-path core/raptr/Cargo.toml --offline",
+  "exit_code": 0,
+  "integration_tests_passed": 10,
+  "prefix_partition_cases": 256,
+  "test_wall_seconds_reported": 0.01,
+  "rustc": "rustc 1.94.0-nightly (31010ca61 2025-12-16)",
+  "cargo": "cargo 1.94.0-nightly (e91b2baa6 2025-12-13)",
+  "files": {
+    "core/raptr/.gitignore": "306fd52e74fca6746e12acc750f232de15e71da917756a1270d74c91f5eb7368",
+    "core/raptr/CONTRACT.txt": "a1a27c1c3ea6fdff9cad27c4653d18cb38fd880a9a9a1d0e2caeb997d8773185",
+    "core/raptr/Cargo.lock": "616c06f8fdf86bf6da0a309afef4da13ea4dd86a0f084e883f61d84386fe57c9",
+    "core/raptr/Cargo.toml": "8a279a66c07bae70a2746c49f8ee998988a5d1e34858eb4606ada6b3bf13044a",
+    "core/raptr/source-map.json": "7c1b7a64ff864211b936823820d60c22a038bab64409790976dc39b6da4e161b",
+    "core/raptr/src/lib.rs": "b662e3afbbc2599e72aef1c382f4fd94742205c3efdf35ad580b6e201f5183d9",
+    "core/raptr/src/output.rs": "16c15eb3e48d4d47a3288cd291622707f7089eeaf54fcf9a8b3494c21eda0cf4",
+    "core/raptr/tests/output_contract.rs": "82da1a42a9b3cfee3bd6ab22afa14ad3fd425a17594385e063a4e4e890b1ce8d"
+  }
+}

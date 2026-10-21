@@ -1,0 +1,147 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "status": "passed",
+  "tests": {
+    "passed": 15,
+    "failed": 0,
+    "ignored": 0,
+    "native_original_crypto": 9,
+    "rehost": 5,
+    "exact_commit_oracle": 1
+  },
+  "scope": "Native core, real Aptos BLS/BCS and metadata seam conformance; independent-process integration pending. Test-only pinned commit_qc_impl oracle includes empty payloads and real quorum-signed ProofOfStore with distinct full-width batch descriptors across eight subblocks; no payload custody claim from this fixture.",
+  "source_unchanged": true,
+  "argv": [
+    "cargo",
+    "+1.78.0",
+    "--config",
+    "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/native/.cargo/config.toml",
+    "test",
+    "--lib",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/native/Cargo.toml"
+  ],
+  "toolchain": "rustc 1.78.0 (9b00956e5 2024-04-29)\nbinary: rustc\ncommit-hash: 9b00956e56009bab2aa15d7bff10916599e3d6d6\ncommit-date: 2024-04-29\nhost: aarch64-apple-darwin\nrelease: 1.78.0\nLLVM version: 18.1.2\n",
+  "environment": {
+    "CARGO_HOME": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/raptr-cargo",
+    "CARGO_TARGET_DIR": "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/.native-deps/target",
+    "CARGO_BUILD_JOBS": "2",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CFLAGS": "-Dfdopen=fdopen"
+  },
+  "limits": {
+    "target_bytes": 21474836480,
+    "minimum_free_bytes": 32212254720,
+    "jobs": 2,
+    "sample_seconds": 15,
+    "incremental": false,
+    "debug_info": false
+  },
+  "final_target_bytes": 3045158912,
+  "final_free_bytes": 159456555008,
+  "elapsed_seconds": 16.057946334592998,
+  "files": [
+    {
+      "path": "core/raptr/build-evidence/native-services-test-3/guard.json",
+      "sha256": "9defbab7d5c82f12ffe49df54d9a44a28c12b0a84d14d568292ce2dd1c9f0d34",
+      "bytes": 1623
+    },
+    {
+      "path": "core/raptr/build-evidence/native-services-test-3/source-before.json",
+      "sha256": "762a11dfdaa2dfaee4b9546db3f54c64a74019bb6f13a9d485932c0541839468",
+      "bytes": 2536177
+    },
+    {
+      "path": "core/raptr/build-evidence/native-services-test-3/source-after.json",
+      "sha256": "762a11dfdaa2dfaee4b9546db3f54c64a74019bb6f13a9d485932c0541839468",
+      "bytes": 2536177
+    },
+    {
+      "path": "core/raptr/build-evidence/native-services-test-3/cargo.log",
+      "sha256": "ebfa4acb75ffb09a19f3b632ba60966f3ea83a7bed172ddcbaeb32aad244b2ec",
+      "bytes": 9258
+    },
+    {
+      "path": "core/raptr/native-port-map.json",
+      "sha256": "35215aa0a4ee8f2b4a7aaa7a4faa3b2c513814b1cd49a40d4a1a54764f50b361",
+      "bytes": 9702
+    },
+    {
+      "path": "core/raptr/native/Cargo.lock",
+      "sha256": "dbf70141b7b0e006d1b5db2b4e6a794fef8e43b581db1e85147ba7e1fa66b224",
+      "bytes": 176974
+    },
+    {
+      "path": "core/raptr/native/src/rehost.rs",
+      "sha256": "8094a02b041839d06bc5c43e6cdc6edd3755e20d31b0814139d003dfdabf3e75",
+      "bytes": 6767
+    },
+    {
+      "path": "core/raptr/native/src/rehost/tests.rs",
+      "sha256": "38a5e0e4fb25eb0f25dd0c0ee8109e14a5898406d209c26452916fb3c98da007",
+      "bytes": 6130
+    },
+    {
+      "path": "core/raptr/native/src/raptr/protocol.rs",
+      "sha256": "0f3502cc82de59d29238c38e9a6debb8cd30af019f1f295232012b56c0276ebf",
+      "bytes": 56606
+    },
+    {
+      "path": "core/raptr/native/src/raptr/protocol/extraction_tests.rs",
+      "sha256": "680abafba0a6a2989e245303c2f5dce5e0b4ccff8e429477497769c4f520276c",
+      "bytes": 12469
+    },
+    {
+      "path": "shared/crypto-aptos/src/lib.rs",
+      "sha256": "044ea4884eb79a105f900cc388eb012a7978b2819417873797f32f2a068e1607",
+      "bytes": 3202
+    },
+    {
+      "path": "core/raptr/build_native.py",
+      "sha256": "0fe4ff9096472e2e012fcd76db0ace5f7762a9abc50e6c6b7bc124579081cc55",
+      "bytes": 5610
+    }
+  ],
+  "lock_resolution": {
+    "schema": 1,
+    "before_sha256": "6e5df2ad800618aea5239775c70fa089a645bb1faea9c245949e3320074e0a13",
+    "after_sha256": "dbf70141b7b0e006d1b5db2b4e6a794fef8e43b581db1e85147ba7e1fa66b224",
+    "added": [
+      [
+        "delugi-raptr-core",
+        "0.1.0",
+        null
+      ],
+      [
+        "delugi-shared-output",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-crypto-aptos",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-metrics",
+        "0.1.0",
+        null
+      ]
+    ],
+    "removed": [],
+    "changed": [
+      [
+        "raptr",
+        "0.1.0",
+        null
+      ]
+    ],
+    "external_changes": []
+  }
+}

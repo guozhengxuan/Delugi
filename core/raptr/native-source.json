@@ -1,0 +1,224 @@
+{
+  "schema": 1,
+  "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "source_archive_sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+  "upstream_repository": "https://github.com/aptos-labs/aptos-core.git",
+  "dependency_source": ".native-deps/a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "native_source": "native",
+  "original_lock_sha256": "d922e9b5de71b16f333bbcff28d8339e183ff1b6f86760bd867e440e2bb64236",
+  "compiler": "1.78.0",
+  "mode": "native types, conformance only until shared services/QS are wired",
+  "manifest_adjustments": [
+    "standalone workspace rooted at extracted native crate",
+    "native workspace dependency paths point to immutable local archive",
+    "debug info and incremental disabled",
+    "explicit pinned .cargo/config.toml import preserves tokio_unstable/framepointer/unwind flags"
+  ],
+  "source_files": [
+    {
+      "path": "native/Cargo.toml",
+      "sha256": "0f0a13d03967696fe6384129b91cd8eebf4daa651afbac45ba61ca6666b1cd09",
+      "original_sha256": "ba62ccacf43908e206313c79c63e20c2649a0c8f7ea1b38b320a0bc899434171",
+      "unchanged": false
+    },
+    {
+      "path": "native/LICENSE",
+      "sha256": "a827c2644dc4463e252b890fcf8f1516a18b9a336fa3da3555a9dd8801af6b86",
+      "original_sha256": null,
+      "unchanged": false
+    },
+    {
+      "path": "native/README.md",
+      "sha256": "f530227d99f14b80014935718c3d09f681aeac2f884c0134a7b4d6aee36e1bec",
+      "original_sha256": "f530227d99f14b80014935718c3d09f681aeac2f884c0134a7b4d6aee36e1bec",
+      "unchanged": true
+    },
+    {
+      "path": "native/benches/crypto_bench.rs",
+      "sha256": "52fc17d8f0d8c905fdac5ef7c8a7c3e7774ed9cf5c57190f84d856397e25d6d7",
+      "original_sha256": "52fc17d8f0d8c905fdac5ef7c8a7c3e7774ed9cf5c57190f84d856397e25d6d7",
+      "unchanged": true
+    },
+    {
+      "path": "native/benches/wendy_bench.rs",
+      "sha256": "fc33d77beeed15d548988e8b246f9cff44a207aae61eb17cf4ca803fe36fc6ec",
+      "original_sha256": "fc33d77beeed15d548988e8b246f9cff44a207aae61eb17cf4ca803fe36fc6ec",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/delays.rs",
+      "sha256": "440663f96c7983731ba6698c584f17e39b7f26cd0198573dbb1ef56dc15a0233",
+      "original_sha256": "440663f96c7983731ba6698c584f17e39b7f26cd0198573dbb1ef56dc15a0233",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/context.rs",
+      "sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+      "original_sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/crypto.rs",
+      "sha256": "de4e24bfb849b74508fb4993f3dfd56906d33efc65e1fec338e140ef858a98f9",
+      "original_sha256": "de4e24bfb849b74508fb4993f3dfd56906d33efc65e1fec338e140ef858a98f9",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/injection.rs",
+      "sha256": "05c39cf9e2c32c516ae7e68de5dca41243d5ad68a82aae4467a377eb543e9d6a",
+      "original_sha256": "05c39cf9e2c32c516ae7e68de5dca41243d5ad68a82aae4467a377eb543e9d6a",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/mod.rs",
+      "sha256": "5da2d98a92ea6481972d6bfad97acafa12846b14407d85df2e7039b909edc3f1",
+      "original_sha256": "5da2d98a92ea6481972d6bfad97acafa12846b14407d85df2e7039b909edc3f1",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/module_network.rs",
+      "sha256": "aeb995e4070b26d0d485459eb8922f97561a87216c52093fc3a8926dac88cdbe",
+      "original_sha256": "aeb995e4070b26d0d485459eb8922f97561a87216c52093fc3a8926dac88cdbe",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/network.rs",
+      "sha256": "37b8ff2f685f43bba0ee6440ff3bcd742e7d86cb0ba6d4bba7a9b0a0a007ee57",
+      "original_sha256": "37b8ff2f685f43bba0ee6440ff3bcd742e7d86cb0ba6d4bba7a9b0a0a007ee57",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/tcp_network.rs",
+      "sha256": "a094b485a6fa767681025fb3d6bc5751eab4611d2f0b93d440f165965bf21821",
+      "original_sha256": "a094b485a6fa767681025fb3d6bc5751eab4611d2f0b93d440f165965bf21821",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/framework/timer.rs",
+      "sha256": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+      "original_sha256": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/jolteon.rs",
+      "sha256": "2aa4f06adf75e0e4390cf2a7903e7a931e9cb5a02ace4a03f37ba2a3dc29dbdf",
+      "original_sha256": "2aa4f06adf75e0e4390cf2a7903e7a931e9cb5a02ace4a03f37ba2a3dc29dbdf",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/jolteon_fast_qs.rs",
+      "sha256": "8e144ce0771453fdb60b4dd66906be3f67319e7caeced577b8e2e4fd990b9b2f",
+      "original_sha256": "8e144ce0771453fdb60b4dd66906be3f67319e7caeced577b8e2e4fd990b9b2f",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/leader_schedule.rs",
+      "sha256": "8b7a73a6b259fab744cf90c88f5630d192b459b66e09d2f0cf70334e83aea9b2",
+      "original_sha256": "8b7a73a6b259fab744cf90c88f5630d192b459b66e09d2f0cf70334e83aea9b2",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/lib.rs",
+      "sha256": "19a8cd52e26c501ef38a934d495638952d09f1ef736bec3d032e646239832e2b",
+      "original_sha256": "19a8cd52e26c501ef38a934d495638952d09f1ef736bec3d032e646239832e2b",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/main.rs",
+      "sha256": "5f053c7d8855b9110da595dd0c2b2ccd34bacedc55be769f1d7761a5e9523eae",
+      "original_sha256": "5f053c7d8855b9110da595dd0c2b2ccd34bacedc55be769f1d7761a5e9523eae",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/metrics.rs",
+      "sha256": "e8921f4ca6d3f7a01e9c4f5c4e1ed12d6aba790e82658989d2917d57324945ea",
+      "original_sha256": "e8921f4ca6d3f7a01e9c4f5c4e1ed12d6aba790e82658989d2917d57324945ea",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/multichain.rs",
+      "sha256": "6f1d2fa39b2d66d50bb19d0a1b5bcba2e06a46fe30326da19ef59ee0c497d545",
+      "original_sha256": "6f1d2fa39b2d66d50bb19d0a1b5bcba2e06a46fe30326da19ef59ee0c497d545",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/counters.rs",
+      "sha256": "aed6b3a2d97a4cd09bfa130e8c7d4e3b79e2ca8d5122b3fca0fade1626340ccd",
+      "original_sha256": "aed6b3a2d97a4cd09bfa130e8c7d4e3b79e2ca8d5122b3fca0fade1626340ccd",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/dissemination/mod.rs",
+      "sha256": "7da02018b06ee910139ef9b2b242aa95ba50705cec44b46ece767857f3f35e2c",
+      "original_sha256": "7da02018b06ee910139ef9b2b242aa95ba50705cec44b46ece767857f3f35e2c",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/dissemination/native.rs",
+      "sha256": "161a0764cb965b38bc2f2c8d98531f9c27f2c72017731879903bf5d2f656eba0",
+      "original_sha256": "161a0764cb965b38bc2f2c8d98531f9c27f2c72017731879903bf5d2f656eba0",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/dissemination/penalty_tracker.rs",
+      "sha256": "437df8b607751c96c8225b525c673683268011d812693b39c71521f6dc985c42",
+      "original_sha256": "437df8b607751c96c8225b525c673683268011d812693b39c71521f6dc985c42",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/mod.rs",
+      "sha256": "3d22ddace0f4720f8d7816e11613bb01cb91d754295733a9a654497aa09999e2",
+      "original_sha256": "3d22ddace0f4720f8d7816e11613bb01cb91d754295733a9a654497aa09999e2",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/multichain_raikou.rs",
+      "sha256": "7920841394fd0d9466dc4edd93f1b9a27cc8d155266ad7cab7f36870d7de4d92",
+      "original_sha256": "7920841394fd0d9466dc4edd93f1b9a27cc8d155266ad7cab7f36870d7de4d92",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/protocol.rs",
+      "sha256": "498da9546f0a7a3b5ee529566a6bbb142e121a70df720ecc0c22af2f832e55b7",
+      "original_sha256": "498da9546f0a7a3b5ee529566a6bbb142e121a70df720ecc0c22af2f832e55b7",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/types/aptos_types.rs",
+      "sha256": "6f6dad0b3e93aec5d4c8df2020a137911d194418326fd311a1621d5d0bb17f4d",
+      "original_sha256": "6f6dad0b3e93aec5d4c8df2020a137911d194418326fd311a1621d5d0bb17f4d",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/types/common.rs",
+      "sha256": "88666a5ed35da0c26346424771817b43b5ce540eabba242e2d0063fdae268d3c",
+      "original_sha256": "88666a5ed35da0c26346424771817b43b5ce540eabba242e2d0063fdae268d3c",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/types/mod.rs",
+      "sha256": "d8a6822e1f02a1e0617cde01f61f61171b3f698261d0f60681feb4646dca0de8",
+      "original_sha256": "d8a6822e1f02a1e0617cde01f61f61171b3f698261d0f60681feb4646dca0de8",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/raptr/types/sim_types.rs",
+      "sha256": "eeeb51edca455961bd0952ae052ff673c496105bb688c5cd109a6c053c6746b4",
+      "original_sha256": "eeeb51edca455961bd0952ae052ff673c496105bb688c5cd109a6c053c6746b4",
+      "unchanged": true
+    },
+    {
+      "path": "native/src/simulation_test.rs",
+      "sha256": "b95e339081042d273437b35c0aeb3f8839a83e4c45f067f735b4c3d30a97ee7b",
+      "original_sha256": "b95e339081042d273437b35c0aeb3f8839a83e4c45f067f735b4c3d30a97ee7b",
+      "unchanged": true
+    },
+    {
+      "path": "native/.cargo/config.toml",
+      "sha256": "604f49dc24b306d9b0905b6d548811157b2e0ee32b0bc4f0c8cf55673d7814bc",
+      "original_sha256": "604f49dc24b306d9b0905b6d548811157b2e0ee32b0bc4f0c8cf55673d7814bc",
+      "original_path": ".cargo/config.toml",
+      "unchanged": true
+    }
+  ]
+}

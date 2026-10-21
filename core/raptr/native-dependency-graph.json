@@ -1,0 +1,977 @@
+{
+  "kind": "conservative declared normal/build path closure including optional/target dependencies; NOT resolved feature graph",
+  "root": "raptr",
+  "local_packages": {
+    "raptr": {
+      "name": "raptr",
+      "local_dependencies": [
+        "consensus/consensus-types",
+        "crates/aptos-bitvec",
+        "crates/aptos-crypto",
+        "crates/aptos-crypto-derive",
+        "crates/aptos-infallible",
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "crates/channel",
+        "types"
+      ]
+    },
+    "crates/aptos-infallible": {
+      "name": "aptos-infallible",
+      "local_dependencies": []
+    },
+    "crates/aptos-bitvec": {
+      "name": "aptos-bitvec",
+      "local_dependencies": []
+    },
+    "crates/aptos-metrics-core": {
+      "name": "aptos-metrics-core",
+      "local_dependencies": []
+    },
+    "types": {
+      "name": "aptos-types",
+      "local_dependencies": [
+        "crates/aptos-bitvec",
+        "crates/aptos-crypto",
+        "crates/aptos-crypto-derive",
+        "crates/aptos-dkg",
+        "crates/aptos-infallible",
+        "third_party/move/extensions/move-table-extension",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/types"
+      ]
+    },
+    "third_party/move/move-vm/types": {
+      "name": "move-vm-types",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types"
+      ]
+    },
+    "third_party/move/move-core/types": {
+      "name": "move-core-types",
+      "local_dependencies": []
+    },
+    "third_party/move/move-binary-format": {
+      "name": "move-binary-format",
+      "local_dependencies": [
+        "third_party/move/move-bytecode-spec",
+        "third_party/move/move-core/types"
+      ]
+    },
+    "third_party/move/move-bytecode-spec": {
+      "name": "move-bytecode-spec",
+      "local_dependencies": []
+    },
+    "third_party/move/extensions/move-table-extension": {
+      "name": "move-table-extension",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types"
+      ]
+    },
+    "third_party/move/move-vm/runtime": {
+      "name": "move-vm-runtime",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-bytecode-verifier",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/metrics",
+        "third_party/move/move-vm/types"
+      ]
+    },
+    "third_party/move/move-vm/metrics": {
+      "name": "move-vm-metrics",
+      "local_dependencies": []
+    },
+    "third_party/move/move-bytecode-verifier": {
+      "name": "move-bytecode-verifier",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-borrow-graph",
+        "third_party/move/move-core/types"
+      ]
+    },
+    "third_party/move/move-borrow-graph": {
+      "name": "move-borrow-graph",
+      "local_dependencies": []
+    },
+    "crates/aptos-dkg": {
+      "name": "aptos-dkg",
+      "local_dependencies": [
+        "crates/aptos-crypto",
+        "crates/aptos-crypto-derive",
+        "crates/aptos-runtimes"
+      ]
+    },
+    "crates/aptos-runtimes": {
+      "name": "aptos-runtimes",
+      "local_dependencies": []
+    },
+    "crates/aptos-crypto-derive": {
+      "name": "aptos-crypto-derive",
+      "local_dependencies": []
+    },
+    "crates/aptos-crypto": {
+      "name": "aptos-crypto",
+      "local_dependencies": [
+        "crates/aptos-crypto-derive"
+      ]
+    },
+    "crates/aptos-logger": {
+      "name": "aptos-logger",
+      "local_dependencies": [
+        "crates/aptos-infallible",
+        "crates/aptos-log-derive",
+        "crates/aptos-node-identity"
+      ]
+    },
+    "crates/aptos-node-identity": {
+      "name": "aptos-node-identity",
+      "local_dependencies": [
+        "types"
+      ]
+    },
+    "crates/aptos-log-derive": {
+      "name": "aptos-log-derive",
+      "local_dependencies": []
+    },
+    "consensus/consensus-types": {
+      "name": "aptos-consensus-types",
+      "local_dependencies": [
+        "crates/aptos-bitvec",
+        "crates/aptos-crypto",
+        "crates/aptos-crypto-derive",
+        "crates/aptos-infallible",
+        "crates/aptos-logger",
+        "crates/short-hex-str",
+        "execution/executor-types",
+        "types"
+      ]
+    },
+    "crates/short-hex-str": {
+      "name": "aptos-short-hex-str",
+      "local_dependencies": []
+    },
+    "execution/executor-types": {
+      "name": "aptos-executor-types",
+      "local_dependencies": [
+        "crates/aptos-crypto",
+        "crates/aptos-drop-helper",
+        "crates/aptos-infallible",
+        "crates/aptos-metrics-core",
+        "secure/net",
+        "storage/scratchpad",
+        "storage/storage-interface",
+        "types"
+      ]
+    },
+    "storage/storage-interface": {
+      "name": "aptos-storage-interface",
+      "local_dependencies": [
+        "aptos-move/aptos-vm",
+        "crates/aptos-crypto",
+        "crates/aptos-drop-helper",
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "experimental/runtimes",
+        "secure/net",
+        "storage/scratchpad",
+        "types"
+      ]
+    },
+    "aptos-move/aptos-vm": {
+      "name": "aptos-vm",
+      "local_dependencies": [
+        "aptos-move/aptos-aggregator",
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-meter",
+        "aptos-move/aptos-gas-schedule",
+        "aptos-move/aptos-memory-usage-tracker",
+        "aptos-move/aptos-native-interface",
+        "aptos-move/aptos-vm-environment",
+        "aptos-move/aptos-vm-logging",
+        "aptos-move/aptos-vm-types",
+        "aptos-move/block-executor",
+        "aptos-move/framework",
+        "aptos-move/framework/table-natives",
+        "aptos-move/mvhashmap",
+        "aptos-utils",
+        "crates/aptos-crypto",
+        "crates/aptos-crypto-derive",
+        "crates/aptos-infallible",
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "execution/block-partitioner",
+        "experimental/runtimes",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/metrics",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "third_party/move/tools/move-unit-test",
+        "types"
+      ]
+    },
+    "third_party/move/tools/move-unit-test": {
+      "name": "move-unit-test",
+      "local_dependencies": [
+        "third_party/move/evm/exec-utils",
+        "third_party/move/evm/move-to-yul",
+        "third_party/move/extensions/move-table-extension",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-compiler-v2",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-model",
+        "third_party/move/move-stdlib",
+        "third_party/move/move-symbol-pool",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/test-utils",
+        "third_party/move/move-vm/types",
+        "third_party/move/tools/move-bytecode-utils",
+        "third_party/move/tools/move-package",
+        "third_party/move/tools/move-resource-viewer"
+      ]
+    },
+    "third_party/move/move-vm/test-utils": {
+      "name": "move-vm-test-utils",
+      "local_dependencies": [
+        "third_party/move/extensions/move-table-extension",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/types",
+        "third_party/move/tools/move-bytecode-utils"
+      ]
+    },
+    "third_party/move/tools/move-bytecode-utils": {
+      "name": "move-bytecode-utils",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types"
+      ]
+    },
+    "third_party/move/evm/move-to-yul": {
+      "name": "move-to-yul",
+      "local_dependencies": [
+        "third_party/move/evm/move-ethereum-abi",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode"
+      ]
+    },
+    "third_party/move/move-model/bytecode": {
+      "name": "move-stackless-bytecode",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode/abstract_domain_derive"
+      ]
+    },
+    "third_party/move/move-model": {
+      "name": "move-model",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-symbol-pool",
+        "third_party/move/tools/move-disassembler"
+      ]
+    },
+    "third_party/move/move-symbol-pool": {
+      "name": "move-symbol-pool",
+      "local_dependencies": []
+    },
+    "third_party/move/move-ir/types": {
+      "name": "move-ir-types",
+      "local_dependencies": [
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-symbol-pool"
+      ]
+    },
+    "third_party/move/move-command-line-common": {
+      "name": "move-command-line-common",
+      "local_dependencies": [
+        "third_party/move/move-core/types"
+      ]
+    },
+    "third_party/move/tools/move-disassembler": {
+      "name": "move-disassembler",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-ir/types",
+        "third_party/move/tools/move-coverage"
+      ]
+    },
+    "third_party/move/tools/move-coverage": {
+      "name": "move-coverage",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-ir/types"
+      ]
+    },
+    "third_party/move/move-ir-compiler/move-bytecode-source-map": {
+      "name": "move-bytecode-source-map",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-symbol-pool"
+      ]
+    },
+    "third_party/move/move-compiler": {
+      "name": "move-compiler",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-borrow-graph",
+        "third_party/move/move-bytecode-verifier",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-ir-compiler/move-ir-to-bytecode",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-symbol-pool"
+      ]
+    },
+    "third_party/move/move-ir-compiler/move-ir-to-bytecode": {
+      "name": "move-ir-to-bytecode",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-ir-compiler/move-ir-to-bytecode/syntax",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-symbol-pool"
+      ]
+    },
+    "third_party/move/move-ir-compiler/move-ir-to-bytecode/syntax": {
+      "name": "move-ir-to-bytecode-syntax",
+      "local_dependencies": [
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-symbol-pool"
+      ]
+    },
+    "third_party/move/move-model/bytecode/abstract_domain_derive": {
+      "name": "abstract-domain-derive",
+      "local_dependencies": []
+    },
+    "third_party/move/evm/move-ethereum-abi": {
+      "name": "move-ethereum-abi",
+      "local_dependencies": []
+    },
+    "third_party/move/move-stdlib": {
+      "name": "move-stdlib",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-prover",
+        "third_party/move/move-prover/move-docgen",
+        "third_party/move/move-prover/move-errmapgen",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types"
+      ]
+    },
+    "third_party/move/move-prover": {
+      "name": "move-prover",
+      "local_dependencies": [
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-compiler-v2",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode",
+        "third_party/move/move-prover/boogie-backend",
+        "third_party/move/move-prover/bytecode-pipeline",
+        "third_party/move/move-prover/move-abigen",
+        "third_party/move/move-prover/move-docgen",
+        "third_party/move/move-prover/move-errmapgen"
+      ]
+    },
+    "third_party/move/move-prover/bytecode-pipeline": {
+      "name": "move-prover-bytecode-pipeline",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode",
+        "third_party/move/move-model/bytecode/abstract_domain_derive"
+      ]
+    },
+    "third_party/move/move-prover/boogie-backend": {
+      "name": "move-prover-boogie-backend",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode",
+        "third_party/move/move-prover/bytecode-pipeline"
+      ]
+    },
+    "third_party/move/move-prover/move-errmapgen": {
+      "name": "move-errmapgen",
+      "local_dependencies": [
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model"
+      ]
+    },
+    "third_party/move/move-prover/move-docgen": {
+      "name": "move-docgen",
+      "local_dependencies": [
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model"
+      ]
+    },
+    "third_party/move/move-compiler-v2": {
+      "name": "move-compiler-v2",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-borrow-graph",
+        "third_party/move/move-bytecode-verifier",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-ir/types",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode",
+        "third_party/move/move-model/bytecode/abstract_domain_derive",
+        "third_party/move/move-symbol-pool",
+        "third_party/move/tools/move-disassembler"
+      ]
+    },
+    "third_party/move/move-prover/move-abigen": {
+      "name": "move-abigen",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-bytecode-verifier",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model"
+      ]
+    },
+    "third_party/move/tools/move-resource-viewer": {
+      "name": "move-resource-viewer",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/tools/move-bytecode-utils"
+      ]
+    },
+    "third_party/move/tools/move-package": {
+      "name": "move-package",
+      "local_dependencies": [
+        "third_party/move/evm/exec-utils",
+        "third_party/move/evm/move-to-yul",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-compiler-v2",
+        "third_party/move/move-core/types",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/move-model",
+        "third_party/move/move-prover/move-abigen",
+        "third_party/move/move-prover/move-docgen",
+        "third_party/move/move-symbol-pool",
+        "third_party/move/tools/move-bytecode-utils"
+      ]
+    },
+    "third_party/move/evm/exec-utils": {
+      "name": "evm-exec-utils",
+      "local_dependencies": [
+        "third_party/move/move-command-line-common"
+      ]
+    },
+    "aptos-move/aptos-vm-types": {
+      "name": "aptos-vm-types",
+      "local_dependencies": [
+        "aptos-move/aptos-aggregator",
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-schedule",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/aptos-gas-schedule": {
+      "name": "aptos-gas-schedule",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-algebra",
+        "config/global-constants",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/types"
+      ]
+    },
+    "config/global-constants": {
+      "name": "aptos-global-constants",
+      "local_dependencies": []
+    },
+    "aptos-move/aptos-gas-algebra": {
+      "name": "aptos-gas-algebra",
+      "local_dependencies": [
+        "third_party/move/move-core/types"
+      ]
+    },
+    "aptos-move/aptos-aggregator": {
+      "name": "aptos-aggregator",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/aptos-vm-logging": {
+      "name": "aptos-vm-logging",
+      "local_dependencies": [
+        "crates/aptos-crypto",
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "crates/aptos-speculative-state-helper",
+        "types"
+      ]
+    },
+    "crates/aptos-speculative-state-helper": {
+      "name": "aptos-speculative-state-helper",
+      "local_dependencies": [
+        "crates/aptos-infallible"
+      ]
+    },
+    "aptos-move/aptos-vm-environment": {
+      "name": "aptos-vm-environment",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-schedule",
+        "aptos-move/aptos-native-interface",
+        "aptos-move/aptos-vm-types",
+        "aptos-move/framework",
+        "aptos-move/framework/move-stdlib",
+        "aptos-move/framework/table-natives",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-bytecode-verifier",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/framework/table-natives": {
+      "name": "aptos-table-natives",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-schedule",
+        "aptos-move/aptos-native-interface",
+        "third_party/move/extensions/move-table-extension",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types"
+      ]
+    },
+    "aptos-move/aptos-native-interface": {
+      "name": "aptos-native-interface",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-schedule",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/framework/move-stdlib": {
+      "name": "aptos-move-stdlib",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-schedule",
+        "aptos-move/aptos-native-interface",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/framework": {
+      "name": "aptos-framework",
+      "local_dependencies": [
+        "aptos-move/aptos-aggregator",
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-schedule",
+        "aptos-move/aptos-native-interface",
+        "aptos-move/aptos-sdk-builder",
+        "aptos-move/aptos-vm-types",
+        "aptos-move/framework/move-stdlib",
+        "crates/aptos-crypto",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-compiler-v2",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model",
+        "third_party/move/move-model/bytecode",
+        "third_party/move/move-prover",
+        "third_party/move/move-prover/boogie-backend",
+        "third_party/move/move-prover/bytecode-pipeline",
+        "third_party/move/move-prover/move-docgen",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "third_party/move/tools/move-cli",
+        "third_party/move/tools/move-package",
+        "types"
+      ]
+    },
+    "third_party/move/tools/move-cli": {
+      "name": "move-cli",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-command-line-common",
+        "third_party/move/move-compiler",
+        "third_party/move/move-compiler-v2",
+        "third_party/move/move-core/types",
+        "third_party/move/move-model",
+        "third_party/move/move-prover",
+        "third_party/move/move-prover/move-docgen",
+        "third_party/move/move-prover/move-errmapgen",
+        "third_party/move/move-stdlib",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/test-utils",
+        "third_party/move/tools/move-bytecode-viewer",
+        "third_party/move/tools/move-coverage",
+        "third_party/move/tools/move-disassembler",
+        "third_party/move/tools/move-package",
+        "third_party/move/tools/move-unit-test"
+      ]
+    },
+    "third_party/move/tools/move-bytecode-viewer": {
+      "name": "move-bytecode-viewer",
+      "local_dependencies": [
+        "third_party/move/move-binary-format",
+        "third_party/move/move-ir-compiler/move-bytecode-source-map",
+        "third_party/move/tools/move-disassembler"
+      ]
+    },
+    "aptos-move/aptos-sdk-builder": {
+      "name": "aptos-sdk-builder",
+      "local_dependencies": [
+        "third_party/move/move-core/types",
+        "types"
+      ]
+    },
+    "aptos-utils": {
+      "name": "aptos-utils",
+      "local_dependencies": []
+    },
+    "aptos-move/mvhashmap": {
+      "name": "aptos-mvhashmap",
+      "local_dependencies": [
+        "aptos-move/aptos-aggregator",
+        "aptos-move/aptos-vm-types",
+        "crates/aptos-crypto",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/aptos-memory-usage-tracker": {
+      "name": "aptos-memory-usage-tracker",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-meter",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "aptos-move/aptos-gas-meter": {
+      "name": "aptos-gas-meter",
+      "local_dependencies": [
+        "aptos-move/aptos-gas-algebra",
+        "aptos-move/aptos-gas-schedule",
+        "aptos-move/aptos-vm-types",
+        "crates/aptos-logger",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "experimental/runtimes": {
+      "name": "aptos-experimental-runtimes",
+      "local_dependencies": [
+        "crates/aptos-runtimes"
+      ]
+    },
+    "execution/block-partitioner": {
+      "name": "aptos-block-partitioner",
+      "local_dependencies": [
+        "crates/aptos-crypto",
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "third_party/move/move-core/types",
+        "types"
+      ]
+    },
+    "aptos-move/block-executor": {
+      "name": "aptos-block-executor",
+      "local_dependencies": [
+        "aptos-move/aptos-aggregator",
+        "aptos-move/aptos-vm-environment",
+        "aptos-move/aptos-vm-logging",
+        "aptos-move/aptos-vm-types",
+        "aptos-move/mvhashmap",
+        "crates/aptos-drop-helper",
+        "crates/aptos-infallible",
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "third_party/move/move-binary-format",
+        "third_party/move/move-core/types",
+        "third_party/move/move-vm/runtime",
+        "third_party/move/move-vm/types",
+        "types"
+      ]
+    },
+    "crates/aptos-drop-helper": {
+      "name": "aptos-drop-helper",
+      "local_dependencies": [
+        "crates/aptos-infallible",
+        "crates/aptos-metrics-core"
+      ]
+    },
+    "secure/net": {
+      "name": "aptos-secure-net",
+      "local_dependencies": [
+        "crates/aptos-logger",
+        "crates/aptos-metrics-core",
+        "protos/rust"
+      ]
+    },
+    "protos/rust": {
+      "name": "aptos-protos",
+      "local_dependencies": []
+    },
+    "storage/scratchpad": {
+      "name": "aptos-scratchpad",
+      "local_dependencies": [
+        "crates/aptos-crypto",
+        "crates/aptos-drop-helper",
+        "crates/aptos-infallible",
+        "crates/aptos-metrics-core",
+        "experimental/runtimes",
+        "types"
+      ]
+    },
+    "crates/channel": {
+      "name": "aptos-channels",
+      "local_dependencies": [
+        "crates/aptos-infallible",
+        "crates/aptos-metrics-core"
+      ]
+    }
+  },
+  "external_dependency_names": [
+    "aes-gcm",
+    "ambassador",
+    "anyhow",
+    "arbitrary",
+    "arc-swap",
+    "ark-bls12-381",
+    "ark-bn254",
+    "ark-ec",
+    "ark-ff",
+    "ark-groth16",
+    "ark-relations",
+    "ark-serialize",
+    "ark-std",
+    "arr_macro",
+    "async-trait",
+    "atty",
+    "backtrace",
+    "base64",
+    "bcs",
+    "better_any",
+    "bitvec",
+    "blake2-rfc",
+    "blst",
+    "blstrs",
+    "bulletproofs",
+    "byteorder",
+    "bytes",
+    "chrono",
+    "claims",
+    "clap",
+    "codespan",
+    "codespan-reporting",
+    "colored",
+    "concurrent-queue",
+    "console-subscriber",
+    "core_affinity",
+    "criterion",
+    "crossbeam",
+    "crossbeam-channel",
+    "crossterm",
+    "curve25519-dalek",
+    "curve25519-dalek-ng",
+    "dashmap",
+    "dearbitrary",
+    "defaultmap",
+    "derivative",
+    "derive_more",
+    "difference",
+    "digest",
+    "dirs-next",
+    "ed25519-dalek",
+    "either",
+    "erased-serde",
+    "ethabi",
+    "ethnum",
+    "evm",
+    "evm-runtime",
+    "fail",
+    "ff",
+    "fixed",
+    "flate2",
+    "flexi_logger",
+    "futures",
+    "futures-channel",
+    "futures-core",
+    "fxhash",
+    "group",
+    "hashbrown",
+    "heck",
+    "hex",
+    "hkdf",
+    "hostname",
+    "im",
+    "indexmap",
+    "internment",
+    "itertools",
+    "jemallocator",
+    "jsonwebtoken",
+    "lazy_static",
+    "libc",
+    "libsecp256k1",
+    "log",
+    "lru",
+    "maplit",
+    "merlin",
+    "mini-moka",
+    "mirai-annotations",
+    "more-asserts",
+    "named-lock",
+    "nanovec",
+    "neptune",
+    "num",
+    "num-bigint",
+    "num-derive",
+    "num-integer",
+    "num-traits",
+    "num_cpus",
+    "once_cell",
+    "ouroboros",
+    "p256",
+    "pairing",
+    "parking_lot",
+    "passkey-types",
+    "paste",
+    "pbjson",
+    "petgraph",
+    "poem-openapi",
+    "poem-openapi-derive",
+    "poseidon-ark",
+    "pretty",
+    "primitive-types",
+    "proc-macro2",
+    "prometheus",
+    "proptest",
+    "proptest-derive",
+    "prost",
+    "quick_cache",
+    "quote",
+    "rand",
+    "rand_core",
+    "rand_distr",
+    "rayon",
+    "ref-cast",
+    "regex",
+    "ring",
+    "ripemd",
+    "rsa",
+    "scopeguard",
+    "serde",
+    "serde-big-array",
+    "serde-generate",
+    "serde-name",
+    "serde-reflection",
+    "serde_bytes",
+    "serde_json",
+    "serde_with",
+    "serde_yaml",
+    "sha2",
+    "sha2_0_10_6",
+    "sha3",
+    "signature",
+    "simplelog",
+    "siphasher",
+    "smallbitvec",
+    "smallvec",
+    "static_assertions",
+    "strum",
+    "strum_macros",
+    "syn",
+    "tempfile",
+    "tera",
+    "termcolor",
+    "textwrap",
+    "thiserror",
+    "threadpool",
+    "tiny-keccak",
+    "tokio",
+    "toml",
+    "tonic",
+    "tonic-reflection",
+    "topological-sort",
+    "tracing",
+    "tracing-subscriber",
+    "triomphe",
+    "try_match",
+    "tui",
+    "typed-arena",
+    "typenum",
+    "uint",
+    "variant_count",
+    "walkdir",
+    "whoami",
+    "x25519-dalek"
+  ]
+}

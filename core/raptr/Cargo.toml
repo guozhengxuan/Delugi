@@ -1,0 +1,23 @@
+[package]
+name = "delugi-raptr-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+description = "Source-mapped Raptr application output contract; native core extraction in progress"
+
+[workspace]
+
+[dependencies]
+delugi-shared-output = { path = "../../shared/output" }
+
+[lib]
+path = "src/lib.rs"
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

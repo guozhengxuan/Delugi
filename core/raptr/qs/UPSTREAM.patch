@@ -1,0 +1,264 @@
+--- a/src/quorum_store/batch_generator.rs
++++ b/src/quorum_store/batch_generator.rs
+@@ -18,7 +18,7 @@
+ };
+ use aptos_experimental_runtimes::thread_manager::optimal_min_len;
+ use aptos_logger::prelude::*;
+-use aptos_mempool::QuorumStoreRequest;
++use crate::mempool::QuorumStoreRequest;
+ use aptos_types::{transaction::SignedTransaction, PeerId};
+ use futures_channel::mpsc::Sender;
+ use rayon::prelude::*;
+--- a/src/quorum_store/batch_requester.rs
++++ b/src/quorum_store/batch_requester.rs
+@@ -142,7 +142,7 @@
+                                 counters::RECEIVED_BATCH_NOT_FOUND_COUNT.inc();
+                                 if ledger_info.commit_info().epoch() == epoch
+                                     && ledger_info.commit_info().timestamp_usecs() > expiration
+-                                    && ledger_info.verify_signatures(&validator_verifier).is_ok()
++                                    && shared_crypto_aptos::native_validation(|| ledger_info.verify_signatures(&validator_verifier)).is_ok()
+                                 {
+                                     counters::RECEIVED_BATCH_EXPIRED_COUNT.inc();
+                                     debug!("QS: batch request expired, digest:{}", digest);
+--- a/src/quorum_store/batch_store.rs
++++ b/src/quorum_store/batch_store.rs
+@@ -389,7 +389,7 @@
+                 aptos_crypto::bls12381::Signature::dummy_signature(),
+             ))
+         });
+-        SignedBatchInfo::new(batch_info, &self.validator_signer)
++        shared_crypto_aptos::native_signing(|| SignedBatchInfo::new(batch_info, &self.validator_signer))
+     }
+ 
+     fn persist_inner(&self, persist_request: PersistedValue) -> Option<SignedBatchInfo> {
+--- a/src/quorum_store/proof_coordinator.rs
++++ b/src/quorum_store/proof_coordinator.rs
+@@ -142,10 +142,7 @@
+         if self.completed {
+             panic!("Cannot call take twice, unexpected issue occurred");
+         }
+-        match self
+-            .signature_aggregator
+-            .aggregate_and_verify(validator_verifier)
+-        {
++        match shared_crypto_aptos::native_validation(|| self.signature_aggregator.aggregate_and_verify(validator_verifier)) {
+             Ok((batch_info, aggregated_sig)) => {
+                 self.completed = true;
+                 Ok(ProofOfStore::new(batch_info, aggregated_sig))
+--- a/src/quorum_store/types.rs
++++ b/src/quorum_store/types.rs
+@@ -118,6 +118,80 @@
+             empty_batch_payload.num_bytes() + 127,
+             config::BATCH_PADDING_BYTES
+         );
++    }
++
++    #[test]
++    fn exact_layout_reconstruction_with_variable_native_authenticators() {
++        use super::*;
++        use aptos_crypto::{ed25519::Ed25519PrivateKey, PrivateKey, SigningKey, Uniform};
++        use aptos_types::{
++            chain_id::ChainId,
++            transaction::{
++                authenticator::AccountAuthenticator, RawTransaction, Script, TransactionPayload,
++            },
++        };
++        fn prefix(mut n: usize) -> Vec<u8> {
++            let mut bytes = Vec::new();
++            loop {
++                let byte = (n & 127) as u8;
++                n >>= 7;
++                bytes.push(if n == 0 { byte } else { byte | 128 });
++                if n == 0 {
++                    return bytes;
++                }
++            }
++        }
++        let private = Ed25519PrivateKey::generate_for_testing();
++        let public = private.public_key();
++        let mut txns = Vec::new();
++        for size in [0, 1, 127, 128, 1024] {
++            let raw = RawTransaction::new(
++                PeerId::ZERO,
++                size as u64,
++                TransactionPayload::Script(Script::new(vec![7; size], vec![], vec![])),
++                1,
++                1,
++                10,
++                ChainId::new(10),
++            );
++            let signature = private.sign(&raw).unwrap();
++            txns.push(SignedTransaction::new(
++                raw.clone(),
++                public.clone(),
++                signature.clone(),
++            ));
++            txns.push(SignedTransaction::new_multi_agent(
++                raw,
++                AccountAuthenticator::ed25519(public.clone(), signature.clone()),
++                vec![PeerId::from_hex_literal("0x1").unwrap()],
++                vec![AccountAuthenticator::ed25519(
++                    public.clone(),
++                    signature.clone(),
++                )],
++            ));
++        }
++        let msg = BatchMsg::new(vec![
++            Batch::new(BatchId::new_for_test(1), vec![], 1, 1000, PeerId::ZERO, 0),
++            Batch::new(BatchId::new_for_test(2), txns, 1, 1000, PeerId::ZERO, 0),
++        ]);
++        let encoded = msg.encode_with_payload_ranges().unwrap();
++        let mut reconstructed = prefix(msg.batches.len());
++        let mut expected_ranges = Vec::new();
++        for batch in &msg.batches {
++            reconstructed.extend(bcs::to_bytes(&batch.batch_info).unwrap());
++            reconstructed.extend(bcs::to_bytes(&batch.payload.author()).unwrap());
++            reconstructed.extend(prefix(batch.payload.txns().len()));
++            for txn in batch.payload.txns() {
++                let start = reconstructed.len();
++                let raw = bcs::to_bytes(txn).unwrap();
++                assert_eq!(bcs::serialized_size(txn).unwrap(), raw.len());
++                reconstructed.extend(raw);
++                expected_ranges.push(start..reconstructed.len());
++            }
++        }
++        assert_eq!(reconstructed, bcs::to_bytes(&msg).unwrap());
++        assert_eq!(encoded.bytes, reconstructed);
++        assert_eq!(encoded.transaction_ranges, expected_ranges);
+     }
+ }
+ 
+@@ -278,7 +352,47 @@
+     batches: Vec<Batch>,
+ }
+ 
++/// Exact native BCS encoding with transaction byte spans. Batch descriptors,
++/// author fields and vector length prefixes remain control/evidence bytes.
++/// These are encoded SignedTransaction bytes, not application useful bytes.
++pub struct EncodedBatchMessage {
++    pub bytes: Vec<u8>,
++    pub transaction_ranges: Vec<std::ops::Range<usize>>,
++}
++
+ impl BatchMsg {
++    pub fn encode_with_payload_ranges(&self) -> anyhow::Result<EncodedBatchMessage> {
++        fn sequence_prefix_length(length: usize) -> anyhow::Result<usize> {
++            let mut n = u32::try_from(length)?;
++            let mut bytes = 1;
++            while n >= 128 {
++                n >>= 7;
++                bytes += 1;
++            }
++            Ok(bytes)
++        }
++        let bytes = bcs::to_bytes(self)?;
++        let mut offset = sequence_prefix_length(self.batches.len())?;
++        let mut transaction_ranges = Vec::new();
++        for batch in &self.batches {
++            offset += bcs::serialized_size(&batch.batch_info)?;
++            offset += bcs::serialized_size(&batch.payload.author())?;
++            offset += sequence_prefix_length(batch.payload.txns().len())?;
++            for transaction in batch.payload.txns() {
++                let end = offset
++                    .checked_add(bcs::serialized_size(transaction)?)
++                    .ok_or_else(|| anyhow::anyhow!("native BCS offset overflow"))?;
++                transaction_ranges.push(offset..end);
++                offset = end;
++            }
++        }
++        ensure!(offset == bytes.len(), "native BatchMsg BCS layout changed");
++        Ok(EncodedBatchMessage {
++            bytes,
++            transaction_ranges,
++        })
++    }
++
+     pub fn new(batches: Vec<Batch>) -> Self {
+         Self { batches }
+     }
+--- a/src/quorum_store/utils.rs
++++ b/src/quorum_store/utils.rs
+@@ -7,7 +7,7 @@
+     proof_of_store::{BatchId, BatchInfo},
+ };
+ use aptos_logger::prelude::*;
+-use aptos_mempool::{QuorumStoreRequest, QuorumStoreResponse};
++use crate::mempool::{QuorumStoreRequest, QuorumStoreResponse};
+ use aptos_types::{transaction::SignedTransaction, PeerId};
+ use chrono::Utc;
+ use futures::channel::{mpsc::Sender, oneshot};
+--- a/src/liveness/proposal_status_tracker.rs
++++ b/src/liveness/proposal_status_tracker.rs
+@@ -65,7 +65,7 @@
+ }
+ 
+ impl ExponentialWindowFailureTracker {
+-    pub(crate) fn new(max_window: usize, ordered_authors: Vec<Author>) -> Self {
++    pub fn new(max_window: usize, ordered_authors: Vec<Author>) -> Self {
+         Self {
+             window: 2,
+             max_window,
+@@ -204,7 +204,7 @@
+     use crate::liveness::round_state::NewRoundReason;
+     use aptos_bitvec::BitVec;
+     use aptos_consensus_types::round_timeout::RoundTimeoutReason;
+-    use aptos_types::validator_verifier::random_validator_verifier;
++    use crate::test_utils::random_validator_verifier;
+ 
+     #[test]
+     fn test_exponential_window_failure_tracker() {
+--- a/src/payload_manager/mod.rs
++++ b/src/payload_manager/mod.rs
+@@ -12,13 +12,9 @@
+ use async_trait::async_trait;
+ use std::time::Duration;
+ 
+-mod co_payload_manager;
+-mod direct_mempool_payload_manager;
+ mod quorum_store_payload_manager;
+ 
+-pub use co_payload_manager::ConsensusObserverPayloadManager;
+-pub use direct_mempool_payload_manager::DirectMempoolPayloadManager;
+-pub use quorum_store_payload_manager::{QuorumStoreCommitNotifier, QuorumStorePayloadManager};
++pub use quorum_store_payload_manager::{QuorumStoreCommitNotifier, QuorumStorePayloadManager, TQuorumStoreCommitNotifier};
+ 
+ /// A trait that defines the interface for a payload manager. The payload manager is responsible for
+ /// resolving the transactions in a block's payload.
+--- a/src/payload_manager/quorum_store_payload_manager.rs
++++ b/src/payload_manager/quorum_store_payload_manager.rs
+@@ -2,11 +2,7 @@
+ // SPDX-License-Identifier: Apache-2.0
+ 
+ use crate::{
+-    consensus_observer::{
+-        network::observer_message::{BlockTransactionPayload, ConsensusObserverMessage},
+-        observer::payload_store::BlockPayloadStatus,
+-        publisher::consensus_publisher::ConsensusPublisher,
+-    },
++    payload_metadata::BlockTransactionPayload,
+     counters, monitor,
+     payload_manager::TPayloadManager,
+     quorum_store::{batch_store::BatchReader, quorum_store_coordinator::CoordinatorCommand},
+@@ -61,7 +57,6 @@
+ pub struct QuorumStorePayloadManager {
+     batch_reader: Arc<dyn BatchReader>,
+     commit_notifier: Box<dyn TQuorumStoreCommitNotifier>,
+-    maybe_consensus_publisher: Option<Arc<ConsensusPublisher>>,
+     ordered_authors: Vec<PeerId>,
+     address_to_validator_index: HashMap<PeerId, usize>,
+ }
+@@ -70,14 +65,12 @@
+     pub fn new(
+         batch_reader: Arc<dyn BatchReader>,
+         commit_notifier: Box<dyn TQuorumStoreCommitNotifier>,
+-        maybe_consensus_publisher: Option<Arc<ConsensusPublisher>>,
+         ordered_authors: Vec<PeerId>,
+         address_to_validator_index: HashMap<PeerId, usize>,
+     ) -> Self {
+         Self {
+             batch_reader,
+             commit_notifier,
+-            maybe_consensus_publisher,
+             ordered_authors,
+             address_to_validator_index,
+         }

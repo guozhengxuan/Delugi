@@ -1,0 +1,19 @@
+Native Aptos crypto execution profile
+
+The backend is the exact Aptos BLS12-381/SHA3/BCS dependency closure pinned by
+Raptr a4c98047cf8aeae3571168d02fb7e343140d2948. Paths reuse the clean archived
+source; no modified baseline observer module enters this dependency graph.
+Callers retain all signature domains, validator ordering, tags, threshold and
+cache policy. Native deterministic prototype tag-key derivation is unchanged.
+
+Primitive functions execute native signing, verification, aggregation and
+hashing inside shared operation scopes. native_validation is an enclosing scope
+for compatibility methods that combine policy and crypto internally; it does
+not claim every nested primitive has an individually measured counter. Counts
+and elapsed time can be nested and must not be added together. BCS functions
+preserve native canonical bytes and do not add an envelope/domain.
+
+Delugi continues using Ed25519/SHA256. Sharing the service mechanism does not
+claim identical cryptographic algorithms or costs. A common backend label
+requires the routing audit and conformance fixtures; no live acceptance follows
+from this module's existence alone.

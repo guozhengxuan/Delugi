@@ -1,0 +1,124 @@
+Raptr application output contract v1 — 2026-10-21
+
+Status
+The output crate is the first executable contract for the approved shared-core
+port. Its only dependency is the generic shared/output queue. Its tests establish
+output ordering, bounded reservations and descriptor layout; they do not establish
+live Raptr acceptance. No simulator types are used. source-map.json is the
+historical audited pin; native-port-map.json records current extracted source.
+The native/ subcrate separately preserves the real protocol and Aptos types. Its
+bounded offline dependency check passed; service integration and live QS gates
+are tracked separately from the pure output tests.
+
+Input and trust boundary
+The unchanged native commit_qc_impl emits committed payload slices parent first.
+A new block uses with_prefix(p): it includes proofs and subblocks [0,p), even
+when p=0 or the proof list is empty. A later prefix extension uses
+take_sub_blocks(p,q): it excludes proofs and retains original indices [p,q).
+N_SUB_BLOCKS is exactly 8 in the pinned artifact. CommitSlice must be built from
+these outputs, never from a proposal, fetched data or a claimed commit message.
+The source adapter must explicitly retain include_proofs; proofs().is_empty()
+does not distinguish a proof-only empty initial section from an extension.
+
+Block identity binds native hash, signed i64 round, epoch and full author. A new
+round may skip rounds; a later block does not require its parent's entire eight
+subblocks to have committed. Prefix extension must remain contiguous within the
+same block, and a same-round alternative hash is rejected. Exact repeated
+adapter callbacks are idempotent; native repeated QC processing ordinarily emits
+no slice. Conflicting or overlapping nonidentical callbacks are errors, not a
+new ordering decision.
+
+Canonical output
+Reserve sections synchronously in core commit order, before starting fetches:
+  Proofs(block), SubBlock(block,0), ..., SubBlock(block,p-1)
+and append SubBlock(block,p), ..., SubBlock(block,q-1) on extension.
+Each section retains every native batch in its given order, including empty
+sections, empty batches, foreign/unknown transactions, and repeated batches.
+Different committed blocks are never sorted or merged by fetch completion.
+
+The exact native QS batch key is (epoch, full 32-byte author, BatchId.nonce,
+BatchId.id, full 32-byte payload digest). BatchInfo additionally retains signed
+expiration, transaction count, native serialized payload bytes and gas bucket.
+BCS fields are author[32], idLE64, nonceLE64, epochLE64, expirationLE64,
+digest[32], countLE64, bytesLE64, gasLE64: 120 bytes. Renewed expiration does not
+create a new payload identity. Equal exact keys must retain equal count/size.
+The first-occurrence flag supports M_out; it does not remove raw occurrences.
+No request eligibility, useful-byte accounting or transaction deduplication is
+performed here. Those are common application endpoint responsibilities.
+
+Native fetch join
+The pinned get_transactions path returns selected SUBBLOCKS FIRST and proofs
+last. resolve_native_fetch splits that actual vector by each declared BatchInfo
+transaction count, verifies every slice's native BatchPayload(author, txns)
+digest/count/serialized size, then moves the payloads into canonical proof-first
+sections. It does not clone transaction bodies. BatchPayloadVerifier must compute
+facts from actual native BCS through shared crypto; echoing expected fields is
+not a verifier. A future native adapter must reject an incompatible expiry/skip
+path, rather than reslice a shorter result as though all descriptors resolved.
+
+All sections of one finite reservation are validated before publication. Ready
+later reservations stay behind an unresolved earlier reservation. take_ready
+publishes complete sections and preserves original indices, so splitting a
+commit into any legal sequence of prefix extensions has the same exact trace as
+committing that prefix once. The current synchronous finite harness publishes a
+ready reservation atomically. Future asynchronous integration may freeze between
+complete sections; it must not emit a section marker and stop midway through
+that section's declared batches.
+
+Failure, deadline and resource boundaries
+Capacity/count/digest/size/shape errors leave reservation state unchanged. These
+are application adapter failures and must not panic or rewrite native consensus.
+Limits bound retained slices, section/batch metadata and declared pending native
+payload bytes/transactions. Resolved-but-unpublished payload remains charged.
+The caller owns transport/fetch allocation before passing a Vec; this contract
+does not claim a bound on that external allocation or arbitrary T object size.
+Descriptor size is native encoded payload size, not process heap size. Retained
+published metadata counts toward the finite limits; long-lived retention/GC is
+not implemented by this finite harness.
+
+freeze is an independent control operation, not a fetch-triggered callback.
+It preserves the already published complete prefix even for empty workloads or
+an unresolved head, exposes resolved/unresolved pending counts, and rejects late
+results. A real shared runtime must schedule this control even when native
+fetches never finish, retain the snapshot and allow native protocol work to
+continue independently. No latency is synthesized for censored output.
+
+Required shared interfaces (not yet wired)
+1. Core-ordered opaque plan registration and stable per-operation ticket. The
+   correlation/run/actor ID is out-of-band; native block/batch bytes do not change.
+2. Exact native payload inspection via the shared crypto executor and native
+   BCS/hash domain adapter; signature and ProofOfStore verification remains real.
+3. Keyed asynchronous resolution, complete-section output publication, independent
+   deadline/control delivery and terminal failure/unfinished evidence.
+4. Shared application admission/identity verifier receives raw ordered outputs;
+   only it decides useful credit or exact request deduplication. Shared output
+   must not derive order or remove raw native duplicates itself.
+
+Source-preserving extraction sequence
+A. Keep raptr/protocol.rs, its protocol! handlers, certificate validation and
+   run_ctx event-handler-plus-condition fixed point intact. Implement the existing
+   Context/NetworkService/TimerService seam using shared services. This preserves
+   one serialized core mutation stream; it is not a manual rewrite into another
+   consensus engine. Explicitly decide verified-message queue/backpressure and
+   timer-tie semantics before altering their observable scheduling behavior.
+B. Initially retain native Aptos type/BCS/BLS compatibility modules. Reducing the
+   dependency graph is separate from altering signed structures. All actual
+   crypto/IO must route through shared services before the port earns that label.
+C. Move the REAL QS policy side behind DisseminationLayer: certified/optimistic
+   selection, eight-subblock splitting, availability prefix/missing-author
+   feedback, adaptive exclusions, request peer rotation/retries and persistence
+   acknowledgment/expiry/GC policy. Share queue/batching/store/transport mechanics
+   without replacing these policies with one generic DA algorithm. Do not use
+   simulator dissemination/native.rs or its penalty tracker as the native port.
+D. Bind the native committed slices to this materializer, and add native BCS/hash
+   cross-checks and original-vs-port trace tests before a four-process comparison.
+   Keeping only the handler source unchanged does not alone prove port fidelity.
+
+Executed focused validation
+10 standalone Rust tests pass. The partition test enumerates 128 partitions of
+eight subblocks, both with and without a proof-only first commit (256 cases),
+resolving fetches in reverse order. Other fixtures cover empty sections/batches,
+repeated native batches and unknown transactions, duplicate callbacks, blocked
+cross-round publication, invalid extensions/forks/descriptors/fetches, atomic
+capacity rejection and independently frozen unfinished output. The test verifier
+is explicitly a deterministic fixture verifier, not a cryptographic/native one.

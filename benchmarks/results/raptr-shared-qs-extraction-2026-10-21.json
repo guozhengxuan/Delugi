@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "status": "policy_and_backend_tests_passed",
+  "date": "2026-10-21",
+  "upstream_revision": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "implementation": "core/raptr/qs",
+  "source_manifest": {
+    "path": "results/local/shared-core-20261021/raptr-qs-check-1/sources-final.json",
+    "sha256": "864dab6be84e7ef6b85aa96d52e30d4b845d3b8839a1de9155dbcc917efded0e"
+  },
+  "source_map": {
+    "path": "core/raptr/qs/UPSTREAM.json",
+    "sha256": "c79364bf13262fff3f389c1cdbd63a8af3634e0841139fcd27d86b02de816c58",
+    "whole_files": 21,
+    "byte_identical_whole_files": 12,
+    "complete_diff_sha256": "bbebdc0bbd91e6d4a3078e9835fbddbfff026b499a36834eba2c8ce3ee2a999c"
+  },
+  "validation": {
+    "tests_passed": 13,
+    "tests_failed": 0,
+    "tests_ignored": 0,
+    "actual_rocksdb_backend": true,
+    "external_dependency_identity_lifts": 0,
+    "report": {
+      "path": "results/local/shared-core-20261021/raptr-qs-check-1/result.json",
+      "sha256": "180a1a53261ede83aa5d1a6c21206d1b98d66170ca254f516531c2958d1073ee"
+    },
+    "log": {
+      "path": "results/local/shared-core-20261021/raptr-qs-check-1/test-run.log",
+      "sha256": "37c0b61b34abd5a0be3576e79fe5806be37c4f234e42505cb81cc01e5d7ae305"
+    }
+  },
+  "coverage": [
+    "native adaptive exclusions and retrieval retry/expiry",
+    "proof-first selection followed by optimistic selection and commit removal",
+    "availability prefix plus complete missing-author bitmap",
+    "Written custody precedes signature; injected write failure emits no acknowledgement",
+    "native BCS keys/values, reopen and old-epoch cleanup over shared RocksDB",
+    "fetched native payload digest rejection",
+    "exact SignedTransaction byte ranges and complete field-encoding reconstruction"
+  ],
+  "boundaries": [
+    "Native QS/proof/retrieval/expiry policy remains in Raptr core; shared service supplies byte storage and crypto execution.",
+    "Written storage uses native WAL-enabled sync=false semantics; no power-loss durability claim.",
+    "Offline fixture helpers use production signatures; no fuzzing build feature is enabled.",
+    "This receipt does not establish full node integration or four-replica execution.",
+    "Native schemadb wrapper timing families remain an explicit instrumentation difference; enclosing crypto counters are not nested primitive operation counts."
+  ],
+  "retention": {
+    "test_binary": {
+      "path": "results/local/shared-core-20261021/raptr-qs-check-1/raptr-qs-tests",
+      "sha256": "ae8a3b53b585662951610855913aff3a7f070379a9b4b1566d79e59a5d5af381",
+      "bytes": 33801768
+    },
+    "shared_cargo_target": "Retained temporarily for coordinated integrated node acceptance; final cleanup required."
+  }
+}

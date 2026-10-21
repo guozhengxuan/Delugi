@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "upstream_repository": "https://github.com/aptos-labs/aptos-core.git",
+  "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "local_checkout": "benchmarks/baselines/raptr",
+  "contract_version": "raptr-output-v1",
+  "status": "pure_contract_only_native_core_not_yet_wired",
+  "files": [
+    {
+      "path": "raptr/src/raptr/protocol.rs",
+      "role": "Native commit_qc_impl parent-first commit and prefix extension; preserve voting/order handlers",
+      "pinned_sha256": "498da9546f0a7a3b5ee529566a6bbb142e121a70df720ecc0c22af2f832e55b7",
+      "audited_sha256": "498da9546f0a7a3b5ee529566a6bbb142e121a70df720ecc0c22af2f832e55b7",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/framework/mod.rs",
+      "role": "Protocol::run_ctx serialized event/condition scheduling facade",
+      "pinned_sha256": "5da2d98a92ea6481972d6bfad97acafa12846b14407d85df2e7039b909edc3f1",
+      "audited_sha256": "5da2d98a92ea6481972d6bfad97acafa12846b14407d85df2e7039b909edc3f1",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/framework/context.rs",
+      "role": "Context services facade",
+      "pinned_sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+      "audited_sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/framework/network.rs",
+      "role": "NetworkService/verification service facade",
+      "pinned_sha256": "37b8ff2f685f43bba0ee6440ff3bcd742e7d86cb0ba6d4bba7a9b0a0a007ee57",
+      "audited_sha256": "37b8ff2f685f43bba0ee6440ff3bcd742e7d86cb0ba6d4bba7a9b0a0a007ee57",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/framework/timer.rs",
+      "role": "TimerService facade",
+      "pinned_sha256": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+      "audited_sha256": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/framework/crypto.rs",
+      "role": "Concrete native BLS/domain compatibility to route through shared provider",
+      "pinned_sha256": "de4e24bfb849b74508fb4993f3dfd56906d33efc65e1fec338e140ef858a98f9",
+      "audited_sha256": "de4e24bfb849b74508fb4993f3dfd56906d33efc65e1fec338e140ef858a98f9",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/raptr/types/aptos_types.rs",
+      "role": "Native Payload with_prefix/take_sub_blocks/proof-first all iterator",
+      "pinned_sha256": "6f6dad0b3e93aec5d4c8df2020a137911d194418326fd311a1621d5d0bb17f4d",
+      "audited_sha256": "6f6dad0b3e93aec5d4c8df2020a137911d194418326fd311a1621d5d0bb17f4d",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/raptr/types/common.rs",
+      "role": "Native signed round/prefix/QC/CC/TC types",
+      "pinned_sha256": "88666a5ed35da0c26346424771817b43b5ce540eabba242e2d0063fdae268d3c",
+      "audited_sha256": "88666a5ed35da0c26346424771817b43b5ce540eabba242e2d0063fdae268d3c",
+      "matches_pin": true
+    },
+    {
+      "path": "raptr/src/raptr/dissemination/mod.rs",
+      "role": "Real QS policy facade; simulator backend excluded",
+      "pinned_sha256": "7da02018b06ee910139ef9b2b242aa95ba50705cec44b46ece767857f3f35e2c",
+      "audited_sha256": "7da02018b06ee910139ef9b2b242aa95ba50705cec44b46ece767857f3f35e2c",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/consensus-types/src/payload.rs",
+      "role": "N_SUB_BLOCKS=8, native RaptrPayload include_proofs/original-index ranges",
+      "pinned_sha256": "185930f52c52e97b175000c1c1b7097c253ce1b08e1c70b9b51802443759bdf1",
+      "audited_sha256": "185930f52c52e97b175000c1c1b7097c253ce1b08e1c70b9b51802443759bdf1",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/consensus-types/src/proof_of_store.rs",
+      "role": "Native BatchId and exact fixed-width BatchInfo BCS fields",
+      "pinned_sha256": "4f2fd7b25b13f56cce7f092f4dad189c714d8e371a726a61a7aca4ff4781ff88",
+      "audited_sha256": "4f2fd7b25b13f56cce7f092f4dad189c714d8e371a726a61a7aca4ff4781ff88",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/consensus-types/src/common.rs",
+      "role": "Native BatchPayload digest and serialized size",
+      "pinned_sha256": "cb3796701adb9fd7789a2b93d13b0526e11ac72da859ef6b2554e15780329552",
+      "audited_sha256": "cb3796701adb9fd7789a2b93d13b0526e11ac72da859ef6b2554e15780329552",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/raptr_manager.rs",
+      "role": "Native QS integration and async per-payload commit fetch",
+      "pinned_sha256": "f296c55c8fe6e36c4b340a3cb341ddd3773eb3fbdceb40cb916644e43a8e33c5",
+      "audited_sha256": "f296c55c8fe6e36c4b340a3cb341ddd3773eb3fbdceb40cb916644e43a8e33c5",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/payload_manager/quorum_store_payload_manager.rs",
+      "role": "Actual native fetch concatenation is subblocks then proofs",
+      "pinned_sha256": "c83901501e15b72c927323e375cabba005f154821baa414d48a9d8928424562a",
+      "audited_sha256": "c83901501e15b72c927323e375cabba005f154821baa414d48a9d8928424562a",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/liveness/proposal_status_tracker.rs",
+      "role": "Actual native adaptive exclusions; not simulator penalty_tracker",
+      "pinned_sha256": "70fe58fd4f7e62cba42b151a961b20c4423f510ee57e7a782c799f4be185d3b3",
+      "audited_sha256": "70fe58fd4f7e62cba42b151a961b20c4423f510ee57e7a782c799f4be185d3b3",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/quorum_store/proof_manager.rs",
+      "role": "Certified-first selection and native optimistic subblock construction",
+      "pinned_sha256": "7016d607864d77bbd01afa0a7202944478342ae6138cd4729d25ad8ac9fefe31",
+      "audited_sha256": "7016d607864d77bbd01afa0a7202944478342ae6138cd4729d25ad8ac9fefe31",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/quorum_store/batch_requester.rs",
+      "role": "Native repair peer/retry/expiry policy",
+      "pinned_sha256": "26b74af79d1fa0708ae212094fb739ad8a282cc818ed50fc98f9585ef946468b",
+      "audited_sha256": "26b74af79d1fa0708ae212094fb739ad8a282cc818ed50fc98f9585ef946468b",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/quorum_store/batch_store.rs",
+      "role": "Native persistence acknowledgment/cache/fetch policy",
+      "pinned_sha256": "b3ee35a158ca51d2739b2010853a92b8420ecfe1dce092c0895735207297e00a",
+      "audited_sha256": "b3ee35a158ca51d2739b2010853a92b8420ecfe1dce092c0895735207297e00a",
+      "matches_pin": true
+    },
+    {
+      "path": "consensus/src/quorum_store/quorum_store_db.rs",
+      "role": "Native store operation/durability boundary",
+      "pinned_sha256": "8e03586b7b43a29fdad616f4910051381f01bffacc9bb804e762265e251299e9",
+      "audited_sha256": "8e03586b7b43a29fdad616f4910051381f01bffacc9bb804e762265e251299e9",
+      "matches_pin": true
+    }
+  ],
+  "historical_patch": {
+    "path": "benchmarks/patches/raptr-local.patch",
+    "sha256": "f6f3e6bddf6843eb90da2b83bd4bce7e6d4f6d93e78be0c29e69f55163576fb0"
+  },
+  "limitations": [
+    "Handwritten fixed-width descriptor decoder is not yet cross-checked against compiled native BCS",
+    "Fixture payload verifier is not a crypto backend",
+    "Native IO and crypto are not yet routed to shared services",
+    "Unfinished baseline observer fragments are not imported"
+  ]
+}

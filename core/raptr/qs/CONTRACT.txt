@@ -1,0 +1,80 @@
+Raptr native Quorum Store extraction (2026-10-21; policy/backend tested)
+
+Source: aptos-labs/aptos-core, raptr-public revision
+ a4c98047cf8aeae3571168d02fb7e343140d2948.
+UPSTREAM.json binds copied policy bodies and import/visibility substitutions.
+UPSTREAM.patch records every difference in the mapped whole files, including
+enclosing shared crypto accounting and additive typed byte-range helpers/tests.
+The immutable archive remains under ../.native-deps/<revision>.
+
+Assembly boundary
+- Assembly::start takes the native QuorumStoreConfig, epoch/author/validator
+  context, last committed timestamp and epoch-transition state, native BLS key,
+  native proof cache, explicit QuorumStoreStorage, NetworkSender, native mempool
+  request channel and timeout, and actual signed LatestLedger provider.
+- Outputs: native GetPayloadCommand sender, Arc<dyn BatchReader>, native commit
+  coordinator, and cloned Inbound handle. Inbound authenticates native message
+  content before enqueue; node transport supplies authenticated sender identity.
+- Inbound.receive_local is exclusively the local self-send path and preserves
+  the native self-message verification exemption. Remote bytes always use
+  receive, even when they claim the local author. It is not a public RPC mode.
+- Actor channels preserve native capacities, FIFO policy queue, LIFO retrieval
+  capacity10, configured remote worker count, batching interval Skip behavior,
+  and fixed native proof-expiration polling. Shutdown preserves coordinator
+  acknowledgement sequence. The epoch-owned retrieval worker is cancelled only
+  after pipeline shutdown; the runtime remains responsible for owned tasks.
+- NetworkTransport is object safe and mirrors native QuorumStoreSender methods;
+  no socket, retry policy, signing permission or acknowledgement policy lives in
+  the shared byte transport. Retries/targets remain native BatchRequester policy.
+
+Preserved core policies
+- Batch generation bounds, native transaction exclusions and backpressure.
+- BatchInfo/BatchId/BatchPayload BCS and native crypto; quota/custody/recovery/GC.
+- BatchStore persists a new batch before emitting SignedBatchInfo. Native write
+  failure panics that task before signing. Duplicate cached custody does not
+  invent an extra database write. This is Written, not a power-loss fsync claim.
+- Proof collection/quorum checks; proof-first pull followed by optimistic batches,
+  author and batch exclusions, exact native subblock splitting and inline rules.
+- OptQSPullParamsProvider and exponential failure/missing-author history policy.
+- QuorumStoreClient polling, including the native10ms empty-payload delay and
+  pending-ordering early-empty behavior. No synthetic pacing or backoff added.
+- QuorumStorePayloadManager availability prefix, full missing-author bitmap,
+  prefetch and retrieval targets, payload expiration, native transaction order,
+  memoized futures and commit notifications.
+
+Storage and data-plane integration
+- Feature rocksdb-backend enables QuorumStoreDB over shared-store-rocksdb.
+  No automatic memory/file fallback exists. Production callers supply this real
+  provider; default-feature-free builds only permit policy/type validation and
+  explicitly supplied test implementations of QuorumStoreStorage.
+- Directory quorumstoreDB, CFs batch then batch_ID; digest keys are raw32bytes,
+  epoch keys and BatchId/PersistedValue values use exactly native BCS. Atomic
+  multi-delete order and native collect-before-per-epoch-delete remain unchanged.
+- Shared backend preserves the pinned requested blob/LZ4/WAL/sync=false profile.
+  Optional native schemadb wrapper Prometheus timing families are not recreated
+  by the byte service; these are instrumentation, not physical disk byte counts.
+- Missing-batch responses retain signed latest-ledger evidence. No fabricated
+  empty batch or mock ledger response is accepted as the production provider.
+- BatchMsg::encode_with_payload_ranges returns normal native BCS bytes plus exact
+  full SignedTransaction spans. Batch descriptors and vector prefixes remain
+  evidence/control; useful application bytes are accounted separately. Outer
+  transport adapters must shift ranges by their actual canonical envelope prefix.
+
+Excluded non-QS services
+- Full Aptos node, Aptos mempool engine, VM execution and state-sync I/O are not
+  imported as services. Native Aptos data/config/crypto libraries remain pinned.
+- Exact native user-payload client is exported. Governance validator-transaction
+  pooling is not implemented by this crate; it is an independent node service.
+- The pin's consensus-observer publish call is already commented out. Its unused
+  publisher field/network dependency was removed; exact metadata constructors
+  and resulting transaction limit remain. No observer-network support is claimed.
+
+Acceptance and remaining integration
+- Thirteen tests pass with the actual RocksDB backend: native retrieval retries
+  and expiry, adaptive exclusions, proof-first/optimistic selection, missing
+  authors, save-before-custody-signature, schema/reopen/GC, bad fetched digest,
+  and exact BCS ranges across empty/multiple/multibyte-count transactions.
+- Shared node/TCP/mempool assembly remains a separate acceptance gate.
+- Source extraction or a successful type-check is not a four-replica protocol run.
+- Detailed crypto wrapping distinguishes enclosing native validation from nested
+  primitive counters; it must not be reported as per-nested-op measurement.
