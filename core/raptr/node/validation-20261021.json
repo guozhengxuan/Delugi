@@ -1,0 +1,115 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "source_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "scope": "Integrated actual Raptr/QS/shared-service assembly tests; four-process acceptance pending",
+  "tests": {
+    "passed": 14,
+    "failed": 0,
+    "ignored": 0,
+    "native_payload_compatibility": 3,
+    "explicit_fault_control": 2,
+    "owned_task_lifecycle": 1,
+    "authenticated_finite_application": 8
+  },
+  "argv": [
+    "cargo",
+    "+1.78.0",
+    "--config",
+    "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/native/.cargo/config.toml",
+    "test",
+    "--all-targets",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/node/Cargo.toml"
+  ],
+  "source_unchanged": true,
+  "limits": {
+    "target_bytes": 21474836480,
+    "minimum_free_bytes": 32212254720,
+    "jobs": 2,
+    "incremental": false,
+    "debug": false
+  },
+  "target_bytes": 3250184192,
+  "free_bytes": 159296188416,
+  "elapsed_seconds": 9.404491958208382,
+  "files": [
+    {
+      "path": "core/raptr/build-evidence/node-test-1/driver.py",
+      "sha256": "483d242228f90a637ab20560b09d36be4cd9d5d31eba3d32e0bf737b7b4943d9",
+      "bytes": 3615
+    },
+    {
+      "path": "core/raptr/build-evidence/node-test-1/guard.json",
+      "sha256": "15703b9041c432432b6e5d9fe516a8d1fbe629f2ed4281ead53e1d0fb3bf41a6",
+      "bytes": 1468
+    },
+    {
+      "path": "core/raptr/build-evidence/node-test-1/source-before.json",
+      "sha256": "6da76ff4287b2525238eaacc319449046de89f8624ca3288b633f8f8e553fcc6",
+      "bytes": 2478015
+    },
+    {
+      "path": "core/raptr/build-evidence/node-test-1/source-after.json",
+      "sha256": "6da76ff4287b2525238eaacc319449046de89f8624ca3288b633f8f8e553fcc6",
+      "bytes": 2478015
+    },
+    {
+      "path": "core/raptr/build-evidence/node-test-1/cargo.log",
+      "sha256": "8a832621abce85b25d4fe18d7ca426d8ceb83005017ce89d10222cf28ab7f055",
+      "bytes": 22776
+    }
+  ],
+  "lock_resolution": {
+    "schema": 1,
+    "baseline": "core/raptr/qs/Cargo.lock",
+    "node": "core/raptr/node/Cargo.lock",
+    "added": [
+      [
+        "common-node",
+        "0.1.0",
+        null
+      ],
+      [
+        "raptr-shared-node",
+        "0.1.0",
+        null
+      ],
+      [
+        "raptr-shared-transport",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-crypto",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-mempool",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-network",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-network-async",
+        "0.1.0",
+        null
+      ],
+      [
+        "shared-runtime",
+        "0.1.0",
+        null
+      ]
+    ],
+    "removed": [],
+    "external_changes": []
+  }
+}

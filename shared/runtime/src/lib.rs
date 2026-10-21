@@ -156,3 +156,14 @@ impl TimerQueue {
     pub fn len(&self) -> usize { self.0.len() }
     pub fn is_empty(&self) -> bool { self.0.is_empty() }
 }
+/// Host monotonic clock for a same-host, multi-process benchmark arm barrier.
+/// Cross-host latency must use each origin's own clock, never subtract these.
+pub fn monotonic_us() -> Result<u64, String> {
+    let mut time = libc::timespec { tv_sec: 0, tv_nsec: 0 };
+    if unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut time) } != 0 {
+        return Err(std::io::Error::last_os_error().to_string());
+    }
+    (time.tv_sec as u64).checked_mul(1_000_000)
+        .and_then(|s| s.checked_add(time.tv_nsec as u64 / 1000))
+        .ok_or_else(|| "monotonic clock overflow".into())
+}

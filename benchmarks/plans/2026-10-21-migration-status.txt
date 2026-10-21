@@ -7,7 +7,24 @@ local correctness/accounting gates. No cloud execution or additional counterpart
 port is included. The pause record below is historical and superseded.
 
 
-Current gate: implementation paused by explicit user instruction
+Current shared-core checkpoint
+- 5e63795 records the approved architecture and pre-migration state.
+- e4879c9 extracts Delugi and shared services. Deterministic traces and serialized
+  bytes match; existing Rust/Python gates and independent n4 round4/silent-leader
+  controls pass. Report: shared-core-delugi-extraction-2026-10-21.json.
+- 15e51b4 adds tested shared RocksDB and async TCP services. The service checkpoint
+  has28 passing checks, including pipelined writes before acknowledgement and real
+  native-version RocksDB. Both source profiles and validation receipts are retained.
+- 4f0cd8e ports the pinned real Raptr core and Quorum Store. Native core15tests,
+  QS13tests and pure output10tests pass; signed native certificate/prefix fixtures
+  and actual Written custody-before-acknowledgement are covered. Full-node and
+  independent-process acceptance are still being assembled and are not implied by
+  these component gates. All four milestones are committed and pushed to origin/main.
+- Current runs use zero added network delay and Delta100ms. There is no new
+  calibrated delta10ms comparison. Native-policy conformance, shared-service
+  routing, and matched performance eligibility remain separate gates.
+
+Historical pause record (superseded by approval above)
 The user now requests protocol differences confined to core subtrees with shared
 network/crypto/node/mempool infrastructure, informed by Sonnino HotStuff/Ditto.
 Discuss the concrete module/interface and migration plan with delugi context;
