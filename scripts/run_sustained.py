@@ -646,8 +646,10 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
 
 
 def build_inputs(compiler):
-    sources = [ROOT / "Cargo.toml", ROOT / "Cargo.lock"] + sorted((ROOT / "src").rglob("*.rs"))
-    return {"compiler": compiler, "sources": {str(p.relative_to(ROOT)): sha(p.read_bytes()) for p in sources}}
+    # Include extracted crate manifests and sources; root/src alone can no longer
+    # authenticate the executable after the shared-services workspace extraction.
+    from shared_core_conformance import source_inventory
+    return {"compiler": compiler, "sources": source_inventory(ROOT, include_workspace=False)}
 
 
 def verify_build_stamp(binary, compiler):
@@ -719,7 +721,9 @@ def main():
     try:
         manifest["specification"] = archive_spec(args.spec_snapshot, output / "snapshot", args.paper_repository)
         sources = [ROOT / p for p in ("Cargo.toml", "Cargo.lock", "scripts/run_sustained.py", "scripts/run_network.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/spec_provenance.py", "scripts/remote_deployment.py", "scripts/remote_worker.py", "scripts/linux_netem.py", "tests/sustained_runner_test.py", "tests/cohort_metrics_test.py", "tests/cohort_store_test.py")]
-        sources += sorted((ROOT / "src").rglob("*.rs"))
+        from shared_core_conformance import source_inventory
+        sources += [ROOT / "scripts/shared_core_conformance.py"]
+        sources = sorted(set(sources) | {ROOT / name for name in source_inventory(ROOT)})
         for source in sources:
             relative, data = source.relative_to(ROOT), source.read_bytes()
             destination = output / "snapshot" / relative

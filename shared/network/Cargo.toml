@@ -1,0 +1,11 @@
+[package]
+name = "shared-network"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[features]
+test-support = []
+
+[dependencies]
+serde = { version = "=1.0.190", features = ["derive"] }

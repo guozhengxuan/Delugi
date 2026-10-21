@@ -21,21 +21,46 @@ delay 10 ms and bound 100 ms across all three. The
 [Vantage architecture review](benchmarks/ARCHITECTURE_COMPARISON.md) records local
 tests and the recommended framework for formal evaluation.
 
+## Shared workspace
+
+Protocol policy lives in `core/delugi`: ordering, availability, dissemination,
+repair, exact batch identity, custody and output expansion. The shared crates
+provide TCP queues and connections, cryptographic execution, timed ingress,
+process-local storage, ordered output queues, control mailboxes, timers and
+operation accounting. `core-api` declares service barriers and node factories;
+`node` provides common command parsing and lifecycle dispatch. The root `delugi`
+crate preserves existing imports and executable names.
+
+`delugi-node --protocol delugi` and `delugi-replica` select the same factory.
+The memory storage profile completes at Visible, with no crash-recovery claim.
+Native policies may require stronger storage barriers; unsupported requests fail.
+Core actor turn ordering and timer arming remain core-owned during extraction.
+The shared resource profile records component limits and existing gaps; it is not
+an aggregate RSS or CPU enforcement claim.
+
+Raptr is the first counterpart being ported from the pinned authors' code under
+`core/raptr`. Its executable output contract and source-preserving native import
+are separate from a runnable shared-service replica. Raptr is not yet registered
+in the node CLI or accepted for shared-runtime performance comparisons. Native
+reference artifacts and historical results remain separate. See the
+[approved architecture](benchmarks/plans/2026-10-21-shared-core-architecture.txt)
+and [frozen services](benchmarks/plans/2026-10-21-shared-service-contract.txt).
+
 ## Implemented ordering
 
-- `src/wire.rs`: canonical, bounded Ed25519/SHA-256 messages; instance,
+- `core/delugi/src/wire.rs`: canonical, bounded Ed25519/SHA-256 messages; instance,
   configuration, role, leader and value/history bindings. The Option A v3
   profile carries explicit history and its exact signed projection.
-- `src/history.rs`: nonrecursive CER proofs, usable HISTORY3 reports, compact
+- `core/delugi/src/history.rs`: nonrecursive CER proofs, usable HISTORY3 reports, compact
   histories, greatest known pivots, predecessor bridges and negative assertions.
-- `src/slot.rs`: once-only full-validation VOTEs, CER amplification, immutable
+- `core/delugi/src/slot.rs`: once-only full-validation VOTEs, CER amplification, immutable
   terminal outcomes and independent direct commitments.
-- `src/replica.rs`: complete generic ordering handlers, predecessor-closed PROG
+- `core/delugi/src/replica.rs`: complete generic ordering handlers, predecessor-closed PROG
   admission, default PROG pacing, exact reports followed by CLOSED, independent 7Δ/3Δ timers, retained
   old-round work, atomic in-memory effects and immediate local self-delivery.
-- `src/scanner.rs`: coherent descending classification, nearest-authority barriers,
+- `core/delugi/src/scanner.rs`: coherent descending classification, nearest-authority barriers,
   fixed signed entries and contiguous once-only descriptor delivery.
-- `src/simulation.rs`: real signed/serialized packets, virtual time, silent replicas,
+- `core/delugi/src/simulation.rs`: real signed/serialized packets, virtual time, silent replicas,
   delayed/duplicated packets and accounting by original protocol index.
 - `scripts/run_ordering.py`: repeated scenarios with exact source/spec snapshots,
   lockfile, raw signed traces, build/test output and content-hash provenance.
@@ -48,21 +73,21 @@ requests metadata and cannot delay an enabled logical send.
 
 ## Integrated dissemination
 
-- `src/mmr.rs`: indexed chunked MMRs, exact prefix proofs, explicit crossing-chunk
+- `core/delugi/src/mmr.rs`: indexed chunked MMRs, exact prefix proofs, explicit crossing-chunk
   completion, and authenticated base-tip membership openings.
-- `src/batch.rs`: signed sequential batches, out-of-order buffering, exact fork
+- `core/delugi/src/batch.rs`: signed sequential batches, out-of-order buffering, exact fork
   storage, indefinite custody, and atomic suffix reconstruction. Batches are
   bounded at 256 KiB; cumulative retrieval uses independently verified DATA parts
   within the 1 MiB wire limit, including reordered parts.
-- `src/availability.rs`: authenticated earlier bases, signed REPORT/OBS bindings,
+- `core/delugi/src/availability.rs`: authenticated earlier bases, signed REPORT/OBS bindings,
   exact n−f current pools and f+1 actual OBS signers per WA. Q checks only supplied
   immutable evidence. The reference constructor chooses each highest feasible
   current advance, otherwise an empty suffix supported by current reports.
   Historical-source verification remains available with explicit source bytes.
-- `src/composed.rs`: automatic leader REPORT on round admission, greatest locally
+- `core/delugi/src/composed.rs`: automatic leader REPORT on round admission, greatest locally
   held eligible base, one response to the first valid request, frozen pools,
   immediate all-current construction, exact FETCH/DATA service and FIFO output.
-- `src/end_to_end.rs` and `tests/end_to_end_scenarios.rs`: signed transaction-path
+- `core/delugi/src/end_to_end.rs` and `tests/end_to_end_scenarios.rs`: signed transaction-path
   traces through round 4, silent-leader recovery, missing payloads,
   descriptor-only recipients, duplicates and seven replicas.
 - `scripts/run_end_to_end.py`: source/spec snapshots and repeated signed traces.

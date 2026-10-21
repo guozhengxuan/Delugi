@@ -85,7 +85,7 @@ struct Branch {
 pub struct BatchStore {
     committee: Committee,
     config: Config,
-    records: BTreeMap<(Id, Digest), Record>,
+    records: shared_store::MemoryStore<(Id, Digest), Record>,
     retained_payload_bytes: u64,
     /// One mutable tip per fork and independently imported base. Each State already
     /// retains every historical checkpoint and proof node; prefix copies are not
@@ -113,7 +113,7 @@ impl BatchStore {
         let mut store = Self {
             committee,
             config,
-            records: BTreeMap::new(),
+            records: shared_store::MemoryStore::new(),
             retained_payload_bytes: 0,
             branches: BTreeMap::new(),
             children: BTreeMap::new(),
@@ -218,7 +218,8 @@ impl BatchStore {
             .or_default()
             .insert(digest);
         self.retained_payload_bytes += record.payload.len() as u64;
-        self.records.insert(key, record);
+        self.records.put(key, record, shared_store::Persistence::Visible)
+            .expect("the memory provider supports process-local visibility");
         true
     }
     fn add_branch(&mut self, branch: Branch) -> usize {

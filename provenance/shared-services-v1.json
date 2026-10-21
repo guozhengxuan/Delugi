@@ -1,0 +1,425 @@
+{
+  "schema": 1,
+  "contract_id": "shared-services-v1",
+  "date": "2026-10-21",
+  "status": "audited_pre_extraction_baseline_and_planned_contract",
+  "shared_runtime_accepted": false,
+  "authorization": {
+    "scope": [
+      "local_delugi_extraction",
+      "local_raptr_first_port",
+      "conformance_tests"
+    ],
+    "excluded": [
+      "cloud_execution",
+      "later_protocol_ports",
+      "new_protocol_semantic_variant"
+    ],
+    "basis": "User explicitly approved the shared-core architecture and local Delugi-to-Raptr phase; this manifest freezes technical contracts, not benchmark acceptance."
+  },
+  "source_evidence": {
+    "kind": "current_local_source_sha256",
+    "sources": {
+      "Cargo.toml": {
+        "sha256": "0e7a856f7055c5eadde12b3c0f7d6f8a3a96e5ba11ed605b005b6ceb8d78b56d",
+        "bytes": 459
+      },
+      "Cargo.lock": {
+        "sha256": "5d5f7ed1cc873e55299e2b9e772e9b6b74e78477aa2bd5eb564669983363965f",
+        "bytes": 8623
+      },
+      "src/transport.rs": {
+        "sha256": "8734277c210a52d1e7ddc627b858e70c2f69bccc27a000bf4a7c4252720ab481",
+        "bytes": 102161
+      },
+      "src/process.rs": {
+        "sha256": "ce55a83fc91f0f4cdaef810343a851876e21ccfc652cb06a61dde692be3d1d9e",
+        "bytes": 127842
+      },
+      "src/workload.rs": {
+        "sha256": "7b51bb2526f9fc4a1d1f25405fecd67cd1ce266a89293ecc1b75bf0e672b26dc",
+        "bytes": 20339
+      },
+      "src/wire.rs": {
+        "sha256": "e8cebfd3f29f51b9575ba1de220f437fa7a560bcc83c223334780c5e1b5c3044",
+        "bytes": 60983
+      },
+      "src/batch.rs": {
+        "sha256": "a394788126cd0f17de5e2925b7c1727139bc30c2a72a1b0646121bee44a0df1d",
+        "bytes": 41984
+      },
+      "src/composed.rs": {
+        "sha256": "2ab0cf95ee60023f0c4c97aa504a9d35f59d1ab729f70f202665a69da4c60eb2",
+        "bytes": 76888
+      },
+      "src/replica.rs": {
+        "sha256": "abe18b46903257ae655829334d8a3ede4f3cf83128c77a20c4899d57fd7a61a7",
+        "bytes": 147285
+      },
+      "src/meter.rs": {
+        "sha256": "487393ed4cadd88c516b4fe183e1b79297548a7a642d67519f9e929ce12cd84d",
+        "bytes": 9401
+      },
+      "src/availability.rs": {
+        "sha256": "996d27bd99b2b4d76fe4a27ad629005f668e34d6d73a57583b926ec86c757994",
+        "bytes": 76670
+      },
+      "src/mmr.rs": {
+        "sha256": "5a6010fb1d59d0ea96c3bb1bc0a5f277e3987c0260246de4e9778ef8e291541f",
+        "bytes": 30455
+      },
+      "src/ledger.rs": {
+        "sha256": "b4cfeb84caecae3923f3eeb9820d025a9ac86a5803035da0d88588ae3fb99339",
+        "bytes": 41128
+      },
+      "benchmarks/baselines/raptr/raptr/src/framework/context.rs": {
+        "sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+        "bytes": 4524
+      },
+      "benchmarks/baselines/raptr/raptr/src/framework/mod.rs": {
+        "sha256": "5da2d98a92ea6481972d6bfad97acafa12846b14407d85df2e7039b909edc3f1",
+        "bytes": 11548
+      },
+      "benchmarks/baselines/raptr/raptr/src/framework/timer.rs": {
+        "sha256": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+        "bytes": 3031
+      },
+      "benchmarks/baselines/raptr/raptr/src/raptr/dissemination/mod.rs": {
+        "sha256": "7da02018b06ee910139ef9b2b242aa95ba50705cec44b46ece767857f3f35e2c",
+        "bytes": 3494
+      },
+      "benchmarks/baselines/raptr/raptr/src/raptr/types/aptos_types.rs": {
+        "sha256": "6f6dad0b3e93aec5d4c8df2020a137911d194418326fd311a1621d5d0bb17f4d",
+        "bytes": 3659
+      }
+    },
+    "source_audit": "results/local/architecture-review-20261021/shared-service-audit.txt",
+    "architecture": "benchmarks/plans/2026-10-21-shared-core-architecture.txt",
+    "qualification": "Frozen hashes identify the audited pre-extraction implementation, including existing local changes. Paths may later move; historical hashes must not be rewritten to hide extraction drift."
+  },
+  "mechanical_extraction": {
+    "status": "required",
+    "preserve": [
+      "serialized_signed_and_hashed_bytes",
+      "signing_domains",
+      "configuration_and_resource_profile_identity",
+      "transport_envelopes",
+      "per_peer_and_cross_layer_order",
+      "timer_meaning_and_arming_conditions",
+      "actor_handler_and_condition_atomicity",
+      "existing_synchronous_critical_sections",
+      "application_output_and_dedup_conventions",
+      "default_and_explicit_scheduling_modes"
+    ],
+    "namespace_placement": "out_of_band_adapter_context_only",
+    "forbidden_implicit_changes": [
+      "new_wire_fields",
+      "new_signature_or_hash_scheme",
+      "async_crypto_reordering_inside_a_handler",
+      "new_queue_tuning",
+      "new_storage_durability",
+      "sim_types_as_native_raptr_QS",
+      "hidden_ingress_admission_changes"
+    ]
+  },
+  "delugi_actual": {
+    "status": "implemented_single_protocol_runtime_not_yet_shared",
+    "transport": {
+      "source": "src/transport.rs",
+      "profile_selection": "Config.resource_profile; TransportSettings::for_committee; omitted resource_profile is legacy-1mib-v1",
+      "profiles": {
+        "legacy-1mib-v1": {
+          "inbox_capacity": 4096,
+          "outbox_capacity_per_peer": 4096,
+          "deferred_capacity_per_peer": 4096,
+          "inflight_frames_per_peer": 64,
+          "inflight_bytes_per_peer": 8388608,
+          "outstanding_bytes_all_peers": 134217728,
+          "inbox_payload_bytes": 33554432,
+          "read_buffer_bytes_all_readers": 33554432,
+          "max_incoming_reader_connections": 64,
+          "ack_timeout_ms": 2000,
+          "connect_timeout_ms": 100,
+          "io_timeout_ms": 250,
+          "frame_read_timeout_ms": 2000,
+          "reconnect_delay_ms": 20,
+          "protocol_message_bytes": 1048576,
+          "max_auth_bytes": 512,
+          "frame_length_prefix_bytes": 4,
+          "frame_body_auth_length_bytes": 4,
+          "maximum_frame_body_bytes": 1049092,
+          "maximum_framed_bytes": 1049096
+        },
+        "complete-32mib-n31-v1": {
+          "inbox_capacity": 4096,
+          "outbox_capacity_per_peer": 4096,
+          "deferred_capacity_per_peer": 4096,
+          "inflight_frames_per_peer": 64,
+          "inflight_bytes_per_peer": 67109904,
+          "outstanding_bytes_all_peers": 1073741824,
+          "inbox_payload_bytes": 134217728,
+          "read_buffer_bytes_all_readers": 134217728,
+          "max_incoming_reader_connections": 64,
+          "ack_timeout_ms": 30000,
+          "connect_timeout_ms": 100,
+          "io_timeout_ms": 250,
+          "frame_read_timeout_ms": 30000,
+          "reconnect_delay_ms": 20,
+          "protocol_message_bytes": 33554432,
+          "max_auth_bytes": 512,
+          "frame_length_prefix_bytes": 4,
+          "frame_body_auth_length_bytes": 4,
+          "maximum_frame_body_bytes": 33554948,
+          "maximum_framed_bytes": 33554952
+        }
+      },
+      "committee_allocation_guards": {
+        "legacy-1mib-v1": 1024,
+        "complete-32mib-n31-v1": 31
+      },
+      "mandatory_evidence_fit_check": "Committee validates actual committee-dependent complete mandatory evidence; member guard alone is not an admitted committee-size guarantee.",
+      "peer_outstanding_bytes_formula": "floor(outstanding_bytes_all_peers / max(n-1,1))",
+      "outstanding_reservation_scope": "encoded framed bytes retained in deferred/outbox/window/staged states; reservations shared, not additive independent budgets",
+      "staged_extra_frames_per_writer": 1,
+      "full_queue": "Runtime uses send_or_defer_accounted: retain exact signed FIFO frame; exhausted byte/deferred envelope or disconnected writer is an explicit terminal error. Lower-level send is fail-fast and requires caller handling.",
+      "outbound_fairness": "retry_deferred visits one FIFO head per peer per call, rotating first peer; a blocked peer does not block other peer retries.",
+      "inbound_fairness_limitation": "reader holds the shared received high-water mutex while waiting for mailbox count/bytes; inbound mailbox saturation can serialize reader admission. No independent per-peer inbound fairness guarantee.",
+      "inbound_backpressure": "Reserve unauthenticated body buffer before allocation; pause 1ms while unavailable. Authenticate complete frame, reserve mailbox payload bytes, enqueue before ACK; hold frame/body copies until reader iteration finishes.",
+      "fifo_and_replay": "One destination sequence across all layers; pipeline signed frames up to byte/item window; signed ACK reader independent. ACK retires oldest matching frame. Reconnect replays exact unacknowledged suffix before new frames. Duplicate sequence suppressed; gaps rejected. No sequence persistence across process restart.",
+      "delivery_boundary": "ACK means first successful authenticated mailbox enqueue (or duplicate already enqueued), not protocol acceptance, payload custody or durable storage.",
+      "connection": "TCP_NODELAY=true; one outgoing writer per remote peer; connect on queued work; fixed reconnect delay, no exponential backoff. Existing contexts and tcp-data-v1/tcp-ack-v1 signatures unchanged.",
+      "worker_poll_ms": {
+        "idle_mailbox": 20,
+        "inflight_mailbox": 1,
+        "full_window_ack": 20,
+        "reader_capacity_retry": 1,
+        "accept_idle": 1,
+        "accept_error": 5
+      },
+      "accounting": "successful stream writes including partial attempts and exact replay; disjoint payload/evidence_control/repair/transport_overhead sum to total; ACK, auth, length and bundle fields counted once as overhead; excludes TCP/IP headers and kernel retransmission. Scheduled/enqueued/ACKed logical counts remain separate.",
+      "allocation_qualification": "Queue reservations are not a complete heap/RSS bound: construction, decoding, body/payload copies, protocol state and output history may exist outside these counters."
+    },
+    "actors_workers": {
+      "source": [
+        "src/process.rs",
+        "src/transport.rs",
+        "src/workload.rs"
+      ],
+      "runtime_threads": 1,
+      "control_listener_threads": 1,
+      "transport_accept_threads": 1,
+      "outgoing_writer_threads": "n-1",
+      "ack_reader_threads": "at most n-1; one per live outgoing connection, joined before replacement",
+      "incoming_reader_threads_max": 64,
+      "ingress_threads": "0 or 1 per replica; independent of protocol thread",
+      "maximum_live_thread_topology_formula": "1 runtime + 1 control + 1 accept + (n-1) writers + at most (n-1) ACK readers + at most 64 incoming readers + at most 1 ingress; excludes external launcher/OS helpers",
+      "dedicated_crypto_or_storage_workers": 0,
+      "thread_stack_limit": "OS/runtime default, not explicitly configured",
+      "aggregate_cpu_or_rss_enforcement": "none in this local Rust process; external inventory enforcement is a separate run-specific contract",
+      "shutdown": "Transport stop flag, bounded I/O waits, connection shutdown and joins; ingress Drop/stop joins worker. Control shutdown is separate lifecycle."
+    },
+    "runtime": {
+      "source": "src/process.rs",
+      "turn_order": [
+        "retry_deferred_all_peers",
+        "at_most_one_control_request",
+        "at_most_one_received_logical_message",
+        "due_timer_tick_with_all_due_wake_entries_removed",
+        "one_load_tick",
+        "idle_receive_or_sleep_1ms_only_if_no_work"
+      ],
+      "handler": "single protocol state owner; synchronous Node handler and effect serialization/drain before next logical receive; no async crypto/storage completion currently",
+      "bundle": "default enabled, zero-wait per-effect-drain aggregation; preserve per-peer and cross-layer effect order; at most 32 canonical messages; payload size bounded by selected profile; oversized-for-envelope single remains original single frame",
+      "control_queue_items": 64,
+      "control_reply_queue_items": 1,
+      "control_io_timeout_ms": 2000,
+      "control_reply_timeout_ms": 5000,
+      "resource_budget": "max_runtime_ms is configured; it is not a CPU budget or memory cap"
+    },
+    "timers": {
+      "source": [
+        "src/process.rs",
+        "src/replica.rs"
+      ],
+      "clock": "Instant elapsed local monotonic milliseconds for protocol; application observation uses same process Instant microseconds",
+      "wake_storage": "BTreeSet of absolute millisecond deadlines; equal deadlines coalesce; all due Wake entries removed then one Node.tick(now)",
+      "cancellation": "no runtime cancellation API/generation token; core once guards and timer maps reject obsolete work; do not introduce new cancellation or equal-deadline ordering during extraction",
+      "protocol_policies": {
+        "main": "original arm time + 7*bound_ms",
+        "catch_up": "original arm time + 3*bound_ms per exact endpoint",
+        "progress_pacing": "default release bound_ms from round entry, early release on protocol evidence; explicit override positive and <=bound_ms",
+        "round_barrier": "explicit comparison mode; separate from canonical outcome timer"
+      },
+      "runtime_idle_wait_ms": 1,
+      "delivery": "network/control turn can precede a due tick, and long synchronous handler can delay delivery; no hard timer scheduling guarantee",
+      "bound_ms": "run configuration, no new default chosen by this contract; initial approved local comparison uses 100ms with all native multipliers disclosed"
+    },
+    "mempool": {
+      "source": [
+        "src/process.rs",
+        "src/workload.rs"
+      ],
+      "independent_ingress": true,
+      "default_arrival_queue_items": 65536,
+      "max_configured_arrival_queue_items": 1000000,
+      "max_configured_arrival_encoded_bytes": 67108864,
+      "arrival_byte_check": "capacity * encoded_transaction_bytes <= 64MiB; encoded_transaction_bytes=useful_bytes+40+REQUEST_METADATA_BYTES; excludes container metadata",
+      "full_queue": "nonblocking try_send; explicit rejected request, no silent retry or admission rewrite",
+      "admission_atomicity": "receipt mutex spans channel try_send and membership publication; consumer batching and output eligibility synchronize on same mutex",
+      "max_signed_batch_payload_bytes": 262144,
+      "default_max_batch_transactions": 128,
+      "max_configured_batch_transactions": 65536,
+      "effective_batch_capacity_formula": "min(max_batch_transactions, floor((MAX_BATCH_PAYLOAD-8)/encoded_transaction_bytes))",
+      "batch_ms": "run setting in 1..1000; flush when size full or periodic boundary reached; no new service default",
+      "max_requests_per_origin_config_guard": 5000000,
+      "retained_observation_state": "finite bitmaps in both modes; full detailed timing maps; Node log/payload history is still retained in compact mode"
+    },
+    "crypto": {
+      "source": [
+        "Cargo.toml",
+        "Cargo.lock",
+        "src/wire.rs",
+        "src/meter.rs"
+      ],
+      "encoding": "bincode1.3.3 fixed-int little-endian, reject trailing bytes, selected byte limit",
+      "hash": "sha2 0.9.9 SHA-256; delugi/reference/ordering/v3-option-a domain and exact canonical preimages preserved",
+      "signatures": "ed25519-dalek1.0.1 sign/verify_strict; 64-byte signatures; no aggregation/threshold provider",
+      "signature_cache": {
+        "max_entries": 4096,
+        "max_bytes": 4194304,
+        "semantics": "verified exact key/domain/preimage/signature cache; cryptography outside cache mutex"
+      },
+      "execution": "synchronous on calling actor or transport thread; no separate pool",
+      "metering": "optional, default disabled; separate protocol, transport-data/ACK, workload-manifest, observer-receipt, content-hash/proof/constructor domains; nested elapsed/CPU times must not be summed",
+      "backend_features": "exact Cargo.toml and Cargo.lock hashed in source_evidence; bincode/ed25519/sha2 default Cargo features, serde derive enabled; no newly chosen provider"
+    },
+    "store": {
+      "source": "src/batch.rs",
+      "backend": "in-memory BTreeMap and proof/index structures; no disk WAL/KV backend",
+      "supported_completion_levels": [
+        "Visible"
+      ],
+      "unsupported_completion_levels": [
+        "Written",
+        "Durable"
+      ],
+      "current_api": "synchronous validated insertion or error; there is no current generic durability request API",
+      "visible_definition": "process-local BatchStore read can see validated inserted content",
+      "retention": "payloads and metadata deliberately retained indefinitely; exact fork/custody indexes remain core-owned; no shared GC",
+      "custody": "protocol-specific verified local payload holding, not process-crash durable custody",
+      "limits": "per-batch payload and wire/profile limits; no aggregate retained-store byte cap. retained_payload_bytes is an observation counter."
+    },
+    "output": {
+      "source": "src/composed.rs",
+      "order": "pending_ordered FIFO; wait for every exact named suffix of head; expand producer then height within descriptor; never publish later descriptor ahead of unavailable head",
+      "batch_identity": "(producer,height,record_digest); exact-batch repeats skipped by core; forks with distinct digest retained",
+      "application_identity": "transaction id executes once; repeated ids deterministic no-ops even across distinct batches. Preserve this Delugi application convention; it is not a universal transport dedup rule. Distinct batch payloads retain raw occurrences.",
+      "invalid_application_payload": "previously unseen authenticated batch stays in materialized batch log; malformed transaction vector is a deterministic no-op",
+      "append_boundary": "observer mutex spans exact append and eligibility; full/compact common path; independent own batch_ready is not a prerequisite for admitted own output credit",
+      "metric": "preassigned correct origin-local admission to first verified contiguous output on same monotonic clock; compact latency unavailable, common receipt counts retained",
+      "unbounded_history": "executed/materialized/state indexes retained; do not claim output history is capped by transport profile"
+    }
+  },
+  "raptr_requirements": {
+    "status": "planned_source_preserving_port_not_shared_runtime_accepted",
+    "upstream": {
+      "repository": "https://github.com/aptos-labs/aptos-core.git",
+      "reference": "raptr-public",
+      "commit": "a4c98047cf8aeae3571168d02fb7e343140d2948"
+    },
+    "native_artifact_state": "New observer/fixture/native runner incomplete and uncompiled at architecture checkpoint; no new native-ready artifact inferred.",
+    "actor": "Preserve Protocol::run_ctx handler plus condition handler atomicity, including existing awaits under protocol mutex; retain Context/module event semantics. Do not force all workers behind one global actor.",
+    "timer": "Native LocalTimerService BTreeMap<tokio::Instant,event>, schedule relative to local now, tick earliest; no cancellation in trait. Native protocol multipliers remain core-owned. Numeric port queue/worker/timer profiles must be audited and bound before shared label acceptance, not invented here.",
+    "crypto_and_payload": "Retain native BCS/BLS types, signer/aggregation checks, full native identities; no simulator substitute or common cryptosuite normalization.",
+    "dissemination": "Retain real QS prepare_block/available_prefix/notify_commit/check_payload policy and custody/repair/retention. dissemination/native.rs is sim-types-gated, not native Aptos QS.",
+    "output": {
+      "section_identity": [
+        "block_hash",
+        "round",
+        "full_author",
+        "proofs_or_original_subblock_index"
+      ],
+      "batch_identity": [
+        "epoch",
+        "full_author",
+        "BatchId.nonce",
+        "BatchId.id",
+        "full_payload_digest"
+      ],
+      "descriptor_binding": [
+        "expiration",
+        "num_txns",
+        "num_bytes",
+        "gas"
+      ],
+      "ordering": "core-reserved canonical sections; proof batches first then original subblock indices; preserve empty markers and repeated occurrences; async resolution keyed by reserved section, publish contiguous prefix only",
+      "extension_gate": "for every legal prefix extension, expand(P1)+expandDelta(P2,P1)==expand(P2); segmentation/duplicate/reordering fixtures required before accepted implementation",
+      "contract_status": "approved added application contract to be applied to reference observer and port; not a pre-existing VM execution guarantee; concrete pure fixture owned separately"
+    },
+    "unknown_until_adapter_audit": [
+      "effective native QS queue/item/byte limits",
+      "all native background workers and resource ownership",
+      "all persistence completion boundaries",
+      "complete runtime crypto/storage/network bypass inventory"
+    ],
+    "no_bypass_rule": "Minimal Aptos compatibility may remain, but any native-only service use must be declared; intermediate facade is ineligible for shared-runtime native-policy label."
+  },
+  "planned_shared_contract": {
+    "status": "required_not_yet_implemented",
+    "operation_correlation": {
+      "scope": [
+        "run_namespace",
+        "core_id",
+        "actor_incarnation",
+        "monotonic_operation_id"
+      ],
+      "placement": "out_of_band_only",
+      "meaning": "Correlates an accepted async request to completion/failure/cancellation without replacing any protocol identity or changing signed bytes. At most one terminal service outcome per operation; shutdown abandonment explicitly recorded. Side effects with uncertain outcome report indeterminate, not cancelled-success.",
+      "ordering": "dependencies reference required operation completions; order of returned effect list is not storage/crypto completion order",
+      "current_delugi": "transport sequence/control request ids exist, but no generic cross-service operation ids yet; synchronous sections remain synchronous during extraction"
+    },
+    "storage_completions": {
+      "Accepted": "operation accepted under declared queue/resource budget; no visibility or write implied",
+      "Visible": "declared local read sees value; no OS write implied",
+      "Written": "backend completed its specified write operation, possibly only OS-buffered; no synchronization implied",
+      "Durable": "declared synchronization completed under named persistence/failure model",
+      "unsupported": "explicit error, never silently downgrade; current Delugi supports Visible only"
+    },
+    "per_core_runtime_manifest_required": [
+      "core_source_and_artifact_hashes",
+      "common_service_source_and_artifact_hashes",
+      "profile_id_and_exact_effective_limits",
+      "wire_crypto_storage_capabilities_and_native_policy_mapping",
+      "all_service_call_paths_including_direct_native_calls",
+      "all_workers_child_processes_sockets_storage_and_crypto_owners",
+      "declared_and_effective_cpu_memory_swap_disk_budgets",
+      "timing_namespace_and_clock_identity",
+      "operation_counter_and_byte_accounting_scopes",
+      "known_unsupported_capabilities_and_unavailable_metrics"
+    ],
+    "runtime_reconciliation_required": [
+      "accepted operations versus terminal/pending/abandoned outcomes by core and service",
+      "scheduled/enqueued/partial/replay/ACK written byte conservation",
+      "actual socket and child/worker inventory versus declared ownership",
+      "storage level counters versus actual backend calls and errors",
+      "crypto provider/domain calls including cache hits and background workers",
+      "aggregate whole-replica effective resources including all workers"
+    ],
+    "prohibited_bypasses": [
+      "direct undeclared sockets",
+      "direct undeclared disk/WAL/KV operations",
+      "direct undeclared crypto worker/provider calls",
+      "hidden background workers or child process budgets",
+      "unbounded work masquerading as bounded queue capacity"
+    ],
+    "acceptance": "Source hashes/configuration equality and one entry-point wrapper alone do not prove common-service use. Missing reconciliation, unknown native service use or unenforced resource claims fail the shared-runtime label; preserve diagnostics without promoting them."
+  },
+  "gates": {
+    "manifest_validation": "structural/integrity validation only; not implementation or performance acceptance",
+    "mechanical_delugi": "before/after wire vectors, configuration identities, actor traces, timer/bundling variants, round4/silent leader+three anchors/forks/full proof/materialization/finite cohort preservation",
+    "raptr": "native-policy source mapping and legal-prefix output fixtures, then shared service routing and resource reconciliation",
+    "local_acceptance": "n4 healthy/empty/unfinished/silent-leader/missing-payload plus cleanup; zero injected delay and configured Delta100 initially, measured delta10 only with calibration",
+    "later_scope": "No later protocol port or cloud execution is authorized by this manifest"
+  },
+  "manifest_sha256": "09130b9944ec4ff335482a64b326b5cbd7f95500679e1b76c4bf4719207389a6"
+}

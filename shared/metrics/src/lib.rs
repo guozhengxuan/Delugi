@@ -12,7 +12,7 @@ static CACHE_HITS: AtomicU64 = AtomicU64::new(0);
 
 #[derive(Clone, Copy)]
 #[repr(usize)]
-pub(crate) enum Operation {
+pub enum Operation {
     ProtocolSign,
     ProtocolVerify,
     TransportDataSign,
@@ -66,7 +66,7 @@ impl Operation {
         }
     }
 
-    pub(crate) fn signature(domain: &str, signing: bool) -> Self {
+    pub fn signature(domain: &str, signing: bool) -> Self {
         match (domain, signing) {
             ("tcp-data-v1", true) => Self::TransportDataSign,
             ("tcp-data-v1", false) => Self::TransportDataVerify,
@@ -130,13 +130,13 @@ fn thread_cpu_ns() -> Option<u64> {
     None
 }
 
-pub(crate) struct Measurement {
+pub struct Measurement {
     operation: Operation,
     started: Instant,
     cpu_started_ns: Option<u64>,
 }
 
-pub(crate) fn measure(operation: Operation) -> Option<Measurement> {
+pub fn measure(operation: Operation) -> Option<Measurement> {
     ENABLED.load(Ordering::Relaxed).then(|| Measurement {
         operation,
         started: Instant::now(),
@@ -144,7 +144,7 @@ pub(crate) fn measure(operation: Operation) -> Option<Measurement> {
     })
 }
 
-pub(crate) fn signature_cache_hit() {
+pub fn signature_cache_hit() {
     if ENABLED.load(Ordering::Relaxed) {
         CACHE_HITS.fetch_add(1, Ordering::Relaxed);
     }

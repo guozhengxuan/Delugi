@@ -1,0 +1,9 @@
+[package]
+name = "shared-metrics"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+libc = "=0.2.178"
+serde = { version = "=1.0.190", features = ["derive"] }

@@ -219,7 +219,7 @@ class WindowAccounting(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "src").mkdir()
-            (root / "Cargo.toml").write_text("manifest")
+            (root / "Cargo.toml").write_text('[package]\nname="stamp-fixture"\n')
             (root / "Cargo.lock").write_text("lock")
             source = root / "src/lib.rs"
             source.write_text("source-one")

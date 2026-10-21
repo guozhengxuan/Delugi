@@ -33,6 +33,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
 
 [[package]]
+name = "common-node"
+version = "0.1.0"
+dependencies = [
+ "core-api",
+]
+
+[[package]]
+name = "core-api"
+version = "0.1.0"
+
+[[package]]
 name = "cpufeatures"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -59,12 +70,38 @@ name = "delugi"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "common-node",
+ "delugi-core",
  "ed25519-dalek",
  "libc",
  "serde",
  "serde_json",
  "sha2",
 ]
+
+[[package]]
+name = "delugi-core"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "core-api",
+ "delugi-shared-output",
+ "ed25519-dalek",
+ "libc",
+ "serde",
+ "serde_json",
+ "sha2",
+ "shared-crypto",
+ "shared-mempool",
+ "shared-metrics",
+ "shared-network",
+ "shared-runtime",
+ "shared-store",
+]
+
+[[package]]
+name = "delugi-shared-output"
+version = "0.1.0"
 
 [[package]]
 name = "digest"
@@ -253,6 +290,49 @@ dependencies = [
  "cpufeatures",
  "digest",
  "opaque-debug",
+]
+
+[[package]]
+name = "shared-crypto"
+version = "0.1.0"
+dependencies = [
+ "ed25519-dalek",
+ "sha2",
+ "shared-metrics",
+]
+
+[[package]]
+name = "shared-mempool"
+version = "0.1.0"
+
+[[package]]
+name = "shared-metrics"
+version = "0.1.0"
+dependencies = [
+ "libc",
+ "serde",
+]
+
+[[package]]
+name = "shared-network"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "shared-runtime"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "shared-store"
+version = "0.1.0"
+dependencies = [
+ "core-api",
 ]
 
 [[package]]

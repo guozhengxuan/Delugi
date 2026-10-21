@@ -11,8 +11,11 @@ use std::sync::{
     atomic::{AtomicBool, AtomicU64, Ordering},
     mpsc, Arc, Mutex,
 };
-use std::thread::{self, JoinHandle};
-use std::time::{Duration, Instant};
+#[cfg(test)]
+use std::thread;
+#[cfg(test)]
+use std::time::Duration;
+use std::time::Instant;
 
 const MAGIC: &[u8; 8] = b"DLGLOAD1";
 pub const REQUEST_METADATA_BYTES: usize = 20;
@@ -272,15 +275,11 @@ pub struct Ingress {
     pub admitted: Arc<AtomicU64>,
     pub rejected: Arc<AtomicU64>,
     pub finished: Arc<AtomicBool>,
-    stop: Arc<AtomicBool>,
-    worker: Option<JoinHandle<()>>,
+    worker: shared_mempool::Worker,
 }
 impl Ingress {
     pub fn stop(&mut self) {
-        self.stop.store(true, Ordering::Relaxed);
-        if let Some(worker) = self.worker.take() {
-            let _ = worker.join();
-        }
+        self.worker.stop();
     }
     pub fn start(manifest: Manifest, key: &Keypair, clock: Instant, capacity: usize) -> Self {
         Self::start_with_mode(manifest, key, clock, capacity, ObserverMode::Full)
@@ -295,35 +294,18 @@ impl Ingress {
         let signed = wire::sign(key, manifest.origin, manifest.clone());
         let receipt = Arc::new(Mutex::new(AdmissionReceipt::new(manifest.count)));
         let worker_receipt = receipt.clone();
-        let (sender, receiver) = mpsc::sync_channel(capacity);
         let timings = Arc::new(Mutex::new(BTreeMap::new()));
         let scheduled = Arc::new(AtomicU64::new(0));
         let admitted = Arc::new(AtomicU64::new(0));
         let rejected = Arc::new(AtomicU64::new(0));
-        let finished = Arc::new(AtomicBool::new(false));
-        let stop = Arc::new(AtomicBool::new(false));
-        let (records, due, accepted, denied, done, cancelled) = (
-            timings.clone(),
-            scheduled.clone(),
-            admitted.clone(),
-            rejected.clone(),
-            finished.clone(),
-            stop.clone(),
+        let (records, due, accepted, denied) = (
+            timings.clone(), scheduled.clone(), admitted.clone(), rejected.clone(),
         );
-        let worker = thread::spawn(move || {
-            for sequence in 0..manifest.count {
-                let intended = manifest.scheduled_us(sequence);
-                loop {
-                    if cancelled.load(Ordering::Relaxed) {
-                        done.store(true, Ordering::Release);
-                        return;
-                    }
-                    let now = clock.elapsed().as_micros() as u64;
-                    if now >= intended {
-                        break;
-                    }
-                    thread::sleep(Duration::from_micros((intended - now).min(1000)));
-                }
+        let schedule = manifest.clone();
+        let (worker, receiver, finished) = shared_mempool::Worker::start(
+            capacity, manifest.count, clock,
+            move |sequence| schedule.scheduled_us(sequence),
+            move |sequence, sender| {
                 let transaction = manifest.transaction(sequence);
                 // Publish admission and the channel send atomically from the
                 // consumer's perspective in both observer modes.
@@ -369,9 +351,8 @@ impl Ingress {
                     records.insert(sequence, timing);
                 }
                 due.fetch_add(1, Ordering::Release);
-            }
-            done.store(true, Ordering::Release);
-        });
+            },
+        );
         Self {
             manifest: signed,
             receipt,
@@ -382,8 +363,7 @@ impl Ingress {
             admitted,
             rejected,
             finished,
-            stop,
-            worker: Some(worker),
+            worker,
         }
     }
     pub fn entries(&self, offset: usize, limit: usize) -> Vec<Entry> {

@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 from spec_provenance import add_spec_arguments, archive_spec, verify_spec_unchanged, scheduling_provenance
+from shared_core_conformance import source_inventory
 MAX_REPLY = 16 * 1024 * 1024
 
 
@@ -801,8 +802,8 @@ def main():
 
     try:
         sources = [ROOT / item for item in ("Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-                                            "scripts/run_network.py", "scripts/spec_provenance.py")]
-        sources += sorted((ROOT / "src").rglob("*.rs")) + sorted((ROOT / "tests").rglob("*.rs"))
+                                            "scripts/run_network.py", "scripts/spec_provenance.py", "scripts/shared_core_conformance.py")]
+        sources = sorted(set(sources) | {ROOT / name for name in source_inventory(ROOT)})
         sources += sorted((ROOT / "tests").glob("*network*.py"))
         for source in sources:
             data, relative = source.read_bytes(), source.relative_to(ROOT)
@@ -816,8 +817,8 @@ def main():
         manifest["cargo"] = command(["cargo", "--version"], "cargo").strip()
         if not args.skip_checks:
             command(["cargo", "fmt", "--check"], "format")
-            command(["cargo", "test", "--offline", "--locked"], "tests")
-            command(["cargo", "test", "--offline", "--locked", "--", "--ignored", "--test-threads=1"], "socket-tests")
+            command(["cargo", "test", "--workspace", "--offline", "--locked"], "tests")
+            command(["cargo", "test", "--workspace", "--offline", "--locked", "--", "--ignored", "--test-threads=1"], "socket-tests")
             command([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "*network*.py"], "runner-tests")
         command(["cargo", "build", "--release", "--offline", "--locked", "--bin", "delugi-replica"], "release-build")
         binary = ROOT / "target" / "release" / "delugi-replica"

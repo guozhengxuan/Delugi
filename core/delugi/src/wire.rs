@@ -9,9 +9,8 @@
 
 use crate::history::{self, Entries, History, Report};
 use bincode::Options;
-use ed25519_dalek::{Keypair, PublicKey, SecretKey, Signature, Signer};
+use shared_crypto::{Keypair, PublicKey, SecretKey, Signature};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use sha2::{Digest as ShaDigest, Sha256};
 use std::collections::{HashSet, VecDeque};
 #[cfg(test)]
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -210,13 +209,10 @@ pub fn hash<T: Serialize>(value: &T) -> Digest {
 }
 
 fn hash_encoded(encoded: &[u8]) -> Digest {
-    let _cost = crate::meter::measure(crate::meter::Operation::ContentHash);
-    let mut hasher = Sha256::new();
-    hasher.update(PROFILE.as_bytes());
-    hasher.update(b"\0content-hash\0");
-    hasher.update((encoded.len() as u64).to_le_bytes());
-    hasher.update(encoded);
-    hasher.finalize().into()
+    shared_crypto::sha256(
+        &[PROFILE.as_bytes(), b"\0content-hash\0", &(encoded.len() as u64).to_le_bytes(), encoded],
+        Some(crate::meter::Operation::ContentHash),
+    )
 }
 
 /// Proposal identity depends on the canonical header, never signature bytes.
@@ -250,10 +246,9 @@ fn signing_bytes<T: Serialize + SigningDomain>(signer: Id, body: &T) -> Result<V
 /// Sign a trusted local header/statement; this does not validate its semantics.
 pub fn sign<T: Serialize + Clone + SigningDomain>(key: &Keypair, signer: Id, body: T) -> Signed<T> {
     let bytes = signing_bytes(signer, &body).expect("signed input must be bounded");
-    let signature = {
-        let _cost = crate::meter::measure(crate::meter::Operation::signature(T::DOMAIN, true));
-        key.sign(&bytes).to_bytes().to_vec()
-    };
+    let signature = shared_crypto::sign_ed25519(
+        key, &bytes, crate::meter::Operation::signature(T::DOMAIN, true),
+    );
     Signed {
         signer,
         body,
@@ -757,11 +752,10 @@ impl Committee {
         // bypassed, not trusted; the original strict check still decides.
         #[cfg(test)]
         self.strict_verifications.fetch_add(1, Ordering::Relaxed);
-        {
-            let _cost = crate::meter::measure(crate::meter::Operation::signature(T::DOMAIN, false));
-            key.verify_strict(&cache_key.preimage, &signature)
-                .map_err(|_| "invalid Ed25519 signature".to_string())?;
-        }
+        shared_crypto::verify_ed25519_strict(
+            key, &cache_key.preimage, &signature,
+            crate::meter::Operation::signature(T::DOMAIN, false),
+        )?;
         if let Ok(mut cache) = self.signature_cache.lock() {
             cache.insert_verified(cache_key);
         }

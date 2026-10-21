@@ -14,7 +14,7 @@ use crate::wire::{self, Committee, Digest, Id, Signed};
 use ed25519_dalek::Keypair;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::collections::{BTreeMap, BTreeSet};
 use std::time::Instant;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -95,7 +95,7 @@ pub struct Node {
     report_sent: BTreeSet<u64>,
     opportunity_limit: u64,
     delivered_descriptors: BTreeMap<u64, Digest>,
-    pending_ordered: VecDeque<(u64, Descriptor)>,
+    pending_ordered: delugi_shared_output::OrderedQueue<(u64, Descriptor)>,
     cumulative_heights: Vec<u64>,
     requested: BTreeMap<Digest, (Checkpoint, Checkpoint)>,
     pending_requests: BTreeMap<(Id, Digest), (Checkpoint, Checkpoint)>,
@@ -179,7 +179,7 @@ impl Node {
             report_sent: BTreeSet::new(),
             opportunity_limit: wire::MAX_ROUND,
             delivered_descriptors: BTreeMap::new(),
-            pending_ordered: VecDeque::new(),
+            pending_ordered: delugi_shared_output::OrderedQueue::new(),
             cumulative_heights,
             requested: BTreeMap::new(),
             pending_requests: BTreeMap::new(),

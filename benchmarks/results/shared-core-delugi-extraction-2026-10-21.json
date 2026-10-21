@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "milestone": "Delugi mechanical extraction into common services and selectable core boundary",
+  "scope": "local Delugi conformance only; not completed Raptr port, performance comparison, formal proof or cloud acceptance",
+  "reference": {
+    "source_manifest": {
+      "path": "results/local/shared-core-20261021/reference/manifest.json",
+      "bytes": 14625,
+      "sha256": "3b3eef8fa31adcf6ea82dbf3e0a27e899e9ad8f1b5546346957ee34f9970bf5a"
+    },
+    "native_replica_sha256": "fa90c1a08ac4dc5d86b68a0b9b99d3ce7a2e0d9c8cbc3fe12b3613f5a09d4a7a",
+    "original_stamp": {
+      "path": "results/local/shared-core-20261021/reference/artifacts/delugi-replica.build.json",
+      "bytes": 2553,
+      "sha256": "d25e400b81f809b1e9e85beda1e4ad24c6335fe25b4c4132f3c82739cb6979dd"
+    }
+  },
+  "candidate": {
+    "source_manifest": {
+      "path": "results/local/shared-core-20261021/candidate/source-manifest.json",
+      "bytes": 28197,
+      "sha256": "52399680d2040febb335d86f8a42ab18bfbb44a8e6a087373bab3b076df0a9d9"
+    },
+    "artifacts": {
+      "path": "results/local/shared-core-20261021/candidate/artifacts.json",
+      "bytes": 955,
+      "sha256": "13dd914ca6637718b40f579cbd56d6e6995ffbb1b8769755d1b85441cf0168be"
+    },
+    "replica_sha256": "e4ba5f2b20bd88612f6c9697c339e7c22a7d5a2c8938201920af0d70bda09fcc",
+    "unified_node_sha256": "7fb2962b9e39f25bf7d94b846fb068cf89a1f17abd488d3d2f536dfd2e47772c",
+    "verified_build_stamp": {
+      "path": "results/local/shared-core-20261021/candidate/artifacts/delugi-replica.build.json",
+      "bytes": 5496,
+      "sha256": "2f6549476f3be911eda7eb5c59907dcb9fe45cdd45de7e1f29183da9897b0a68"
+    }
+  },
+  "source_and_provenance": {
+    "old_files": 28,
+    "current_workspace_cargo_rust_files": 50,
+    "byte_identical_mapping_rows": 17,
+    "reviewed_adapter_or_new_boundary_rows": 23,
+    "mapping": {
+      "path": "results/local/shared-core-20261021/source-map.json",
+      "bytes": 19728,
+      "sha256": "d04955fdc2ebbec69ecad16eb7aa841b170c947a1d996fb8f9a4281ef1d73c44"
+    },
+    "external_registry_pins_unchanged": 37,
+    "registry_pins": {
+      "path": "results/local/shared-core-20261021/external-dependency-pins.json",
+      "bytes": 6991,
+      "sha256": "b9d4136b67a4f1353383635b4be102ea6a0ce05d8cd1c2581f60f8c96a44838a"
+    },
+    "runner_behavior": "Cargo tests use --workspace; archive collectors follow declared members/path dependencies; build stamps bind root package closure, not unrelated standalone Raptr/native trees"
+  },
+  "deterministic_traces": {
+    "status": "passed",
+    "ordering_cases": 8,
+    "composed_cases": 9,
+    "repeats_per_case_per_side": 2,
+    "exact_reference_candidate_json_equality": true,
+    "ordering": {
+      "path": "results/local/shared-core-20261021/candidate/ordering-comparison.json",
+      "bytes": 150,
+      "sha256": "721d0d04ea2046e331471d3016a2eb79a17d5d9874d636939fd35cd92b10e60d"
+    },
+    "composed": {
+      "path": "results/local/shared-core-20261021/candidate/end-to-end-comparison.json",
+      "bytes": 150,
+      "sha256": "e4b1c6d762a7f5399045490408667f9d6a2671281b456224887e63b9e6c869d7"
+    },
+    "scope": "round4, silent leader plus three anchors, recurring silence, n7, duplicate packets, delayed payload and descriptor-only retrieval; composed summaries include exact batches/transactions/state"
+  },
+  "raw_encoded_bytes": {
+    "ordering": {
+      "status": "passed",
+      "fixtures": 16,
+      "bytes": 1356295,
+      "evidence": {
+        "path": "results/local/shared-core-20261021/candidate/wire-export-artifacts.json",
+        "bytes": 612,
+        "sha256": "8d020bde7a020e24a5b8d68e75d3ba71fe810a40d867b74f209c241300db76a8"
+      },
+      "kinds": [
+        "PROPOSE",
+        "VOTE",
+        "CER",
+        "PROG",
+        "CLOSED",
+        "HISTORY3"
+      ]
+    },
+    "transport": {
+      "status": "passed",
+      "fixtures": 24,
+      "bytes": 11972,
+      "evidence": {
+        "path": "results/local/shared-core-20261021/transport-extraction-validation.json",
+        "bytes": 6759,
+        "sha256": "b589bbeba1c93d7382325372a9a37360669219e49d05f93da80430cc51e7dc79"
+      },
+      "scope": "legacy and complete resource profiles; frame/auth/ACK/channel-bound signatures and payload digest"
+    }
+  },
+  "tests": {
+    "ordinary_workspace_passed": 251,
+    "ordinary_workspace_log": {
+      "path": "results/local/shared-core-20261021/root-validation-logs/delugi-shared-workspace-tests.log",
+      "bytes": 32280,
+      "sha256": "35d3d6daeff9e13ab3fbcabe0df29ab74a1b4af5c4b8fddb05eaea885fadfe8c"
+    },
+    "additional_factory_dispatch_passed": 1,
+    "factory_dispatch_log": {
+      "path": "results/local/shared-core-20261021/common-node-test.log",
+      "bytes": 473,
+      "sha256": "642643269a43cede88e6aa25f077772dfde10289f8b9039c6c342318874e3aa2"
+    },
+    "conformance_python_passed": 11,
+    "conformance_python_log": {
+      "path": "results/local/shared-core-20261021/harness-tests-r4.log",
+      "bytes": 1851,
+      "sha256": "84511b9aabb7d5fb12a3087446930cc31e9ab940f2b1414bb53c46f67575ef65"
+    },
+    "runner_python_passed": 88,
+    "runner_python_log": {
+      "path": "results/local/shared-core-20261021/runner-tests-r4.log",
+      "bytes": 187,
+      "sha256": "df41796bdcf6ae37da7b0a16631754abf8037f5e70bde88bf108c0c30dbee7f9"
+    },
+    "transport_test_subsets": {
+      "shared_unit_passed": 7,
+      "independent_policy_localhost_passed": 1,
+      "delugi_adapter_unit_passed": 9,
+      "delugi_existing_localhost_passed": 6,
+      "reference_exporter_selected_passed": 1,
+      "candidate_exporter_selected_passed": 1
+    },
+    "counting_note": "transport unit subsets overlap ordinary workspace tests; report separately, not as added ordinary counts"
+  },
+  "live_network": {
+    "status": "passed",
+    "added_delay_ms": 0,
+    "protocol_bound_ms": 100,
+    "matrix": [
+      {
+        "ordering_mode": "progress",
+        "bundling": true,
+        "manifest": {
+          "path": "results/local/network-2df816a64acd4d45863d20f854aafeda/manifest.json",
+          "bytes": 328162,
+          "sha256": "689e726f534c0be984adb7ac8b366c00cab70f0d2836400f7e3f3ba5da7cda41"
+        },
+        "scenario_count": 2,
+        "scenarios": [
+          {
+            "label": "honest-round-four",
+            "silent": null
+          },
+          {
+            "label": "silent-first-three-anchors",
+            "silent": 0
+          }
+        ],
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "ordering_mode": "progress",
+        "bundling": false,
+        "manifest": {
+          "path": "results/local/network-50b67496c8de43f694c258ff8a112e0b/manifest.json",
+          "bytes": 315509,
+          "sha256": "98998d4ec1359b6de212659789540e55f5e9c0edf51b0c5cae9e4fcf09c1fb58"
+        },
+        "scenario_count": 2,
+        "scenarios": [
+          {
+            "label": "honest-round-four",
+            "silent": null
+          },
+          {
+            "label": "silent-first-three-anchors",
+            "silent": 0
+          }
+        ],
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "ordering_mode": "canonical",
+        "bundling": true,
+        "manifest": {
+          "path": "results/local/network-37ac02bf7af0427e959a74314981b2e8/manifest.json",
+          "bytes": 1740106,
+          "sha256": "5e9f7355aa4bceb2df887626e3a695b8eb9ccd7f7e0943853246aff42bed8c7d"
+        },
+        "scenario_count": 2,
+        "scenarios": [
+          {
+            "label": "honest-round-four",
+            "silent": null
+          },
+          {
+            "label": "silent-first-three-anchors",
+            "silent": 0
+          }
+        ],
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "ordering_mode": "canonical",
+        "bundling": false,
+        "manifest": {
+          "path": "results/local/network-255a6ba9c3d54ecc9b15660385d8ac64/manifest.json",
+          "bytes": 1687129,
+          "sha256": "1939db4dfec91078c58f125a9f072c8ac680f2fcb37445165c0a4ca6ad9029dc"
+        },
+        "scenario_count": 2,
+        "scenarios": [
+          {
+            "label": "honest-round-four",
+            "silent": null
+          },
+          {
+            "label": "silent-first-three-anchors",
+            "silent": 0
+          }
+        ],
+        "all_owned_replicas_exited_zero": true
+      }
+    ],
+    "total_four_replica_trials": 8,
+    "validation": {
+      "path": "results/local/shared-core-20261021/candidate/scheduling/validation.json",
+      "bytes": 2171,
+      "sha256": "ad99485778779952c2eed92ad9115acbf6eec3ea5b69bd4ed99ce419d7495455"
+    }
+  },
+  "finite_observers": {
+    "status": "passed",
+    "cases": [
+      {
+        "status": "passed",
+        "case": "healthy-full",
+        "planned": 8,
+        "completed": 8,
+        "unfinished": 0,
+        "finite_category_breakdown_available": true,
+        "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/candidate/finite/healthy-full/manifest.json",
+          "bytes": 104108,
+          "sha256": "c506336816c0ba0789b4593f52c2331d41b0e005d0516d20c6d3cc099b355118"
+        },
+        "receipt_index_sha256": "6f9e3e11fdc6129d89f07f5763e2eae170030a27bd52f7a09159a6e5aa4c1f89",
+        "receipt_authenticated": true,
+        "detailed_schema2_authenticated": true,
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "status": "passed",
+        "case": "healthy-compact",
+        "planned": 8,
+        "completed": 8,
+        "unfinished": 0,
+        "finite_category_breakdown_available": false,
+        "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/candidate/finite/healthy-compact/manifest.json",
+          "bytes": 59396,
+          "sha256": "a5cf26aa151c55b893631511aea1a28ecb38a7132b14b214cd198130d1aa4fa0"
+        },
+        "receipt_index_sha256": "7639f2b4c0ba943e6c7af257d123d959d20dcd83ef32af0ab15c257fa41cad5d",
+        "receipt_authenticated": true,
+        "detailed_schema2_authenticated": null,
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "status": "passed",
+        "case": "empty-full",
+        "planned": 0,
+        "completed": 0,
+        "unfinished": 0,
+        "finite_category_breakdown_available": true,
+        "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/candidate/finite/empty-full/manifest.json",
+          "bytes": 99166,
+          "sha256": "55ee4d1728ddd8250678c25005d879c3eda17726ee04b9848599fc3662c6939a"
+        },
+        "receipt_index_sha256": "aabffb1d782ed5f65993dc491ef8e35a955cf8636ad8b9735e23ed9126cbe6d7",
+        "receipt_authenticated": true,
+        "detailed_schema2_authenticated": true,
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "status": "passed",
+        "case": "empty-compact",
+        "planned": 0,
+        "completed": 0,
+        "unfinished": 0,
+        "finite_category_breakdown_available": false,
+        "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/candidate/finite/empty-compact/manifest.json",
+          "bytes": 58974,
+          "sha256": "fd2fede110064ca212bcc2292dc12638411ec94647d9a852fbb38d4205dd98ee"
+        },
+        "receipt_index_sha256": "4b33ae072f36c8bab45d863542066615047bc3255aa934035541fa183114bec6",
+        "receipt_authenticated": true,
+        "detailed_schema2_authenticated": null,
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "status": "passed",
+        "case": "unfinished-full",
+        "planned": 4,
+        "completed": 0,
+        "unfinished": 4,
+        "finite_category_breakdown_available": true,
+        "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/candidate/finite/unfinished-full/manifest.json",
+          "bytes": 102864,
+          "sha256": "e153dac7dd525f2043d4c2462a3779c2855997427bb2a04f3101af266ad95fdd"
+        },
+        "receipt_index_sha256": "a91aedf756eeb6eca0991a789d1116ad5be50ed3195f603dcddcfa0a2196e5e2",
+        "receipt_authenticated": true,
+        "detailed_schema2_authenticated": true,
+        "all_owned_replicas_exited_zero": true
+      },
+      {
+        "status": "passed",
+        "case": "unfinished-compact",
+        "planned": 4,
+        "completed": 0,
+        "unfinished": 4,
+        "finite_category_breakdown_available": false,
+        "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/candidate/finite/unfinished-compact/manifest.json",
+          "bytes": 58513,
+          "sha256": "1434866f97785cc0eb807318aa71ea5db3462331fc222c8a9e4c405f80208428"
+        },
+        "receipt_index_sha256": "141da87abdff02d746c9e4bd3da94cfa4a696441b71625760b5395e8c6d9af39",
+        "receipt_authenticated": true,
+        "detailed_schema2_authenticated": null,
+        "all_owned_replicas_exited_zero": true
+      }
+    ],
+    "reference_contract_audit": {
+      "path": "results/local/shared-core-20261021/historical-finite-report-audit-r3.json",
+      "bytes": 3587,
+      "sha256": "5c72fc584c743203392819482f5e1e6e6fb6ec7936f5955fb5ccb4263dc57bb2"
+    },
+    "candidate_independent_audit": {
+      "path": "results/local/shared-core-20261021/candidate/finite/independent-report-audit.json",
+      "bytes": 4061,
+      "sha256": "7a3054e95233ca24e5d16a492203b28580ed1278c91aca4dabdcaba28989bf81"
+    },
+    "scope": "healthy8/8, empty0, unfinished0/4 at finite freeze in full and compact; independent signed receipts and full schema2 verification; no inter-run scheduling/latency equality requirement"
+  },
+  "cleanup": {
+    "reference_build_intermediates": {
+      "path": "results/local/shared-core-20261021/reference-build-cleanup.json",
+      "bytes": 1047,
+      "sha256": "a0f99c4d97aa6c8c18a15044a5f3e06173cc502b184e4fecb9273dbd17b57bb8"
+    },
+    "reference_allocated_bytes_removed": 199151616,
+    "all_reported_network_and_finite_children_reaped": true,
+    "main_workspace_and_Raptr_builds": "owned and cleaned separately by root/native agents"
+  },
+  "retained_rejected_attempts": [
+    "Initial root localhost attempt network-e03f* denied by sandbox; only scoped permitted rerun accepted.",
+    "Transport exporter cached zero-test attempt rejected; independent isolated rebuild emitted all24 vectors.",
+    "Initial harness historical compact shape checks failed; fixed null latency and explicitly absent finite category detail, preserved audit revisions."
+  ],
+  "limitations": [
+    "Zero injected local delay is not zero measured delay; no calibrated10ms shaper used.",
+    "Concurrent native compilation during functional trials means these are conformance observations, not new performance rankings.",
+    "Compact reports retain finite whole-committee TCP totals and sampled-window category breakdown, but finite category detail is explicitly unavailable.",
+    "Shared-runtime Raptr implementation and matched comparison are separate remaining work.",
+    "These finite local tests do not transfer canonical timing theorems, prove consensus correctness, or establish remote deployment acceptance."
+  ]
+}

@@ -1,0 +1,162 @@
+Shared service contract v1 — 21 October 2026
+
+Scope and status
+
+The user approved local Delugi extraction and Raptr-first integration. This freeze
+records the current Delugi implementation and requirements for the shared layer.
+It does not claim that shared services already exist or that Raptr has an accepted
+new native artifact. Later protocol ports, cloud execution and new protocol-semantic
+variants are outside this phase.
+
+Machine-readable authority: provenance/shared-services-v1.json, schema 1,
+contract_id shared-services-v1. Its canonical manifest_sha256 excludes only that
+field. This checksum detects accidental mismatch, not authorship. The 18 source
+hashes identify current local files including existing patches; retain them after
+extraction instead of replacing them with new hashes and calling the move proved.
+
+Mechanical-extraction invariant
+
+Preserve serialized/signed/hashed bytes, domains, configuration and resource-profile
+identities, existing TCP frame/ACK envelopes, timer arming/meaning, per-peer order,
+handler atomicity and synchronous critical sections. Preserve paced PROG plus
+immediate bundling as default and explicit alternative scheduling modes. Do not
+hide tuning, async-crypto reorderings or persistence changes in file relocation.
+
+Run/core/actor/channel namespaces and service operation IDs are initially adapter
+context only. They add no wire field and replace no protocol identity. For future
+asynchronous services, correlate requests by run, core, actor incarnation and
+monotonic operation ID. Completion, failure, cancellation and shutdown abandonment
+are explicit; at most one terminal outcome is reported. An uncertain side effect
+is indeterminate, not a successful cancellation. Dependencies await the relevant
+completion rather than assuming an effect list completes in order.
+
+Current effective Delugi profile
+
+The manifest contains both profiles, with legacy-1mib-v1 retained as the omitted-
+configuration default. Complete-32mib-n31-v1 is explicitly selected and authenticated
+in the committee configuration. This freeze does not change that selection.
+
+                                           legacy             complete
+Protocol message bytes                     1,048,576          33,554,432
+Frame body maximum (+auth and length)        1,049,092          33,554,948
+Complete framed maximum                     1,049,096          33,554,952
+Inbox items                                 4,096             4,096
+Outbox/deferred items per peer               4,096 / 4,096     4,096 / 4,096
+In-flight items per peer                    64                64
+In-flight bytes per peer                    8,388,608         67,109,904
+All-peer retained outbound bytes             134,217,728       1,073,741,824
+Inbox payload / all-reader buffer bytes      33,554,432 each   134,217,728 each
+Incoming reader connections maximum          64                64
+ACK / partial-frame timeout                  2,000ms           30,000ms
+Connect / I/O / reconnect                    100/250/20ms      100/250/20ms
+
+Per-peer outbound reservation is floor(aggregate / max(n-1,1)); the byte budget
+can bind before the item/window limits. One extra dequeued frame may be staged
+outside the window, still under retained-byte reservation. These are component
+budgets, not total heap bounds: frame construction/copies, decoding, proof state,
+retained batches and output history can consume additional memory.
+
+The runtime retains exact signed frames when the writer mailbox is full. Deferred
+retry rotates peers and attempts one head each turn; byte/frame exhaustion fails
+explicitly. FIFO covers all layers. Independent ACK readers allow pipelined writes;
+reconnect replays the unacknowledged suffix before new frames. ACK signifies
+authenticated mailbox enqueue, not protocol acceptance, custody or persistence.
+Sequence state does not survive process restart. The shared implementation must
+preserve these facts, including the existing signed transport overhead.
+
+Inbound fairness is weaker: the shared received-sequence mutex remains held while
+a reader waits for inbox capacity, which can serialize other readers. Preserve and
+disclose this during extraction. Removing it would be a later measured change.
+
+Actual written traffic counts successful byte writes, including partial attempts
+and replay, with disjoint payload/evidence-control/repair/transport-overhead totals.
+ACK, auth, frame and bundle fields appear once in overhead. Kernel retransmission
+and TCP/IP headers are outside this measurement. Scheduled, enqueued, written and
+ACKed logical counts remain distinct.
+
+Actor, queue and timer behavior
+
+One runtime thread owns Node/Replica state. Each turn retries deferred sends, takes
+at most one control request and one logical network message, handles due timers,
+then performs a load tick. Idle receive/sleep is 1ms. A bundle member receives its
+own turn. Current handlers, crypto, construction and effect drain are synchronous.
+Immediate bundles contain up to 32 messages and add no fill timer.
+
+Workers per replica: one control listener, one transport acceptor, n-1 writers,
+up to n-1 live ACK readers, up to 64 incoming readers, and zero or one independent
+ingress thread, in addition to the runtime. Reader handles are reaped and outgoing
+ACK readers joined before replacement. Thread stacks use platform defaults;
+there is no process-internal aggregate CPU/RSS quota. Whole-worker enforcement
+must be established by the separate run resource contract, not inferred here.
+
+Ingress defaults to 65,536 items; configured capacity may reach 1,000,000 subject
+to capacity times encoded transaction bytes <=64MiB. Full admission queues record
+rejection, not retries. The receipt mutex synchronizes enqueue/publication, batch
+consumption and exact output eligibility. Batches cap payload at 256KiB; default
+max transactions is 128, further limited by encoded bytes. Configured batch_ms is
+1..1000; size-full or periodic-boundary flush semantics remain unchanged.
+
+Runtime Wake deadlines are a BTreeSet in local monotonic milliseconds; equal
+deadlines coalesce, all due entries are removed before one Node.tick(now). No
+generic cancellation/generation API currently exists. Core timer maps and once
+guards remain authoritative. Main deadlines are arm+7Delta, catch-up arm+3Delta;
+default PROG pacing is bound_ms with evidence-based early release. Network/control
+work can precede a due tick; there is no hard realtime deadline guarantee. These
+policies must not be replaced by a universal shared timer multiplier.
+
+Crypto, storage and output
+
+Preserve exact locked bincode1.3.3 fixed-int little-endian encoding, SHA-256 and
+ed25519-dalek1.0.1 strict verification. Signature-cache bounds are 4,096 entries
+and 4MiB. Crypto runs on calling threads. Optional cost meters are disabled by
+default; nested hash/proof/constructor time is not additive.
+
+Accepted: queued service work only. Visible: the declared local read sees a value.
+Written: the backend completed its specified write, possibly only to an OS buffer.
+Durable: the declared synchronization and persistence fault model is satisfied.
+Unsupported levels must fail explicitly, never silently downgrade.
+
+Current BatchStore is memory-only and supports Visible. It has no disk write,
+fsync or crash-recovery guarantee, and no generic durability request API yet.
+Payloads/proof state are retained indefinitely; retained_payload_bytes measures
+this growth rather than enforcing a cap. A shared adapter must reject Written
+and Durable. Custody remains a core predicate over verified held payloads.
+
+Delugi materialization waits at the FIFO head for exact suffixes, expands producer
+then height, deduplicates exact (producer,height,digest) batches, and executes each
+transaction ID once. Different fork batches remain in the raw batch log; malformed
+application payloads are deterministic no-ops. Preserve these current application
+conventions rather than impose them on every protocol. Full and compact modes
+share the synchronized append/eligibility boundary; compact latency is unavailable.
+Node histories are still retained in compact mode.
+
+Raptr requirements, not present capabilities
+
+Use the pinned raptr-public a4c98047cf8aeae3571168d02fb7e343140d2948 source.
+Preserve run_ctx handler-plus-condition atomicity, native BCS/BLS and real QS policy;
+sim-types dissemination is not the native Aptos substitute. Native effective queue,
+worker, persistence and service-call budgets still require adapter inventory.
+Unknown limits are explicit, not filled with Delugi defaults and called matched.
+
+Output sections bind block hash, round, full author and Proofs/original subblock
+index. Native QS batch identity includes epoch, full author, BatchId nonce/id and
+full payload digest; descriptors also bind expiration, transaction/byte counts and
+gas. Preserve empty sections and repeated occurrences; resolve payloads by reserved
+section, then publish a contiguous prefix. The approved added application contract
+requires prefix-extension/segmentation/reordering fixtures and is not an existing
+VM execution guarantee. Its pure implementation and acceptance are separate work.
+
+Shared-runtime acceptance gate
+
+Every core must publish exact source/binary/service/profile identities, capabilities,
+all service paths including native compatibility calls, every actor/child/worker,
+socket/storage/crypto owner, and effective whole-replica CPU/memory/swap/disk budget.
+Reconcile operation completion/pending/abandonment, actual socket writes, backend
+level calls, crypto provider/cache work and worker resources. Configuration/hash
+equality alone is insufficient. Undeclared direct service calls or unknown resource
+coverage fail the shared-runtime label, while diagnostics remain retainable.
+
+This is an audited baseline and technical contract. It supplies neither a completed
+shared-runtime routing proof nor new benchmark results. Initial acceptance remains
+local n4 Delugi/Raptr with the approved conformance/failure controls; later scope
+requires a separate decision.

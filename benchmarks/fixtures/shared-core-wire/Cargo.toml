@@ -1,0 +1,17 @@
+[package]
+name = "shared-core-wire"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Standalone conformance executable, not part of the production workspace.
+[workspace]
+
+[dependencies]
+delugi = { path = "../../.." }
+serde_json = "=1.0.108"
+sha2 = "=0.9.9"
+
+[profile.dev]
+debug = 0
+incremental = false

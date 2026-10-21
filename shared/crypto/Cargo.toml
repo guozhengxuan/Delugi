@@ -1,0 +1,10 @@
+[package]
+name = "shared-crypto"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+ed25519-dalek = "=1.0.1"
+sha2 = "=0.9.9"
+shared-metrics = { path = "../metrics" }

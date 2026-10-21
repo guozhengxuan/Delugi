@@ -11,6 +11,7 @@ import sys
 import uuid
 
 from spec_provenance import add_spec_arguments, archive_spec, verify_spec_unchanged, scheduling_provenance
+from shared_core_conformance import source_inventory
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -57,10 +58,9 @@ def main():
     try:
         sources = [ROOT / name for name in (
             "Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-            "scripts/run_ordering.py", "scripts/spec_provenance.py",
+            "scripts/run_ordering.py", "scripts/spec_provenance.py", "scripts/shared_core_conformance.py",
         )]
-        sources += sorted((ROOT / "src").rglob("*.rs"))
-        sources += sorted((ROOT / "tests").rglob("*.rs"))
+        sources = sorted(set(sources) | {ROOT / name for name in source_inventory(ROOT)})
         for source in sources:
             relative = source.relative_to(ROOT)
             data = source.read_bytes()
@@ -72,7 +72,7 @@ def main():
         manifest["paper_head"] = manifest["specification"]["paper_head"]
         manifest["rustc"] = command(["rustc", "--version", "--verbose"], "rustc").strip()
         manifest["cargo"] = command(["cargo", "--version"], "cargo").strip()
-        command(["cargo", "test", "--offline", "--locked"], "tests")
+        command(["cargo", "test", "--workspace", "--offline", "--locked"], "tests")
         command(["cargo", "build", "--offline", "--locked", "--bin", "ordering-trace"], "build")
         binary = ROOT / "target" / "debug" / "ordering-trace"
         manifest["binary_sha256"] = sha(binary.read_bytes())

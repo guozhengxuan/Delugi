@@ -1,5 +1,22 @@
 # Progress — 21 October 2026
 
+## Delugi extraction checkpoint
+
+Delugi now uses shared network, crypto, ingress, memory storage, output queue,
+control and timer providers through a common node factory. Its core retains all
+protocol-specific message encodings, predicates, dissemination and custody rules.
+All 17 deterministic scenarios match the preserved reference byte for byte.
+Ordering wire fixtures match across 1,356,295 bytes and all six message kinds;
+24 transport/authentication fixtures also match. Local four-process round 4 and
+silent-leader recovery pass at zero added delay and Delta=100ms. Ordinary Rust
+checks pass (251 plus one factory-dispatch check); focused TCP checks also pass.
+All six finite full/compact healthy/empty/unfinished gates pass, including signed
+receipts, population conservation, contiguous output and actual written bytes.
+These are conformance gates, not a new timing-controlled comparison. The shared
+runtime still has the frozen component-limit and inbound fairness limitations.
+Raptr's output contract is tested; its actual native core/QS integration remains
+in progress and has no shared-runtime performance acceptance yet.
+
 ## Approved shared-runtime implementation
 
 The user approved the reviewed local Delugi-to-Raptr phase and requested periodic
