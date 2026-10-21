@@ -1,0 +1,950 @@
+{
+  "schema": 1,
+  "date": "2026-10-19",
+  "protocol": "shoal",
+  "status": "native_local_functional_accounting_accepted",
+  "scope": "Five small native Linux ARM64 local VM functional fixtures; no capacity, matched timing or formal performance ranking claim",
+  "source_commit": "9653e47dc6a08f4bb15e8f138ad79fb2045fccab",
+  "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+  "build_report": "benchmarks/results/shoal-native-build-2026-10-19.json",
+  "useful_transaction_bytes": 472,
+  "native_signed_BCS_transaction_bytes": 689,
+  "configured_bound_ms": 100,
+  "added_network_delay_ms": 0,
+  "native_configuration": "Explicit V3 DAG genesis; three native DAGs, weak votes, native reputation/round-robin merge; direct transaction payloads, quorum store disabled; original consensus-only-perf-test VM bypass/FakeAptosDB storage semantics",
+  "endpoint": "Native contiguous materialization after globally merged DAG output; independently verified Ed25519 signed finite plans matched by full native transaction hash; repeated native outputs remain in exact prefixes and M_out, U_out counts unique honest identities",
+  "traffic_scope": "recorded successful underlying native validator TCP writes, including encrypted framing/authentication; external REST ingress, syscall completions not yet recorded at suspension, and shutdown traffic excluded; not kernel-wire totals",
+  "fixtures": [
+    {
+      "case": "healthy_n4",
+      "manifest": "results/local/shoal-native-healthy-n4-final-20261019/manifest.json",
+      "manifest_sha256": "371ae22bc32435fc576fb84d192ebb7396193c16d6b5c379cad7fa39a65e1258",
+      "settings": {
+        "nodes": 4,
+        "rate": 40,
+        "useful_bytes": 472,
+        "warmup": 1.0,
+        "duration": 2.0,
+        "drain": 5.0,
+        "deadline_ms": 1000,
+        "batch_bytes": 500000,
+        "ingress_batch_ms": 10,
+        "bound_ms": 100,
+        "faulty_replica": [],
+        "pause_replica": null,
+        "pause_after": 1,
+        "pause_seconds": 0.5,
+        "plan_only": false,
+        "output": "/work/repo/results/local/shoal-native-healthy-n4-final-20261019",
+        "omit_replica": null,
+        "omission_after": 1,
+        "omission_seconds": 0.5,
+        "publish_to_replica": [],
+        "omit_repair": false,
+        "attacker_rate": 100,
+        "crypto_meter": "on"
+      },
+      "finite_output_receipt": {
+        "planned": 120,
+        "admitted": 120,
+        "all_correct_completed": 120,
+        "origins": [
+          {
+            "origin": 0,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 1,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 2,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 3,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          }
+        ],
+        "scope": "disk-backed exact finite identity/output join with eligible own-origin completion; original native receipt final fingerprints checked when present"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 120,
+        "sequence_lengths": [
+          120,
+          120,
+          120,
+          120
+        ],
+        "common_prefix_sha256": "41c5732a7688193c52fd0901a38f1a6148efc1060b4875c329fc717937cc2633",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "1": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "2": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "3": "complete native Shoal application materialization journal; exact signed finite identities verified independently"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 120,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 120,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 120,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 120,
+            "kind": "exact"
+          }
+        }
+      },
+      "finite_output_accounting": {
+        "m_out_bytes": 82680,
+        "u_out_bytes": 56640,
+        "unique_honest_completion_count": 120,
+        "output_replica": 0,
+        "output_prefix_count": 120,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "native_tcp_written_bytes": 2047721,
+      "finite_cost_ratios": {
+        "boundary": "finite_run",
+        "written_bytes": 2047721,
+        "written_bytes_per_u_out_byte": 36.15326624293785,
+        "written_bytes_per_m_out_byte": 24.76682389937107
+      },
+      "native_process_cpu": {
+        "user_seconds": 4.916194,
+        "system_seconds": 2.2151229999999997,
+        "scope": "native processes only; ingress runner CPU separate"
+      },
+      "omission_observation": {
+        "messages_omitted": 0,
+        "serialized_bytes_omitted": 0,
+        "by_native_unit": {},
+        "journals": [],
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "startup_readiness": {
+        "started_us": 6713309904,
+        "policy": "REST ready, pinned native state-sync bootstrap event and initialized native TCP counters on every validator before choosing the arrival epoch; configured warmup remains unchanged",
+        "bootstrapped": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "counter_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ready": true,
+        "api_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "completed_us": 6720958612
+      },
+      "swap_disabled_before_and_after": true,
+      "owned_children_reaped": 4,
+      "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+      "runner_sha256": "f45a8bce4697a3ac7d124368a5b1e527a80a69fe43af33b4af4a3fb7d9429367"
+    },
+    {
+      "case": "healthy_n7",
+      "manifest": "results/local/shoal-native-healthy-n7-20261019/manifest.json",
+      "manifest_sha256": "8421fb898609270c1a0ba9c70e7c29dc2b1610654f3a038baf57abfc6c2ee600",
+      "settings": {
+        "nodes": 7,
+        "rate": 70,
+        "useful_bytes": 472,
+        "warmup": 1.0,
+        "duration": 2.0,
+        "drain": 5.0,
+        "deadline_ms": 1000,
+        "batch_bytes": 500000,
+        "ingress_batch_ms": 10,
+        "bound_ms": 100,
+        "faulty_replica": [],
+        "pause_replica": null,
+        "pause_after": 1,
+        "pause_seconds": 0.5,
+        "plan_only": false,
+        "output": "/work/repo/results/local/shoal-native-healthy-n7-20261019",
+        "omit_replica": null,
+        "omission_after": 1,
+        "omission_seconds": 0.5,
+        "publish_to_replica": [],
+        "omit_repair": false,
+        "attacker_rate": 100,
+        "crypto_meter": "on"
+      },
+      "finite_output_receipt": {
+        "planned": 210,
+        "admitted": 210,
+        "all_correct_completed": 210,
+        "origins": [
+          {
+            "origin": 0,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 1,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 2,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 3,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 4,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 5,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          },
+          {
+            "origin": 6,
+            "planned": 30,
+            "admitted": 30,
+            "all_correct_completed": 30
+          }
+        ],
+        "scope": "disk-backed exact finite identity/output join with eligible own-origin completion; original native receipt final fingerprints checked when present"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 214,
+        "sequence_lengths": [
+          214,
+          214,
+          214,
+          214,
+          214,
+          214,
+          214
+        ],
+        "common_prefix_sha256": "9012a9db7b011f019d11bc9f00c5bfc067634543e63f810ad288b22bbb5b9fb6",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "1": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "2": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "3": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "4": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "5": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "6": "complete native Shoal application materialization journal; exact signed finite identities verified independently"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 214,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 214,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 214,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 214,
+            "kind": "exact"
+          },
+          "4": {
+            "count": 214,
+            "kind": "exact"
+          },
+          "5": {
+            "count": 214,
+            "kind": "exact"
+          },
+          "6": {
+            "count": 214,
+            "kind": "exact"
+          }
+        }
+      },
+      "finite_output_accounting": {
+        "m_out_bytes": 147446,
+        "u_out_bytes": 99120,
+        "unique_honest_completion_count": 210,
+        "output_replica": 0,
+        "output_prefix_count": 214,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "native_tcp_written_bytes": 8415773,
+      "finite_cost_ratios": {
+        "boundary": "finite_run",
+        "written_bytes": 8415773,
+        "written_bytes_per_u_out_byte": 84.90489305891849,
+        "written_bytes_per_m_out_byte": 57.07698411621882
+      },
+      "native_process_cpu": {
+        "user_seconds": 10.836519,
+        "system_seconds": 3.738882,
+        "scope": "native processes only; ingress runner CPU separate"
+      },
+      "omission_observation": {
+        "messages_omitted": 0,
+        "serialized_bytes_omitted": 0,
+        "by_native_unit": {},
+        "journals": [],
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "startup_readiness": {
+        "started_us": 6753644055,
+        "policy": "REST ready, pinned native state-sync bootstrap event and initialized native TCP counters on every validator before choosing the arrival epoch; configured warmup remains unchanged",
+        "bootstrapped": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "counter_replicas": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "ready": true,
+        "api_replicas": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "completed_us": 6761751253
+      },
+      "swap_disabled_before_and_after": true,
+      "owned_children_reaped": 7,
+      "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+      "runner_sha256": "f45a8bce4697a3ac7d124368a5b1e527a80a69fe43af33b4af4a3fb7d9429367"
+    },
+    {
+      "case": "finite_pause_n4",
+      "manifest": "results/local/shoal-native-pause-n4-20261019/manifest.json",
+      "manifest_sha256": "31bf541710606725bd9f8dba18eaff54a6521e68ecf6a1a88dd48da778b7a059",
+      "settings": {
+        "nodes": 4,
+        "rate": 40,
+        "useful_bytes": 472,
+        "warmup": 1.0,
+        "duration": 2.0,
+        "drain": 5.0,
+        "deadline_ms": 1000,
+        "batch_bytes": 500000,
+        "ingress_batch_ms": 10,
+        "bound_ms": 100,
+        "faulty_replica": [
+          3
+        ],
+        "pause_replica": 3,
+        "pause_after": 0.5,
+        "pause_seconds": 1.0,
+        "plan_only": false,
+        "output": "/work/repo/results/local/shoal-native-pause-n4-20261019",
+        "omit_replica": null,
+        "omission_after": 1,
+        "omission_seconds": 0.5,
+        "publish_to_replica": [],
+        "omit_repair": false,
+        "attacker_rate": 100,
+        "crypto_meter": "on"
+      },
+      "finite_output_receipt": {
+        "planned": 120,
+        "admitted": 120,
+        "all_correct_completed": 120,
+        "origins": [
+          {
+            "origin": 0,
+            "planned": 42,
+            "admitted": 42,
+            "all_correct_completed": 42
+          },
+          {
+            "origin": 1,
+            "planned": 39,
+            "admitted": 39,
+            "all_correct_completed": 39
+          },
+          {
+            "origin": 2,
+            "planned": 39,
+            "admitted": 39,
+            "all_correct_completed": 39
+          }
+        ],
+        "scope": "disk-backed exact finite identity/output join with eligible own-origin completion; original native receipt final fingerprints checked when present"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 120,
+        "sequence_lengths": [
+          120,
+          120,
+          120
+        ],
+        "common_prefix_sha256": "d55111393a9177bd2b070a8a39027c80220bf7dbcdbbf8841e2301cb6bbb04ed",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "1": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "2": "complete native Shoal application materialization journal; exact signed finite identities verified independently"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 120,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 120,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 120,
+            "kind": "exact"
+          }
+        }
+      },
+      "finite_output_accounting": {
+        "m_out_bytes": 82680,
+        "u_out_bytes": 56640,
+        "unique_honest_completion_count": 120,
+        "output_replica": 0,
+        "output_prefix_count": 120,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "native_tcp_written_bytes": 1888147,
+      "finite_cost_ratios": {
+        "boundary": "finite_run",
+        "written_bytes": 1888147,
+        "written_bytes_per_u_out_byte": 33.335928672316385,
+        "written_bytes_per_m_out_byte": 22.836804547653603
+      },
+      "native_process_cpu": {
+        "user_seconds": 4.369416999999999,
+        "system_seconds": 1.903352,
+        "scope": "native processes only; ingress runner CPU separate"
+      },
+      "omission_observation": {
+        "messages_omitted": 0,
+        "serialized_bytes_omitted": 0,
+        "by_native_unit": {},
+        "journals": [],
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "startup_readiness": {
+        "started_us": 6779384043,
+        "policy": "REST ready, pinned native state-sync bootstrap event and initialized native TCP counters on every validator before choosing the arrival epoch; configured warmup remains unchanged",
+        "bootstrapped": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "counter_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ready": true,
+        "api_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "completed_us": 6787232862
+      },
+      "swap_disabled_before_and_after": true,
+      "owned_children_reaped": 4,
+      "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+      "runner_sha256": "f45a8bce4697a3ac7d124368a5b1e527a80a69fe43af33b4af4a3fb7d9429367"
+    },
+    {
+      "case": "semantic_omission_n4",
+      "manifest": "results/local/shoal-native-omission-n4-20261019/manifest.json",
+      "manifest_sha256": "43d8a11ac278eee398dfc8d59e9d2e0073bc307148b1ab137f01475149fff617",
+      "settings": {
+        "nodes": 4,
+        "rate": 40,
+        "useful_bytes": 472,
+        "warmup": 1.0,
+        "duration": 2.0,
+        "drain": 5.0,
+        "deadline_ms": 1000,
+        "batch_bytes": 500000,
+        "ingress_batch_ms": 10,
+        "bound_ms": 100,
+        "faulty_replica": [
+          3
+        ],
+        "pause_replica": null,
+        "pause_after": 1,
+        "pause_seconds": 0.5,
+        "plan_only": false,
+        "output": "/work/repo/results/local/shoal-native-omission-n4-20261019",
+        "omit_replica": 3,
+        "omission_after": 0.5,
+        "omission_seconds": 1.0,
+        "publish_to_replica": [
+          1
+        ],
+        "omit_repair": false,
+        "attacker_rate": 10,
+        "crypto_meter": "on"
+      },
+      "finite_output_receipt": {
+        "planned": 120,
+        "admitted": 120,
+        "all_correct_completed": 120,
+        "origins": [
+          {
+            "origin": 0,
+            "planned": 42,
+            "admitted": 42,
+            "all_correct_completed": 42
+          },
+          {
+            "origin": 1,
+            "planned": 39,
+            "admitted": 39,
+            "all_correct_completed": 39
+          },
+          {
+            "origin": 2,
+            "planned": 39,
+            "admitted": 39,
+            "all_correct_completed": 39
+          }
+        ],
+        "scope": "disk-backed exact finite identity/output join with eligible own-origin completion; original native receipt final fingerprints checked when present"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 150,
+        "sequence_lengths": [
+          150,
+          150,
+          150
+        ],
+        "common_prefix_sha256": "77a407bde90cc77799b6d9b15e5b60f06fb8bd708ee2536cc7ec954f11f4011b",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "1": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "2": "complete native Shoal application materialization journal; exact signed finite identities verified independently"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 150,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 150,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 150,
+            "kind": "exact"
+          }
+        }
+      },
+      "finite_output_accounting": {
+        "m_out_bytes": 103350,
+        "u_out_bytes": 56640,
+        "unique_honest_completion_count": 120,
+        "output_replica": 0,
+        "output_prefix_count": 150,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "native_tcp_written_bytes": 1742038,
+      "finite_cost_ratios": {
+        "boundary": "finite_run",
+        "written_bytes": 1742038,
+        "written_bytes_per_u_out_byte": 30.756320621468927,
+        "written_bytes_per_m_out_byte": 16.85571359458152
+      },
+      "native_process_cpu": {
+        "user_seconds": 4.272684,
+        "system_seconds": 2.081773,
+        "scope": "native processes only; ingress runner CPU separate"
+      },
+      "omission_observation": {
+        "messages_omitted": 6,
+        "serialized_bytes_omitted": 9240,
+        "by_native_unit": {
+          "native_node_publication": 6
+        },
+        "journals": [
+          {
+            "path": "omissions-3-validator.jsonl",
+            "events": 6,
+            "bytes": 1032,
+            "sha256": "918e4f8204fa85c0414df9a3aa679b2a74e2b6d7470878ae64f4bb13324f7c9c"
+          }
+        ],
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "startup_readiness": {
+        "started_us": 6803673050,
+        "policy": "REST ready, pinned native state-sync bootstrap event and initialized native TCP counters on every validator before choosing the arrival epoch; configured warmup remains unchanged",
+        "bootstrapped": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "counter_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ready": true,
+        "api_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "completed_us": 6811219640
+      },
+      "swap_disabled_before_and_after": true,
+      "owned_children_reaped": 4,
+      "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+      "runner_sha256": "f45a8bce4697a3ac7d124368a5b1e527a80a69fe43af33b4af4a3fb7d9429367"
+    },
+    {
+      "case": "empty_finite_population_n4",
+      "manifest": "results/local/shoal-native-empty-n4-final-20261019/manifest.json",
+      "manifest_sha256": "f6c8c980d905eb99df63ab302ab8b5f530504da7ede68d8d894621159fbf3b07",
+      "settings": {
+        "nodes": 4,
+        "rate": 1,
+        "useful_bytes": 472,
+        "warmup": 0.0,
+        "duration": 0.1,
+        "drain": 0.0,
+        "deadline_ms": 1000,
+        "batch_bytes": 500000,
+        "ingress_batch_ms": 10,
+        "bound_ms": 100,
+        "faulty_replica": [],
+        "pause_replica": null,
+        "pause_after": 1,
+        "pause_seconds": 0.5,
+        "plan_only": false,
+        "output": "/work/repo/results/local/shoal-native-empty-n4-final-20261019",
+        "omit_replica": null,
+        "omission_after": 1,
+        "omission_seconds": 0.5,
+        "publish_to_replica": [],
+        "omit_repair": false,
+        "attacker_rate": 100,
+        "crypto_meter": "on"
+      },
+      "finite_output_receipt": {
+        "planned": 0,
+        "admitted": 0,
+        "all_correct_completed": 0,
+        "origins": [
+          {
+            "origin": 0,
+            "planned": 0,
+            "admitted": 0,
+            "all_correct_completed": 0
+          },
+          {
+            "origin": 1,
+            "planned": 0,
+            "admitted": 0,
+            "all_correct_completed": 0
+          },
+          {
+            "origin": 2,
+            "planned": 0,
+            "admitted": 0,
+            "all_correct_completed": 0
+          },
+          {
+            "origin": 3,
+            "planned": 0,
+            "admitted": 0,
+            "all_correct_completed": 0
+          }
+        ],
+        "scope": "disk-backed exact finite identity/output join with eligible own-origin completion; original native receipt final fingerprints checked when present"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 0,
+        "sequence_lengths": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "common_prefix_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "1": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "2": "complete native Shoal application materialization journal; exact signed finite identities verified independently",
+          "3": "complete native Shoal application materialization journal; exact signed finite identities verified independently"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 0,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 0,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 0,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 0,
+            "kind": "exact"
+          }
+        }
+      },
+      "finite_output_accounting": {
+        "m_out_bytes": 0,
+        "u_out_bytes": 0,
+        "unique_honest_completion_count": 0,
+        "output_replica": 0,
+        "output_prefix_count": 0,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "native_tcp_written_bytes": 274647,
+      "finite_cost_ratios": {
+        "boundary": "finite_run",
+        "written_bytes": 274647,
+        "written_bytes_per_u_out_byte": null,
+        "written_bytes_per_m_out_byte": null
+      },
+      "native_process_cpu": {
+        "user_seconds": 1.003244,
+        "system_seconds": 0.7045189999999999,
+        "scope": "native processes only; ingress runner CPU separate"
+      },
+      "omission_observation": {
+        "messages_omitted": 0,
+        "serialized_bytes_omitted": 0,
+        "by_native_unit": {},
+        "journals": [],
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "startup_readiness": {
+        "started_us": 6881975075,
+        "policy": "REST ready, pinned native state-sync bootstrap event and initialized native TCP counters on every validator before choosing the arrival epoch; configured warmup remains unchanged",
+        "bootstrapped": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "counter_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "ready": true,
+        "api_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "completed_us": 6889551919
+      },
+      "swap_disabled_before_and_after": true,
+      "owned_children_reaped": 4,
+      "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+      "runner_sha256": "4c0532a4619d35eb6f0be8e431ab4a9b066a7d58dcfa0527620a1a6cd7aca468"
+    }
+  ],
+  "tests": {
+    "linux_arm64_shoal_adapter_contracts": 17,
+    "zero_drain_regression": 1,
+    "readiness_regression": 1,
+    "all_accepted_children_reaped": 23
+  },
+  "retained_failures": [
+    {
+      "manifest": "results/local/shoal-native-healthy-n4-20261019/manifest.json",
+      "reason": "Inherited download proxy prevented native peer handshakes before ingress; scoped child environment and direct REST opener corrected; native bootstrap config unchanged"
+    },
+    {
+      "manifest": "results/local/shoal-native-healthy-n4-rerun-20261019/manifest.json",
+      "reason": "API ready before native bootstrap/lazy counters; complete output-only retrospective replay120/120 with native prefix360; not promoted into a traffic result",
+      "output_replay": "results/local/shoal-native-healthy-n4-rerun-20261019/replayed-output.json"
+    },
+    {
+      "manifest": "results/local/shoal-native-empty-n4-20261019/manifest.json",
+      "reason": "Zero-drain loop lacked end CPU sample; adapter substituted absent map and falsely reported regression; fixed using actual frozen periodic sample, preserving sample timestamps"
+    }
+  ],
+  "cleanup": {
+    "completed_unix_ns": 1792412847653535127,
+    "scope": "only generated owned Shoal Cargo target intermediates; source, dependency caches, two exact executables and build stamp retained",
+    "target": "/work/repo/benchmarks/.cache/shoal-target",
+    "before": {
+      "logical_bytes": 6383263599,
+      "allocated_bytes": 6428577792
+    },
+    "after": {
+      "logical_bytes": 166908022,
+      "allocated_bytes": 166920192
+    },
+    "freed_allocated_bytes": 6261657600,
+    "removed_paths": [
+      "/work/repo/benchmarks/.cache/shoal-target/CACHEDIR.TAG",
+      "/work/repo/benchmarks/.cache/shoal-target/.rustc_info.json",
+      "/work/repo/benchmarks/.cache/shoal-target/debug",
+      "/work/repo/benchmarks/.cache/shoal-target/release/.cargo-lock",
+      "/work/repo/benchmarks/.cache/shoal-target/release/deps",
+      "/work/repo/benchmarks/.cache/shoal-target/release/incremental",
+      "/work/repo/benchmarks/.cache/shoal-target/release/.fingerprint",
+      "/work/repo/benchmarks/.cache/shoal-target/release/examples",
+      "/work/repo/benchmarks/.cache/shoal-target/release/build",
+      "/work/repo/benchmarks/.cache/shoal-target/release/libaptos_node.rlib",
+      "/work/repo/benchmarks/.cache/shoal-target/release/libaptos_node.d",
+      "/work/repo/benchmarks/.cache/shoal-target/release/aptos-node.d",
+      "/work/repo/benchmarks/.cache/shoal-target/release/shoal-fixture.d"
+    ],
+    "retained_binaries": [
+      {
+        "path": "/work/repo/benchmarks/.cache/shoal-target/release/aptos-node",
+        "sha256": "db88fd45cea148f92e863e627b516672d31ff8cd14de15f4898c8a824c528895",
+        "bytes": 126893120
+      },
+      {
+        "path": "/work/repo/benchmarks/.cache/shoal-target/release/shoal-fixture",
+        "sha256": "f8a3d265e4acf7f3db63576decca91ae8b649ab96e1bf23b37e28efd6c8fc5e6",
+        "bytes": 40011072
+      }
+    ],
+    "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+    "cargo_lock_sha256": "2c214ab7d67ab96213f456af9049d6c4536b2a708806d51075238f22d4439c89",
+    "active_native_or_build_processes": [],
+    "swap_at_cleanup": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n",
+    "cache_allocated_bytes": 1740800000,
+    "work_allocated_bytes": 3041685504,
+    "filesystem": "Filesystem       1B-blocks       Used   Available Use% Mounted on\n/dev/vda4      85294297088 8060661760 77233635328  10% /work\n"
+  },
+  "shutdown": {
+    "owned_vm_state": "stopped",
+    "supervisor_exit_code": 0,
+    "user_vm_state": "stopped",
+    "retained_host_allocation": [
+      {
+        "path": "/Users/zhengxuanguo/.local/share/containers/podman/machine/applehv/delugi-shoal-applehv-20261019-arm64.raw",
+        "logical_bytes": 85899345920,
+        "allocated_bytes": 6660468736
+      },
+      {
+        "path": "/Users/zhengxuanguo/.local/share/containers/podman/machine/applehv/cache/4c2b43c508a67e2968912b6a2ff38e918c89b41b795a865fb1ad9411a2ab2c9b.raw.zst",
+        "logical_bytes": 981875140,
+        "allocated_bytes": 981876736
+      }
+    ],
+    "scope": "Owned stopped VM disk and downloaded provider image cache retained separately from cleaned build intermediates; user default VM only inspected, not changed."
+  },
+  "open_gates": [
+    "Shoal detailed cohort-observer full/compact cost validation remains open; these runs always use the detailed observer.",
+    "Formal capacity,matched resource/timing,campaign-scale acceptance and remote live execution remain separate unvalidated gates.",
+    "Prepared remote Shoal worker readiness/epoch parity is not validated: remote_native.py currently selects epoch before launch and accepts TCP connectivity alone. It needs native bootstrap+counter+HTTP readiness and an explicit prepare/arm contract for final local arrival/fault epochs.",
+    "Native per-process CPU includes all work; primitive BLS meters do not separately measure all proof assembly,client Ed25519 or Noise authentication. All-correct remote membership is exact final collection, not origin-clock returned completion latency."
+  ],
+  "remote_readiness_locations": [
+    "scripts/remote_native.py:185",
+    "scripts/remote_native.py:205",
+    "scripts/remote_native.py:237"
+  ],
+  "comparison_eligible": false,
+  "evidence_sha256": {
+    "results/local/shoal-local-vm-20261019/cleanup.json": "9fab988a3d6534f114b0d0a7b510d0bd54e660106d720f2478887ed529b85f1d",
+    "results/local/shoal-local-vm-20261019/shutdown-and-allocation.json": "986f81207c3697e438ad7ef16a028aa78265a71e720ef88d363cdea029cf1789",
+    "results/local/shoal-local-vm-20261019/vm-after-stop.json": "30184470cc24aa37afae554978d913e16eb499d25361cb2eda4f9a3757674ee2",
+    "results/local/shoal-local-vm-20261019/user-vm-after-readonly.json": "7e3c604b9ada3be4fa9f2bd47b0930ce37584e1d4cb4242392bab16363c3a226",
+    "results/local/shoal-local-vm-20261019/post-build-source-guard.json": "654d38517a3197b528f1e9d2b6ad2e5ae0c078c25eaaaf86b54f1b758084f3cb",
+    "results/local/shoal-local-vm-20261019/retained/build-provenance.json": "a97b47305e56c10a15f7c9d365e3343aed47e2fe7f51aad30476edb033999392",
+    "results/local/shoal-native-healthy-n4-20261019/manifest.json": "7b6bc437f6a1f49b03c18680f3e6e3db569530ad07a16e4b6242e397b8a6e725",
+    "results/local/shoal-native-healthy-n4-rerun-20261019/manifest.json": "97b1f3db9279af8ce7b9fd936b2530a55c53eacb6e85db017136e1083b838d15",
+    "results/local/shoal-native-empty-n4-20261019/manifest.json": "cd399fbc2e3654ad6f68a5578c97ad9bd403fdbef6ca26eb5102d9ec15c55efc"
+  }
+}

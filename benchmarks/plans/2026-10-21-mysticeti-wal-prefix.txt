@@ -1,0 +1,42 @@
+Mysticeti independent frozen-prefix fidelity — 2026-10-21
+
+The new bounded verifier streams native CRC-framed WAL records, validates native
+bincode fields, authenticates block digests and Ed25519 signatures, and follows
+locally persisted CommitData subdag order. SQLite stores block references,
+ancestor edges, transaction offsets/hashes and finite membership. Raw transaction
+bytes and full block references independently reproduce every complete-block
+checkpoint, including empty blocks, unknown applications and foreign-origin
+metadata. Exact native output ordinals never become filtered workload ordinals.
+
+The terminal receipt declares the precise complete-block prefix. The observer
+may freeze in the middle of a native committed subdag; that whole CommitData
+record is parsed, but its later blocks and all subsequent WAL records are outside
+the prefix proof. The report separately counts such blocks and suffix bytes.
+A missing terminal, missing/reordered/changed checkpoint, missing retained
+ancestor, duplicate commitment, bad signature, changed transaction, membership
+mismatch or full-journal mismatch fails the gate.
+
+This proves signed native bytes and locally persisted commit ordering. CommitData
+is not a signed consensus certificate. The verifier does not independently prove
+consensus quorum rules, fsync durability, admission clocks or observer eligibility.
+Finite useful-credit and latency remain the distinct source-bound observer
+contract. Formal comparison eligibility remains false in the adapter.
+
+Memory is bounded by 64 KiB reads, the configured 16 MiB SQLite cache, a bounded
+journal row and fixed receipt bitmap pages, plus Python/SQLite/OpenSSL overhead.
+SQLite disk is O(retained blocks + transaction descriptors + finite identities),
+with an explicit default 128 GiB ceiling. Native runtime state remains unchanged;
+this is a postprocessing scalability improvement, not constant-memory consensus.
+The historical replay uses a tighter 512 MiB index cap and sequential per-replica
+scratch staging. Random-access WAL replay requires uncompressed seekable storage;
+compressed files are restored one replica at a time, hash checked, then removed.
+
+The local adapter invokes this offline gate after owned children are reaped,
+archives each proof plus the derived index hash/size, and removes successful
+recomputable indices. Historical replay/compare_journal APIs remain available.
+No native implementation, binary, measured output or historical manifest changes.
+
+Validation: real signed synthetic unknown/empty/full/compact/terminal cases,
+adversarial checkpoint and signature cases, bounded-read fixture, plus retained
+full/compact healthy, empty, unfinished and one overhead pair on all four replicas.
+Reports and scratch cleanup receipts: results/local/mysticeti-wal-prefix-20261021.

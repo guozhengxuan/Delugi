@@ -1,0 +1,380 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "date": "2026-10-19",
+  "purpose": "Delugi detailed versus compact observer correctness and short local overhead validation",
+  "evidence": {
+    "validation": {
+      "path": "results/local/observer-validation-20261019-f48e7b394b91/manifest.json",
+      "sha256": "5f645e909105c7a5f418c39e0d40b4c2a5d9656f4f3cc03db4a61952bf911d0d",
+      "bytes": 96071
+    },
+    "release": {
+      "path": "results/local/observer-build-20261019-f48e7b394b91/manifest.json",
+      "sha256": "1ed3e829a23d30e47ec8ba3367b34cffb427ffac0455b699283a8a2c80b811e1",
+      "bytes": 16555
+    },
+    "functional": {
+      "path": "results/local/observer-validation-20261019-f48e7b394b91/observer-functional-report.json",
+      "sha256": "a8e828bf1b6a10d699121ceadbc1dd8204edfeaf8a6b71a5b5e703f3ad03b4e0",
+      "bytes": 80970
+    },
+    "overhead": {
+      "path": "results/local/observer-validation-20261019-f48e7b394b91/observer-overhead-report.json",
+      "sha256": "94e72dd4d89786679c19d02395a3ff11d39749eca19e9130dbb70c87a89fb597",
+      "bytes": 86989
+    },
+    "cleanup": {
+      "path": "results/local/observer-validation-20261019-f48e7b394b91/build-cleanup.json",
+      "sha256": "ee847c29b70a808349dc0cdf5d0f6e1b33f90f361a133f88073fe3ea1223e0ba",
+      "bytes": 840
+    },
+    "driver": {
+      "path": "results/local/observer-validation-20261019-f48e7b394b91/observer-live-driver.py",
+      "sha256": "7b025d9024fed9b034df6773c1c9bd1b25d8105f9632afeae8cbf6a9e46f215a",
+      "bytes": 9790
+    }
+  },
+  "binary": {
+    "binary": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+    "binary_sha256": "fa90c1a08ac4dc5d86b68a0b9b99d3ce7a2e0d9c8cbc3fe12b3613f5a09d4a7a",
+    "binary_bytes": 3154592,
+    "retained": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/retained-artifacts-20261019/fa90c1a08ac4dc5d86b68a0b9b99d3ce7a2e0d9c8cbc3fe12b3613f5a09d4a7a",
+    "stamp_sha256": "d25e400b81f809b1e9e85beda1e4ad24c6335fe25b4c4132f3c82739cb6979dd",
+    "build_manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-build-20261019-f48e7b394b91/manifest.json",
+    "build_manifest_sha256": "1ed3e829a23d30e47ec8ba3367b34cffb427ffac0455b699283a8a2c80b811e1"
+  },
+  "retained_previous_binary": {
+    "directory": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/retained-artifacts-20261019/ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b",
+    "binary_sha256": "ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b",
+    "stamp_sha256": "f82b62d9e247ba1c9af5bf146765a90589185b079e128638a8ff61ec0c3cd7f0"
+  },
+  "tests": {
+    "focused_passed": 21,
+    "ordinary_passed": 248,
+    "ordinary_unit_passed": 224,
+    "ordinary_integration_passed": 24,
+    "ignored_localhost_passed": 19,
+    "repository_passed": 328,
+    "baseline_passed": 68,
+    "note": "Focused tests overlap the ordinary suite. All 19 explicitly ignored localhost gates ran separately. Full source snapshots and command logs are retained."
+  },
+  "settings": {
+    "replicas": 4,
+    "added_one_way_delay_ms": 0,
+    "protocol_bound_ms": 100,
+    "useful_bytes": 472,
+    "encoded_transaction_bytes": 532,
+    "ordering": "PROG pacing 100 ms with immediate bundling",
+    "optional_operation_meter": false,
+    "overhead": {
+      "offered_tx_s": 1200,
+      "warmup_seconds": 1,
+      "measurement_seconds": 3,
+      "maximum_drain_seconds": 2,
+      "batch_ms": 10,
+      "max_batch_transactions": 128,
+      "finite_requests": 4800,
+      "measurement_cohort_requests": 3600,
+      "order": [
+        "full",
+        "compact",
+        "compact",
+        "full",
+        "full",
+        "compact"
+      ]
+    }
+  },
+  "functional": [
+    {
+      "kind": "healthy",
+      "mode": "full",
+      "scheduled": 8,
+      "admitted": 8,
+      "all_correct_completed": 8,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-healthy-full/manifest.json",
+      "manifest_sha256": "962fdaed1cc26012c038a78a5011aab895b0e6195c6783e402e3a8c442667ed2"
+    },
+    {
+      "kind": "healthy",
+      "mode": "compact",
+      "scheduled": 8,
+      "admitted": 8,
+      "all_correct_completed": 8,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-healthy-compact/manifest.json",
+      "manifest_sha256": "fc73edfcf7ef07774884382f16cbbae0b3c40ea44374f2a3c97f6fad3ec62a50"
+    },
+    {
+      "kind": "empty",
+      "mode": "full",
+      "scheduled": 0,
+      "admitted": 0,
+      "all_correct_completed": 0,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-empty-full/manifest.json",
+      "manifest_sha256": "4e5bd692d874749b2bb6ef73b98ef187ceb67ac76b96403953140ecae7fb7ada"
+    },
+    {
+      "kind": "empty",
+      "mode": "compact",
+      "scheduled": 0,
+      "admitted": 0,
+      "all_correct_completed": 0,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-empty-compact/manifest.json",
+      "manifest_sha256": "8b50afef60c8b8ee121187dd7d2eb524c0aefa65398bd9f5b5f417a5bb18434d"
+    },
+    {
+      "kind": "unfinished",
+      "mode": "full",
+      "scheduled": 4,
+      "admitted": 4,
+      "all_correct_completed": 0,
+      "unfinished": 4,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-unfinished-full/manifest.json",
+      "manifest_sha256": "fad84bda8c0e35df20fc0d4cdd1bad0df7c966fd2d7dc9ccc7699c226e8d0202"
+    },
+    {
+      "kind": "unfinished",
+      "mode": "compact",
+      "scheduled": 4,
+      "admitted": 4,
+      "all_correct_completed": 0,
+      "unfinished": 4,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-unfinished-compact/manifest.json",
+      "manifest_sha256": "11d5a4335e79aa3b078633048b27aa3863de7f134a93029bc1281e076615958e"
+    }
+  ],
+  "paired_values": [
+    {
+      "pair": 1,
+      "order": [
+        "full",
+        "compact"
+      ],
+      "cpu_seconds": {
+        "full": 16.433665,
+        "compact": 16.175658,
+        "full_vs_compact_percent": 1.595032486468262
+      },
+      "completion_tps": {
+        "full": 1200.3300510603444,
+        "compact": 1200.3793418412624,
+        "full_vs_compact_percent": -0.004106267010761666
+      },
+      "written_bytes_per_second": {
+        "full": 55362495.55019271,
+        "compact": 54694041.372507416,
+        "full_vs_compact_percent": 1.2221700223843612
+      },
+      "sum_peak_rss_bytes": {
+        "full": 663486464,
+        "compact": 650592256,
+        "full_vs_compact_percent": 1.9819184567730241
+      }
+    },
+    {
+      "pair": 2,
+      "order": [
+        "compact",
+        "full"
+      ],
+      "cpu_seconds": {
+        "full": 16.433598,
+        "compact": 16.363497,
+        "full_vs_compact_percent": 0.4283986485285052
+      },
+      "completion_tps": {
+        "full": 1199.9861157835344,
+        "compact": 1200.2407994963655,
+        "full_vs_compact_percent": -0.02121938472163798
+      },
+      "written_bytes_per_second": {
+        "full": 55822746.68497758,
+        "compact": 55056947.02502418,
+        "full_vs_compact_percent": 1.3909228559392028
+      },
+      "sum_peak_rss_bytes": {
+        "full": 666255360,
+        "compact": 654524416,
+        "full_vs_compact_percent": 1.7922851635835624
+      }
+    },
+    {
+      "pair": 3,
+      "order": [
+        "full",
+        "compact"
+      ],
+      "cpu_seconds": {
+        "full": 16.110608,
+        "compact": 16.080781,
+        "full_vs_compact_percent": 0.18548228472234918
+      },
+      "completion_tps": {
+        "full": 1200.2466621702595,
+        "compact": 1200.4007456149184,
+        "full_vs_compact_percent": -0.01283600041250832
+      },
+      "written_bytes_per_second": {
+        "full": 54721362.59622024,
+        "compact": 54537685.199038684,
+        "full_vs_compact_percent": 0.33678986651379805
+      },
+      "sum_peak_rss_bytes": {
+        "full": 655687680,
+        "compact": 646414336,
+        "full_vs_compact_percent": 1.4345820449130686
+      }
+    }
+  ],
+  "individual_runs": [
+    {
+      "mode": "full",
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-1-full/manifest.json",
+      "manifest_sha256": "976c8b8e028a1f982de83206a034537a02997f559dd8a7550180fedbad85516a",
+      "all_correct_completed": 4800,
+      "finite_requests": 4800,
+      "window_cpu_seconds": 16.433665,
+      "window_completion_tps": 1200.3300510603444,
+      "window_written_bytes_per_second": 55362495.55019271,
+      "per_replica_peak_rss_bytes": [
+        166379520,
+        166215680,
+        165363712,
+        165527552
+      ],
+      "full_admission_to_exact_output_p99_ms": 16.409
+    },
+    {
+      "mode": "compact",
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-2-compact/manifest.json",
+      "manifest_sha256": "11f62b20d4433e56925ed71418b7845fa547deb721edf3811b111ea18505d631",
+      "all_correct_completed": 4800,
+      "finite_requests": 4800,
+      "window_cpu_seconds": 16.175658,
+      "window_completion_tps": 1200.3793418412624,
+      "window_written_bytes_per_second": 54694041.372507416,
+      "per_replica_peak_rss_bytes": [
+        162873344,
+        162709504,
+        162955264,
+        162054144
+      ],
+      "full_admission_to_exact_output_p99_ms": null
+    },
+    {
+      "mode": "compact",
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-3-compact/manifest.json",
+      "manifest_sha256": "2c9ab238f7c86f882b9cb28296a04f7bc7f516df777a5bcddad081649b86419c",
+      "all_correct_completed": 4800,
+      "finite_requests": 4800,
+      "window_cpu_seconds": 16.363497,
+      "window_completion_tps": 1200.2407994963655,
+      "window_written_bytes_per_second": 55056947.02502418,
+      "per_replica_peak_rss_bytes": [
+        163282944,
+        163659776,
+        164397056,
+        163184640
+      ],
+      "full_admission_to_exact_output_p99_ms": null
+    },
+    {
+      "mode": "full",
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-4-full/manifest.json",
+      "manifest_sha256": "2280227d821cbeed144f384652c8f6991c26e55cb893d5362ece524fc9094113",
+      "all_correct_completed": 4800,
+      "finite_requests": 4800,
+      "window_cpu_seconds": 16.433598,
+      "window_completion_tps": 1199.9861157835344,
+      "window_written_bytes_per_second": 55822746.68497758,
+      "per_replica_peak_rss_bytes": [
+        167231488,
+        165953536,
+        166084608,
+        166985728
+      ],
+      "full_admission_to_exact_output_p99_ms": 16.506
+    },
+    {
+      "mode": "full",
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-5-full/manifest.json",
+      "manifest_sha256": "0e8f8aa28fb928cc0d3b02ec4c5104b0429bb0323a9e41924898aa5589c3b7ea",
+      "all_correct_completed": 4800,
+      "finite_requests": 4800,
+      "window_cpu_seconds": 16.110608,
+      "window_completion_tps": 1200.2466621702595,
+      "window_written_bytes_per_second": 54721362.59622024,
+      "per_replica_peak_rss_bytes": [
+        163971072,
+        163905536,
+        164265984,
+        163545088
+      ],
+      "full_admission_to_exact_output_p99_ms": 16.421
+    },
+    {
+      "mode": "compact",
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-6-compact/manifest.json",
+      "manifest_sha256": "d13861f832c04b030909ad2812fcc8a33e3166ec9b90268e1f53cab706282938",
+      "all_correct_completed": 4800,
+      "finite_requests": 4800,
+      "window_cpu_seconds": 16.080781,
+      "window_completion_tps": 1200.4007456149184,
+      "window_written_bytes_per_second": 54537685.199038684,
+      "per_replica_peak_rss_bytes": [
+        162152448,
+        161546240,
+        161628160,
+        161087488
+      ],
+      "full_admission_to_exact_output_p99_ms": null
+    }
+  ],
+  "acceptance": {
+    "signed_schema3_receipts": true,
+    "all_correct_exact_transaction_and_batch_overlap": true,
+    "full_schema2_matches_common_receipts": true,
+    "compact_has_zero_detailed_timestamp_rows": true,
+    "compact_latency_and_deadline_unavailable": true,
+    "compact_formal_comparison_eligible": false,
+    "actual_written_categories_conserve_total": true,
+    "drained_TCP_written_equals_read": true,
+    "all_48_owned_children_exited_zero": true,
+    "source_drift": false
+  },
+  "boundaries": {
+    "window": "common per-replica sampled counters; CPU, eligible own-origin completions and successful protocol TCP writes over each actual local interval",
+    "rss": "per-replica ru_maxrss high water through sampled measurement-end; not incremental allocation or whole-machine memory",
+    "finite": "signed finite receipts and whole-committee traffic through quiescence/transport drain; receipt collection/signing and shutdown excluded",
+    "overhead": "detailed timing/journal work above common exact append synchronization, finite bitmaps, exact fingerprints, validation and materialization; operation meter disabled",
+    "limits": "three short pairs, no capacity claim or protocol ranking; compact has no latency/deadline estimates"
+  },
+  "cleanup_outcome": {
+    "status": "completed",
+    "utc": "2026-10-19T11:31:52.112583+00:00",
+    "boundary": "only this task local Cargo intermediates after all test/build/replica children exited; retained executable/stamp reverified",
+    "removed_paths": [
+      "target/debug",
+      "target/tmp",
+      "target/.rustc_info.json",
+      "target/release/.fingerprint",
+      "target/release/incremental",
+      "target/release/delugi-replica.d",
+      "target/release/.cargo-lock",
+      "target/release/examples",
+      "target/release/deps",
+      "target/release/build"
+    ],
+    "before_allocated_bytes": 334630912,
+    "after_allocated_bytes": 3162112,
+    "saved_allocated_bytes": 331468800,
+    "retained_binary_sha256": "fa90c1a08ac4dc5d86b68a0b9b99d3ce7a2e0d9c8cbc3fe12b3613f5a09d4a7a",
+    "retained_stamp_sha256": "d25e400b81f809b1e9e85beda1e4ad24c6335fe25b4c4132f3c82739cb6979dd"
+  },
+  "interpretation": "Full-mode paired CPU increases were 0.19\u20131.60% (median 0.43%), goodput within 0.03%, and sum of per-replica peak RSS increases 1.43\u20131.98%. These short single-host trials quantify detailed-observer work above a shared correctness-receipt baseline; they establish neither capacity nor observer-free protocol cost. Compact latency is unavailable. The old retained binary and its measurements are unchanged."
+}

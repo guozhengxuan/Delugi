@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "created_utc": "2026-10-19T10:16:59.204031+00:00",
+  "kind": "local functional acceptance; concurrent host work permitted, no latency ranking",
+  "settings": {
+    "nodes": 4,
+    "added_network_delay_ms": 0,
+    "protocol_bound_ms": 100,
+    "useful_bytes": 472
+  },
+  "cohort_boundary": "half-open window excludes final scheduled request exactly at window end; authenticated finite manifest retains it",
+  "fixtures": [
+    {
+      "fixture": "healthy",
+      "status": "passed",
+      "raw_manifest": "results/local/migration-schema2-healthy-20261019/manifest.json",
+      "raw_manifest_sha256": "76642c8b67ff1c9ef47a6ed33cbe27c6810b6c4f118b75f3d7003eb1026d18b2",
+      "archive_index": "results/local/migration-schema2-healthy-20261019/trial/cohorts/index.json",
+      "archive_index_sha256": "d2b27d89c8b3b38420da7e7312ecb401c2b0e3539da20aa1f9a1900435679fc8",
+      "authentication": {
+        "archive_schema": 2,
+        "authentication": "strict Ed25519 manifests and canonical SHA256 request contents; exact schedule/population, bounded hashed pages and stream indexes",
+        "consistency": "cross-stream admission/output joins and exact-ID deduplication are checked separately by disk-backed reducer",
+        "identity_version": 2,
+        "index_sha256": "d2b27d89c8b3b38420da7e7312ecb401c2b0e3539da20aa1f9a1900435679fc8",
+        "resource_contract": {
+          "aggregate_byte_limit": null,
+          "max_index_line_bytes": 4096,
+          "max_manifest_bytes": 1048576,
+          "max_page_bytes": 8388608,
+          "max_page_entries": 1024,
+          "max_row_bytes": 16384,
+          "working_state": "one bounded page and at most 31 manifest headers; replica runtime state remains O(N)"
+        },
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_exact_batch_rows": 1600,
+        "verified_output_rows": 4800,
+        "verified_requests": 1200
+      },
+      "cohort": {
+        "scheduled": 1199,
+        "admitted": 1199,
+        "completed": 1199,
+        "unfinished": 0,
+        "rejected": 0
+      },
+      "finite_run": {
+        "m_out_bytes": 641600,
+        "u_out_bytes": 566400,
+        "unique_honest_completion_count": 1200,
+        "output_replica": 0,
+        "output_prefix_count": 1200,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 50281745,
+        "written_bytes_per_u_out_byte": 89.7465212828238,
+        "written_bytes_per_m_out_byte": 79.22726943269697
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 96666214,
+        "written_bytes_per_u_out_byte": 170.6677507062147,
+        "written_bytes_per_m_out_byte": 150.66429862842892
+      },
+      "window_written_categories": {
+        "available": true,
+        "payload_bytes": 1903956,
+        "evidence_control_bytes": 41428025,
+        "repair_bytes": 0,
+        "transport_overhead_bytes": 6949764,
+        "total_written_bytes": 50281745
+      },
+      "finite_run_written_categories": {
+        "available": true,
+        "payload_bytes": 1924800,
+        "evidence_control_bytes": 81008650,
+        "repair_bytes": 0,
+        "transport_overhead_bytes": 13732764,
+        "total_written_bytes": 96666214
+      },
+      "category_conservation": true,
+      "sqlite_bytes": 1986560,
+      "archive_bytes": 3311367,
+      "pages": 16,
+      "max_pages_per_stream": 2,
+      "ledger_control_records_are_external_references": 16,
+      "all_children_exited_successfully": true,
+      "binary_sha256": "ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b"
+    },
+    {
+      "fixture": "zero",
+      "status": "passed",
+      "raw_manifest": "results/local/migration-schema2-zero-20261019/manifest.json",
+      "raw_manifest_sha256": "1b3c5b7c2b55844356d76b00d644d56e154db8b40a758464644402c6802a0cde",
+      "archive_index": "results/local/migration-schema2-zero-20261019/trial/cohorts/index.json",
+      "archive_index_sha256": "e5adc5b5f9dbd7eec6fca67113af0b338f9a8207ae6afd69bcf6ad2e2e883898",
+      "authentication": {
+        "archive_schema": 2,
+        "authentication": "strict Ed25519 manifests and canonical SHA256 request contents; exact schedule/population, bounded hashed pages and stream indexes",
+        "consistency": "cross-stream admission/output joins and exact-ID deduplication are checked separately by disk-backed reducer",
+        "identity_version": 2,
+        "index_sha256": "e5adc5b5f9dbd7eec6fca67113af0b338f9a8207ae6afd69bcf6ad2e2e883898",
+        "resource_contract": {
+          "aggregate_byte_limit": null,
+          "max_index_line_bytes": 4096,
+          "max_manifest_bytes": 1048576,
+          "max_page_bytes": 8388608,
+          "max_page_entries": 1024,
+          "max_row_bytes": 16384,
+          "working_state": "one bounded page and at most 31 manifest headers; replica runtime state remains O(N)"
+        },
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_exact_batch_rows": 0,
+        "verified_output_rows": 0,
+        "verified_requests": 120
+      },
+      "cohort": {
+        "scheduled": 119,
+        "admitted": 119,
+        "completed": 0,
+        "unfinished": 119,
+        "rejected": 0
+      },
+      "finite_run": {
+        "m_out_bytes": 0,
+        "u_out_bytes": 0,
+        "unique_honest_completion_count": 0,
+        "output_replica": 0,
+        "output_prefix_count": 0,
+        "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 4346662,
+        "written_bytes_per_u_out_byte": null,
+        "written_bytes_per_m_out_byte": null
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 67515027,
+        "written_bytes_per_u_out_byte": null,
+        "written_bytes_per_m_out_byte": null
+      },
+      "window_written_categories": {
+        "available": true,
+        "payload_bytes": 0,
+        "evidence_control_bytes": 3700798,
+        "repair_bytes": 0,
+        "transport_overhead_bytes": 645864,
+        "total_written_bytes": 4346662
+      },
+      "finite_run_written_categories": {
+        "available": true,
+        "payload_bytes": 0,
+        "evidence_control_bytes": 57614055,
+        "repair_bytes": 0,
+        "transport_overhead_bytes": 9900972,
+        "total_written_bytes": 67515027
+      },
+      "category_conservation": true,
+      "sqlite_bytes": 106496,
+      "archive_bytes": 65059,
+      "pages": 12,
+      "max_pages_per_stream": 1,
+      "ledger_control_records_are_external_references": 12,
+      "all_children_exited_successfully": true,
+      "binary_sha256": "ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b"
+    }
+  ],
+  "storage_contract": "schema2 streamed hashed pages; exact authenticated population and disk SQL reducer; runtime O(N) remains",
+  "tests": {
+    "python_runner": 65,
+    "python_cohort": 28
+  }
+}

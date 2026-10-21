@@ -1,0 +1,1019 @@
+diff --git a/Cargo.lock b/Cargo.lock
+index ce1b982..d6092c6 100644
+--- a/Cargo.lock
++++ b/Cargo.lock
+@@ -981,6 +981,7 @@ dependencies = [
+  "criterion",
+  "curve25519-dalek 3.2.0",
+  "curve25519-dalek-ng",
++ "delugi-benchmark-observer",
+  "digest 0.9.0",
+  "ed25519-dalek 1.0.1",
+  "hex",
+@@ -3960,6 +3961,7 @@ dependencies = [
+  "ciborium",
+  "claims",
+  "coset",
++ "delugi-benchmark-observer",
+  "derivative",
+  "fixed",
+  "hex",
+@@ -6630,6 +6632,10 @@ dependencies = [
+  "uuid",
+ ]
+ 
++[[package]]
++name = "delugi-benchmark-observer"
++version = "0.1.0"
++
+ [[package]]
+ name = "der"
+ version = "0.5.1"
+diff --git a/Cargo.toml b/Cargo.toml
+index 8dd3ee8..712aad9 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -58,6 +58,7 @@ members = [
+     "crates/aptos-collections",
+     "crates/aptos-compression",
+     "crates/aptos-crypto",
++    "crates/delugi-benchmark-observer",
+     "crates/aptos-crypto-derive",
+     "crates/aptos-debugger",
+     "crates/aptos-dkg",
+diff --git a/consensus/src/dag/dag_handler.rs b/consensus/src/dag/dag_handler.rs
+index d888baa..8227ad7 100644
+--- a/consensus/src/dag/dag_handler.rs
++++ b/consensus/src/dag/dag_handler.rs
+@@ -419,6 +419,16 @@ impl VerifiedMessageProcessor {
+         let response: DAGRpcResult = response
+             .map_err(|e| DAGRpcError::new(self.dag_id, self.epoch_state.epoch, e))
+             .into();
++        if let Ok(faulty)=std::env::var("BENCHMARK_FAULT_AUTHOR") {
++            if let Ok(message)=&response.0 {
++                if message.benchmark_owns_payload(&faulty)
++                    && !aptos_types::benchmark_fault::permit("native_node_repair",&author.to_string(),bcs::serialized_size(&response).unwrap_or(0)) {
++                    // Dropping the owned response sender preserves the native
++                    // requester's timeout/retry path; honest custody is intact.
++                    return Ok(SyncOutcome::Synced(None));
++                }
++            }
++        }
+         responder.respond(response)?;
+         RPC_PROCESS_DURATION
+             .with_label_values(&["dag_reply"])
+diff --git a/consensus/src/dag/shoal_plus_plus/shoalpp_order_notifier.rs b/consensus/src/dag/shoal_plus_plus/shoalpp_order_notifier.rs
+index f18a200..1711378 100644
+--- a/consensus/src/dag/shoal_plus_plus/shoalpp_order_notifier.rs
++++ b/consensus/src/dag/shoal_plus_plus/shoalpp_order_notifier.rs
+@@ -170,10 +170,25 @@ impl ShoalppOrderNotifier {
+ 
+         let num_dags = self.receivers.len();
+         assert_eq!(num_dags, NUM_OF_DAGS);
++        let benchmark_enabled = aptos_types::benchmark_cohort::enabled();
+ 
+         loop {
+             for dag_id in 0..=(num_dags - 1) {
+                 if let Some(bolt_block_info) = self.receivers[dag_id].recv().await {
++                    // The native round-robin DAG merger has fixed the global order.
++                    // DirectMempool carries the locally available authenticated
++                    // payload; observe it before downstream execution/VM bypass.
++                    if benchmark_enabled {
++                        for node in &bolt_block_info.ordered_nodes {
++                            match node.payload() {
++                                Payload::DirectMempool(transactions) => {
++                                    aptos_types::benchmark_cohort::ordered_batch(
++                                        format!("{}:{:x}", dag_id, node.digest()), transactions);
++                                }
++                                _ => panic!("benchmark requires audited native direct-payload mode"),
++                            }
++                        }
++                    }
+                     let block = self.create_block(bolt_block_info);
+                     if let Some(block) = block {
+                         if let Err(e) = self.ordered_nodes_tx.unbounded_send(block) {
+diff --git a/consensus/src/dag/types.rs b/consensus/src/dag/types.rs
+index ee726ad..e456f8a 100644
+--- a/consensus/src/dag/types.rs
++++ b/consensus/src/dag/types.rs
+@@ -962,6 +962,17 @@ pub enum DAGMessage {
+ }
+ 
+ impl DAGMessage {
++    /// Native publication/repair units containing the configured faulty
++    /// author's payload. NodeCertificateMsg is control-only and is not gated.
++    pub fn benchmark_owns_payload(&self, author:&str)->bool {
++        match self {
++            DAGMessage::NodeMsg(node)=>node.author().to_string()==author,
++            DAGMessage::CertifiedNodeMsg(node)=>node.author().to_string()==author,
++            DAGMessage::FetchResponse(response)=>response.certified_nodes.iter().any(|node|node.author().to_string()==author),
++            _=>false,
++        }
++    }
++
+     pub fn name(&self) -> &str {
+         match self {
+             DAGMessage::NodeMsg(_) => "NodeMsg",
+diff --git a/consensus/src/network.rs b/consensus/src/network.rs
+index 1695af8..91ee8f5 100644
+--- a/consensus/src/network.rs
++++ b/consensus/src/network.rs
+@@ -303,6 +303,17 @@ impl NetworkSender {
+         fail_point!("consensus::send::any", |_| {
+             Err(anyhow::anyhow!("Injected error in send_rpc"))
+         });
++        if std::env::var_os("BENCHMARK_FAULT_CONTROL").is_some() {
++            if let ConsensusMsg::DAGMessage(wire)=&msg {
++                if let Ok(message)=bcs::from_bytes::<DAGMessage>(wire.data()) {
++                    if receiver!=self.author && message.benchmark_owns_payload(&self.author.to_string())
++                        && !aptos_types::benchmark_fault::permit("native_node_publication",&receiver.to_string(),wire.data().len()) {
++                        tokio::time::sleep(timeout_duration).await;
++                        bail!("configured faulty-source native publication omitted");
++                    }
++                }
++            }
++        }
+         counters::CONSENSUS_SENT_MSGS
+             .with_label_values(&[msg.name()])
+             .inc();
+diff --git a/crates/aptos-crypto/Cargo.toml b/crates/aptos-crypto/Cargo.toml
+index 6c23189..2a366d9 100644
+--- a/crates/aptos-crypto/Cargo.toml
++++ b/crates/aptos-crypto/Cargo.toml
+@@ -13,6 +13,7 @@ repository = { workspace = true }
+ rust-version = { workspace = true }
+ 
+ [dependencies]
++delugi-benchmark-observer = { path = "../delugi-benchmark-observer" }
+ aes-gcm = { workspace = true }
+ anyhow = { workspace = true }
+ aptos-crypto-derive = { workspace = true }
+diff --git a/crates/aptos-crypto/src/bls12381/bls12381_keys.rs b/crates/aptos-crypto/src/bls12381/bls12381_keys.rs
+index e6e95ed..796539d 100644
+--- a/crates/aptos-crypto/src/bls12381/bls12381_keys.rs
++++ b/crates/aptos-crypto/src/bls12381/bls12381_keys.rs
+@@ -113,6 +113,7 @@ impl traits::SigningKey for PrivateKey {
+         &self,
+         message: &T,
+     ) -> Result<bls12381::Signature, CryptoMaterialError> {
++        let _cpu=crate::benchmark_cpu::begin(0);
+         Ok(bls12381::Signature {
+             sig: self
+                 .privkey
+diff --git a/crates/aptos-crypto/src/bls12381/bls12381_sigs.rs b/crates/aptos-crypto/src/bls12381/bls12381_sigs.rs
+index 8331042..b6bd79a 100644
+--- a/crates/aptos-crypto/src/bls12381/bls12381_sigs.rs
++++ b/crates/aptos-crypto/src/bls12381/bls12381_sigs.rs
+@@ -83,6 +83,7 @@ impl Signature {
+     /// WARNING: This function assumes that the public keys have been subgroup-checked by the caller
+     /// implicitly when verifying their proof-of-possession (PoP) in `ProofOfPossession::verify`.
+     pub fn verify_aggregate_arbitrary_msg(&self, msgs: &[&[u8]], pks: &[&PublicKey]) -> Result<()> {
++        let _cpu=crate::benchmark_cpu::begin(2);
+         let pks = pks
+             .iter()
+             .map(|&pk| &pk.pubkey)
+@@ -150,6 +151,7 @@ impl traits::Signature for Signature {
+     /// either (1) implicitly when verifying the public key's proof-of-possession (PoP) in
+     /// `ProofOfPossession::verify` or (2) via `Validatable::<PublicKey>::validate()`.
+     fn verify_arbitrary_msg(&self, message: &[u8], public_key: &PublicKey) -> Result<()> {
++        let _cpu=crate::benchmark_cpu::begin(1);
+         let result = self.sig.verify(
+             true,
+             message,
+diff --git a/crates/aptos-crypto/src/lib.rs b/crates/aptos-crypto/src/lib.rs
+index 2141f19..4eea50a 100644
+--- a/crates/aptos-crypto/src/lib.rs
++++ b/crates/aptos-crypto/src/lib.rs
+@@ -36,3 +36,6 @@ pub use hash::HashValue;
+ pub use once_cell as _once_cell;
+ #[doc(hidden)]
+ pub use serde_name as _serde_name;
++
++/// Optional synchronous native crypto CPU observation.
++pub use delugi_benchmark_observer::cpu as benchmark_cpu;
+diff --git a/crates/aptos-genesis/Cargo.toml b/crates/aptos-genesis/Cargo.toml
+index e3e918f..b2f35df 100644
+--- a/crates/aptos-genesis/Cargo.toml
++++ b/crates/aptos-genesis/Cargo.toml
+@@ -38,3 +38,7 @@ aptos-config = { workspace = true }
+ [features]
+ testing = []
+ fuzzing = ["aptos-config/fuzzing"]
++
++[[bin]]
++name = "shoal-fixture"
++path = "src/bin/shoal-fixture.rs"
+diff --git a/crates/aptos-genesis/src/bin/shoal-fixture.rs b/crates/aptos-genesis/src/bin/shoal-fixture.rs
+new file mode 100644
+index 0000000..d04ea83
+--- /dev/null
++++ b/crates/aptos-genesis/src/bin/shoal-fixture.rs
+@@ -0,0 +1,69 @@
++// Native paper-shoal fixture generation. This uses the published genesis builder;
++// it does not alter consensus, leader election, execution, or validator keys.
++use anyhow::{ensure, Context, Result};
++use aptos_genesis::builder::Builder;
++use aptos_types::on_chain_config::{
++    BlockGasLimitType, ConsensusAlgorithmConfig, DagConsensusConfigV1,
++    OnChainConsensusConfig, OnChainExecutionConfig, TransactionDeduperType,
++    TransactionShufflerType, ValidatorTxnConfig,
++};
++use rand::{rngs::{OsRng, StdRng}, RngCore, SeedableRng};
++use std::{fs, num::NonZeroUsize, path::PathBuf, sync::Arc};
++
++fn main() -> Result<()> {
++    let args: Vec<String> = std::env::args().collect();
++    if args.get(1).map(String::as_str)==Some("workload") {
++        ensure!(args.len()==7,"usage: shoal-fixture workload NEW_PLAN RUN_HEX ORIGIN COUNT USEFUL_BYTES");
++        return aptos_types::benchmark_cohort::write_workload(PathBuf::from(&args[2]).as_path(), &args[3],args[4].parse()?,args[5].parse()?,args[6].parse()?);
++    }
++    ensure!(args.len() == 6, "usage: shoal-fixture NEW_DIRECTORY NODES BATCH_BYTES BATCH_MS BOUND_MS");
++    let directory = PathBuf::from(&args[1]);
++    ensure!(!directory.exists(), "fixture directory already exists");
++    let nodes: usize = args[2].parse()?;
++    ensure!(nodes >= 4 && nodes <= 31 && (nodes - 1) % 3 == 0, "expected n=3f+1, 4..31");
++    let batch_bytes: u64 = args[3].parse()?;
++    let batch_ms: u64 = args[4].parse()?;
++    let bound_ms: u64 = args[5].parse()?;
++    ensure!(batch_bytes > 0 && batch_ms > 0 && bound_ms > 0, "settings must be positive");
++    fs::create_dir_all(&directory)?;
++    let consensus_config = OnChainConsensusConfig::V3 {
++        alg: ConsensusAlgorithmConfig::DAG(DagConsensusConfigV1::default()),
++        vtxn: ValidatorTxnConfig::default_disabled(),
++    };
++    fs::write(directory.join("on-chain-consensus.yaml"), serde_yaml::to_string(&consensus_config)?)?;
++    let mut seed = [0u8; 32];
++    OsRng.fill_bytes(&mut seed);
++    let builder = Builder::new(&directory, aptos_cached_packages::head_release_bundle().clone())?
++        .with_num_validators(NonZeroUsize::new(nodes).unwrap())
++        .with_init_genesis_config(Some(Arc::new(move |genesis| {
++            genesis.consensus_config = consensus_config.clone();
++            genesis.epoch_duration_secs = 24 * 3600;
++            match &mut genesis.execution_config {
++                OnChainExecutionConfig::V4(config) => {
++                    config.block_gas_limit_type = BlockGasLimitType::NoLimit;
++                    config.transaction_shuffler_type = TransactionShufflerType::NoShuffling;
++                    config.transaction_deduper_type = TransactionDeduperType::NoDedup;
++                }
++                _ => panic!("pinned native execution config changed"),
++            }
++        })))
++        .with_init_config(Some(Arc::new(move |_, config, _| {
++            let dag = &mut config.dag_consensus;
++            dag.node_payload_config.max_sending_size_per_round_bytes = batch_bytes;
++            dag.node_payload_config.max_receiving_size_per_round_bytes = batch_bytes;
++            dag.node_payload_config.payload_pull_max_poll_time_ms = batch_ms;
++            dag.rb_config.rpc_timeout_ms = bound_ms;
++            dag.fetcher_config.rpc_timeout_ms = bound_ms;
++            dag.fetcher_config.retry_interval_ms = bound_ms;
++            // Native reputation and three-DAG weak-vote rules retain their defaults.
++        })));
++    let (_, _, waypoint, validators) = builder.build(StdRng::from_seed(seed))
++        .context("native genesis ceremony failed")?;
++    fs::write(directory.join("waypoint.txt"), waypoint.to_string())?;
++    for validator in validators {
++        let config = validator.config.override_config();
++        let (_,_,identity,_)=validator.get_key_objects(None)?;
++        println!("{} {} {} {}", validator.index, validator.dir.join("node.yaml").display(), config.api.address, identity.account_address);
++    }
++    Ok(())
++}
+diff --git a/crates/aptos-genesis/src/builder.rs b/crates/aptos-genesis/src/builder.rs
+index 46ff5f6..a347a00 100644
+--- a/crates/aptos-genesis/src/builder.rs
++++ b/crates/aptos-genesis/src/builder.rs
+@@ -617,6 +617,18 @@ impl Builder {
+             config.randomize_ports();
+         }
+ 
++        // Explicit benchmark placement, before the native genesis ceremony binds
++        // validator discovery addresses. Default native/local behavior is unchanged.
++        if let Ok(addresses) = std::env::var("SHOAL_BENCHMARK_VALIDATOR_IPS") {
++            let addresses: Vec<&str> = addresses.split(',').collect();
++            ensure!(addresses.len() == self.num_validators.get(), "validator IP count mismatch");
++            let address: std::net::Ipv4Addr = addresses[index].parse()?;
++            config.validator_network.as_mut().unwrap().listen_address =
++                format!("/ip4/{}/tcp/8000", address).parse()?;
++            config.api.address = "127.0.0.1:8001".parse()?;
++            config.inspection_service.port = 8002;
++        }
++
+         Ok(validator)
+     }
+ 
+diff --git a/crates/delugi-benchmark-observer/Cargo.toml b/crates/delugi-benchmark-observer/Cargo.toml
+new file mode 100644
+index 0000000..4f3e343
+--- /dev/null
++++ b/crates/delugi-benchmark-observer/Cargo.toml
+@@ -0,0 +1,7 @@
++[package]
++name = "delugi-benchmark-observer"
++version = "0.1.0"
++edition = "2021"
++publish = false
++
++[dependencies]
+diff --git a/crates/delugi-benchmark-observer/src/admission.rs b/crates/delugi-benchmark-observer/src/admission.rs
+new file mode 100644
+index 0000000..50ab285
+--- /dev/null
++++ b/crates/delugi-benchmark-observer/src/admission.rs
+@@ -0,0 +1,105 @@
++//! Read-only, run-bound admission bits supplied by the origin application.
++use std::{
++    fs::File,
++    io::{self, Read},
++    os::{
++        fd::AsRawFd,
++        raw::{c_int, c_void},
++    },
++    path::Path,
++    sync::atomic::{AtomicU8, Ordering},
++};
++extern "C" {
++    fn mmap(
++        address: *mut c_void,
++        length: usize,
++        protection: c_int,
++        flags: c_int,
++        fd: c_int,
++        offset: i64,
++    ) -> *mut c_void;
++    fn munmap(address: *mut c_void, length: usize) -> c_int;
++}
++/// A fixed-size shared admission map. The controller never truncates it.
++pub struct Admission {
++    address: usize,
++    length: usize,
++    header: usize,
++    count: usize,
++}
++impl Admission {
++    /// Verify the immutable run/plan/origin header before mapping its bitset.
++    pub fn open(path: &Path, expected: &[u8], count: usize) -> io::Result<Self> {
++        let mut file = File::open(path)?;
++        let length = expected.len() + (count + 7) / 8;
++        if file.metadata()?.len() != length as u64 {
++            return Err(io::Error::new(
++                io::ErrorKind::InvalidData,
++                "admission map size",
++            ));
++        }
++        let mut header = vec![0; expected.len()];
++        file.read_exact(&mut header)?;
++        if header != expected {
++            return Err(io::Error::new(
++                io::ErrorKind::InvalidData,
++                "admission map identity",
++            ));
++        }
++        let address = unsafe { mmap(std::ptr::null_mut(), length, 1, 1, file.as_raw_fd(), 0) };
++        if address as isize == -1 {
++            return Err(io::Error::last_os_error());
++        }
++        Ok(Self {
++            address: address as usize,
++            length,
++            header: expected.len(),
++            count,
++        })
++    }
++
++    /// Observe one origin-admission bit without per-output filesystem calls.
++    pub fn contains(&self, sequence: usize) -> bool {
++        if sequence >= self.count {
++            return false;
++        }
++        let pointer = (self.address + self.header + sequence / 8) as *const AtomicU8;
++        // One controller thread publishes aligned byte-sized bit updates before
++        // sending the request. This mapping is read-only in native validators.
++        (unsafe { (*pointer).load(Ordering::Acquire) }) & (1 << (sequence % 8)) != 0
++    }
++}
++impl Drop for Admission {
++    fn drop(&mut self) {
++        unsafe { munmap(self.address as *mut c_void, self.length) };
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::io::{Seek, SeekFrom, Write};
++    #[test]
++    fn maps_only_bound_origin_and_observes_publication() {
++        let path =
++            std::env::temp_dir().join(format!("shoal-admission-test-{}", std::process::id()));
++        let header = b"bound-run-origin-plan";
++        let mut file = std::fs::OpenOptions::new()
++            .create_new(true)
++            .write(true)
++            .open(&path)
++            .unwrap();
++        file.write_all(header).unwrap();
++        file.write_all(&[0]).unwrap();
++        assert!(Admission::open(&path, b"different-run-origin", 8).is_err());
++        let admission = Admission::open(&path, header, 8).unwrap();
++        assert!(!admission.contains(3));
++        file.seek(SeekFrom::Start(header.len() as u64)).unwrap();
++        file.write_all(&[8]).unwrap();
++        assert!(admission.contains(3));
++        assert!(!admission.contains(8));
++        drop(admission);
++        drop(file);
++        std::fs::remove_file(path).unwrap();
++    }
++}
+diff --git a/crates/delugi-benchmark-observer/src/cpu.rs b/crates/delugi-benchmark-observer/src/cpu.rs
+new file mode 100644
+index 0000000..d855fb3
+--- /dev/null
++++ b/crates/delugi-benchmark-observer/src/cpu.rs
+@@ -0,0 +1,50 @@
++// Copied verbatim into each instrumented native crypto module. Disabled unless
++// BENCHMARK_CPU_PATH is set. Synchronous guards never cross an await point.
++use std::{fs, io::Write, os::raw::{c_int, c_long}, path::PathBuf,
++    sync::{OnceLock, atomic::{AtomicU64, Ordering}}, time::Duration};
++
++#[repr(C)] struct Timespec { tv_sec: c_long, tv_nsec: c_long }
++extern "C" { fn clock_gettime(id: c_int, time: *mut Timespec) -> c_int; }
++#[cfg(target_os = "linux")] const THREAD_CLOCK: c_int = 3;
++#[cfg(target_os = "macos")] const THREAD_CLOCK: c_int = 16;
++#[cfg(target_os = "linux")] const MONOTONIC_CLOCK: c_int = 1;
++#[cfg(target_os = "macos")] const MONOTONIC_CLOCK: c_int = 6;
++fn clock(id: c_int) -> u64 {
++    let mut ts = Timespec { tv_sec: 0, tv_nsec: 0 };
++    assert_eq!(unsafe { clock_gettime(id, &mut ts) }, 0, "benchmark CPU clock unavailable");
++    ts.tv_sec as u64 * 1_000_000_000 + ts.tv_nsec as u64
++}
++static COUNT: [AtomicU64; 4] = [AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0)];
++static CPU: [AtomicU64; 4] = [AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0)];
++static CONFIG: OnceLock<Option<PathBuf>> = OnceLock::new();
++
++fn enabled() -> bool {
++    CONFIG.get_or_init(|| {
++        let path = std::env::var_os("BENCHMARK_CPU_PATH").map(PathBuf::from)?;
++        let output = path.clone();
++        std::thread::Builder::new().name("native-crypto-observer".into()).spawn(move || loop {
++            let names = ["ordinary_sign", "ordinary_verify", "ordinary_verify_batch", "ordinary_verify_batch_multi"];
++            let fields: Vec<String> = names.iter().enumerate().map(|(i,name)| format!(
++                "\"{}\":{{\"calls\":{},\"thread_cpu_ns\":{}}}", name,
++                COUNT[i].load(Ordering::Relaxed), CPU[i].load(Ordering::Relaxed))).collect();
++            let row = format!("{{\"schema\":1,\"monotonic_ns\":{},\"scope\":\"native synchronous ordinary protocol authentication; hashing and input decoding included; elapsed thread CPU, not wall time; failed attempts charged\",\"operations\":{{{}}}}}\n", clock(MONOTONIC_CLOCK), fields.join(","));
++            let temporary = output.with_extension("tmp");
++            let mut file = fs::File::create(&temporary).expect("create native CPU snapshot");
++            file.write_all(row.as_bytes()).expect("write native CPU snapshot");
++            fs::rename(temporary, &output).expect("publish native CPU snapshot");
++            std::thread::sleep(Duration::from_millis(20));
++        }).expect("start native crypto observer");
++        Some(path)
++    }).is_some()
++}
++
++pub struct Guard { kind: usize, start_ns: u64 }
++pub fn begin(kind: usize) -> Option<Guard> {
++    if enabled() { Some(Guard { kind, start_ns: clock(THREAD_CLOCK) }) } else { None }
++}
++impl Drop for Guard {
++    fn drop(&mut self) {
++        CPU[self.kind].fetch_add(clock(THREAD_CLOCK).saturating_sub(self.start_ns), Ordering::Relaxed);
++        COUNT[self.kind].fetch_add(1, Ordering::Relaxed);
++    }
++}
+diff --git a/crates/delugi-benchmark-observer/src/fault.rs b/crates/delugi-benchmark-observer/src/fault.rs
+new file mode 100644
+index 0000000..f907854
+--- /dev/null
++++ b/crates/delugi-benchmark-observer/src/fault.rs
+@@ -0,0 +1,36 @@
++// Copied verbatim into each native transport module. Only a configured faulty
++// sender invokes this on native payload/publication units. It does not edit data,
++// quorum predicates, honest custody, or native request/recovery algorithms.
++use std::{collections::HashSet, fs, io::Write, os::raw::{c_int,c_long}, path::PathBuf,
++    sync::{Mutex,OnceLock}};
++#[repr(C)] struct Timespec { tv_sec:c_long, tv_nsec:c_long }
++extern "C" { fn clock_gettime(id:c_int, time:*mut Timespec)->c_int; }
++#[cfg(target_os="linux")] const CLOCK:c_int=1;
++#[cfg(target_os="macos")] const CLOCK:c_int=6;
++pub fn monotonic_ns()->u64 { let mut ts=Timespec{tv_sec:0,tv_nsec:0};assert_eq!(unsafe{clock_gettime(CLOCK,&mut ts)},0);ts.tv_sec as u64*1_000_000_000+ts.tv_nsec as u64 }
++struct Config { control:PathBuf, log:PathBuf, allowed:HashSet<String>, repair:bool }
++static CONFIG:OnceLock<Option<Config>>=OnceLock::new();
++static INTERVAL:OnceLock<(u64,u64)>=OnceLock::new();
++static LOG:Mutex<()>=Mutex::new(());
++pub fn permit(kind:&str, peer:&str, bytes:usize)->bool {
++    let config=CONFIG.get_or_init(|| Some(Config {
++        control:PathBuf::from(std::env::var_os("BENCHMARK_FAULT_CONTROL")?),
++        log:PathBuf::from(std::env::var_os("BENCHMARK_FAULT_LOG")?),
++        allowed:std::env::var("BENCHMARK_FAULT_ALLOWED").unwrap_or_default().split(',').filter(|x|!x.is_empty()).map(str::to_owned).collect(),
++        repair:std::env::var("BENCHMARK_FAULT_REPAIR").as_deref()==Ok("1"),
++    }));
++    let Some(config)=config else{return true};
++    if kind=="payload_repair" && !config.repair {return true}
++    if INTERVAL.get().is_none() {
++        match fs::read_to_string(&config.control) {
++            Ok(text)=>{let values:Vec<u64>=text.split_whitespace().map(|x|x.parse().expect("invalid benchmark fault time")).collect();assert_eq!(values.len(),2);assert!(values[0]<values[1]);let _=INTERVAL.set((values[0],values[1]));},
++            Err(error) if error.kind()==std::io::ErrorKind::NotFound=>return true,
++            Err(error)=>panic!("read benchmark fault interval: {}",error),
++        }
++    }
++    let (start,end)=*INTERVAL.get().unwrap();let now=monotonic_ns();
++    if now<start || now>=end || config.allowed.contains(peer) {return true}
++    let _guard=LOG.lock().unwrap();let mut file=fs::OpenOptions::new().create(true).append(true).open(&config.log).expect("open omission log");
++    writeln!(file,"{{\"kind\":\"{}\",\"peer\":\"{}\",\"serialized_bytes_omitted\":{},\"monotonic_ns\":{}}}",kind,peer,bytes,now).expect("write omission log");
++    false
++}
+diff --git a/crates/delugi-benchmark-observer/src/io.rs b/crates/delugi-benchmark-observer/src/io.rs
+new file mode 100644
+index 0000000..3c6bcd5
+--- /dev/null
++++ b/crates/delugi-benchmark-observer/src/io.rs
+@@ -0,0 +1,40 @@
++// Optional native TCP byte observer. Call only after successful socket IO.
++// Counts native encrypted framing/handshakes; excludes external REST ingress.
++use std::{fs, os::{raw::{c_int,c_long,c_void},fd::AsRawFd}, path::PathBuf,
++    sync::{OnceLock,atomic::{AtomicU64,Ordering}}, time::Duration};
++#[repr(C)] struct Timespec { tv_sec:c_long, tv_nsec:c_long }
++extern "C" { fn clock_gettime(id:c_int, time:*mut Timespec)->c_int; }
++extern "C" { fn mmap(address:*mut c_void,length:usize,protection:c_int,flags:c_int,fd:c_int,offset:i64)->*mut c_void; }
++#[cfg(target_os="linux")] const CLOCK:c_int=1;
++#[cfg(target_os="macos")] const CLOCK:c_int=6;
++fn monotonic_us()->u64 {let mut ts=Timespec{tv_sec:0,tv_nsec:0};assert_eq!(unsafe{clock_gettime(CLOCK,&mut ts)},0);ts.tv_sec as u64*1_000_000+ts.tv_nsec as u64/1000}
++#[repr(C)] struct Counters { magic:u64,written:AtomicU64,read:AtomicU64 }
++static CONFIG:OnceLock<Option<&'static Counters>>=OnceLock::new();
++// Native-endian24-byte sidecar, read by the controller only after confirmed
++// process suspension. MAP_SHARED preserves exact successful socket totals
++// without per-frame syscalls/fsync; the periodic JSON is only a window sample.
++const MAGIC:u64=0x444c47494f563031;
++pub fn record(bytes:usize,write:bool) {
++    let Some(counters)=CONFIG.get_or_init(|| {
++        let path=std::env::var_os("BENCHMARK_IO_PATH")?;
++        let path=PathBuf::from(path);
++        assert_eq!(std::mem::size_of::<Counters>(),24);
++        let file=fs::OpenOptions::new().create_new(true).read(true).write(true).open(path.with_extension("counters")).expect("create native shared TCP counters");
++        file.set_len(24).expect("size native shared TCP counters");
++        let address=unsafe{mmap(std::ptr::null_mut(),24,3,1,file.as_raw_fd(),0)};
++        assert_ne!(address as isize,-1,"map native shared TCP counters");
++        let counters=unsafe {
++            let pointer=address.cast::<Counters>();
++            pointer.write(Counters{magic:MAGIC,written:AtomicU64::new(0),read:AtomicU64::new(0)});
++            &*pointer
++        };
++        std::thread::Builder::new().name("benchmark-io".into()).spawn(move||loop {
++            let row=format!("{{\"observed_us\":{},\"written_bytes\":{},\"read_bytes\":{}}}\n",monotonic_us(),counters.written.load(Ordering::Relaxed),counters.read.load(Ordering::Relaxed));
++            let temporary=path.with_extension("tmp");
++            fs::write(&temporary,row).expect("write native TCP counters");
++            fs::rename(&temporary,&path).expect("publish native TCP counters");
++            std::thread::sleep(Duration::from_millis(10));
++        }).expect("native TCP counter thread");Some(counters)
++    }) else{return};
++    if write {counters.written.fetch_add(bytes as u64,Ordering::Relaxed);} else {counters.read.fetch_add(bytes as u64,Ordering::Relaxed);}
++}
+diff --git a/crates/delugi-benchmark-observer/src/lib.rs b/crates/delugi-benchmark-observer/src/lib.rs
+new file mode 100644
+index 0000000..9dd2953
+--- /dev/null
++++ b/crates/delugi-benchmark-observer/src/lib.rs
+@@ -0,0 +1,6 @@
++//! Optional benchmark observations isolated from the native crypto/type crates.
++//! These helpers are inactive unless explicitly configured by the adapter.
++pub mod cpu;
++pub mod fault;
++pub mod io;
++pub mod admission;
+diff --git a/network/netcore/src/transport/tcp.rs b/network/netcore/src/transport/tcp.rs
+index 196e403..bb7689b 100644
+--- a/network/netcore/src/transport/tcp.rs
++++ b/network/netcore/src/transport/tcp.rs
+@@ -385,7 +385,9 @@ impl AsyncRead for TcpSocket {
+         context: &mut Context,
+         buf: &mut [u8],
+     ) -> Poll<io::Result<usize>> {
+-        Pin::new(&mut self.inner).poll_read(context, buf)
++        let result=Pin::new(&mut self.inner).poll_read(context, buf);
++        if let Poll::Ready(Ok(bytes))=&result {aptos_types::benchmark_io::record(*bytes,false);}
++        result
+     }
+ }
+ 
+@@ -395,7 +397,9 @@ impl AsyncWrite for TcpSocket {
+         context: &mut Context,
+         buf: &[u8],
+     ) -> Poll<io::Result<usize>> {
+-        Pin::new(&mut self.inner).poll_write(context, buf)
++        let result=Pin::new(&mut self.inner).poll_write(context, buf);
++        if let Poll::Ready(Ok(bytes))=&result {aptos_types::benchmark_io::record(*bytes,true);}
++        result
+     }
+ 
+     fn poll_flush(mut self: Pin<&mut Self>, context: &mut Context) -> Poll<io::Result<()>> {
+diff --git a/types/Cargo.toml b/types/Cargo.toml
+index af3ffd1..78724d1 100644
+--- a/types/Cargo.toml
++++ b/types/Cargo.toml
+@@ -13,6 +13,7 @@ repository = { workspace = true }
+ rust-version = { workspace = true }
+ 
+ [dependencies]
++delugi-benchmark-observer = { path = "../crates/delugi-benchmark-observer" }
+ anyhow = { workspace = true }
+ aptos-bitvec = { workspace = true }
+ aptos-crypto = { workspace = true }
+diff --git a/types/src/benchmark_cohort.rs b/types/src/benchmark_cohort.rs
+new file mode 100644
+index 0000000..6c83fdb
+--- /dev/null
++++ b/types/src/benchmark_cohort.rs
+@@ -0,0 +1,250 @@
++// Application observation only; native ordering/validation remain unchanged.
++use crate::{
++    chain_id::ChainId,
++    transaction::{
++        authenticator::AuthenticationKey, RawTransaction, Script, SignedTransaction,
++        TransactionPayload,
++    },
++};
++use aptos_crypto::{ed25519::Ed25519PrivateKey, PrivateKey, Uniform};
++use rand::rngs::OsRng;
++use serde_json::json;
++use std::{
++    collections::HashSet,
++    fs::{File, OpenOptions},
++    io::Write,
++    path::Path,
++    sync::{Mutex, OnceLock},
++};
++
++fn monotonic_us() -> u64 {
++    delugi_benchmark_observer::fault::monotonic_ns() / 1000
++}
++pub fn write_workload(
++    path: &Path,
++    run: &str,
++    origin: u64,
++    count: u64,
++    useful_bytes: usize,
++) -> anyhow::Result<()> {
++    let run_bytes = hex::decode(run)?;
++    anyhow::ensure!(run_bytes.len() == 16, "expected 16-byte run ID");
++    // The finite manifest contains signed requests, never the private key.
++    // A public run ID must not determine an impersonatable signing key.
++    let mut rng = OsRng;
++    let key = Ed25519PrivateKey::generate(&mut rng);
++    let public = key.public_key();
++    let sender = AuthenticationKey::ed25519(&public).account_address();
++    let expiration = std::time::SystemTime::now()
++        .duration_since(std::time::UNIX_EPOCH)?
++        .as_secs()
++        + 3600;
++    let mut file = OpenOptions::new().write(true).create_new(true).open(path)?;
++    for sequence in 0..count {
++        let mut code = b"DLGCOH02".to_vec();
++        code.extend_from_slice(&run_bytes);
++        code.extend_from_slice(&origin.to_le_bytes());
++        code.extend_from_slice(&sequence.to_le_bytes());
++        code.extend_from_slice(&(useful_bytes as u64).to_le_bytes());
++        code.extend(
++            (0..useful_bytes).map(|index| ((origin + sequence + index as u64) % 251) as u8),
++        );
++        let transaction = RawTransaction::new_script(
++            sender,
++            sequence,
++            Script::new(code, vec![], vec![]),
++            1_000_000,
++            1,
++            expiration,
++            ChainId::test(),
++        )
++        .sign(&key, public.clone())?
++        .into_inner();
++        let serialized = bcs::to_bytes(&transaction)?;
++        writeln!(
++            file,
++            "{}",
++            json!({"request_id":transaction.clone().committed_hash().to_hex(),"run_id":run,"origin":origin,"sequence":sequence,"useful_bytes":useful_bytes,"serialized_bytes":serialized.len(),"bcs_hex":hex::encode(serialized)})
++        )?;
++    }
++    Ok(())
++}
++
++#[derive(serde::Deserialize)]
++struct Plan {
++    schema: u64,
++    run_id: String,
++    counts: Vec<usize>,
++    useful_bytes: u64,
++    identities: Vec<Vec<String>>,
++}
++struct Observer {
++    file: Option<File>,
++    checkpoints: File,
++    receipt_dir: std::path::PathBuf,
++    control: std::path::PathBuf,
++    run: Vec<u8>,
++    run_id: String,
++    plan_hash: String,
++    useful_bytes: u64,
++    mode: String,
++    state: crate::benchmark_receipt::Receipt,
++    admission: delugi_benchmark_observer::admission::Admission,
++    batches: HashSet<String>,
++    batch_count: u64,
++    payload_bytes: u64,
++    digest: [u8; 32],
++    frozen: bool,
++}
++static OBSERVER: OnceLock<Option<Mutex<Observer>>> = OnceLock::new();
++fn hash(bytes: &[u8]) -> [u8; 32] {
++    aptos_crypto::HashValue::sha3_256_of(bytes)
++        .to_vec()
++        .try_into()
++        .unwrap()
++}
++fn atomic_json(path: &Path, value: &serde_json::Value) {
++    let temporary = path.with_extension("tmp");
++    std::fs::write(&temporary, format!("{}\n", value)).unwrap();
++    std::fs::rename(temporary, path).unwrap();
++}
++fn observer() -> Option<&'static Mutex<Observer>> {
++    OBSERVER.get_or_init(|| {
++        let path=std::path::PathBuf::from(std::env::var_os("BENCHMARK_COHORT_PATH")?);
++        let run_id=std::env::var("BENCHMARK_RUN_ID").expect("benchmark run ID");
++        let run=hex::decode(&run_id).expect("hex run ID");assert_eq!(run.len(),16);
++        let mode=std::env::var("BENCHMARK_OBSERVER_MODE").unwrap_or_else(|_|"full".into());
++        assert!(mode=="full" || mode=="compact");
++        let plan_raw=std::fs::read(std::env::var_os("BENCHMARK_FINITE_PLAN").expect("finite plan")).unwrap();
++        let plan:Plan=serde_json::from_slice(&plan_raw).expect("finite signed plan");
++        assert_eq!(plan.schema,1);assert_eq!(plan.run_id,run_id);assert!(plan.useful_bytes>0);
++        let origin:usize=std::env::var("BENCHMARK_ORIGIN").expect("origin").parse().unwrap();
++        assert_eq!(plan.counts.len(),plan.identities.len());
++        let identities:Vec<Vec<[u8;32]>>=plan.identities.into_iter().enumerate().map(|(i,rows)|{
++            assert_eq!(rows.len(),plan.counts[i]);rows.into_iter().map(|id|hex::decode(id).unwrap().try_into().unwrap()).collect()
++        }).collect();
++        let state=crate::benchmark_receipt::Receipt::new(identities,origin);
++        let plan_digest=hash(&plan_raw);let mut header=b"DLGSHAD1".to_vec();header.extend_from_slice(&run);
++        header.extend_from_slice(&(origin as u64).to_le_bytes());header.extend_from_slice(&(state.counts[origin]as u64).to_le_bytes());header.extend_from_slice(&plan_digest);
++        let admission=delugi_benchmark_observer::admission::Admission::open(Path::new(&std::env::var_os("BENCHMARK_ADMISSION_PATH").expect("admission path")),&header,state.counts[origin]).unwrap();
++        let receipt_dir=std::path::PathBuf::from(std::env::var_os("BENCHMARK_RECEIPT_DIR").expect("receipt directory"));
++        std::fs::create_dir(&receipt_dir).expect("new receipt directory");
++        let checkpoints=OpenOptions::new().create_new(true).write(true).open(receipt_dir.join("checkpoints.jsonl")).unwrap();
++        let control=std::path::PathBuf::from(std::env::var_os("BENCHMARK_FREEZE_PATH").expect("freeze path"));
++        let file=if mode=="full"{Some(OpenOptions::new().create_new(true).write(true).open(path).expect("create native output ledger"))}else{None};
++        let observer=Observer{file,checkpoints,receipt_dir,control,run,run_id,plan_hash:hex::encode(plan_digest),useful_bytes:plan.useful_bytes,mode,state,admission,batches:HashSet::new(),batch_count:0,payload_bytes:0,digest:hash(b"Shoal-native-prefix-v1"),frozen:false};
++        std::thread::Builder::new().name("shoal-receipt".into()).spawn(||loop {
++            std::thread::sleep(std::time::Duration::from_millis(20));
++            let Some(mutex)=self::observer() else{return};let mut observer=mutex.lock().unwrap();
++            if observer.frozen{return}
++            let now=monotonic_us();
++            atomic_json(&observer.receipt_dir.join("counters.json"),&json!({"schema":1,"format":"shoal-native-counters-v1","run_id":observer.run_id,"plan_sha3_256":observer.plan_hash,"origin":observer.state.origin,"mode":observer.mode,"observed_us":now,"output_count":observer.state.output_count,"own_eligible_count":observer.state.own_eligible_count,"payload_bytes":observer.payload_bytes,"batch_count":observer.batch_count}));
++            if let Ok(raw)=std::fs::read(&observer.control) {
++                let request:serde_json::Value=serde_json::from_slice(&raw).expect("freeze request");
++                assert_eq!(request["run_id"].as_str(),Some(observer.run_id.as_str()));
++                let requested=request["requested_us"].as_u64().expect("requested freeze time");
++                if now<requested{continue}
++                observer.frozen=true;
++                let mut descriptors=vec![];
++                for (name,origin,bits) in observer.state.materialized.iter().enumerate().map(|(origin,bits)|("materialized",origin,bits))
++                    .chain([("own_seen",observer.state.origin,&observer.state.own_seen),("own_eligible",observer.state.origin,&observer.state.own_eligible)]) {
++                    let path=format!("{}-{}.bits",name,origin);std::fs::write(observer.receipt_dir.join(&path),bits).unwrap();
++                    descriptors.push(json!({"name":name,"origin":origin,"path":path,"bytes":bits.len(),"sha3_256":hex::encode(hash(bits)),"ones":bits.iter().map(|byte|byte.count_ones()as u64).sum::<u64>()}));
++                }
++                atomic_json(&observer.receipt_dir.join("header.json"),&json!({"schema":1,"format":"shoal-native-receipt-v1","run_id":observer.run_id,"plan_sha3_256":observer.plan_hash,"origin":observer.state.origin,"counts":observer.state.counts,"useful_bytes":observer.useful_bytes,"mode":observer.mode,"requested_us":requested,"frozen_us":now,"output_count":observer.state.output_count,"batch_count":observer.batch_count,"payload_bytes":observer.payload_bytes,"prefix_sha3_256":hex::encode(observer.digest),"streams":descriptors}));
++                return
++            }
++        }).expect("native receipt control");
++        Some(Mutex::new(observer))
++    }).as_ref()
++}
++pub fn enabled() -> bool {
++    observer().is_some()
++}
++pub fn ordered_batch(batch_id: String, transactions: &[SignedTransaction]) {
++    let Some(mutex) = observer() else { return };
++    let mut observer = loop {
++        let guard = mutex.lock().unwrap();
++        if !guard.frozen {
++            break guard;
++        }
++        drop(guard);
++        std::thread::sleep(std::time::Duration::from_millis(20));
++    };
++    let bytes: usize = transactions
++        .iter()
++        .map(|transaction| bcs::serialized_size(transaction).unwrap())
++        .sum();
++    let unique = observer.batches.insert(batch_id.clone());
++    if unique { observer.payload_bytes += bytes as u64; }
++    let first_index = observer.state.output_count;
++    let batch_index = observer.batch_count;
++    if let Some(file) = observer.file.as_mut() {
++        writeln!(file,"{}",json!({"event":"batch","batch_index":batch_index,"first_index":first_index,"unique_batch":unique,"exact_batch_id":batch_id,"payload_bytes":bytes,"materialized_us":monotonic_us()})).unwrap();
++    }
++    let mut boundary = b"B".to_vec();
++    boundary.extend_from_slice(&observer.digest);
++    boundary.extend_from_slice(&hash(batch_id.as_bytes()));
++    boundary.extend_from_slice(&(bytes as u64).to_le_bytes());
++    boundary.extend_from_slice(&first_index.to_le_bytes());
++    observer.digest = hash(&boundary);
++    for transaction in transactions {
++        let identity = (|| {
++            let code = match transaction.payload() {
++                TransactionPayload::Script(script) => script.code(),
++                _ => return None,
++            };
++            if code.len() < 48 || &code[..8] != b"DLGCOH02" || code[8..24] != observer.run[..] {
++                return None;
++            }
++            let origin = u64::from_le_bytes(code[24..32].try_into().ok()?);
++            let sequence = u64::from_le_bytes(code[32..40].try_into().ok()?);
++            let useful = u64::from_le_bytes(code[40..48].try_into().ok()?);
++            if useful != u64::try_from(code.len() - 48).ok()? || useful != observer.useful_bytes {
++                return None;
++            }
++            if !code[48..].iter().enumerate().all(|(i, byte)| {
++                *byte == (origin.wrapping_add(sequence).wrapping_add(i as u64) % 251) as u8
++            }) {
++                return None;
++            }
++            if transaction.clone().check_signature().is_err() {
++                return None;
++            }
++            Some((origin, sequence, useful))
++        })();
++        let id: [u8; 32] = transaction
++            .clone()
++            .committed_hash()
++            .to_vec()
++            .try_into()
++            .unwrap();
++        let index = observer.state.output_count;
++        let mut row = b"T".to_vec();
++        row.extend_from_slice(&observer.digest);
++        row.extend_from_slice(&index.to_le_bytes());
++        row.extend_from_slice(&id);
++        observer.digest = hash(&row);
++        let eligible = {
++            let Observer {
++                state, admission, ..
++            } = &mut *observer;
++            state.output(
++                &id,
++                identity.map(|(origin, sequence, _)| (origin as usize, sequence as usize)),
++                |sequence| admission.contains(sequence),
++            )
++        };
++        if let Some(file) = observer.file.as_mut() {
++            let row = if let Some((origin, sequence, useful)) = identity {
++                json!({"event":"output","request_id":hex::encode(id),"origin":origin,"sequence":sequence,"useful_bytes":useful,"output_index":index,"exact_batch_id":batch_id,"materialized_us":monotonic_us(),"origin_eligible":eligible})
++            } else {
++                json!({"event":"uncredited_output","request_id":hex::encode(id),"origin":-1,"sequence":0,"useful_bytes":0,"output_index":index,"exact_batch_id":batch_id,"materialized_us":monotonic_us(),"origin_eligible":false})
++            };
++            writeln!(file, "{}", row).unwrap();
++        }
++    }
++    let checkpoint = json!({"batch_index":observer.batch_count,"exact_batch_id":batch_id,"payload_bytes":bytes,"unique_batch":unique,"first_index":first_index,"output_count":observer.state.output_count,"prefix_sha3_256":hex::encode(observer.digest)});
++    writeln!(observer.checkpoints, "{}", checkpoint).unwrap();
++    observer.batch_count += 1;
++}
+diff --git a/types/src/benchmark_receipt.rs b/types/src/benchmark_receipt.rs
+new file mode 100644
+index 0000000..e4fa3ef
+--- /dev/null
++++ b/types/src/benchmark_receipt.rs
+@@ -0,0 +1,114 @@
++// Pure finite identity state shared by full and compact application observation.
++// No clocks, JSON, filesystem IO, or protocol types occur in the per-output path.
++use std::collections::HashMap;
++pub(crate) type Identity = [u8; 32];
++pub(crate) struct Receipt {
++    pub counts: Vec<usize>,
++    pub origin: usize,
++    pub output_count: u64,
++    pub own_eligible_count: u64,
++    pub materialized: Vec<Vec<u8>>,
++    pub own_seen: Vec<u8>,
++    pub own_eligible: Vec<u8>,
++    identities: HashMap<Identity, (usize, usize)>,
++}
++impl Receipt {
++    pub fn new(identities: Vec<Vec<Identity>>, origin: usize) -> Self {
++        assert!(origin < identities.len() && identities.len() <= 31);
++        let counts: Vec<_> = identities.iter().map(Vec::len).collect();
++        assert!(
++            counts.iter().sum::<usize>() <= 5_000_000,
++            "finite observer population limit"
++        );
++        let mut lookup = HashMap::new();
++        for (who, rows) in identities.into_iter().enumerate() {
++            for (sequence, id) in rows.into_iter().enumerate() {
++                assert!(
++                    lookup.insert(id, (who, sequence)).is_none(),
++                    "duplicate finite signed identity"
++                );
++            }
++        }
++        let materialized = counts
++            .iter()
++            .map(|count| vec![0; (count + 7) / 8])
++            .collect();
++        let own_seen = vec![0; (counts[origin] + 7) / 8];
++        let own_eligible = own_seen.clone();
++        Self {
++            counts,
++            origin,
++            output_count: 0,
++            own_eligible_count: 0,
++            materialized,
++            own_seen,
++            own_eligible,
++            identities: lookup,
++        }
++    }
++
++    pub fn output(
++        &mut self,
++        id: &Identity,
++        valid: Option<(usize, usize)>,
++        admitted: impl FnOnce(usize) -> bool,
++    ) -> bool {
++        self.output_count += 1;
++        let Some(&(origin, sequence)) = self.identities.get(id) else {
++            return false;
++        };
++        if valid != Some((origin, sequence)) {
++            return false;
++        }
++        self.materialized[origin][sequence / 8] |= 1 << (sequence % 8);
++        if origin != self.origin {
++            return true;
++        }
++        let mask = 1 << (sequence % 8);
++        if self.own_seen[sequence / 8] & mask == 0 {
++            self.own_seen[sequence / 8] |= mask;
++            if admitted(sequence) {
++                self.own_eligible[sequence / 8] |= mask;
++                self.own_eligible_count += 1;
++            }
++        }
++        self.own_eligible[sequence / 8] & mask != 0
++    }
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    #[test]
++    fn first_output_latches_admission_and_never_retroactively_credits() {
++        let mut state = Receipt::new(vec![vec![[1; 32], [2; 32]], vec![[3; 32]]], 0);
++        assert!(!state.output(&[1; 32], Some((0, 0)), |_| false));
++        assert!(!state.output(&[1; 32], Some((0, 0)), |_| true));
++        assert!(state.output(&[2; 32], Some((0, 1)), |_| true));
++        assert!(state.output(&[3; 32], Some((1, 0)), |_| panic!("remote clock read")));
++        assert_eq!(state.own_seen, vec![3]);
++        assert_eq!(state.own_eligible, vec![2]);
++        assert_eq!(state.materialized, vec![vec![3], vec![1]]);
++        assert_eq!(state.output_count, 4);
++    }
++    #[test]
++    fn malformed_unknown_and_wrong_origin_preserve_ordinals_without_credit() {
++        let mut state = Receipt::new(vec![vec![[1; 32]]], 0);
++        for (id, identity) in [
++            ([1; 32], None),
++            ([1; 32], Some((1, 0))),
++            ([2; 32], Some((0, 0))),
++        ] {
++            assert!(!state.output(&id, identity, |_| panic!("unknown admission lookup")));
++        }
++        assert_eq!(state.output_count, 3);
++        assert_eq!(state.materialized, vec![vec![0]]);
++    }
++    #[test]
++    fn empty_population_retains_unknown_native_output() {
++        let mut state = Receipt::new(vec![vec![]], 0);
++        assert!(!state.output(&[1; 32], None, |_| false));
++        assert_eq!(state.output_count, 1);
++        assert!(state.materialized[0].is_empty());
++    }
++}
+diff --git a/types/src/lib.rs b/types/src/lib.rs
+index 64d54ce..ba8b2a1 100644
+--- a/types/src/lib.rs
++++ b/types/src/lib.rs
+@@ -4,6 +4,9 @@
+ 
+ #![forbid(unsafe_code)]
+ 
++pub mod benchmark_cohort;
++mod benchmark_receipt;
++
+ pub mod access_path;
+ pub mod account_address;
+ pub mod account_config;
+@@ -65,3 +68,7 @@ pub mod keyless;
+ pub mod state_store;
+ #[cfg(test)]
+ mod unit_tests;
++
++pub use delugi_benchmark_observer::fault as benchmark_fault;
++
++pub use delugi_benchmark_observer::io as benchmark_io;

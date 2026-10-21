@@ -1,0 +1,244 @@
+{
+  "schema": 1,
+  "scope": "unshaped localhost native correctness/accounting pilots; not sustainable capacity or protocol rankings",
+  "runs": [
+    {
+      "directory": "results/local/migration-autobahn-cohort-topology-20261019",
+      "status": "completed",
+      "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+      "source_diff_sha256": "1d08cce40d8221c16cfd1fdfdb8584de95bdba5439ab716da0604fd5565b7361",
+      "cohort_scheduled": 1200,
+      "cohort_completed": 1200,
+      "all_correct_collection": {
+        "completed": 1200,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 1600,
+        "sequence_lengths": [
+          1600,
+          1600,
+          1600,
+          1600
+        ],
+        "common_prefix_sha256": "504e4d55976671da6d269ab015baabbe3adfe5cd5689fdeef7b83e4ee76130f4",
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      "admission_to_output": {
+        "population": 1200,
+        "completed": 1200,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 12.516,
+          "lower_bound_ms": 12.516,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 24.275,
+          "lower_bound_ms": 24.275,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 25.948,
+          "lower_bound_ms": 25.948,
+          "status": "observed"
+        }
+      },
+      "omissions": null,
+      "crypto_cpu_measurement": null
+    },
+    {
+      "directory": "results/local/migration-autobahn-fixed-fault-20261019",
+      "status": "completed",
+      "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+      "source_diff_sha256": "1d08cce40d8221c16cfd1fdfdb8584de95bdba5439ab716da0604fd5565b7361",
+      "cohort_scheduled": 1200,
+      "cohort_completed": 1200,
+      "all_correct_collection": {
+        "completed": 1200,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 1600,
+        "sequence_lengths": [
+          1600,
+          1600,
+          1600
+        ],
+        "common_prefix_sha256": "41ac3907f7532ab10584fdd50c90c2448605dfecd416983a7308fee590310ada",
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ]
+      },
+      "admission_to_output": {
+        "population": 1200,
+        "completed": 1200,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 14.7,
+          "lower_bound_ms": 14.7,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 426.323,
+          "lower_bound_ms": 426.323,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 522.794,
+          "lower_bound_ms": 522.794,
+          "status": "observed"
+        }
+      },
+      "omissions": null,
+      "crypto_cpu_measurement": null
+    },
+    {
+      "directory": "results/local/migration-autobahn-selective-payload-20261019",
+      "status": "completed",
+      "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+      "source_diff_sha256": "d10c72648eb5996708ad6f42e6f98cdaf6c3e5987ba3c88482dc0cd0d32646d8",
+      "cohort_scheduled": 1200,
+      "cohort_completed": 1200,
+      "all_correct_collection": {
+        "completed": 1200,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 1799,
+        "sequence_lengths": [
+          1799,
+          1799,
+          1799
+        ],
+        "common_prefix_sha256": "3a2e76ec8540f0319ad03922ac4463877e371628a861a1a08b4baff5d064ccad",
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ]
+      },
+      "admission_to_output": {
+        "population": 1200,
+        "completed": 1200,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 85.681,
+          "lower_bound_ms": 85.681,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 482.103,
+          "lower_bound_ms": 482.103,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 523.853,
+          "lower_bound_ms": 523.853,
+          "status": "observed"
+        }
+      },
+      "omissions": {
+        "messages_omitted": 88,
+        "serialized_bytes_omitted": 54096,
+        "by_native_unit": {
+          "payload_initial": 88
+        },
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "crypto_cpu_measurement": {
+        "ordinary_sign": {
+          "calls": 8250,
+          "thread_cpu_ns": 136211899
+        },
+        "ordinary_verify": {
+          "calls": 10584,
+          "thread_cpu_ns": 349251386
+        },
+        "ordinary_verify_batch": {
+          "calls": 555,
+          "thread_cpu_ns": 52022122
+        },
+        "ordinary_verify_batch_multi": {
+          "calls": 0,
+          "thread_cpu_ns": 0
+        }
+      }
+    },
+    {
+      "directory": "results/local/migration-autobahn-seven-native-20261019",
+      "status": "completed",
+      "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+      "source_diff_sha256": "1d08cce40d8221c16cfd1fdfdb8584de95bdba5439ab716da0604fd5565b7361",
+      "cohort_scheduled": 1400,
+      "cohort_completed": 1400,
+      "all_correct_collection": {
+        "completed": 1400,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 2100,
+        "sequence_lengths": [
+          2100,
+          2100,
+          2100,
+          2100,
+          2100,
+          2100,
+          2100
+        ],
+        "common_prefix_sha256": "20cee0a29ebbbab62d671ce36e7113b5cf53260b063dcf2abc9b220699e237bc",
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
+      },
+      "admission_to_output": {
+        "population": 1400,
+        "completed": 1400,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 15.062,
+          "lower_bound_ms": 15.062,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 26.101,
+          "lower_bound_ms": 26.101,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 30.576,
+          "lower_bound_ms": 30.576,
+          "status": "observed"
+        }
+      },
+      "omissions": null,
+      "crypto_cpu_measurement": null
+    }
+  ]
+}

@@ -254,6 +254,7 @@ pub fn verify_prefix(
     b: &Checkpoint,
     proof: &PrefixProof,
 ) -> Result<(), String> {
+    let _cost = crate::meter::measure(crate::meter::Operation::PrefixProofVerify);
     encode(proof)?;
     validate_checkpoint(c, a)?;
     validate_checkpoint(c, b)?;
@@ -690,6 +691,7 @@ impl State {
         Ok(())
     }
     pub(crate) fn proof(&self, a: &Checkpoint, b: &Checkpoint) -> Result<PrefixProof, String> {
+        let _cost = crate::meter::measure(crate::meter::Operation::PrefixProofBuild);
         if self.checkpoint_at(a.height) != Some(a)
             || self.checkpoint_at(b.height) != Some(b)
             || a.height > b.height

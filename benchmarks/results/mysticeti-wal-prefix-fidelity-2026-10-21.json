@@ -1,0 +1,489 @@
+{
+  "cases": [
+    {
+      "all_correct_completed": 0,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 0,
+      "case": "functional-empty-compact",
+      "complete_blocks_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "97024fd5ff342371d38bb85c5cf91e98f2867cc7db0b4c3296146967cc39335f",
+      "mode": "compact",
+      "native_outputs_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "planned_honest_requests": 0,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 0,
+      "case": "functional-empty-full",
+      "complete_blocks_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "9263e8179bbb9ab8bce4c0b7b552a77c92393c5a838531d2d24c4f3240a83b07",
+      "mode": "full",
+      "native_outputs_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "planned_honest_requests": 0,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 8,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 0,
+      "case": "functional-healthy-compact",
+      "complete_blocks_by_replica": {
+        "0": 74393,
+        "1": 74301,
+        "2": 74333,
+        "3": 74393
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "1e4b36010dfc6e1168b5fd3c2bb2eafbc45f81a50391b98dcb1c2730b9698607",
+      "mode": "compact",
+      "native_outputs_by_replica": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "planned_honest_requests": 8,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 8,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 0,
+      "case": "functional-healthy-full",
+      "complete_blocks_by_replica": {
+        "0": 75210,
+        "1": 75250,
+        "2": 75246,
+        "3": 75194
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "8207b74fcad1e61eeb611ae84e5387138f7042837e1780f911e978da3450b26e",
+      "mode": "full",
+      "native_outputs_by_replica": {
+        "0": 8,
+        "1": 8,
+        "2": 8,
+        "3": 8
+      },
+      "planned_honest_requests": 8,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 4,
+      "case": "functional-unfinished-compact",
+      "complete_blocks_by_replica": {
+        "0": 22293,
+        "1": 22365,
+        "2": 22421,
+        "3": 22365
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "504991d99e787f7cd82b742dfb45894a0f92547cc384900d758465e4570df1e8",
+      "mode": "compact",
+      "native_outputs_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "planned_honest_requests": 4,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 4,
+      "case": "functional-unfinished-full",
+      "complete_blocks_by_replica": {
+        "0": 24050,
+        "1": 24050,
+        "2": 24134,
+        "3": 24102
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "2d16c54b733a75f5b09983fc27211b6af984d9d471cfe09f16f600dbe191fbf4",
+      "mode": "full",
+      "native_outputs_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "planned_honest_requests": 4,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 4800,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 0,
+      "case": "overhead-pair-1-compact",
+      "complete_blocks_by_replica": {
+        "0": 149460,
+        "1": 149485,
+        "2": 149493,
+        "3": 149497
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "b56fd03819cbb0f1a00f756a28999c5edc0c7c34e9442baad776a46613a5040d",
+      "mode": "compact",
+      "native_outputs_by_replica": {
+        "0": 4800,
+        "1": 4800,
+        "2": 4800,
+        "3": 4800
+      },
+      "planned_honest_requests": 4800,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 4800,
+      "all_correct_overlapping_complete_block_prefixes_equal": true,
+      "all_correct_unfinished": 0,
+      "case": "overhead-pair-1-full",
+      "complete_blocks_by_replica": {
+        "0": 151538,
+        "1": 151541,
+        "2": 151541,
+        "3": 151541
+      },
+      "exact_checkpoints_and_finite_membership_verified": true,
+      "historical_manifest_sha256": "fd7f7483e9769d7a48b745bb7a82d5b1a4f0a8953bd995bdded85bba0f0555b4",
+      "mode": "full",
+      "native_outputs_by_replica": {
+        "0": 4800,
+        "1": 4800,
+        "2": 4800,
+        "3": 4800
+      },
+      "planned_honest_requests": 4800,
+      "verified_replicas": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "cleanup": {
+    "all_derived_scratch_removed": true,
+    "historical_compressed_evidence_preserved": true,
+    "no_build_or_live_replica_process_started": true,
+    "remaining_derived_sqlite_files": 0
+  },
+  "cross_prefix_report": {
+    "path": "results/local/mysticeti-wal-prefix-20261021/cross-prefixes.json",
+    "sha256": "11136b5a2f75b048b2f441c9815e6300b22dcac20e16eef61962ddb813a45480"
+  },
+  "date": "2026-10-21",
+  "evidence_root": "results/local/mysticeti-wal-prefix-20261021",
+  "fidelity": {
+    "formal_comparison_eligibility_changed": false,
+    "later_wal_bytes_outside_prefix_claim_sum": 8989873,
+    "not_proved": [
+      "CommitData is not a signed consensus commit certificate; quorum correctness is not independently reconstructed",
+      "No durable fsync proof",
+      "Admission, eligibility and latency remain source-bound observer events",
+      "Native output after the declared frozen prefix is outside this verification"
+    ],
+    "scope": "Exact complete-block frozen native output sequence and every checkpoint joined to native block digests and Ed25519 signatures in locally persisted CommitData order, including unknown/empty native contents.",
+    "status": "verified",
+    "within_record_blocks_after_prefix_sum": 0
+  },
+  "implementation": {
+    "bounded_io_chunk_bytes": 65536,
+    "historical_replay_sqlite_budget_bytes": 536870912,
+    "legacy_replay_api_preserved": true,
+    "memory_scope": "bounded Python buffers and SQLite cache plus measured process/library overhead; disk indexes grow with native blocks, transactions and finite membership",
+    "native_sources_binary_and_historical_manifests_modified": false,
+    "sources": [
+      {
+        "bytes": 58580,
+        "path": "scripts/baselines/mysticeti.py",
+        "sha256": "583afd6417b4a835d11111e9376dbc20a3a599999851eef2b5e02ae082985a9e",
+        "snapshot": "results/local/mysticeti-wal-prefix-20261021/source-final/mysticeti.py"
+      },
+      {
+        "bytes": 20044,
+        "path": "scripts/baselines/mysticeti_test.py",
+        "sha256": "a08d2c893ee614a61c46193049f2d6eaf23298742788b22d37954731f3f35744",
+        "snapshot": "results/local/mysticeti-wal-prefix-20261021/source-final/mysticeti_test.py"
+      },
+      {
+        "bytes": 31992,
+        "path": "scripts/baselines/mysticeti_wal.py",
+        "sha256": "9c1b81e0fe0bb74603b8eec21d899b43ec0d4eb5193242def9af5526772691e0",
+        "snapshot": "results/local/mysticeti-wal-prefix-20261021/source-final/mysticeti_wal.py"
+      },
+      {
+        "bytes": 16531,
+        "path": "scripts/baselines/mysticeti_wal_test.py",
+        "sha256": "fe955cc4c47dcef4a590a41dd41e714f38035a114cf708bbdcad03ef1a6934f9",
+        "snapshot": "results/local/mysticeti-wal-prefix-20261021/source-final/mysticeti_wal_test.py"
+      },
+      {
+        "bytes": 17092,
+        "path": "scripts/baselines/mysticeti_receipts.py",
+        "sha256": "39b65fd609bcadfd00e1cf98e740b92d7cc055a1c25fe9d4fd3b242b853b1f23",
+        "snapshot": "results/local/mysticeti-wal-prefix-20261021/source-final/mysticeti_receipts.py"
+      },
+      {
+        "bytes": 11483,
+        "path": "scripts/baselines/mysticeti_receipts_test.py",
+        "sha256": "0639a8e2215e5bf11622b762378a863069f95dfe9497bfc3fcb73041a14415ba",
+        "snapshot": "results/local/mysticeti-wal-prefix-20261021/source-final/mysticeti_receipts_test.py"
+      }
+    ],
+    "sqlite_cache_bytes": 16777216,
+    "sqlite_default_disk_budget_bytes": 137438953472
+  },
+  "per_replica_reports": [
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-compact-replica-0.json",
+      "sha256": "dc839f94a74963c0f375b297c042c3f07dcdf5a00512b5e8fafbbf3ad8fb31fc"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-compact-replica-1.json",
+      "sha256": "e3124dbfa499e651597bae0d91f8dd084c313694c8a5a953cc9c63579f63bf4c"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-compact-replica-2.json",
+      "sha256": "00736ea27398c8d92c1e9c072c2281154fcae674487a1f82384b456cfa5af1c4"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-compact-replica-3.json",
+      "sha256": "65514c454280434b63ac2e05401179e2cae83b8b666e372dd6b646a9d8872515"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-full-replica-0.json",
+      "sha256": "26dde799f37e8dda33cf0b7b48bd23f86df6b1f5aafb9e9aaa9536aea89149fc"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-full-replica-1.json",
+      "sha256": "2eaf13fb2ce9d356d281086f70d0a1a9591779f8c187159acc3e584992a57796"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-full-replica-2.json",
+      "sha256": "854bc814228e8f8213f5c350233d95b634c3c604806a57e9d61d6754c4fed24c"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-empty-full-replica-3.json",
+      "sha256": "920539bb243a319f38140b42d0eaebdc3e2e7edb093ded1cfb736c9dee714ea9"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-compact-replica-0.json",
+      "sha256": "4509f7e682d6f77ef64438c3d7397b5def61891944bdca291af768facada40fd"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-compact-replica-1.json",
+      "sha256": "094d4fc82b533c55818a9d45ed484b704ce71a11d683426ec1a7383bf671ec9f"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-compact-replica-2.json",
+      "sha256": "e69c246f9321410b2baa6f84cbf25491bac9e7dce97d1f7c90622ebd8c50fd9d"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-compact-replica-3.json",
+      "sha256": "4b07529da9c0bdce73a4c131f597540325384f5be0d503ba1ef486bbca30ea87"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-full-replica-0.json",
+      "sha256": "81684536e5be5d2740238d88431eeed68d00e5a181ee318050f19080be8e559a"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-full-replica-1.json",
+      "sha256": "2f6c5ad57bca5591ffe5e8d42629adb655eb57c8b0c7252c54529959be04fa8e"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-full-replica-2.json",
+      "sha256": "e908dc54402a5190a9c34b82c055c02c581a8e9e26df6ee265030cebf35518e7"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-healthy-full-replica-3.json",
+      "sha256": "e2aec692230612cf89a7a418ca0367bf9b35d88a9a4fe072a17159987296eae9"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-compact-replica-0.json",
+      "sha256": "668aa00410df43d94d75a1b27a98e6f42ac5b30d30388e676d5475604deb730e"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-compact-replica-1.json",
+      "sha256": "7bcd6c789d2d809ce959602083bd44bbcfa2ce264adfb0bdb616e90356650322"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-compact-replica-2.json",
+      "sha256": "5f82e93bce7144c6f3748f356edae020b96a04e0c1340884327654830c50e6b8"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-compact-replica-3.json",
+      "sha256": "40ab76b139d4775dd4c96758ee98b6d572fe6054d57313f7446fee24a9214bf9"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-full-replica-0.json",
+      "sha256": "a9a65891f475453ff643dcff3457af8594e537130a9fdbe6f0bffb38a84a1907"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-full-replica-1.json",
+      "sha256": "5abcda40288c044b2bbd6078bb872c9148d99b94c5ac5ccdfd7bb747d8972374"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-full-replica-2.json",
+      "sha256": "e5a8824aa11510eae60f282a212023a804714ae1b6674c0233da4b47b39e1e10"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/functional-unfinished-full-replica-3.json",
+      "sha256": "abd1f3154bc1ad0d64c31d8bc7bf2e7ce2b98b56793ca6521fc19b00781fbf04"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-compact-replica-0.json",
+      "sha256": "91ada3eafdfecf066f898f248e6f3c0a40b7cf789e39f11236a46d29b02324d6"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-compact-replica-1.json",
+      "sha256": "fb3ee9f9881396c8df8b11d526cc39d0e8720d883cd37f60bc6d7e278f65c907"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-compact-replica-2.json",
+      "sha256": "8cdd17a6a31bbf3f7bc6f5c1d3dd6eb58fc8adcc6ba53299b828e7b9e9b0cceb"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-compact-replica-3.json",
+      "sha256": "33a7c37a3441e8ada5a7f8d515f816b19dd56ef8d5bf02c55b5a5fb90156fdae"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-full-replica-0.json",
+      "sha256": "ad126416030735bf61d00c1504290d9f0a36958b600294a8ea4dcfe328d3689a"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-full-replica-1.json",
+      "sha256": "7d2112343c87986738c7b1fc62be85f272277e3f57389066e13d4bf4838966c1"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-full-replica-2.json",
+      "sha256": "fc1696c7f74145c030e41ace74a6d1baefa4b0b9c7a3cb03e5c065764352366e"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/overhead-pair-1-full-replica-3.json",
+      "sha256": "8fed0e60c7b2181618ab18489621507f20ac29a63dab4d25d7a7204e8c3147c0"
+    }
+  ],
+  "replay_recipe_and_source_checkpoints": [
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/replay.py",
+      "sha256": "7b1f9a5a570408f80b266364adc2a5fa22450763107a9c36c7e30f45b4d132d1"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/cross-prefixes.py",
+      "sha256": "c3e5fde56fe3cedfba05a00934d523b612c09f1f75c4e3f936b6773b287a58c3"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/source/manifest.json",
+      "sha256": "3a8c51ab2de9dbef072e3e89667ce9f58e4a32f3d137cbfa9bce8f1aff8db330"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/source-final/manifest.json",
+      "sha256": "1d90621327f3eb8d15ef5f907d6474c9ba706790e2ad09f199f58acbc0715606"
+    },
+    {
+      "path": "results/local/mysticeti-wal-prefix-20261021/source/mysticeti_receipts-before-binding-cedf623b.py",
+      "sha256": "cedf623bc1892e492ff3f83164728f1ba3b2570bc3c10c4abd26d1026e63a630"
+    }
+  ],
+  "retained_native_artifact": {
+    "binary_sha256": "6e53416ecd9731fa499073e09cb8a1a39cd9cf6059d592dbfbe5695733c9b604",
+    "identity_source": "unchanged original run manifests; no new native build",
+    "patch_sha256": "984a0ce7dfd51779b90a4397916c1ce76bd56e6ff2ad8f97a17a6622be5b8054"
+  },
+  "schema": 1,
+  "scope": "Offline independent validation of frozen native output prefixes; no new protocol execution or performance measurement.",
+  "source_checkpoint_note": "First four full healthy replays imported the byte-identical archived pre-binding receipt reader; later runs used the final reader. The added binding helper did not change checkpoint or bitmap decoding. Each per-replica report records its exact reader hashes.",
+  "status": "verified",
+  "validation": {
+    "complete_block_checkpoints_verified": 1988196,
+    "cross_prefix_wall_seconds": 7.069944249466062,
+    "largest_per_replica_scratch_bytes": 473048907,
+    "native_output_observations_verified_across_replicas": 38464,
+    "peak_process_rss_bytes": 52576256,
+    "python_test_log": {
+      "path": "results/local/mysticeti-wal-prefix-20261021/python-tests-final-52.log",
+      "sha256": "09c0bcd45fa268f986fa75eb8b2d4d8b49f5c55fe2e178c805c39d1e1fa7909a"
+    },
+    "python_tests": 52,
+    "replay_wall_seconds_sum": 280.0130378752947,
+    "replica_wal_joins": 32,
+    "runs_with_cross_replica_prefix_agreement": 8,
+    "tests_cover": [
+      "signed native blocks and exact transaction identities",
+      "full/compact equality including unknown/foreign leading/trailing outputs and empty blocks",
+      "missing/reordered/altered checkpoints with unchanged finite membership",
+      "native missing tail/ancestor, duplicate commitment and tampered signatures",
+      "complete-block freeze inside a persisted native subdag",
+      "zero frozen prefix without claiming unseen native suffix",
+      "journal and finite bitmap mismatch",
+      "bounded large-record reads",
+      "adapter proof retention and derived-index cleanup",
+      "proof/header/terminal/full-journal binding"
+    ],
+    "wal_source_bytes": 1027434621
+  }
+}

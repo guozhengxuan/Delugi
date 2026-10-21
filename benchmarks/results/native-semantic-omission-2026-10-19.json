@@ -1,0 +1,336 @@
+{
+  "schema": 1,
+  "scope": "unshaped localhost functional runs; finite censoring retained; no protocol ranking or permanent-censorship claim",
+  "runs": [
+    {
+      "run": "results/local/migration-mysticeti-selective-block-20261019",
+      "manifest_sha256": "d5091779b6d291938264d0ca97e63998830505eb568c86a01f6c485ae7c14157",
+      "source_diff_sha256": "9ad55a5b4e4bb98ec936167c3411c2c913a481b566188198b5924e7d82fc7e42",
+      "scheduled": 1200,
+      "completed": 397,
+      "all_correct": {
+        "boundary": "final exact output collection; not remote event latency",
+        "completed": 397,
+        "fraction": 0.3308333333333333,
+        "unfinished": 803
+      },
+      "agreement": {
+        "common_prefix_length": 996,
+        "common_prefix_sha256": "f04d83145187a37f8c9467516819bb420cd029f32507396b26d89ae1dda35ebf",
+        "replicas_agree_on_common_prefix": true,
+        "scope": "Exact native linearized transaction order and complete block reference (including digest); zero output remains an accounted outcome.",
+        "sequence_lengths": [
+          996,
+          996,
+          996
+        ]
+      },
+      "fault_interval": {
+        "allowed_recipients": [
+          1
+        ],
+        "attacker_rate": 100,
+        "attacker_useful_credit": 0,
+        "end_monotonic_ns": 4225946340048000,
+        "faulty_source": 0,
+        "honest_offered_rate": 400,
+        "omit_repair": false,
+        "start_monotonic_ns": 4225945840048000
+      },
+      "omission_observation": {
+        "by_native_unit": {
+          "own_signed_block": 8
+        },
+        "messages_omitted": 8,
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged.",
+        "serialized_bytes_omitted": 13544
+      },
+      "last_drop_monotonic_ns": 4225945941712000,
+      "all_drops_within_declared_interval": true,
+      "crypto_cpu": {
+        "ordinary_sign": {
+          "calls": 26088,
+          "thread_cpu_ns": 266904508
+        },
+        "ordinary_verify": {
+          "calls": 78265,
+          "thread_cpu_ns": 1852756698
+        },
+        "ordinary_verify_batch": {
+          "calls": 0,
+          "thread_cpu_ns": 0
+        },
+        "ordinary_verify_batch_multi": {
+          "calls": 0,
+          "thread_cpu_ns": 0
+        }
+      },
+      "p99": {
+        "lower_bound_ms": 3977.275,
+        "status": "censored",
+        "value_ms": null
+      },
+      "raw_files": [
+        {
+          "path": "results/local/migration-mysticeti-selective-block-20261019/omissions-0-validator.jsonl",
+          "bytes": 818,
+          "sha256": "622bf60ea6b1bbdddbe185c128c31101c817336e02a3d7063fc4c10e37acf1b7"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-20261019/metrics-0-drained.prom",
+          "bytes": 14242,
+          "sha256": "cbc17a2d5eec818a54aaa6672b7042a6dd0b42bb5e8772889a56ecd41acb8b98"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-20261019/metrics-1-drained.prom",
+          "bytes": 14231,
+          "sha256": "bbf3c87124d60ee0522e0ba54b6e6e86179854e3024402d62113847ee931e267"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-20261019/metrics-2-drained.prom",
+          "bytes": 14233,
+          "sha256": "3aecb7626a0784b89b71000232dd6bf440824a58a57a58970058e731f70787f9"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-20261019/metrics-3-drained.prom",
+          "bytes": 14224,
+          "sha256": "4be64efaf6f370b9ad888cbc7c542e8e52b6da123187034d5b90d7430669c34b"
+        }
+      ],
+      "post_fault_drain_written_bytes": 0,
+      "repair_evidence": {
+        "metrics-1-drained.prom": [
+          "missing_blocks{authority=\"0\"} 0",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ],
+        "metrics-0-drained.prom": [
+          "missing_blocks{authority=\"0\"} 0",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ],
+        "metrics-2-drained.prom": [
+          "missing_blocks{authority=\"0\"} 2",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ],
+        "metrics-3-drained.prom": [
+          "missing_blocks{authority=\"0\"} 2",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ]
+      }
+    },
+    {
+      "run": "results/local/migration-mysticeti-selective-block-drained-20261019",
+      "manifest_sha256": "3aff5183d2eb3c7e8b83f33a665569621aab5579b83f73835d7437eb24428a31",
+      "source_diff_sha256": "9ad55a5b4e4bb98ec936167c3411c2c913a481b566188198b5924e7d82fc7e42",
+      "scheduled": 1200,
+      "completed": 397,
+      "all_correct": {
+        "boundary": "final exact output collection; not remote event latency",
+        "completed": 397,
+        "fraction": 0.3308333333333333,
+        "unfinished": 803
+      },
+      "agreement": {
+        "common_prefix_length": 996,
+        "common_prefix_sha256": "95cd0a8abdcb9a8c9a8c86030860c4a6489c8099b199e59394b1d5d2bcb7ce70",
+        "replicas_agree_on_common_prefix": true,
+        "scope": "Exact native linearized transaction order and complete block reference (including digest); zero output remains an accounted outcome.",
+        "sequence_lengths": [
+          996,
+          996,
+          996
+        ]
+      },
+      "fault_interval": {
+        "allowed_recipients": [
+          1
+        ],
+        "attacker_rate": 100,
+        "attacker_useful_credit": 0,
+        "end_monotonic_ns": 4226013035269000,
+        "faulty_source": 0,
+        "honest_offered_rate": 400,
+        "omit_repair": false,
+        "start_monotonic_ns": 4226012535269000
+      },
+      "omission_observation": {
+        "by_native_unit": {
+          "own_signed_block": 6
+        },
+        "messages_omitted": 6,
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged.",
+        "serialized_bytes_omitted": 12638
+      },
+      "last_drop_monotonic_ns": 4226012637222000,
+      "all_drops_within_declared_interval": true,
+      "crypto_cpu": {
+        "ordinary_sign": {
+          "calls": 27088,
+          "thread_cpu_ns": 273650842
+        },
+        "ordinary_verify": {
+          "calls": 81263,
+          "thread_cpu_ns": 1899258527
+        },
+        "ordinary_verify_batch": {
+          "calls": 0,
+          "thread_cpu_ns": 0
+        },
+        "ordinary_verify_batch_multi": {
+          "calls": 0,
+          "thread_cpu_ns": 0
+        }
+      },
+      "p99": {
+        "lower_bound_ms": 31977.139,
+        "status": "censored",
+        "value_ms": null
+      },
+      "raw_files": [
+        {
+          "path": "results/local/migration-mysticeti-selective-block-drained-20261019/omissions-0-validator.jsonl",
+          "bytes": 614,
+          "sha256": "23acf0e4479677890b9b2785fe1f71631a942658eaf9b96352a95c5c4294fe43"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-drained-20261019/metrics-0-drained.prom",
+          "bytes": 14319,
+          "sha256": "e146056c6e5a470f18a84dde580f0557a7c4faae6cd19875821d4a0e8ceb7d80"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-drained-20261019/metrics-1-drained.prom",
+          "bytes": 14532,
+          "sha256": "497179752ec6468c2e78224d268ecdc960bef7ce7c722598b8a0963cd67693f9"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-drained-20261019/metrics-2-drained.prom",
+          "bytes": 14714,
+          "sha256": "69a0e95eb83ded4ce97a286430c05b5c666400d1d6854c0dcb7578bf7aa47f0b"
+        },
+        {
+          "path": "results/local/migration-mysticeti-selective-block-drained-20261019/metrics-3-drained.prom",
+          "bytes": 14472,
+          "sha256": "7a5a4ca934b3e9ab545504d24a531e4baedd44c20dd25546f230054e77160674"
+        }
+      ],
+      "post_fault_drain_written_bytes": 1125375,
+      "repair_evidence": {
+        "metrics-1-drained.prom": [
+          "block_sync_requests_received{authority=\"2\",fulfilled=\"true\"} 2",
+          "missing_blocks{authority=\"0\"} 0",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ],
+        "metrics-0-drained.prom": [
+          "missing_blocks{authority=\"0\"} 0",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ],
+        "metrics-2-drained.prom": [
+          "block_sync_requests_received{authority=\"3\",fulfilled=\"false\"} 2",
+          "block_sync_requests_sent{authority=\"1\"} 1",
+          "missing_blocks{authority=\"0\"} 1",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ],
+        "metrics-3-drained.prom": [
+          "block_sync_requests_sent{authority=\"2\"} 1",
+          "missing_blocks{authority=\"0\"} 3",
+          "missing_blocks{authority=\"1\"} 0",
+          "missing_blocks{authority=\"2\"} 0",
+          "missing_blocks{authority=\"3\"} 0"
+        ]
+      }
+    },
+    {
+      "run": "results/local/migration-autobahn-selective-payload-20261019",
+      "manifest_sha256": "c6c771e87d10249921faeb8227973404d8b0534f31a143d2f03e751f1fd6aa23",
+      "source_diff_sha256": "d10c72648eb5996708ad6f42e6f98cdaf6c3e5987ba3c88482dc0cd0d32646d8",
+      "scheduled": 1200,
+      "completed": 1200,
+      "all_correct": {
+        "completed": 1200,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 1799,
+        "sequence_lengths": [
+          1799,
+          1799,
+          1799
+        ],
+        "common_prefix_sha256": "3a2e76ec8540f0319ad03922ac4463877e371628a861a1a08b4baff5d064ccad",
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ]
+      },
+      "fault_interval": {
+        "faulty_source": 0,
+        "allowed_recipients": [
+          1
+        ],
+        "start_monotonic_ns": 4225894300094000,
+        "end_monotonic_ns": 4225894800094000,
+        "attacker_rate": 100,
+        "honest_offered_rate": 400,
+        "attacker_useful_credit": 0,
+        "omit_repair": true
+      },
+      "omission_observation": {
+        "messages_omitted": 88,
+        "serialized_bytes_omitted": 54096,
+        "by_native_unit": {
+          "payload_initial": 88
+        },
+        "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+      },
+      "last_drop_monotonic_ns": 4225894796711000,
+      "all_drops_within_declared_interval": true,
+      "crypto_cpu": {
+        "ordinary_sign": {
+          "calls": 8250,
+          "thread_cpu_ns": 136211899
+        },
+        "ordinary_verify": {
+          "calls": 10584,
+          "thread_cpu_ns": 349251386
+        },
+        "ordinary_verify_batch": {
+          "calls": 555,
+          "thread_cpu_ns": 52022122
+        },
+        "ordinary_verify_batch_multi": {
+          "calls": 0,
+          "thread_cpu_ns": 0
+        }
+      },
+      "p99": {
+        "value_ms": 523.853,
+        "lower_bound_ms": 523.853,
+        "status": "observed"
+      },
+      "raw_files": [
+        {
+          "path": "results/local/migration-autobahn-selective-payload-20261019/omissions-0-worker-0.jsonl",
+          "bytes": 10134,
+          "sha256": "045503bad70d4296eb2bf1a8e056b22753adf681339407f175904c12a7492281"
+        }
+      ]
+    }
+  ]
+}

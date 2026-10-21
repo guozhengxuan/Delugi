@@ -1,4 +1,207 @@
-# Progress — 14 October 2026
+# Progress — 21 October 2026
+
+## Approved shared-runtime implementation
+
+The user approved the reviewed local Delugi-to-Raptr phase and requested periodic
+commits and GitHub pushes. Work resumes with frozen service/output contracts,
+source-preserving Delugi extraction, then the Raptr port and local acceptance.
+The pre-extraction source and verified Delugi executable are preserved under
+`results/local/shared-core-20261021/reference/`. Subsequent sections record earlier
+checkpoints; their paused status is superseded by this approval. Native Raptr
+observer fragments remain unfinished and are not accepted benchmark results.
+
+
+## Implementation paused for shared architecture review
+
+Two consultation rounds in `delugi context` are complete. The
+[reviewed shared-core proposal](benchmarks/plans/2026-10-21-shared-core-architecture.txt)
+recommends refactoring Delugi's services, preserving protocol-owned dissemination
+and recovery, then porting Raptr first. Approval is requested only for the local
+Delugi-to-Raptr phase. Implementation remains paused pending the user's agreement.
+
+The user explicitly stopped implementation on October 21. The next decision is
+a shared runtime with protocol-specific `core/<protocol>` subtrees and reusable
+network, crypto, node, mempool and evaluation services. Consult `delugi context`
+and study the Sonnino HotStuff/Ditto family, then obtain the user's approval of
+the concrete plan before any implementation, build or benchmark resumes.
+
+The immutable source checkpoint is
+`results/local/architecture-review-20261021/implementation-checkpoint/manifest.json`.
+It preserves 137 Delugi/support files, 22 changed/new native Raptr files and both
+tracked diffs. Raptr artifact guards passed 28 checks and independent ingress
+passed 8 before the pause; the new native observer and collector remain
+incomplete and unaccepted. No Raptr native build or new trial started. All agents
+stopped implementation and a filtered host process check found no task build,
+validator or owned VM process. Earlier plans below are historical pending review.
+
+## Raptr priority amendment
+
+Raptr is now the primary counterpart, ahead of further Shoal work, following the
+user's explicit direction. The [Raptr-first plan](benchmarks/plans/2026-10-21-raptr-priority.txt)
+supersedes the older supplementary designation. Work continues from the authors'
+existing pinned `raptr-public` checkout. Its historical aggregate metrics need
+finite authenticated cohorts and contiguous payload-ready output accounting
+before joining the current comparison harness. New Shoal trials are deferred;
+its completed validator and unfinished build evidence are retained separately.
+
+## Current local continuation
+
+The [October 21 continuation](benchmarks/plans/2026-10-21-local-continuation.txt)
+keeps execution local. The current increments are independent Mysticeti WAL
+prefix verification, Shoal full/compact observers and local campaign integration,
+and locally tested prepare/arm startup for future Shoal deployments.
+
+The shared calibration policy now checks raw RTT samples and exact directed
+peer/role identities. At added delta = 10 ms, the accepted added median RTT is
+20 ± 5 ms; selected and control paths must return to baseline after cleanup.
+Forged summary medians, missing/duplicate peers and falsely passed labels are
+rejected. All four failed October 19 VM observations remain rejected. There is
+no new verified 10 ms protocol measurement. The revised source checkpoint passed
+205 focused Python checks and revalidated all five retained Shoal fixtures;
+see the [timing/campaign record](benchmarks/results/campaign-timing-validation-2026-10-21.json).
+
+The local campaign accepts Shoal healthy n4/n7 and the previously accepted n4
+pause/semantic-omission configurations. It requires native bootstrap, REST and
+counter readiness before admission, swap disabled, and every owned process
+reaped. Added-delay Shoal campaigns remain disabled until a calibrated local
+transport path is integrated. A fresh n4/n7 campaign awaits the observer build.
+
+Mysticeti's frozen output-prefix verification is complete: 32 retained replica
+archives match 1,988,196 complete-block checkpoints against signed native WAL
+blocks, and all eight runs have matching correct-replica prefixes. The bounded
+reader used 52.6 MB peak process memory; derived scratch was removed. Its 52
+Python tests pass, including altered/missing/reordered output evidence. The
+adapter now performs the check after stopping its owned replicas. This verifies
+native output bytes and persisted commit order through the exact freeze;
+admission clocks, quorum certificates and durable fsync are separate claims.
+See the [WAL prefix report](benchmarks/results/mysticeti-wal-prefix-fidelity-2026-10-21.txt).
+
+Shoal native observer acceptance is in progress. Exact binaries and historical
+evidence remain retained. The October 19 checkpoint below records the earlier
+accepted artifacts and measurements.
+
+Future Shoal deployment now prepares every host before arming ingress. Readiness
+requires native bootstrap, direct REST, fresh network counters and the exact
+finite observer identity. A failed arm stops the other owned workers, including
+late launches. Full-mode receipts are revalidated after transfer and reconciled
+with each origin's detailed cohort; failed validation fails the run. All 61
+local contract checks pass. See the [deployment readiness record](benchmarks/results/remote-shoal-readiness-2026-10-21.json).
+This does not claim remote execution or synchronized clocks across hosts.
+
+The combined current Python checkpoint passes 366 main and 120 baseline tests;
+see the [regression record](benchmarks/results/combined-local-validation-2026-10-21.json).
+The Shoal pause harness records requested and observed boundaries, checks the
+owned process identity, and requires bounded stop/resume acknowledgements. Its
+29 focused checks and a real Linux pause/resume/final-freeze smoke pass; the
+smoke child was reaped. This closes the gap between a configured pause and an
+observed pause without changing native protocol code.
+Shoal's new native build and live observer controls remain separate acceptance.
+
+## Accepted checkpoint — 19 October 2026
+
+## Evaluation migration: local acceptance
+
+The [reviewed October 19 plan](benchmarks/plans/2026-10-19-evaluation-migration.txt)
+retains the Delugi core and compares native published artifacts through a common
+external harness. Current work is local only; cloud deployment and the new
+verified 10 ms added-delay comparison have not run. Mac administrator access is
+unavailable; no further password or helper action is requested.
+
+The campaign now evaluates declared native batching grids against a common tail
+target and ten exact backlog subwindows. It requires every repetition of one
+load/setting to pass before selecting a measured frontier or resolving matched
+utilization. See the [frontier contract](benchmarks/plans/2026-10-19-frontier-selection.txt).
+Shoal's pinned native validator and genesis/workload fixture now build and pass
+five bounded local acceptance fixtures in the task-owned Linux VM.
+The new full/compact Delugi observer source passed 248 ordinary Rust checks and
+all 19 actual TCP/process checks. Both modes retain payload validation and exact
+correctness receipts; only full mode retains detailed request timings. The new
+release passed six functional fixtures and six alternating observer trials;
+every sustained run completed 4,800 requests at all four replicas. Detailed
+instrumentation added 0.19–1.60% CPU across these short pairs, with median 0.43%.
+Full-mode p99 was 16.41–16.51 ms with no added delay and configured bound 100 ms.
+The [observer validation report](benchmarks/results/delugi-observer-validation-2026-10-19.txt)
+records exact boundaries and identities. Build cleanup removed 331 MB of
+intermediates; target retains only the verified executable and stamp, about 3 MiB.
+The previous release and its evidence remain unchanged. Python verification
+passed 328 main and 68 baseline checks; the earlier 394-check
+[validation record](benchmarks/results/migration-observer-python-2026-10-19.json)
+retains its own logs and source snapshot.
+
+Mysticeti's full/compact observer passed all 62 native core tests, including three
+new receipt tests and the native TCP test, plus 127 focused Python checks. All
+12 live trials passed: both modes agree on healthy, empty and unfinished
+cohorts, and every sustained run completed 4,800/4,800 requests at all four
+replicas. The median CPU difference was +0.46% across three short pairs
+(range +0.12% to +0.92%). This measures detailed instrumentation above the common
+correctness observer, not total observer-free cost or a capacity difference.
+All 48 processes were reaped. Cleanup saved 6.47 GB through removal of build
+intermediates and recomputable SQL caches plus verified raw-evidence compression.
+Both binary versions and exact evidence recovery instructions remain in the
+[Mysticeti validation record](benchmarks/results/mysticeti-observer-validation-2026-10-19.txt).
+Independent signed WAL-tail fidelity remains an open comparison gate.
+
+Shoal's healthy n4 and n7 fixtures completed 120/120 and 210/210 requests;
+finite-pause and semantic-omission fixtures each completed 120/120 honest
+requests with matching output prefixes. The omission suppressed six actual
+native publications; attacker output remains in the raw prefix without useful
+honest-output credit. The empty fixture completed 0/0 and retains 274,647 TCP
+bytes with undefined cost ratios. Native DAG bootstrap and initialized counters
+must precede the workload epoch, local peers and REST bypass inherited proxies,
+and every accepted run verifies swap disabled at both boundaries. A zero-drain
+CPU accounting regression was corrected in the collector. These launch and
+measurement fixes leave the tested native binaries unchanged. Shoal observer
+overhead and campaign integration remain open. Cleanup removed 6.26 GB of
+allocated build intermediates inside the VM, retaining both tested executables
+and their stamp (167 MB). The task-owned VM is stopped. Source, dependency caches
+and raw evidence remain; the host sparse disk size is a separate quantity.
+All 17 Linux adapter contract tests passed. The
+[Shoal acceptance report](benchmarks/results/shoal-native-local-acceptance-2026-10-19.json)
+retains the five accepted runs, failed attempts and cleanup evidence.
+
+Later cohort regressions reject output-before-admission credit even when event
+timestamps round to the same microsecond; raw output and M_out stay retained.
+Six full-mode Delugi archives replayed unchanged. Prepared deployment packages
+now include the new Mysticeti receipt reader and mirror Shoal's scoped child
+proxy settings; 42 local deployment/native-campaign checks passed, including an
+isolated packaged-runtime import. No remote execution occurred. Remote Shoal
+readiness still needs the native-bootstrap/epoch guard validated locally; its
+current TCP-only check is not covered by the accepted local launch path.
+
+The [isolated Linux delay check](benchmarks/results/local-netem-calibration-2026-10-19.json)
+verified setup and complete cleanup twice, but failed timing calibration: the
+10 ms setting added 25.8–29.4 ms RTT instead of 20 ms within the declared tolerance.
+No protocol benchmark used those conditions. The VM therefore does not replace
+the pending verified 10 ms added-delay comparison.
+
+The runner now uses independent finite arrivals, authenticated identities and
+origin-local admission-to-output cohorts with explicit unfinished requests,
+deadlines and drain. This changes the measurement contract from the historical
+completed-window measurements below. Raw archives and binaries preserve that
+distinction. The [current status](benchmarks/plans/2026-10-19-migration-status.txt)
+records outstanding native adapter and distributed acceptance work.
+
+The frozen Delugi hardening release passed 236 Rust checks, all 19 actual TCP/process checks,
+and live schema-2 healthy/zero-output collection. All 1,200 finite requests in the
+healthy fixture materialized at all four replicas. Exact successful-write byte
+categories reconcile with total traffic, and a 31.7 MB authenticated n31 witness
+passes complete Q and TCP transfer. These are functional acceptance checks.
+
+The [short matched local pilot](benchmarks/results/migration-matched-n4-final-2026-10-19.json)
+uses 1,200 offered tx/s, 472 useful bytes, no added network delay and an exposed
+100 ms bound preset. Delugi, Mysticeti and Autobahn each completed all 3,600
+measured requests; origin-local p99 values were 16.380, 13.098 and 26.076 ms.
+This single rate point does not establish sustainable capacity. Native timers,
+batching, persistence and transport still differ.
+
+The current Delugi target retains only its tested executable and build stamp,
+about 3 MiB. The repository occupies 46.68 GiB, of which 42.56 GiB is retained
+local evidence. Historical raw evidence remains retained or recoverably compressed.
+Full migration is still in progress: Shoal observer controls and campaign
+integration, advanced fault scenarios, native resource attribution and Mysticeti
+WAL-tail fidelity remain local acceptance gates.
+
+## Historical validation — 14 October 2026
 
 ## Default ordering schedule
 

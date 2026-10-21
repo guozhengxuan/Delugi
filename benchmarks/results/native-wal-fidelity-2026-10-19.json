@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "purpose": "Independent native output/authentication fidelity audit; no new benchmark or performance estimate",
+  "cases": [
+    {
+      "native_output_count": 4800,
+      "uncredited_payload_count": 0,
+      "native_blocks_verified": 282778,
+      "native_commit_count": 141381,
+      "wal_entries": 636246,
+      "boundary_bytes": 144397594,
+      "journal_agreement": {
+        "exact_output_equal": true,
+        "exact_batch_sequence_equal": true,
+        "output_count": 4800
+      },
+      "provenance": {
+        "wal_sha256": "d7ecb879c24feb032d72df9d4a6531065b9e896cba84affb0528ddc153fb2d20",
+        "committee_sha256": "9a7c26086accd9942069221f92541ffeb4c885c05e5586d92e4a0d58dfe7ad66",
+        "reader_sha256": "b073b3e378177ccfa1debc7882e5bc67fac47ae260dd876f58cda96574159357"
+      },
+      "case": "healthy"
+    },
+    {
+      "native_output_count": 996,
+      "uncredited_payload_count": 0,
+      "native_blocks_verified": 50216,
+      "native_commit_count": 25100,
+      "wal_entries": 112982,
+      "boundary_bytes": 26272716,
+      "journal_agreement": {
+        "exact_output_equal": true,
+        "exact_batch_sequence_equal": true,
+        "output_count": 996
+      },
+      "provenance": {
+        "wal_sha256": "5e0619b553d916a655fe4e9ba066606724cc28eff43a8e1edc0f69e8825e8320",
+        "committee_sha256": "9a7c26086accd9942069221f92541ffeb4c885c05e5586d92e4a0d58dfe7ad66",
+        "reader_sha256": "b073b3e378177ccfa1debc7882e5bc67fac47ae260dd876f58cda96574159357"
+      },
+      "case": "selective_omission_30s_drain"
+    }
+  ],
+  "limits": [
+    "Two retained replica WALs audited; no full-committee consensus proof reconstruction",
+    "Complete stopped-WAL boundary; no inferred event timestamps or fsync guarantee",
+    "Ed25519 OpenSSL verifies the well-formed native keys/signatures used here; no claim of cross-library acceptance equivalence for noncanonical signatures"
+  ],
+  "test_count": 44,
+  "reader_sha256": "b073b3e378177ccfa1debc7882e5bc67fac47ae260dd876f58cda96574159357"
+}

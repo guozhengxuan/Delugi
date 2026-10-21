@@ -1,0 +1,74 @@
+{
+  "aggregate_archive_over_1GiB": true,
+  "archive": {
+    "allocated_bytes": 1271050240,
+    "files": 6945,
+    "logical_bytes": 1259636645,
+    "root_index_sha256": "2cf77e59c4215c952bc0ab68c6aa99112f59b85f3924aa6ce8ecddbb381742f9"
+  },
+  "archive_rows_verified": 3498288,
+  "cleanup": {
+    "identity_checked": "exclusive nonce marker and directory inode",
+    "owned_scratch_removed": true,
+    "path": "/private/tmp/delugi-cohort-storage-stress-jxovvtwu"
+  },
+  "elapsed_seconds": 39.56500441674143,
+  "evidence_limits": "Only recipe, source hashes, archive root/page-index digests and reduced output are retained; generated raw pages and SQLite were intentionally removed. Page hashes were checked during every ingest. No native signatures or protocol execution are asserted.",
+  "generation_seconds": 10.28865566663444,
+  "guards": {
+    "disk_scan_seconds": 1,
+    "monitor_seconds": 0.1,
+    "rss_abort_threshold_bytes": 251658240,
+    "rss_ceiling_bytes": 268435456,
+    "scratch_abort_threshold_bytes": 4160749568,
+    "scratch_ceiling_bytes": 4294967296
+  },
+  "peak_observed_scratch_bytes": 2177658880,
+  "recipe": {
+    "generator": "scripts/stress_cohort_store.py",
+    "generator_sha256": "c559c6b697f24fdf2968475ca04627d0cda7d8d8b54b39ef6321d37d2a0422c0",
+    "nodes": 31,
+    "output_rows": 3363500,
+    "page_entries": 512,
+    "requests": 108500,
+    "requests_per_origin": 3500,
+    "row_content": "distinct deterministic SHA256 request/batch/state IDs and canonical output fields; no padding or reused/sparse pages"
+  },
+  "reduction_seconds": 29.195681625045836,
+  "schema": 1,
+  "scope": "generated schema2 archive/SQLite postprocessing; not protocol, authentication or native performance acceptance",
+  "scratch_before_cleanup": {
+    "allocated_bytes": 2177658880,
+    "files": 6947,
+    "logical_bytes": 2156451838
+  },
+  "source_sha256": {
+    "scripts/cohort_metrics.py": "003c9dde288efa0ece3e2b374dc9d31a980509bbcd59c2d56927df171b4cd476",
+    "scripts/cohort_store.py": "d2bc2fd8a64b95dba59ebe2e6651c3ae17cdcd4efc5cd31ea86f50ae2b9ef5d7"
+  },
+  "sqlite_bytes": 896815104,
+  "status": "passed",
+  "summary_sha256": "9ce4d622996c69f51a8a6bcdb3f23c2f3959884d8585c862e3538525b8312e10",
+  "table_rows": {
+    "batches": 26288,
+    "latency": 325500,
+    "outputs": 3363500,
+    "requests": 108500
+  },
+  "whole_process_peak_rss_bytes": 91013120,
+  "retained_evidence": {
+    "results/local/cohort-storage-over-1gib-20261019/manifest.json": {
+      "sha256": "1d5c301023c5f55d7dc31008cd3dde80508da7c0f95a17baf2febef7b5b28db3",
+      "bytes": 2090
+    },
+    "results/local/cohort-storage-over-1gib-20261019/archive-index.json": {
+      "sha256": "2cf77e59c4215c952bc0ab68c6aa99112f59b85f3924aa6ce8ecddbb381742f9",
+      "bytes": 20468
+    },
+    "results/local/cohort-storage-over-1gib-20261019/summary.json": {
+      "sha256": "9ce4d622996c69f51a8a6bcdb3f23c2f3959884d8585c862e3538525b8312e10",
+      "bytes": 15769
+    }
+  },
+  "scope_note": "Generated bounded postprocessing validation with canonical-sized rows and no padding; no signatures, protocol execution, native performance or sustained capacity claim."
+}

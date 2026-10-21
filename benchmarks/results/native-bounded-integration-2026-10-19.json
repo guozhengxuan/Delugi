@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "scope": "Local bounded native archive/reducer functional acceptance; no timing comparison, capacity claim, native build, cloud execution or administrator shaping.",
+  "settings": {
+    "replicas": 4,
+    "total_offered_tx_s": 40,
+    "useful_bytes": 8,
+    "warmup_seconds": 0,
+    "measurement_seconds": 0.2,
+    "drain_seconds": 0.5,
+    "added_delay_ms": 0,
+    "exposed_bound_ms": 100
+  },
+  "runs": [
+    {
+      "protocol": "mysticeti",
+      "status": "completed",
+      "manifest": "results/local/native-bounded-mysticeti-functional-unrestricted-20261019/manifest.json",
+      "manifest_sha256": "493a98138b8b93b15adf1fc27005426d225eee7afb1a2686e6ea7814f1d73d45",
+      "cohort_archive": {
+        "format": "delugi-cohort-pages-v2",
+        "path": "results/local/native-bounded-mysticeti-functional-unrestricted-20261019/cohorts/index.json",
+        "schema": 2,
+        "sha256": "054d3bcbd065084967c68e189192d211342b5f3166ce41c536e8d3dbdea7dd07"
+      },
+      "archive_bytes": 10683864,
+      "sqlite_files": [
+        {
+          "path": "results/local/native-bounded-mysticeti-functional-unrestricted-20261019/native-cohort-stage.sqlite",
+          "bytes": 27152384
+        },
+        {
+          "path": "results/local/native-bounded-mysticeti-functional-unrestricted-20261019/cohort-reduction.sqlite",
+          "bytes": 13451264
+        }
+      ],
+      "counts": {
+        "scheduled": 8,
+        "admitted": 8,
+        "completed": 8,
+        "unfinished": 0,
+        "rejected": 0,
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 8,
+          "fraction": 1.0,
+          "unfinished": 0
+        }
+      },
+      "agreement": {
+        "common_prefix_length": 8,
+        "common_prefix_sha256": "eeacd7feba3af7092cd6683803294b6b3602808b21e7473813ade4d9cb58eb9a",
+        "native_order_fidelity": {
+          "reason": "filtered journal cannot authenticate unseen leading/trailing native payload order; independent signed WAL proof required",
+          "status": "incomplete"
+        },
+        "native_order_scope": {
+          "0": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "1": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "2": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "3": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 8,
+            "kind": "lower_bound"
+          },
+          "1": {
+            "count": 8,
+            "kind": "lower_bound"
+          },
+          "2": {
+            "count": 8,
+            "kind": "lower_bound"
+          },
+          "3": {
+            "count": 8,
+            "kind": "lower_bound"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          8,
+          8,
+          8,
+          8
+        ]
+      },
+      "binary": {
+        "bytes": 277148440,
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/mysticeti-target/release/mysticeti",
+        "sha256": "a4c55313c1913c1fb338946bb4fd15486e0ccd45e7ae4c37abdaec02fc73e473"
+      },
+      "shutdown": [
+        -15,
+        -15,
+        -15,
+        -15
+      ]
+    },
+    {
+      "protocol": "autobahn",
+      "status": "completed",
+      "manifest": "results/local/native-bounded-autobahn-functional-20261019/manifest.json",
+      "manifest_sha256": "3c9c848c2595399bd2c93e0326c72df84cdf9ffd34950e5c457aef8245c17262",
+      "cohort_archive": {
+        "path": "results/local/native-bounded-autobahn-functional-20261019/cohorts/index.json",
+        "sha256": "555f98b2a11835dd0fa06304f2881809a104ecef97c8e9929fb91786c06a32f4",
+        "schema": 2,
+        "format": "delugi-cohort-pages-v2"
+      },
+      "archive_bytes": 24268,
+      "sqlite_files": [
+        {
+          "path": "results/local/native-bounded-autobahn-functional-20261019/native-cohort-stage.sqlite",
+          "bytes": 36864
+        },
+        {
+          "path": "results/local/native-bounded-autobahn-functional-20261019/cohort-reduction.sqlite",
+          "bytes": 57344
+        }
+      ],
+      "counts": {
+        "scheduled": 8,
+        "admitted": 8,
+        "completed": 8,
+        "unfinished": 0,
+        "rejected": 0,
+        "all_correct_collection": {
+          "completed": 8,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        }
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 8,
+        "sequence_lengths": [
+          8,
+          8,
+          8,
+          8
+        ],
+        "common_prefix_sha256": "c7b3be342da9ed0db80a1cf2b42085e971181084567f495e61a3f630eeec9fcc",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "1": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 8,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 8,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 8,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 8,
+            "kind": "exact"
+          }
+        }
+      },
+      "binary": null,
+      "shutdown": null
+    }
+  ],
+  "tests": {
+    "shared_and_native_cohort": {
+      "passed": 39,
+      "command": "python3 -m unittest discover -s tests -p '*cohort*test.py'"
+    },
+    "mock_remote_native": {
+      "passed": 14,
+      "command": "python3 -m unittest discover -s tests -p 'remote_native_test.py'"
+    }
+  },
+  "initial_failed_attempt": {
+    "manifest": "results/local/native-bounded-mysticeti-functional-20261019/manifest.json",
+    "manifest_sha256": "ce7fff84749b6605b3f05a7507f70fbcb5f64c040026e1b929b2b6dfa9c702ad",
+    "reason": "Sandbox denied loopback bind with EPERM; allocator reported no free pairs. No replicas were launched. Successful retry used authorized localhost-only execution outside that sandbox."
+  },
+  "cleanup": {
+    "verified_no_matching_native_processes": true,
+    "scope": "post-run process listing matched exact two successful test directories and native binaries/materializer only",
+    "no_generated_build_intermediates": true
+  },
+  "source_sha256": {
+    "scripts/baselines/native_cohort_store.py": "6080767878a975d4c0416794b1fbe4764ae97f08e35b99d8ce929f1e78491875",
+    "scripts/cohort_store.py": "d2bc2fd8a64b95dba59ebe2e6651c3ae17cdcd4efc5cd31ea86f50ae2b9ef5d7",
+    "scripts/cohort_metrics.py": "cdcd6eedeae830bd4263456dedc3d1c834972915b166b24af8950cec1f8623a2",
+    "scripts/baselines/mysticeti.py": "233df89c344a29fe994ab85a82e65ca4fc7fbd15756c9adaa6208934ad5446a9",
+    "scripts/baselines/autobahn.py": "bfbee90fb6532021862f5b84032989db28aa0a7455e4702a3c11b92b35515659",
+    "scripts/baselines/native_placement.py": "73eaafbc0bce1dde1fd2867204faf83396e4332f4145e7f387f12a43e426d340",
+    "scripts/remote_native.py": "ce93dbb2e651ff22c88c358126aa1577f55946e40f26a4bc1506e8fd9d0dbbb9"
+  },
+  "limits": [
+    "Mysticeti filtered journal preserves sparse actual native ordinals and cannot authenticate unseen native output tail; full native-order fidelity remains explicitly incomplete without signed WAL proof.",
+    "Protocol histories/custody and Autobahn live materializer state remain O(N); legacy compact/replay APIs can retain full finite populations.",
+    "Tiny fixtures do not validate multi-minute n31 native resource bounds."
+  ]
+}

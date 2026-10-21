@@ -1,0 +1,204 @@
+{
+  "schema": 1,
+  "protocol": "shoal",
+  "status": "deferred_for_primary_raptr_comparison_after_validator_build",
+  "observer_contract": "shoal-native-receipt-v1",
+  "scope": "Detailed cohort observer overhead; required authentication and native application materialization remain active in both modes. Compact mode supplies no per-request latency.",
+  "source_evidence": {
+    "results/local/shoal-observer-source-20261021/native-freeze-v1.json": {
+      "sha256": "8283057564ae189ed43126b5847559434c22a678e6927eda9c9b25fb40301986"
+    },
+    "results/local/shoal-observer-source-20261021/root-native-review-v1.json": {
+      "sha256": "e8cdd2a8e3c306bc48bfb17b783684b631bcad32ce33c4caa1f691da1ba1cb27"
+    },
+    "results/local/shoal-observer-source-20261021/python-freeze-v1.json": {
+      "sha256": "eac932e5f04386310d84c18fb9ec398b4a506ad65737c856b0e3798373fa1338"
+    },
+    "results/local/shoal-python-independent-audit-20261021/manifest.json": {
+      "sha256": "c887b9c4b99708350a20628eff749e06c98d866a187f72fc3a08238f41365fdd"
+    },
+    "results/local/shoal-observer-source-20261021/run-controls.py": {
+      "sha256": "62adfbc9a8ff2951fecb8e5395c3ed93f4a473ae9e83d6fd01d0c602dfcf631b"
+    },
+    "results/local/shoal-observer-source-20261021/python-freeze-v2.json": {
+      "sha256": "304f56ae0fcbba68527d0d6dad22591422d5b02a2f545228c9b494761d41bcf9"
+    },
+    "results/local/shoal-pause-observation-20261021/report.json": {
+      "sha256": "d87edf6620d9c0999cb926ab0f2607a19717149efa0a1681937688fa2f597538"
+    },
+    "results/local/shoal-observer-source-20261021/pause-linux-smoke.json": {
+      "sha256": "617e5141712966f5b42421f4748c27225a023fef8b63a7d904ff8544d9bb5438"
+    },
+    "results/local/shoal-observer-source-20261021/analyze-controls.py": {
+      "sha256": "6c0e601dfe6370cd071e58bcda21d1b2dd83d78421fa64cae7950beab6b08dd9"
+    },
+    "results/local/combined-local-validation-20261021/attempt-3/manifest.json": {
+      "sha256": "5e5cf4ea751c85fa6f2de59956b5d2bd6e4a206238ee849d9048adea361f9a33"
+    },
+    "results/local/shoal-observer-source-20261021/build-stop-request.json": {
+      "sha256": "819d2c48aca33dee61ae005e61a4fb37de2b318004d907cae65c755bdb2db28f"
+    },
+    "results/local/shoal-observer-source-20261021/retained/partial-build-provenance.json": {
+      "sha256": "cec7947b951cd247cde586f261dbb935715f4715b62ab34fe7fe05d2f6cf6f62"
+    },
+    "results/local/shoal-observer-source-20261021/retained/manifest.json": {
+      "sha256": "62f4845b6f9ebcc6121e83b5d50d3eb345ce3bd042aefcec376199b0a8a03e12"
+    },
+    "results/local/shoal-observer-source-20261021/retained/build-resource-bound-attempt-6.json": {
+      "sha256": "c5dafe839586da04185c7c57552f32757ad1cd983a39c335b4de14214e0e5dca"
+    },
+    "results/local/shoal-observer-source-20261021/cleanup-interrupted-build.json": {
+      "sha256": "1de41e0dbb8747e30a1ff33d41377ad4e7ff697e5bceac3fa476f106616dee77"
+    },
+    "results/local/shoal-observer-source-20261021/swap-cleanup-attempt.json": {
+      "sha256": "1444411dc553d231ecde27af8a4a62bce683d09e698f2180061d961704ba04f8"
+    },
+    "results/local/shoal-observer-source-20261021/vm-pre-stop.json": {
+      "sha256": "6db6953c0ed171d9d39cb5893363ec50d9ab2b8351afd90a7f4a4ddab0801046"
+    },
+    "results/local/shoal-observer-source-20261021/stopped-vm-status.json": {
+      "sha256": "4d39a09ebc9feb7cfbaa6b76d02d5f5dc5b33ee3d00ee02cbdc1e77e520ae81a"
+    }
+  },
+  "native_source_commit": "9653e47dc6a08f4bb15e8f138ad79fb2045fccab",
+  "patch_sha256": "c1de031f4065565f4d0c0969bc9e4d895393697578af8f2cc4aa2ef149eccaf4",
+  "cargo_lock_sha256": "2c214ab7d67ab96213f456af9049d6c4536b2a708806d51075238f22d4439c89",
+  "reviewed_controls": [
+    "Same signed finite plan/native identity membership and first-output admission latch",
+    "Same exact raw transaction and complete native batch order fingerprint, including unknown/empty/repeated observations",
+    "Same complete-batch finite freeze and authenticated finite bitmap receipts",
+    "Full mode adds per-output timestamps and detailed rows; compact mode omits both",
+    "Python detailed reconstruction and exact-batch accounting verified against source-bound native terminal receipt"
+  ],
+  "local_build": {
+    "vm": "delugi-shoal-applehv-20261019",
+    "container": "delugi-shoal-build-20261019",
+    "attempt": 6,
+    "jobs": 1,
+    "incremental": false,
+    "release_debug": 0,
+    "disk_guard_bytes": 75161927680,
+    "sustained_swap_abort_bytes": 3221225472,
+    "sustained_swap_abort_seconds": 60,
+    "oom_abort": true,
+    "status": "validator_built_fixture_interrupted_by_user_priority",
+    "elapsed_seconds": 2890.0561111650004,
+    "validator_release_seconds": 2270,
+    "fixture_build_complete": false,
+    "exit_code": 130,
+    "stop_request": "results/local/shoal-observer-source-20261021/build-stop-request.json",
+    "peak_memory_bytes": 8704700416,
+    "peak_swap_bytes": 0,
+    "guard_triggered": false,
+    "partial_provenance": "results/local/shoal-observer-source-20261021/retained/partial-build-provenance.json"
+  },
+  "planned_acceptance": {
+    "functional_cases": 6,
+    "new_artifact_fault_cases": 2,
+    "observer_pairs": 3,
+    "observer_pair_order": [
+      [
+        "full",
+        "compact"
+      ],
+      [
+        "compact",
+        "full"
+      ],
+      [
+        "full",
+        "compact"
+      ]
+    ],
+    "aggregate_tx_s": 1200,
+    "useful_bytes": 472,
+    "warmup_seconds": 1,
+    "measurement_seconds": 3,
+    "drain_seconds": 2,
+    "configured_bound_ms": 100,
+    "added_network_delay_ms": 0,
+    "crypto_meter": "off",
+    "separate_campaign_cases": 2,
+    "capacity_or_ranking_claim": false,
+    "unfinished_control": {
+      "rate": 4000,
+      "warmup_seconds": 0.1,
+      "measurement_seconds": 0.1,
+      "drain_seconds": 0,
+      "planned_total": 800,
+      "scope": "functional censoring control; retains all actual admitted/completed/unfinished rows, not capacity"
+    }
+  },
+  "runtime_results": {
+    "new_native_run_count": 0,
+    "new_accepted_native_cases": 0,
+    "full_mode_latency_summary": null,
+    "compact_mode_latency_summary": null,
+    "observer_cpu_pairs": [],
+    "fault_efficacy_runs": [],
+    "campaign_runs": 0,
+    "reason": "Deferred by user priority before any new native runtime launch; no new throughput, latency or observer-overhead claim."
+  },
+  "cleanup": {
+    "status": "verified",
+    "observed_unix_ns": 1792572053967466670,
+    "target": "/work/repo/benchmarks/.cache/shoal-target",
+    "remaining_files": [
+      "partial-build-provenance.json",
+      "release/aptos-node"
+    ],
+    "allocated_after_bytes": 126787584,
+    "logical_binary_bytes": 126777096,
+    "retained_binary_sha256": "b95a65c596fb2235c872807e978b2c65e755ee17835bf03f25dc387933911afc",
+    "active_build_or_validator_processes": [],
+    "swap_after": "Filename\t\t\t\tType\t\tSize\t\tUsed\t\tPriority\n",
+    "exact_removed_target_bytes": null,
+    "cleanup_receipt_limitation": "Deletion completed, but the initial script asserted swap-off before persisting its pre-delete target-size sample. Direct swapoff subsequently succeeded. Report final target size; do not claim an exact removed-target byte count. No runtime trial was launched.",
+    "filesystem_comparison": {
+      "last_build_guard_used_bytes": 14401232896,
+      "used_after_cleanup_bytes": 8191938560,
+      "decrease_bytes": 6209294336,
+      "scope": "Measured filesystem allocation difference across build finish, retained partial provenance and target cleanup; not an exact isolated target deletion count."
+    },
+    "old_paired_artifact_preserved": true
+  },
+  "priority_change": "User requested Raptr as the primary counterpart before Shoal. Remaining in-flight fixture dependency build stopped; no new Shoal controls or campaign were launched.",
+  "source_review": "Native source freeze approved by root and independent provenance review; Python receipt mutations/preplay and pause ledger independently tested. This is source correctness evidence, not new artifact runtime acceptance.",
+  "validation": {
+    "combined_python_checks": 486,
+    "main_checks": 366,
+    "baseline_checks": 120,
+    "focused_independent_receipt_checks": 24,
+    "new_pause_fixture_checks": 11,
+    "real_linux_owned_sleep_pause_resume_final_freeze": "passed; one child terminated/reaped(-15), stable process identity, observedT\u2192S then finalT",
+    "new_native_runtime_runs": 0
+  },
+  "retained_new_validator": {
+    "source": "/work/repo/benchmarks/.cache/shoal-target/release/aptos-node",
+    "retained": "results/local/shoal-observer-source-20261021/retained/aptos-node",
+    "bytes": 126777096,
+    "sha256": "b95a65c596fb2235c872807e978b2c65e755ee17835bf03f25dc387933911afc"
+  },
+  "pending_gates": [
+    "Complete fixture executable build against the same frozen native source and issue a paired build stamp",
+    "Six native full/compact healthy, empty and unfinished functional controls",
+    "New-artifact full-mode pause and semantic-omission efficacy checks",
+    "Three alternating full/compact observer pairs with finite cohort completeness and full-mode censored latency",
+    "Tiny n4/n7 development campaign acceptance"
+  ],
+  "shutdown": {
+    "owned_vm": "delugi-shoal-applehv-20261019",
+    "owned_vm_state": "stopped",
+    "supervisor_exit_code": 0,
+    "owned_container": "exited; PID0, OOMKilled=false; idle PID1 required SIGKILL after ten-second stop grace",
+    "default_vm_state": "stopped and untouched",
+    "remaining_vm_allocated_bytes": 6794051584,
+    "remaining_vm_logical_bytes": 85899345920,
+    "retained_downloaded_image_cache": {
+      "path": "/Users/zhengxuanguo/.local/share/containers/podman/machine/applehv/cache/4c2b43c508a67e2968912b6a2ff38e918c89b41b795a865fb1ad9411a2ab2c9b.raw.zst",
+      "logical_bytes": 981875140,
+      "allocated_bytes": 981876736
+    },
+    "source_dependency_toolchain_caches": "retained in stopped VM for reproducibility; generated native target intermediates removed"
+  }
+}

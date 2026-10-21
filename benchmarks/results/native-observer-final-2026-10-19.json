@@ -1,0 +1,72 @@
+{
+  "status": "passed",
+  "tests": [
+    "inactive before interval publication",
+    "recipient whitelist",
+    "payload and native node repair omitted during interval",
+    "both publications resume after declared end",
+    "resumed messages produce no omission events",
+    "positive synchronous thread CPU count",
+    "successful TCP byte totals retain read/write separation",
+    "shared native counters retain unsampled final socket write"
+  ],
+  "source_sha256": {
+    "native_fault.rs": "54a9081d6a64add01989b8cbbdadf92c72529d6c85ff4b2118248bc685d5ab90",
+    "native_cpu.rs": "24f4e6cc38618c5894fd08c763fdf94dded5e4c65e7ef0e0cc79fad99689b109",
+    "native_io.rs": "7a3f7d4f1210e4ffaa649cec60bee10d17be598d6ed746e6396c66a0e4aa6a53"
+  },
+  "compiler": "rustc 1.94.0-nightly (31010ca61 2025-12-16)\nbinary: rustc\ncommit-hash: 31010ca61c3ff019e1480dda0a7ef16bd2bd51c0\ncommit-date: 2025-12-16\nhost: aarch64-apple-darwin\nrelease: 1.94.0-nightly\nLLVM version: 21.1.8\n",
+  "omission_events": [
+    {
+      "kind": "payload_initial",
+      "peer": "blocked",
+      "serialized_bytes_omitted": 100,
+      "monotonic_ns": 4229708212884000
+    },
+    {
+      "kind": "payload_repair",
+      "peer": "blocked",
+      "serialized_bytes_omitted": 80,
+      "monotonic_ns": 4229708212965000
+    },
+    {
+      "kind": "native_node_repair",
+      "peer": "blocked",
+      "serialized_bytes_omitted": 90,
+      "monotonic_ns": 4229708213006000
+    }
+  ],
+  "cpu": {
+    "schema": 1,
+    "monotonic_ns": 4229708273596000,
+    "scope": "native synchronous ordinary protocol authentication; hashing and input decoding included; elapsed thread CPU, not wall time; failed attempts charged",
+    "operations": {
+      "ordinary_sign": {
+        "calls": 1,
+        "thread_cpu_ns": 31875
+      },
+      "ordinary_verify": {
+        "calls": 0,
+        "thread_cpu_ns": 0
+      },
+      "ordinary_verify_batch": {
+        "calls": 0,
+        "thread_cpu_ns": 0
+      },
+      "ordinary_verify_batch_multi": {
+        "calls": 0,
+        "thread_cpu_ns": 0
+      }
+    }
+  },
+  "io": {
+    "observed_us": 4229708280399,
+    "written_bytes": 130,
+    "read_bytes": 45
+  },
+  "io_final": {
+    "written_bytes": 149,
+    "read_bytes": 45
+  },
+  "compiler_stderr": ""
+}

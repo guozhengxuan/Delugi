@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "status": "passed",
+  "scope": "offline re-reduction of archived local functional runs; no new benchmark, capacity or timing claim",
+  "frozen_reducer": {
+    "directory": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/frontier-reduction-final-20261019/source",
+    "sha256": {
+      "cohort_metrics.py": "cdcd6eedeae830bd4263456dedc3d1c834972915b166b24af8950cec1f8623a2",
+      "cohort_store.py": "d2bc2fd8a64b95dba59ebe2e6651c3ae17cdcd4efc5cd31ea86f50ae2b9ef5d7",
+      "campaign_frontier.py": "512cea9c7547d3e74a0acea7b5c69d468e0682219c6cfe1ae54b38f32c9e6fb3"
+    }
+  },
+  "replay": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/frontier-reduction-final-20261019/replay.py",
+    "sha256": "41c4631309c4e0c96e0913c502e205214387168c6f9e0c9db8e48a0b563bcb99"
+  },
+  "cases": [
+    {
+      "case": "healthy",
+      "source_manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/migration-schema2-healthy-20261019/manifest.json",
+      "source_sha256": "76642c8b67ff1c9ef47a6ed33cbe27c6810b6c4f118b75f3d7003eb1026d18b2",
+      "archive_sha256": "d2b27d89c8b3b38420da7e7312ecb401c2b0e3539da20aa1f9a1900435679fc8",
+      "stability_acceptance": {
+        "eligible": false,
+        "reasons": [
+          "pending_admitted grows across the window",
+          "scheduled_not_output grows across the window"
+        ],
+        "policy": {
+          "tail_target_ms": 1000,
+          "minimum_goodput_fraction": 0.95,
+          "maximum_net_backlog_growth": 0,
+          "maximum_backlog_excursion": 1200
+        },
+        "backlog": {
+          "pending_admitted": {
+            "net_growth": 12,
+            "peak_excursion": 12
+          },
+          "scheduled_not_output": {
+            "net_growth": 12,
+            "peak_excursion": 12
+          }
+        },
+        "scope": "declared ten-subwindow stability and both censored p99 gates; finite measured operating point"
+      },
+      "derived_result": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/frontier-reduction-final-20261019/reduced/healthy.json",
+      "derived_sha256": "21280a492564f5d9b1837f7f05ac97473b6cafed34cc4f3480f01bdc2d1c86af"
+    },
+    {
+      "case": "zero",
+      "source_manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/migration-schema2-zero-20261019/manifest.json",
+      "source_sha256": "1b3c5b7c2b55844356d76b00d644d56e154db8b40a758464644402c6802a0cde",
+      "archive_sha256": "e5adc5b5f9dbd7eec6fca67113af0b338f9a8207ae6afd69bcf6ad2e2e883898",
+      "stability_acceptance": {
+        "eligible": false,
+        "reasons": [
+          "unfinished or rejected intended cohort",
+          "admission_to_output p99 is censored or exceeds the common tail target",
+          "scheduled_to_output p99 is censored or exceeds the common tail target",
+          "measurement-window goodput below the declared offered-load fraction",
+          "pending_admitted grows across the window",
+          "scheduled_not_output grows across the window"
+        ],
+        "policy": {
+          "tail_target_ms": 1000,
+          "minimum_goodput_fraction": 0.95,
+          "maximum_net_backlog_growth": 0,
+          "maximum_backlog_excursion": 1200
+        },
+        "backlog": {
+          "pending_admitted": {
+            "net_growth": 119,
+            "peak_excursion": 119
+          },
+          "scheduled_not_output": {
+            "net_growth": 119,
+            "peak_excursion": 119
+          }
+        },
+        "scope": "declared ten-subwindow stability and both censored p99 gates; finite measured operating point"
+      },
+      "derived_result": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/frontier-reduction-final-20261019/reduced/zero.json",
+      "derived_sha256": "8e714778c4d31106c3e9d6ef789e98631d69fa69ffd6fc732f30500a4924faa1"
+    }
+  ]
+}

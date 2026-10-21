@@ -1,0 +1,197 @@
+{
+  "schema": 1,
+  "kind": "offline exact archived-journal replay, no new protocol execution or performance inference",
+  "results": [
+    {
+      "case": "autobahn-fixed-fault",
+      "status": "passed",
+      "raw_source": "results/local/migration-autobahn-fixed-fault-20261019",
+      "cohort_archive": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/native-bounded-replay-20261019/autobahn-fixed-fault/cohorts/index.json",
+        "sha256": "031a101ae55187b710efa69dcea73c83f8f88912d487f841c037d6afcf6cbc93",
+        "schema": 2,
+        "format": "delugi-cohort-pages-v2"
+      },
+      "cohort": {
+        "scheduled": 1200,
+        "admitted": 1200,
+        "completed": 1200,
+        "unfinished": 0,
+        "rejected": 0
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 1600,
+        "sequence_lengths": [
+          1600,
+          1600,
+          1600
+        ],
+        "common_prefix_sha256": "41ac3907f7532ab10584fdd50c90c2448605dfecd416983a7308fee590310ada",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "1": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_order_fidelity": {
+          "status": "complete_observer_sequence",
+          "reason": "complete native journal ordinals checked"
+        },
+        "native_terminal_prefix": {
+          "1": {
+            "count": 1600,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 1600,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 1600,
+            "kind": "exact"
+          }
+        }
+      },
+      "legacy_reducer_exactly_equal": true,
+      "new_python_traced_peak_bytes": 9349955,
+      "measurement_scope": "Python allocations during bounded conversion/reduction only; excludes SQLite C cache and original replica/runtime memory; not whole-process RSS",
+      "elapsed_seconds": 12.312266957946122,
+      "stage_sqlite_bytes": 4468736,
+      "reduction_sqlite_bytes": 3022848
+    },
+    {
+      "case": "mysticeti-zero",
+      "status": "passed",
+      "raw_source": "results/local/migration-mysticeti-zero-20261019",
+      "cohort_archive": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/native-bounded-replay-20261019/mysticeti-zero/cohorts/index.json",
+        "sha256": "e7cb2f2e23649847b08d9ff15315aec3b0fb880cd25e950012cdae0771876bf7",
+        "schema": 2,
+        "format": "delugi-cohort-pages-v2"
+      },
+      "cohort": {
+        "scheduled": 0,
+        "admitted": 0,
+        "completed": 0,
+        "unfinished": 0,
+        "rejected": 0
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 0,
+        "sequence_lengths": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "common_prefix_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "1": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "2": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "3": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay"
+        },
+        "native_order_fidelity": {
+          "status": "incomplete",
+          "reason": "filtered journal cannot authenticate unseen leading/trailing native payload order; independent signed WAL proof required"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 0,
+            "kind": "lower_bound"
+          },
+          "1": {
+            "count": 0,
+            "kind": "lower_bound"
+          },
+          "2": {
+            "count": 0,
+            "kind": "lower_bound"
+          },
+          "3": {
+            "count": 0,
+            "kind": "lower_bound"
+          }
+        }
+      },
+      "legacy_reducer_exactly_equal": true,
+      "new_python_traced_peak_bytes": 8425663,
+      "measurement_scope": "Python allocations during bounded conversion/reduction only; excludes SQLite C cache and original replica/runtime memory; not whole-process RSS",
+      "elapsed_seconds": 0.026252000592648983,
+      "stage_sqlite_bytes": 16384,
+      "reduction_sqlite_bytes": 57344
+    },
+    {
+      "case": "mysticeti-unfinished",
+      "status": "passed",
+      "raw_source": "results/local/migration-mysticeti-unfinished-20261019",
+      "cohort_archive": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/native-bounded-replay-20261019/mysticeti-unfinished/cohorts/index.json",
+        "sha256": "941949a4326f1f3b75f4e440110c86e974918ff5f2d7ca0a0f79c74903abdd0f",
+        "schema": 2,
+        "format": "delugi-cohort-pages-v2"
+      },
+      "cohort": {
+        "scheduled": 4,
+        "admitted": 0,
+        "completed": 0,
+        "unfinished": 4,
+        "rejected": 0
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "common_prefix_length": 0,
+        "sequence_lengths": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "common_prefix_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "native_order_scope": {
+          "0": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "1": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "2": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "3": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay"
+        },
+        "native_order_fidelity": {
+          "status": "incomplete",
+          "reason": "filtered journal cannot authenticate unseen leading/trailing native payload order; independent signed WAL proof required"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 0,
+            "kind": "lower_bound"
+          },
+          "1": {
+            "count": 0,
+            "kind": "lower_bound"
+          },
+          "2": {
+            "count": 0,
+            "kind": "lower_bound"
+          },
+          "3": {
+            "count": 0,
+            "kind": "lower_bound"
+          }
+        }
+      },
+      "legacy_reducer_exactly_equal": true,
+      "new_python_traced_peak_bytes": 8419330,
+      "measurement_scope": "Python allocations during bounded conversion/reduction only; excludes SQLite C cache and original replica/runtime memory; not whole-process RSS",
+      "elapsed_seconds": 0.0240316241979599,
+      "stage_sqlite_bytes": 16384,
+      "reduction_sqlite_bytes": 57344
+    }
+  ],
+  "sources": {
+    "scripts/baselines/native_cohort_store.py": "6080767878a975d4c0416794b1fbe4764ae97f08e35b99d8ce929f1e78491875",
+    "scripts/cohort_store.py": "d2bc2fd8a64b95dba59ebe2e6651c3ae17cdcd4efc5cd31ea86f50ae2b9ef5d7",
+    "scripts/cohort_metrics.py": "cdcd6eedeae830bd4263456dedc3d1c834972915b166b24af8950cec1f8623a2"
+  }
+}

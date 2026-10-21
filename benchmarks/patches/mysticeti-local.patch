@@ -11,7 +11,7 @@ index 172787f..f338c24 100644
  seahash = "4.1.0"
  tempdir = "0.3.7"
 diff --git a/crates/mysticeti-core/src/block_handler.rs b/crates/mysticeti-core/src/block_handler.rs
-index acd5969..4bd019c 100644
+index acd5969..ada011e 100644
 --- a/crates/mysticeti-core/src/block_handler.rs
 +++ b/crates/mysticeti-core/src/block_handler.rs
 @@ -24,11 +24,7 @@ use crate::{
@@ -27,7 +27,23 @@ index acd5969..4bd019c 100644
          TransactionLocator,
      },
  };
-@@ -390,6 +386,7 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
+@@ -340,6 +336,7 @@ pub struct TestCommitHandler<H = HashSet<TransactionLocator>> {
+     transaction_votes: TransactionAggregator<QuorumThreshold, H>,
+     committee: Arc<Committee>,
+     committed_leaders: Vec<BlockReference>,
++    benchmark_output_index: u64,
+     // committed_dags: Vec<CommittedSubDag>,
+     start_time: TimeInstant,
+     transaction_time: Arc<Mutex<HashMap<TransactionLocator, TimeInstant>>>,
+@@ -371,6 +368,7 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
+             transaction_votes: TransactionAggregator::with_handler(handler),
+             committee,
+             committed_leaders: vec![],
++            benchmark_output_index: 0,
+             // committed_dags: vec![],
+             start_time: TimeInstant::now(),
+             transaction_time,
+@@ -390,6 +388,7 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
          block_creation: Option<&TimeInstant>,
          current_timestamp: Duration,
          transaction: &Transaction,
@@ -35,7 +51,7 @@ index acd5969..4bd019c 100644
      ) {
          // Record inter-block latency.
          if let Some(instant) = block_creation {
-@@ -417,6 +414,10 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
+@@ -417,6 +416,10 @@ impl<H: ProcessedTransactionHandler<TransactionLocator>> TestCommitHandler<H> {
              .latency_s
              .with_label_values(&["shared"])
              .observe(latency.as_secs_f64());
@@ -46,14 +62,55 @@ index acd5969..4bd019c 100644
          self.metrics
              .latency_squared_s
              .with_label_values(&["shared"])
-@@ -459,6 +460,7 @@ impl<H: ProcessedTransactionHandler<TransactionLocator> + Send + Sync> CommitObs
+@@ -432,8 +435,6 @@ impl<H: ProcessedTransactionHandler<TransactionLocator> + Send + Sync> CommitObs
+         block_store: &BlockStore,
+         committed_leaders: Vec<Data<StatementBlock>>,
+     ) -> Vec<CommittedSubDag> {
+-        let current_timestamp = runtime::timestamp_utc();
+-
+         let committed = self
+             .commit_interpreter
+             .handle_commit(block_store, committed_leaders);
+@@ -441,6 +442,14 @@ impl<H: ProcessedTransactionHandler<TransactionLocator> + Send + Sync> CommitObs
+         for commit in &committed {
+             self.committed_leaders.push(commit.anchor);
+             for block in &commit.blocks {
++                let batch = hex::encode(bincode::serialize(block.reference()).unwrap());
++                crate::transactions_generator::cohort::batch(
++                    &batch,
++                    block
++                        .shared_transactions()
++                        .map(|(_, tx)| tx.data().len())
++                        .sum(),
++                );
+                 if !self.consensus_only {
+                     let processed =
+                         self.transaction_votes
+@@ -455,13 +464,24 @@ impl<H: ProcessedTransactionHandler<TransactionLocator> + Send + Sync> CommitObs
+                     }
+                 }
+                 for (locator, transaction) in block.shared_transactions() {
++                    let current_timestamp = runtime::timestamp_utc();
++                    crate::transactions_generator::cohort::materialized(
++                        transaction,
++                        block.author(),
++                        &batch,
++                        self.benchmark_output_index,
++                    );
++                    self.benchmark_output_index += 1;
+                     self.update_metrics(
                          transaction_time.get(&locator),
                          current_timestamp,
                          transaction,
 +                        block.author(),
                      );
                  }
++                crate::transactions_generator::cohort::batch_end();
              }
++            crate::transactions_generator::cohort::flush();
+             // self.committed_dags.push(commit);
+         }
+         self.metrics
 diff --git a/crates/mysticeti-core/src/config.rs b/crates/mysticeti-core/src/config.rs
 index 6e23257..4b0bc8c 100644
 --- a/crates/mysticeti-core/src/config.rs
@@ -68,6 +125,84 @@ index 6e23257..4b0bc8c 100644
      }
  
      pub fn default_max_block_size() -> usize {
+diff --git a/crates/mysticeti-core/src/crypto.rs b/crates/mysticeti-core/src/crypto.rs
+index 63c0c2f..476ba10 100644
+--- a/crates/mysticeti-core/src/crypto.rs
++++ b/crates/mysticeti-core/src/crypto.rs
+@@ -178,6 +178,7 @@ impl<T: AsBytes> CryptoHash for T {
+ impl PublicKey {
+     #[cfg(not(test))]
+     pub fn verify_block(&self, block: &StatementBlock) -> Result<(), ed25519_consensus::Error> {
++        let _cpu = benchmark_cpu::begin(1);
+         let signature = Signature::from(block.signature().0);
+         let mut hasher = BlockHasher::default();
+         BlockDigest::digest_without_signature(
+@@ -217,6 +218,7 @@ impl Signer {
+         meta_creation_time_ns: TimestampNs,
+         epoch_marker: EpochStatus,
+     ) -> SignatureBytes {
++        let _cpu = benchmark_cpu::begin(0);
+         let mut hasher = BlockHasher::default();
+         BlockDigest::digest_without_signature(
+             &mut hasher,
+@@ -368,3 +370,57 @@ pub fn dummy_signer() -> Signer {
+ pub fn dummy_public_key() -> PublicKey {
+     dummy_signer().public_key()
+ }
++
++pub mod benchmark_cpu {
++// Copied verbatim into each instrumented native crypto module. Disabled unless
++// BENCHMARK_CPU_PATH is set. Synchronous guards never cross an await point.
++use std::{fs, io::Write, os::raw::{c_int, c_long}, path::PathBuf,
++    sync::{OnceLock, atomic::{AtomicU64, Ordering}}, time::Duration};
++
++#[repr(C)] struct Timespec { tv_sec: c_long, tv_nsec: c_long }
++extern "C" { fn clock_gettime(id: c_int, time: *mut Timespec) -> c_int; }
++#[cfg(target_os = "linux")] const THREAD_CLOCK: c_int = 3;
++#[cfg(target_os = "macos")] const THREAD_CLOCK: c_int = 16;
++#[cfg(target_os = "linux")] const MONOTONIC_CLOCK: c_int = 1;
++#[cfg(target_os = "macos")] const MONOTONIC_CLOCK: c_int = 6;
++fn clock(id: c_int) -> u64 {
++    let mut ts = Timespec { tv_sec: 0, tv_nsec: 0 };
++    assert_eq!(unsafe { clock_gettime(id, &mut ts) }, 0, "benchmark CPU clock unavailable");
++    ts.tv_sec as u64 * 1_000_000_000 + ts.tv_nsec as u64
++}
++static COUNT: [AtomicU64; 4] = [AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0)];
++static CPU: [AtomicU64; 4] = [AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0)];
++static CONFIG: OnceLock<Option<PathBuf>> = OnceLock::new();
++
++fn enabled() -> bool {
++    CONFIG.get_or_init(|| {
++        let path = std::env::var_os("BENCHMARK_CPU_PATH").map(PathBuf::from)?;
++        let output = path.clone();
++        std::thread::Builder::new().name("native-crypto-observer".into()).spawn(move || loop {
++            let names = ["ordinary_sign", "ordinary_verify", "ordinary_verify_batch", "ordinary_verify_batch_multi"];
++            let fields: Vec<String> = names.iter().enumerate().map(|(i,name)| format!(
++                "\"{}\":{{\"calls\":{},\"thread_cpu_ns\":{}}}", name,
++                COUNT[i].load(Ordering::Relaxed), CPU[i].load(Ordering::Relaxed))).collect();
++            let row = format!("{{\"schema\":1,\"monotonic_ns\":{},\"scope\":\"native synchronous ordinary protocol authentication; hashing and input decoding included; elapsed thread CPU, not wall time; failed attempts charged\",\"operations\":{{{}}}}}\n", clock(MONOTONIC_CLOCK), fields.join(","));
++            let temporary = output.with_extension("tmp");
++            let mut file = fs::File::create(&temporary).expect("create native CPU snapshot");
++            file.write_all(row.as_bytes()).expect("write native CPU snapshot");
++            fs::rename(temporary, &output).expect("publish native CPU snapshot");
++            std::thread::sleep(Duration::from_millis(20));
++        }).expect("start native crypto observer");
++        Some(path)
++    }).is_some()
++}
++
++pub struct Guard { kind: usize, start_ns: u64 }
++pub fn begin(kind: usize) -> Option<Guard> {
++    if enabled() { Some(Guard { kind, start_ns: clock(THREAD_CLOCK) }) } else { None }
++}
++impl Drop for Guard {
++    fn drop(&mut self) {
++        CPU[self.kind].fetch_add(clock(THREAD_CLOCK).saturating_sub(self.start_ns), Ordering::Relaxed);
++        COUNT[self.kind].fetch_add(1, Ordering::Relaxed);
++    }
++}
++
++}
 diff --git a/crates/mysticeti-core/src/metrics.rs b/crates/mysticeti-core/src/metrics.rs
 index 7dbfd5b..d12dba5 100644
 --- a/crates/mysticeti-core/src/metrics.rs
@@ -315,7 +450,7 @@ index 22dd943..8183e1a 100644
  
  #[cfg(test)]
 diff --git a/crates/mysticeti-core/src/network.rs b/crates/mysticeti-core/src/network.rs
-index 26d8274..77d3c57 100644
+index 26d8274..0234656 100644
 --- a/crates/mysticeti-core/src/network.rs
 +++ b/crates/mysticeti-core/src/network.rs
 @@ -1,7 +1,16 @@
@@ -468,7 +603,7 @@ index 26d8274..77d3c57 100644
          let WorkerConnection {
              sender,
              receiver,
-@@ -277,7 +341,7 @@ impl Worker {
+@@ -277,10 +341,10 @@ impl Worker {
              latency_sender,
          } = connection;
          tracing::debug!("Connected to {}", peer_id);
@@ -476,8 +611,12 @@ index 26d8274..77d3c57 100644
 +        let (reader, writer) = tokio::io::split(stream);
          let (pong_sender, pong_receiver) = mpsc::channel(16);
          let write_fut =
-             Self::handle_write_stream(writer, receiver, pong_receiver, latency_sender).boxed();
-@@ -288,7 +352,7 @@ impl Worker {
+-            Self::handle_write_stream(writer, receiver, pong_receiver, latency_sender).boxed();
++            Self::handle_write_stream(writer, receiver, pong_receiver, latency_sender, peer_id).boxed();
+         let read_fut = Self::handle_read_stream(reader, sender, pong_sender).boxed();
+         let (r, _, _) = select_all([write_fut, read_fut]).await;
+         tracing::debug!("Disconnected from {}", peer_id);
+@@ -288,10 +352,11 @@ impl Worker {
      }
  
      async fn handle_write_stream(
@@ -486,7 +625,22 @@ index 26d8274..77d3c57 100644
          mut receiver: mpsc::Receiver<NetworkMessage>,
          mut pong_receiver: mpsc::Receiver<i64>,
          latency_sender: HistogramSender<Duration>,
-@@ -363,7 +427,7 @@ impl Worker {
++        peer_id: usize,
+     ) -> io::Result<()> {
+         let start = Instant::now();
+         let mut ping_deadline = start + PING_INTERVAL;
+@@ -355,6 +420,10 @@ impl Worker {
+                     // todo - pass signal to break main loop
+                     let Some(message) = received else {return Ok(())};
+                     let serialized = bincode::serialize(&message).expect("Serialization should not fail");
++                    if let NetworkMessage::Block(block) = &message {
++                        let faulty_author = std::env::var("BENCHMARK_FAULT_AUTHOR").ok().and_then(|x| x.parse::<u64>().ok());
++                        if faulty_author == Some(block.author()) && !benchmark_fault::permit("own_signed_block", &peer_id.to_string(), serialized.len()) { continue; }
++                    }
+                     writer.write_u32(serialized.len() as u32).await?;
+                     writer.write_all(&serialized).await?;
+                 }
+@@ -363,7 +432,7 @@ impl Worker {
      }
  
      async fn handle_read_stream(
@@ -495,7 +649,7 @@ index 26d8274..77d3c57 100644
          sender: mpsc::Sender<NetworkMessage>,
          pong_sender: mpsc::Sender<i64>,
      ) -> io::Result<()> {
-@@ -449,6 +513,42 @@ mod test {
+@@ -449,6 +518,42 @@ mod test {
  
      use crate::{committee::Committee, metrics::Metrics, test_util::networks_and_addresses};
  
@@ -538,13 +692,62 @@ index 26d8274..77d3c57 100644
      #[ignore]
      #[tokio::test]
      async fn network_connect_test() {
+@@ -472,3 +577,43 @@ mod test {
+         }
+     }
+ }
++
++pub mod benchmark_fault {
++// Copied verbatim into each native transport module. Only a configured faulty
++// sender invokes this on native payload/publication units. It does not edit data,
++// quorum predicates, honest custody, or native request/recovery algorithms.
++use std::{collections::HashSet, fs, io::Write, os::raw::{c_int,c_long}, path::PathBuf,
++    sync::{Mutex,OnceLock}};
++#[repr(C)] struct Timespec { tv_sec:c_long, tv_nsec:c_long }
++extern "C" { fn clock_gettime(id:c_int, time:*mut Timespec)->c_int; }
++#[cfg(target_os="linux")] const CLOCK:c_int=1;
++#[cfg(target_os="macos")] const CLOCK:c_int=6;
++pub fn monotonic_ns()->u64 { let mut ts=Timespec{tv_sec:0,tv_nsec:0};assert_eq!(unsafe{clock_gettime(CLOCK,&mut ts)},0);ts.tv_sec as u64*1_000_000_000+ts.tv_nsec as u64 }
++struct Config { control:PathBuf, log:PathBuf, allowed:HashSet<String>, repair:bool }
++static CONFIG:OnceLock<Option<Config>>=OnceLock::new();
++static INTERVAL:OnceLock<(u64,u64)>=OnceLock::new();
++static LOG:Mutex<()>=Mutex::new(());
++pub fn permit(kind:&str, peer:&str, bytes:usize)->bool {
++    let config=CONFIG.get_or_init(|| Some(Config {
++        control:PathBuf::from(std::env::var_os("BENCHMARK_FAULT_CONTROL")?),
++        log:PathBuf::from(std::env::var_os("BENCHMARK_FAULT_LOG")?),
++        allowed:std::env::var("BENCHMARK_FAULT_ALLOWED").unwrap_or_default().split(',').filter(|x|!x.is_empty()).map(str::to_owned).collect(),
++        repair:std::env::var("BENCHMARK_FAULT_REPAIR").as_deref()==Ok("1"),
++    }));
++    let Some(config)=config else{return true};
++    if kind=="payload_repair" && !config.repair {return true}
++    if INTERVAL.get().is_none() {
++        match fs::read_to_string(&config.control) {
++            Ok(text)=>{let values:Vec<u64>=text.split_whitespace().map(|x|x.parse().expect("invalid benchmark fault time")).collect();assert_eq!(values.len(),2);assert!(values[0]<values[1]);let _=INTERVAL.set((values[0],values[1]));},
++            Err(error) if error.kind()==std::io::ErrorKind::NotFound=>return true,
++            Err(error)=>panic!("read benchmark fault interval: {}",error),
++        }
++    }
++    let (start,end)=*INTERVAL.get().unwrap();let now=monotonic_ns();
++    if now<start || now>=end || config.allowed.contains(peer) {return true}
++    let _guard=LOG.lock().unwrap();let mut file=fs::OpenOptions::new().create(true).append(true).open(&config.log).expect("open omission log");
++    writeln!(file,"{{\"kind\":\"{}\",\"peer\":\"{}\",\"serialized_bytes_omitted\":{},\"monotonic_ns\":{}}}",kind,peer,bytes,now).expect("write omission log");
++    false
++}
++
++}
 diff --git a/crates/mysticeti-core/src/transactions_generator.rs b/crates/mysticeti-core/src/transactions_generator.rs
-index aa02fe1..9e9e17a 100644
+index aa02fe1..69e1b39 100644
 --- a/crates/mysticeti-core/src/transactions_generator.rs
 +++ b/crates/mysticeti-core/src/transactions_generator.rs
-@@ -33,6 +33,9 @@ impl TransactionGenerator {
+@@ -32,12 +32,28 @@ impl TransactionGenerator {
+         node_public_config: NodePublicConfig,
          metrics: Arc<Metrics>,
      ) {
++        metrics.latency_s.with_label_values(&["shared"]);
++        metrics
++            .benchmark_origin_latency_s
++            .with_label_values(&[&seed.to_string()]);
          assert!(client_parameters.transaction_size > 8 + 8); // 8 bytes timestamp + 8 bytes random
 +        metrics
 +            .benchmark_transaction_encoded_size_bytes
@@ -552,7 +755,21 @@ index aa02fe1..9e9e17a 100644
          tracing::info!(
              "Starting generator with {} transactions per second, initial delay {:?}",
              client_parameters.load,
-@@ -81,7 +84,13 @@ impl TransactionGenerator {
+             client_parameters.initial_delay
+         );
++        if std::env::var_os("BENCHMARK_COHORT_PATH").is_some() {
++            std::thread::Builder::new()
++                .name("independent-arrivals".into())
++                .spawn(move || {
++                    cohort::run(sender, seed, client_parameters, node_public_config, metrics)
++                })
++                .expect("start independent arrival thread");
++            return;
++        }
+         runtime::Handle::current().spawn(
+             Self {
+                 sender,
+@@ -81,7 +97,13 @@ impl TransactionGenerator {
                  transaction.extend_from_slice(&random.to_le_bytes()); // 8 bytes
                  transaction.extend_from_slice(&zeros[..]);
  
@@ -567,7 +784,7 @@ index aa02fe1..9e9e17a 100644
                  block_size += self.client_parameters.transaction_size;
                  counter += 1;
                  tx_to_report += 1;
-@@ -90,13 +99,25 @@ impl TransactionGenerator {
+@@ -90,13 +112,25 @@ impl TransactionGenerator {
                      if self.sender.send(block.clone()).await.is_err() {
                          return;
                      }
@@ -595,7 +812,7 @@ index aa02fe1..9e9e17a 100644
              }
  
              if counter % 10_000 == 0 {
-@@ -106,6 +127,23 @@ impl TransactionGenerator {
+@@ -106,6 +140,23 @@ impl TransactionGenerator {
          }
      }
  
@@ -619,7 +836,7 @@ index aa02fe1..9e9e17a 100644
      pub fn extract_timestamp(transaction: &Transaction) -> Duration {
          let bytes = transaction.as_bytes()[0..8]
              .try_into()
-@@ -113,3 +151,15 @@ impl TransactionGenerator {
+@@ -113,3 +164,759 @@ impl TransactionGenerator {
          Duration::from_millis(u64::from_le_bytes(bytes))
      }
  }
@@ -633,5 +850,749 @@ index aa02fe1..9e9e17a 100644
 +        let transaction = Transaction::new(vec![0u8; 504]);
 +        assert_eq!(transaction.as_bytes().len(), 504);
 +        assert_eq!(bincode::serialize(&transaction).unwrap().len(), 512);
++    }
++
++    #[test]
++    fn foreign_application_origin_does_not_abort_native_commit_observation() {
++        let mut bytes = vec![0u8; 8];
++        bytes.extend_from_slice(b"DLGCOH01");
++        bytes.extend_from_slice(&1u64.to_le_bytes());
++        bytes.extend_from_slice(&0u64.to_le_bytes());
++        bytes.extend_from_slice(&1u64.to_le_bytes());
++        bytes.push(1);
++        let transaction = Transaction::new(bytes);
++        assert!(cohort::identity(&transaction).is_some());
++        cohort::materialized(&transaction, 0, "native-block", 17);
++    }
++}
++
++/// Opt-in experiment observation. No consensus, voting, storage, or block rules change.
++pub mod cohort {
++    use super::*;
++    use blake2::{Blake2b512, Digest};
++    use std::{
++        fs::File,
++        io::{BufWriter, Read, Write},
++        sync::{Mutex, OnceLock},
++        time::Instant,
++    };
++
++    struct Shared {
++        writer: BufWriter<File>,
++        receipt: Option<ReceiptState>,
++        frozen: bool,
++    }
++    struct Journal {
++        epoch: Instant,
++        detailed: bool,
++        shared: Mutex<Shared>,
++    }
++    static JOURNAL: OnceLock<Option<Journal>> = OnceLock::new();
++    fn journal() -> Option<&'static Journal> {
++        JOURNAL
++            .get_or_init(|| {
++                std::env::var_os("BENCHMARK_COHORT_PATH").map(|path| {
++                    let mode = std::env::var("BENCHMARK_COHORT_OBSERVER")
++                        .unwrap_or_else(|_| "full".into());
++                    assert!(mode == "full" || mode == "compact");
++                    let receipt = std::env::var_os("BENCHMARK_RECEIPT_DIR").map(|directory| {
++                        let counts = std::env::var("BENCHMARK_RECEIPT_COUNTS")
++                            .expect("finite native counts")
++                            .split(',')
++                            .map(|x| x.parse().expect("finite native count"))
++                            .collect();
++                        ReceiptState::new(
++                            counts,
++                            setting("BENCHMARK_RECEIPT_ORIGIN", u64::MAX) as usize,
++                            setting("BENCHMARK_RECEIPT_USEFUL_BYTES", 0) as usize,
++                            directory.into(),
++                        )
++                    });
++                    assert!(
++                        mode == "full" || receipt.is_some(),
++                        "compact requires finite receipts"
++                    );
++                    Journal {
++                        epoch: Instant::now(),
++                        detailed: mode == "full",
++                        shared: Mutex::new(Shared {
++                            writer: BufWriter::new(
++                                File::create(path).expect("create cohort journal"),
++                            ),
++                            receipt,
++                            frozen: false,
++                        }),
++                    }
++                })
++            })
++            .as_ref()
++    }
++    pub fn now_us() -> u64 {
++        journal()
++            .map(|j| j.epoch.elapsed().as_micros() as u64)
++            .unwrap_or(0)
++    }
++    fn emit(line: String) {
++        if let Some(j) = journal() {
++            let mut out = j.shared.lock().unwrap();
++            if out.frozen {
++                return;
++            }
++            writeln!(out.writer, "{line}").expect("write cohort journal");
++        }
++    }
++    pub fn flush() {
++        if let Some(j) = journal() {
++            j.shared
++                .lock()
++                .unwrap()
++                .writer
++                .flush()
++                .expect("flush cohort journal");
++        }
++    }
++    fn receipt_exporter() {
++        let Some(request) = std::env::var_os("BENCHMARK_RECEIPT_REQUEST") else {
++            return;
++        };
++        std::thread::Builder::new()
++            .name("native-receipt-export".into())
++            .spawn(move || {
++                while !std::path::Path::new(&request).exists() {
++                    if let Some(j) = journal() {
++                        let mut shared = j.shared.lock().unwrap();
++                        if let Some(r) = shared.receipt.as_mut() {
++                            if let Some((a, b)) = r.window {
++                                let at = j.epoch.elapsed().as_micros() as u64;
++                                if r.process_window.len() < 2
++                                    && at >= if r.process_window.is_empty() { a } else { b }
++                                {
++                                    r.process_window.push(process_sample(at));
++                                }
++                            }
++                        }
++                    }
++                    std::thread::sleep(Duration::from_millis(5));
++                }
++                let wait = Instant::now();
++                loop {
++                    let j = journal().unwrap();
++                    let mut shared = j.shared.lock().unwrap();
++                    let at = j.epoch.elapsed().as_micros() as u64;
++                    let receipt = shared
++                        .receipt
++                        .as_mut()
++                        .expect("receipt export requires finite state");
++                    receipt.request(at);
++                    if receipt.frozen_us.is_some() {
++                        shared.frozen = true;
++                        shared.writer.flush().expect("flush frozen full journal");
++                        let mut receipt = shared.receipt.take().unwrap();
++                        drop(shared);
++                        receipt.export(if j.detailed { "full" } else { "compact" });
++                        break;
++                    }
++                    drop(shared);
++                    assert!(
++                        wait.elapsed() < Duration::from_secs(10),
++                        "native complete-block receipt freeze timed out"
++                    );
++                    std::thread::sleep(Duration::from_millis(1));
++                }
++            })
++            .expect("native receipt export thread");
++    }
++    fn setting(name: &str, default: u64) -> u64 {
++        std::env::var(name)
++            .ok()
++            .map(|s| s.parse().expect("integer benchmark setting"))
++            .unwrap_or(default)
++    }
++    pub fn identity(tx: &Transaction) -> Option<(u64, u64, usize, String)> {
++        let b = tx.as_bytes();
++        if b.len() < 40 || &b[8..16] != b"DLGCOH01" {
++            return None;
++        }
++        let origin = u64::from_le_bytes(b[16..24].try_into().unwrap());
++        let seq = u64::from_le_bytes(b[24..32].try_into().unwrap());
++        let size = u64::from_le_bytes(b[32..40].try_into().unwrap()) as usize;
++        if size != b.len() - 40 {
++            return None;
++        }
++        // Content is native-block authenticated; verify deterministic application bytes as well.
++        if b[40..]
++            .iter()
++            .enumerate()
++            .any(|(i, x)| *x != (origin.wrapping_add(seq).wrapping_add(i as u64) % 251) as u8)
++        {
++            return None;
++        }
++        let digest = hex::encode(&Blake2b512::digest(&b[8..])[..32]);
++        Some((origin, seq, size, format!("{origin}:{seq}:{digest}")))
++    }
++    pub fn credited_identity(value: Option<&(u64, u64, usize, String)>, author: u64) -> bool {
++        value.map(|x| x.0 == author).unwrap_or(false)
++    }
++    pub fn stage(event: &str, tx: &Transaction) {
++        let identity = identity(tx);
++        if let (Some(j), Some((origin, seq, size, id))) = (journal(), identity) {
++            let mut shared = j.shared.lock().unwrap();
++            if shared.frozen {
++                return;
++            }
++            let at = j.epoch.elapsed().as_micros() as u64;
++            if let Some(receipt) = shared.receipt.as_mut() {
++                if receipt.frozen_us.is_some() {
++                    return;
++                }
++                receipt.stage(event, origin, seq, size, at);
++            }
++            if j.detailed {
++                writeln!(shared.writer,r#"{{"event":"{event}","request_id":"{id}","origin":{origin},"sequence":{seq},"useful_bytes":{size},"elapsed_us":{at}}}"#).expect("write native detailed stage");
++            }
++        }
++    }
++    pub fn materialized(tx: &Transaction, author: u64, batch: &str, index: u64) {
++        let identity = identity(tx);
++        if let Some(j) = journal() {
++            let mut shared = j.shared.lock().unwrap();
++            if shared.frozen {
++                return;
++            }
++            let at = j.epoch.elapsed().as_micros() as u64;
++            if let Some(receipt) = shared.receipt.as_mut() {
++                if receipt.frozen_us.is_some() {
++                    return;
++                }
++                receipt.output(tx.as_bytes(), author, batch, index, identity.as_ref(), at);
++            }
++            // Every raw native output advances the common fingerprint; only
++            // application identities authenticated by that author earn credit.
++            if j.detailed && credited_identity(identity.as_ref(), author) {
++                let (origin, seq, size, id) = identity.unwrap();
++                let eligible = shared
++                    .receipt
++                    .as_ref()
++                    .map(|r| {
++                        if origin as usize != r.origin {
++                            "null"
++                        } else if r.eligible.get(seq) {
++                            "true"
++                        } else {
++                            "false"
++                        }
++                    })
++                    .unwrap_or("true");
++                writeln!(shared.writer,r#"{{"event":"materialized","request_id":"{id}","origin":{origin},"sequence":{seq},"useful_bytes":{size},"exact_batch_id":"{batch}","output_index":{index},"origin_eligible":{eligible},"elapsed_us":{at}}}"#).expect("write native detailed output");
++            }
++        }
++    }
++    pub fn batch(batch: &str, payload_bytes: usize) {
++        if let Some(j) = journal() {
++            let mut shared = j.shared.lock().unwrap();
++            if shared.frozen {
++                return;
++            }
++            let at = j.epoch.elapsed().as_micros() as u64;
++            if let Some(receipt) = shared.receipt.as_mut() {
++                if receipt.frozen_us.is_some() {
++                    return;
++                }
++                receipt.begin(batch, payload_bytes as u64);
++            }
++            if j.detailed {
++                writeln!(shared.writer,r#"{{"event":"batch","exact_batch_id":"{batch}","payload_bytes":{payload_bytes},"elapsed_us":{at}}}"#).expect("write native detailed batch");
++            }
++        }
++    }
++    pub fn batch_end() {
++        if let Some(j) = journal() {
++            let mut shared = j.shared.lock().unwrap();
++            let at = j.epoch.elapsed().as_micros() as u64;
++            if let Some(receipt) = shared.receipt.as_mut() {
++                receipt.end(at);
++            }
++        }
++    }
++    pub fn run(
++        sender: mpsc::Sender<Vec<Transaction>>,
++        origin: u64,
++        parameters: ClientParameters,
++        config: NodePublicConfig,
++        metrics: Arc<Metrics>,
++    ) {
++        let control = std::env::var("BENCHMARK_COHORT_START").expect("cohort start path");
++        let _ = journal();
++        receipt_exporter();
++        while !std::path::Path::new(&control).exists() {
++            std::thread::sleep(Duration::from_millis(5));
++        }
++        let start = now_us();
++        let warmup = setting("BENCHMARK_WARMUP_US", 0);
++        let duration = setting("BENCHMARK_DURATION_US", 1_000_000);
++        let drain = setting("BENCHMARK_DRAIN_US", 1_000_000);
++        let cadence = setting("BENCHMARK_INGRESS_US", 100_000);
++        let rate = parameters.load as u64;
++        assert!(cadence > 0);
++        let useful = parameters
++            .transaction_size
++            .checked_sub(40)
++            .expect("cohort payload metadata size");
++        let count = ((warmup + duration) as u128 * rate as u128 / 1_000_000) as u64;
++        if let Some(j) = journal() {
++            let mut shared = j.shared.lock().unwrap();
++            if let Some(receipt) = shared.receipt.as_mut() {
++                assert_eq!(receipt.origin, origin as usize);
++                assert_eq!(receipt.counts[origin as usize], count);
++                assert_eq!(receipt.useful, useful);
++                receipt.window = Some((start + warmup, start + warmup + duration));
++            }
++        }
++        emit(format!(
++            r#"{{"event":"start","origin":{origin},"elapsed_us":{start},"window_start_us":{},"window_end_us":{},"observed_us":{},"rate":{rate},"count":{count},"useful_bytes":{useful}}}"#,
++            start + warmup,
++            start + warmup + duration,
++            start + warmup + duration + drain
++        ));
++        flush();
++        let deadline = start + warmup + duration + drain;
++        let mut sequence = 0;
++        while sequence < count && now_us() < deadline {
++            let scheduled = start + (sequence as u128 * 1_000_000 / rate as u128) as u64;
++            let flush_at = start + ((scheduled - start) / cadence + 1) * cadence;
++            let last = ((((flush_at - start) as u128 * rate as u128 + 999_999) / 1_000_000) as u64)
++                .min(count);
++            let mut block = Vec::new();
++            let mut bytes = 0;
++            while sequence < last {
++                let due = start + (sequence as u128 * 1_000_000 / rate as u128) as u64;
++                while now_us() < due {
++                    std::thread::sleep(Duration::from_micros(
++                        due.saturating_sub(now_us()).min(1000),
++                    ));
++                }
++                let mut payload = Vec::with_capacity(parameters.transaction_size);
++                payload.extend_from_slice(&(timestamp_utc().as_millis() as u64).to_le_bytes());
++                payload.extend_from_slice(b"DLGCOH01");
++                payload.extend_from_slice(&origin.to_le_bytes());
++                payload.extend_from_slice(&sequence.to_le_bytes());
++                payload.extend_from_slice(&(useful as u64).to_le_bytes());
++                payload.extend(
++                    (0..useful).map(|i| {
++                        (origin.wrapping_add(sequence).wrapping_add(i as u64) % 251) as u8
++                    }),
++                );
++                let tx = Transaction::new(payload);
++                stage("admitted", &tx);
++                block.push(tx);
++                bytes += parameters.transaction_size;
++                sequence += 1;
++                if bytes >= config.parameters.max_block_size || sequence == last {
++                    if sequence == last {
++                        while now_us() < flush_at {
++                            std::thread::sleep(Duration::from_micros(
++                                flush_at.saturating_sub(now_us()).min(1000),
++                            ));
++                        }
++                    }
++                    for tx in &block {
++                        stage("batch_ready", tx);
++                    }
++                    loop {
++                        if now_us() >= deadline {
++                            for tx in &block {
++                                stage("not_admitted", tx);
++                            }
++                            flush();
++                            return;
++                        }
++                        match sender.try_reserve() {
++                            Ok(permit) => {
++                                for tx in &block {
++                                    stage("native_enqueued", tx);
++                                }
++                                let n = block.len() as u64;
++                                metrics.benchmark_enqueued_transactions.inc_by(n);
++                                metrics
++                                    .benchmark_enqueued_transaction_bytes
++                                    .inc_by(bytes as u64);
++                                metrics
++                                    .benchmark_enqueued_encoded_transaction_bytes
++                                    .inc_by(bytes as u64 + 8 * n);
++                                permit.send(block);
++                                break;
++                            }
++                            Err(mpsc::error::TrySendError::Full(_)) => {
++                                std::thread::sleep(Duration::from_millis(1))
++                            }
++                            Err(mpsc::error::TrySendError::Closed(_)) => return,
++                        }
++                    }
++                    block = Vec::new();
++                    bytes = 0;
++                    flush();
++                }
++            }
++        }
++        emit(format!(
++            r#"{{"event":"arrivals_finished","elapsed_us":{}}}"#,
++            now_us()
++        ));
++        flush();
++    }
++    // Shared correctness receipt state. No native consensus/storage decisions use it.
++    const MAX_ORIGIN_COUNT: u64 = 5_000_000;
++    const PAGE: usize = 4096;
++    #[derive(Clone)]
++    struct Bits {
++        count: u64,
++        bytes: Vec<u8>,
++    }
++    impl Bits {
++        fn new(count: u64) -> Self {
++            assert!(count <= MAX_ORIGIN_COUNT);
++            Self {
++                count,
++                bytes: vec![0; (count as usize + 7) / 8],
++            }
++        }
++        fn get(&self, n: u64) -> bool {
++            n < self.count && self.bytes[n as usize / 8] & (1 << (n % 8)) != 0
++        }
++        fn set(&mut self, n: u64) -> bool {
++            assert!(n < self.count);
++            let was = self.get(n);
++            self.bytes[n as usize / 8] |= 1 << (n % 8);
++            !was
++        }
++        fn ones(&self) -> u64 {
++            self.bytes.iter().map(|b| b.count_ones() as u64).sum()
++        }
++    }
++    fn process_sample(at: u64) -> String {
++        let mut usage: libc::rusage = unsafe { std::mem::zeroed() };
++        assert_eq!(unsafe { libc::getrusage(libc::RUSAGE_SELF, &mut usage) }, 0);
++        let user = usage.ru_utime.tv_sec as u64 * 1_000_000 + usage.ru_utime.tv_usec as u64;
++        let system = usage.ru_stime.tv_sec as u64 * 1_000_000 + usage.ru_stime.tv_usec as u64;
++        let rss = usage.ru_maxrss as u64 * if cfg!(target_os = "macos") { 1 } else { 1024 };
++        format!("{{\"elapsed_us\":{at},\"user_cpu_us\":{user},\"system_cpu_us\":{system},\"peak_rss_bytes\":{rss}}}")
++    }
++    fn field(hash: &mut Blake2b512, bytes: &[u8]) {
++        hash.update((bytes.len() as u64).to_le_bytes());
++        hash.update(bytes);
++    }
++    fn hash_hex(hash: &Blake2b512) -> String {
++        hex::encode(hash.clone().finalize())
++    }
++    struct ReceiptState {
++        counts: Vec<u64>,
++        origin: usize,
++        useful: usize,
++        admitted: Bits,
++        ready: Bits,
++        eligible: Bits,
++        seen: Bits,
++        window_admitted: Bits,
++        window_completed: Bits,
++        materialized: Vec<Bits>,
++        outputs: u64,
++        batches: u64,
++        payload_bytes: u64,
++        output_hash: Blake2b512,
++        batch_hash: Blake2b512,
++        active: Option<(String, u64)>,
++        window: Option<(u64, u64)>,
++        requested_us: Option<u64>,
++        frozen_us: Option<u64>,
++        checkpoints: BufWriter<File>,
++        directory: std::path::PathBuf,
++        process_window: Vec<String>,
++    }
++    impl ReceiptState {
++        fn new(
++            counts: Vec<u64>,
++            origin: usize,
++            useful: usize,
++            directory: std::path::PathBuf,
++        ) -> Self {
++            assert!(!counts.is_empty() && counts.len() <= 31 && origin < counts.len());
++            assert!(counts.iter().all(|n| *n <= MAX_ORIGIN_COUNT));
++            std::fs::create_dir(&directory).expect("exclusive native receipt directory");
++            let checkpoints = BufWriter::new(
++                File::options()
++                    .write(true)
++                    .create_new(true)
++                    .open(directory.join("checkpoints.jsonl"))
++                    .expect("native receipt checkpoints"),
++            );
++            let own = counts[origin];
++            let materialized = counts.iter().map(|n| Bits::new(*n)).collect();
++            Self {
++                counts,
++                origin,
++                useful,
++                admitted: Bits::new(own),
++                ready: Bits::new(own),
++                eligible: Bits::new(own),
++                seen: Bits::new(own),
++                window_admitted: Bits::new(own),
++                window_completed: Bits::new(own),
++                materialized,
++                outputs: 0,
++                batches: 0,
++                payload_bytes: 0,
++                output_hash: Blake2b512::new(),
++                batch_hash: Blake2b512::new(),
++                active: None,
++                window: None,
++                requested_us: None,
++                frozen_us: None,
++                checkpoints,
++                directory,
++                process_window: Vec::new(),
++            }
++        }
++        fn in_window(&self, at: u64) -> bool {
++            self.window.map(|(a, b)| a <= at && at < b).unwrap_or(false)
++        }
++        fn stage(&mut self, event: &str, origin: u64, seq: u64, size: usize, at: u64) {
++            if self.frozen_us.is_some()
++                || origin as usize != self.origin
++                || size != self.useful
++                || seq >= self.counts[self.origin]
++            {
++                return;
++            }
++            if event == "admitted" {
++                if self.admitted.set(seq) && self.in_window(at) {
++                    self.window_admitted.set(seq);
++                }
++            } else if event == "batch_ready" {
++                assert!(self.admitted.get(seq));
++                self.ready.set(seq);
++            }
++        }
++        fn begin(&mut self, batch: &str, bytes: u64) {
++            if self.frozen_us.is_some() {
++                return;
++            }
++            assert!(self.active.is_none());
++            self.active = Some((batch.to_string(), bytes));
++        }
++        fn output(
++            &mut self,
++            raw: &[u8],
++            author: u64,
++            batch: &str,
++            index: u64,
++            identity: Option<&(u64, u64, usize, String)>,
++            at: u64,
++        ) {
++            if self.frozen_us.is_some() {
++                return;
++            }
++            assert_eq!(self.outputs, index);
++            assert_eq!(self.active.as_ref().unwrap().0, batch);
++            self.output_hash.update(b"mysticeti-native-output-v1\0");
++            self.output_hash.update(index.to_le_bytes());
++            self.output_hash.update(author.to_le_bytes());
++            // batch is full hex(bincode(BlockReference)), never a Display digest.
++            field(
++                &mut self.output_hash,
++                &hex::decode(batch).expect("full native block reference"),
++            );
++            field(&mut self.output_hash, raw);
++            self.outputs += 1;
++            if let Some((origin, seq, size, _)) = identity {
++                if *origin != author
++                    || *origin as usize >= self.counts.len()
++                    || *size != self.useful
++                    || *seq >= self.counts[*origin as usize]
++                {
++                    return;
++                }
++                self.materialized[*origin as usize].set(*seq);
++                if *origin as usize == self.origin && self.seen.set(*seq) && self.admitted.get(*seq)
++                {
++                    self.eligible.set(*seq);
++                    if self.in_window(at) {
++                        self.window_completed.set(*seq);
++                    }
++                }
++            }
++        }
++        fn end(&mut self, at: u64) {
++            if self.frozen_us.is_some() {
++                return;
++            }
++            let (batch, bytes) = self.active.take().expect("native receipt batch begin");
++            self.batch_hash.update(b"mysticeti-native-batch-v1\0");
++            self.batch_hash.update(self.batches.to_le_bytes());
++            field(
++                &mut self.batch_hash,
++                &hex::decode(&batch).expect("full native block reference"),
++            );
++            self.batch_hash.update(bytes.to_le_bytes());
++            self.batch_hash.update(self.outputs.to_le_bytes());
++            field(&mut self.batch_hash, &self.output_hash.clone().finalize());
++            self.batches += 1;
++            self.payload_bytes += bytes;
++            writeln!(self.checkpoints,"{{\"batch_count\":{},\"output_count\":{},\"payload_bytes\":{},\"output_hash\":\"{}\",\"batch_hash\":\"{}\"}}",self.batches,self.outputs,self.payload_bytes,hash_hex(&self.output_hash),hash_hex(&self.batch_hash)).expect("write native receipt checkpoint");
++            if self.requested_us.is_some() {
++                self.frozen_us = Some(at);
++            }
++        }
++        fn request(&mut self, at: u64) {
++            if self.requested_us.is_none() {
++                self.requested_us = Some(at);
++            }
++            if self.active.is_none() && self.frozen_us.is_none() {
++                self.frozen_us = Some(at);
++            }
++        }
++        fn export(&mut self, mode: &str) {
++            assert!(self.active.is_none() && self.frozen_us.is_some());
++            self.checkpoints
++                .flush()
++                .expect("flush native receipt checkpoints");
++            let mut descriptors = Vec::new();
++            for (name, origin, bits) in [
++                ("admitted", self.origin, &self.admitted),
++                ("ready", self.origin, &self.ready),
++                ("eligible", self.origin, &self.eligible),
++                ("seen", self.origin, &self.seen),
++                ("window_admitted", self.origin, &self.window_admitted),
++                ("window_completed", self.origin, &self.window_completed),
++            ]
++            .into_iter()
++            .chain(
++                self.materialized
++                    .iter()
++                    .enumerate()
++                    .map(|(origin, bits)| ("materialized", origin, bits)),
++            ) {
++                let path = format!("{name}-{origin}.bits");
++                let mut file = File::options()
++                    .write(true)
++                    .create_new(true)
++                    .open(self.directory.join(&path))
++                    .expect("exclusive bitmap");
++                let mut hash = Blake2b512::new();
++                for chunk in bits.bytes.chunks(PAGE) {
++                    file.write_all(chunk).expect("write bounded bitmap");
++                    hash.update(chunk);
++                }
++                descriptors.push(format!("{{\"name\":\"{name}\",\"origin\":{origin},\"path\":\"{path}\",\"count\":{},\"bytes\":{},\"ones\":{},\"hash\":\"{}\"}}",bits.count,bits.bytes.len(),bits.ones(),hash_hex(&hash)));
++            }
++            let mut checkpoint_file = File::open(self.directory.join("checkpoints.jsonl"))
++                .expect("read frozen checkpoints");
++            let mut checkpoint_hash = Blake2b512::new();
++            let mut checkpoint_bytes = 0u64;
++            let mut buffer = [0u8; PAGE];
++            loop {
++                let n = checkpoint_file
++                    .read(&mut buffer)
++                    .expect("read checkpoint chunk");
++                if n == 0 {
++                    break;
++                }
++                checkpoint_hash.update(&buffer[..n]);
++                checkpoint_bytes += n as u64;
++            }
++            let (a, b) = self.window.expect("native finite workload start");
++            let header=format!("{{\"schema\":1,\"format\":\"mysticeti-native-receipt-v1\",\"mode\":\"{mode}\",\"origin\":{},\"counts\":{:?},\"useful_bytes\":{},\"window_start_us\":{a},\"window_end_us\":{b},\"requested_us\":{},\"frozen_us\":{},\"output_count\":{},\"batch_count\":{},\"payload_bytes\":{},\"output_hash\":\"{}\",\"batch_hash\":\"{}\",\"process_window\":[{}],\"checkpoint_bytes\":{},\"checkpoint_hash\":\"{}\",\"streams\":[{}]}}\n",self.origin,self.counts,self.useful,self.requested_us.unwrap(),self.frozen_us.unwrap(),self.outputs,self.batches,self.payload_bytes,hash_hex(&self.output_hash),hash_hex(&self.batch_hash),self.process_window.join(","),checkpoint_bytes,hash_hex(&checkpoint_hash),descriptors.join(","));
++            assert!(header.len() <= 256 * 1024);
++            let tmp = self.directory.join("header.tmp");
++            let mut f = File::options()
++                .write(true)
++                .create_new(true)
++                .open(&tmp)
++                .expect("receipt header");
++            f.write_all(header.as_bytes())
++                .expect("write receipt header");
++            drop(f);
++            std::fs::rename(tmp, self.directory.join("header.json"))
++                .expect("publish complete native receipt");
++        }
++    }
++
++    #[cfg(test)]
++    mod receipt_tests {
++        use super::*;
++        fn state(root: &std::path::Path, name: &str) -> ReceiptState {
++            let mut value = ReceiptState::new(vec![3, 3], 0, 8, root.join(name));
++            value.window = Some((0, 100));
++            value
++        }
++        fn identity(origin: u64, seq: u64) -> (u64, u64, usize, String) {
++            (origin, seq, 8, format!("{origin}:{seq}"))
++        }
++        #[test]
++        fn full_and_compact_preserve_raw_prefix_preplay_and_independent_readiness() {
++            let root = tempfile::tempdir().unwrap();
++            let mut signatures = Vec::new();
++            for mode in ["full", "compact"] {
++                let mut r = state(root.path(), mode);
++                r.begin("abcd0001", 48);
++                r.output(b"preplay", 0, "abcd0001", 0, Some(&identity(0, 0)), 1);
++                r.stage("admitted", 0, 0, 8, 2);
++                r.output(b"same", 0, "abcd0001", 1, Some(&identity(0, 0)), 3);
++                r.stage("admitted", 0, 1, 8, 4);
++                r.output(b"before-ready", 0, "abcd0001", 2, Some(&identity(0, 1)), 5);
++                assert!(r.eligible.get(1));
++                assert!(!r.ready.get(1));
++                r.stage("batch_ready", 0, 1, 8, 6);
++                r.output(b"unknown", 0, "abcd0001", 3, None, 7);
++                r.output(b"foreign", 1, "abcd0001", 4, Some(&identity(0, 2)), 8);
++                assert!(!r.materialized[0].get(2));
++                assert!(!r.eligible.get(0));
++                r.end(9);
++                r.begin("abcd0002", 0);
++                r.end(10); // Empty native batch remains in receipt.
++                r.request(11);
++                r.export(mode);
++                signatures.push((
++                    r.outputs,
++                    r.batches,
++                    r.eligible.bytes.clone(),
++                    hash_hex(&r.output_hash),
++                    hash_hex(&r.batch_hash),
++                    std::fs::read(r.directory.join("checkpoints.jsonl")).unwrap(),
++                ));
++            }
++            assert_eq!(signatures[0], signatures[1]);
++            assert_eq!(signatures[0].0, 5);
++            assert_eq!(signatures[0].1, 2);
++        }
++        #[test]
++        fn complete_block_freeze_cannot_drop_unknown_tail_or_empty_batch() {
++            let root = tempfile::tempdir().unwrap();
++            let mut r = state(root.path(), "freeze");
++            r.begin("aabb0001", 5);
++            r.request(5);
++            assert!(r.frozen_us.is_none());
++            r.output(b"unknown", 1, "aabb0001", 0, None, 6);
++            r.end(7);
++            assert_eq!(r.frozen_us, Some(7));
++            assert_eq!(r.outputs, 1);
++            let hash = hash_hex(&r.output_hash);
++            r.begin("aabb0002", 1);
++            r.output(b"later-native-work", 0, "aabb0002", 1, None, 8);
++            r.end(9);
++            assert_eq!(hash, hash_hex(&r.output_hash));
++            assert_eq!(r.batches, 1);
++        }
++        #[test]
++        fn full_block_references_distinguish_display_prefix_collisions() {
++            let root = tempfile::tempdir().unwrap();
++            let mut a = state(root.path(), "a");
++            let mut b = state(root.path(), "b");
++            a.begin("112233440001", 0);
++            a.end(1);
++            b.begin("112233440002", 0);
++            b.end(1);
++            assert_ne!(hash_hex(&a.batch_hash), hash_hex(&b.batch_hash));
++            assert_eq!(hash_hex(&a.output_hash), hash_hex(&b.output_hash));
++        }
 +    }
 +}

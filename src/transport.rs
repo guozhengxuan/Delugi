@@ -24,12 +24,139 @@ use std::time::{Duration, Instant};
 const MAX_AUTH_BYTES: usize = 512;
 pub const MAX_FRAME_BYTES: usize = wire::MAX_WIRE_BYTES + MAX_AUTH_BYTES + 4;
 
+fn maximum_frame_bytes(committee: &Committee) -> usize {
+    committee.max_wire_bytes() + MAX_AUTH_BYTES + 4
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
 pub enum Layer {
     Ordering,
     Dissemination,
     /// Bounded envelope of independently validated canonical ordering messages.
     OrderingBundle,
+}
+
+/// Measurement-only classification of the existing serialized payload. This is
+/// never sent on the wire or consulted by the protocol. Repair includes its
+/// embedded payload and evidence, keeping all four categories disjoint.
+#[derive(Clone, Debug, Default)]
+pub enum PayloadAccounting {
+    #[default]
+    EvidenceControl,
+    BatchPayloadTail {
+        bytes: usize,
+    },
+    Repair,
+    OrderingBundle {
+        member_lengths: Vec<u32>,
+    },
+}
+
+/// Successful socket-write bytes, including partial attempts and exact replays.
+/// Original batch payload excludes its signed header/vector framing. All FETCH,
+/// DATA and DATA_PART protocol bytes are repair. Transport overhead includes
+/// frame authentication, length prefixes, bundle framing and every ACK byte.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct WrittenCategories {
+    pub payload_bytes: u64,
+    pub evidence_control_bytes: u64,
+    pub repair_bytes: u64,
+    pub transport_overhead_bytes: u64,
+    pub total_written_bytes: u64,
+}
+
+impl WrittenCategories {
+    fn add(&mut self, other: Self) {
+        self.payload_bytes += other.payload_bytes;
+        self.evidence_control_bytes += other.evidence_control_bytes;
+        self.repair_bytes += other.repair_bytes;
+        self.transport_overhead_bytes += other.transport_overhead_bytes;
+        self.total_written_bytes += other.total_written_bytes;
+    }
+}
+
+impl PayloadAccounting {
+    fn validate(&self, layer: Layer, payload: &[u8]) -> Result<(), String> {
+        match self {
+            Self::BatchPayloadTail { bytes }
+                if layer != Layer::Dissemination || *bytes > payload.len() =>
+            {
+                Err("batch accounting exceeds its dissemination payload".into())
+            }
+            Self::Repair if layer != Layer::Dissemination => {
+                Err("repair accounting requires a dissemination message".into())
+            }
+            Self::OrderingBundle { member_lengths } => {
+                if layer != Layer::OrderingBundle
+                    || !(2..=32).contains(&member_lengths.len())
+                    || payload.get(..4) != Some(&(member_lengths.len() as u32).to_le_bytes()[..])
+                {
+                    return Err("invalid bounded bundle accounting".into());
+                }
+                let mut offset = 4usize;
+                for length in member_lengths {
+                    let end = offset.checked_add(4).ok_or("bundle accounting overflow")?;
+                    if payload.get(offset..end) != Some(&length.to_le_bytes()[..]) {
+                        return Err("bundle accounting differs from serialized framing".into());
+                    }
+                    offset = end
+                        .checked_add(*length as usize)
+                        .ok_or("bundle accounting overflow")?;
+                    if offset > payload.len() {
+                        return Err("bundle accounting exceeds serialized payload".into());
+                    }
+                }
+                if offset != payload.len() {
+                    return Err("bundle accounting does not cover serialized payload".into());
+                }
+                Ok(())
+            }
+            _ => Ok(()),
+        }
+    }
+
+    /// Classify an arbitrary successful contiguous write within a full frame.
+    /// Offsets are exact byte positions, so short writes crossing field borders
+    /// and repeats of a prefix require no proportional allocation or estimates.
+    fn written(
+        &self,
+        payload_offset: usize,
+        payload_len: usize,
+        start: usize,
+        count: usize,
+    ) -> WrittenCategories {
+        let end = start + count;
+        debug_assert!(end <= payload_offset + payload_len);
+        let overlap =
+            |left: usize, right: usize| end.min(right).saturating_sub(start.max(left)) as u64;
+        let protocol = overlap(payload_offset, payload_offset + payload_len);
+        let mut result = WrittenCategories {
+            transport_overhead_bytes: count as u64 - protocol,
+            total_written_bytes: count as u64,
+            ..WrittenCategories::default()
+        };
+        match self {
+            Self::EvidenceControl => result.evidence_control_bytes = protocol,
+            Self::BatchPayloadTail { bytes } => {
+                result.payload_bytes = overlap(
+                    payload_offset + payload_len - *bytes,
+                    payload_offset + payload_len,
+                );
+                result.evidence_control_bytes = protocol - result.payload_bytes;
+            }
+            Self::Repair => result.repair_bytes = protocol,
+            Self::OrderingBundle { member_lengths } => {
+                let mut offset = payload_offset + 4;
+                for length in member_lengths {
+                    offset += 4;
+                    result.evidence_control_bytes += overlap(offset, offset + *length as usize);
+                    offset += *length as usize;
+                }
+                result.transport_overhead_bytes += protocol - result.evidence_control_bytes;
+            }
+        }
+        result
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -64,14 +191,24 @@ impl SigningDomain for Ack {
 pub struct TransportSettings {
     pub inbox_capacity: usize,
     pub outbox_capacity: usize,
+    /// Additional frames retained per peer when its writer mailbox is full.
+    /// These share the aggregate and per-peer byte budgets with queued frames.
+    pub max_deferred_frames_per_peer: usize,
     /// Unacknowledged frames retained by each writer, separate from its outbox.
     pub max_inflight_frames: usize,
     /// Encoded bytes in the window; one additional dequeued frame may be staged.
     pub max_inflight_bytes: usize,
+    /// Aggregate bytes retained by all peer outboxes/windows, not per peer.
+    pub max_outstanding_bytes: usize,
+    /// Payload bytes accepted into the shared protocol mailbox.
+    pub max_inbox_bytes: usize,
+    /// Aggregate unauthenticated socket frame buffers across all readers.
+    pub max_read_buffer_bytes: usize,
     /// Maximum wait for the oldest fully written frame's ACK; idle links do not expire.
     pub ack_timeout: Duration,
     pub connect_timeout: Duration,
     pub io_timeout: Duration,
+    pub frame_read_timeout: Duration,
     pub reconnect_delay: Duration,
     pub max_reader_connections: usize,
 }
@@ -81,14 +218,38 @@ impl Default for TransportSettings {
         Self {
             inbox_capacity: 4096,
             outbox_capacity: 4096,
+            max_deferred_frames_per_peer: 4096,
             max_inflight_frames: 64,
             max_inflight_bytes: 8 * 1024 * 1024,
+            max_outstanding_bytes: 128 * 1024 * 1024,
+            max_inbox_bytes: 32 * 1024 * 1024,
+            max_read_buffer_bytes: 32 * 1024 * 1024,
             ack_timeout: Duration::from_secs(2),
             connect_timeout: Duration::from_millis(100),
             io_timeout: Duration::from_millis(250),
+            frame_read_timeout: Duration::from_secs(2),
             reconnect_delay: Duration::from_millis(20),
             max_reader_connections: 64,
         }
+    }
+}
+
+impl TransportSettings {
+    pub fn for_committee(committee: &Committee) -> Self {
+        Self::for_profile(committee.resource_profile())
+    }
+
+    pub fn for_profile(profile: wire::ResourceProfile) -> Self {
+        let mut settings = Self::default();
+        if profile == wire::ResourceProfile::Complete32MibN31V1 {
+            settings.max_inflight_bytes = 2 * (profile.max_wire_bytes() + MAX_AUTH_BYTES + 8);
+            settings.max_outstanding_bytes = 1024 * 1024 * 1024;
+            settings.max_inbox_bytes = 128 * 1024 * 1024;
+            settings.max_read_buffer_bytes = 128 * 1024 * 1024;
+            settings.frame_read_timeout = Duration::from_secs(30);
+            settings.ack_timeout = Duration::from_secs(30);
+        }
+        settings
     }
 }
 
@@ -104,6 +265,11 @@ pub struct Received {
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct LayerCounters {
+    /// Accepted into the bounded transport, including deferred FIFO entries.
+    #[serde(default)]
+    pub scheduled_frames: u64,
+    #[serde(default)]
+    pub scheduled_payload_bytes: u64,
     pub enqueued_frames: u64,
     pub enqueued_payload_bytes: u64,
     /// Includes framing/authentication and bytes from partial or repeated writes.
@@ -119,7 +285,21 @@ pub struct LayerCounters {
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct PeerCounters {
     pub layers: BTreeMap<Layer, LayerCounters>,
+    #[serde(default)]
+    pub written_categories: WrittenCategories,
     pub outstanding_frames: u64,
+    #[serde(default)]
+    pub deferred_frames: u64,
+    #[serde(default)]
+    pub deferred_bytes: u64,
+    #[serde(default)]
+    pub maximum_deferred_frames: u64,
+    #[serde(default)]
+    pub maximum_deferred_bytes: u64,
+    #[serde(default)]
+    pub retained_outbound_bytes: u64,
+    #[serde(default)]
+    pub maximum_retained_outbound_bytes: u64,
     /// Retained window, including a frame currently being written or replayed.
     #[serde(default)]
     pub inflight_frames: u64,
@@ -147,18 +327,100 @@ pub struct PeerCounters {
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct TransportSnapshot {
     pub peers: BTreeMap<Id, PeerCounters>,
+    #[serde(default)]
+    pub written_category_boundary: String,
     /// All data-stream bytes read, including malformed/unauthenticated frames.
     pub data_bytes_read: u64,
     pub rejected_frames: u64,
     pub rejected_connections: u64,
     pub accepted_connections: u64,
     pub queue_full_failures: u64,
+    /// Mailbox saturation handled by retaining the exact frame for retry.
+    #[serde(default)]
+    pub deferred_accepts: u64,
+    #[serde(default)]
+    pub deferred_retry_blocked: u64,
+    /// Terminal exhaustion of the declared byte/frame envelope, never a drop.
+    #[serde(default)]
+    pub resource_exhaustions: u64,
+    #[serde(default)]
+    pub inbox_payload_bytes: u64,
+    #[serde(default)]
+    pub maximum_inbox_payload_bytes: u64,
+    #[serde(default)]
+    pub retained_outbound_bytes: u64,
+    #[serde(default)]
+    pub maximum_retained_outbound_bytes: u64,
+    #[serde(default)]
+    pub read_buffer_bytes: u64,
+    #[serde(default)]
+    pub maximum_read_buffer_bytes: u64,
+    #[serde(default)]
+    pub resource_profile: String,
+    #[serde(default)]
+    pub limits: BTreeMap<String, u64>,
+}
+
+#[derive(Debug)]
+struct ByteBudget {
+    used: AtomicUsize,
+    high_water: AtomicUsize,
+    maximum: usize,
+}
+
+impl ByteBudget {
+    fn new(maximum: usize) -> Arc<Self> {
+        Arc::new(Self {
+            used: AtomicUsize::new(0),
+            high_water: AtomicUsize::new(0),
+            maximum,
+        })
+    }
+
+    fn reserve(self: &Arc<Self>, bytes: usize) -> Option<ByteReservation> {
+        let previous = self
+            .used
+            .fetch_update(Ordering::AcqRel, Ordering::Acquire, |used| {
+                used.checked_add(bytes)
+                    .filter(|total| *total <= self.maximum)
+            })
+            .ok()?;
+        self.high_water
+            .fetch_max(previous + bytes, Ordering::Relaxed);
+        Some(ByteReservation {
+            budget: self.clone(),
+            bytes,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct ByteReservation {
+    budget: Arc<ByteBudget>,
+    bytes: usize,
+}
+
+impl Drop for ByteReservation {
+    fn drop(&mut self) {
+        self.budget.used.fetch_sub(self.bytes, Ordering::AcqRel);
+    }
 }
 
 struct QueuedFrame {
     auth: FrameAuth,
     bytes: Vec<u8>,
     payload_offset: usize,
+    accounting: PayloadAccounting,
+    reservation: Option<ByteReservation>,
+    peer_reservation: Option<ByteReservation>,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub struct SendReceipt {
+    pub sequence: u64,
+    /// False means successfully enqueued to the writer; true means retained
+    /// in the bounded FIFO until a later retry_deferred call succeeds.
+    pub deferred: bool,
 }
 
 type Stats = Arc<Mutex<TransportSnapshot>>;
@@ -172,6 +434,12 @@ pub struct Transport {
     incoming: Receiver<Received>,
     stop: Arc<AtomicBool>,
     stats: Stats,
+    outbound_budget: Arc<ByteBudget>,
+    peer_outbound_budgets: BTreeMap<Id, Arc<ByteBudget>>,
+    deferred: BTreeMap<Id, VecDeque<QueuedFrame>>,
+    max_deferred_frames_per_peer: usize,
+    retry_cursor: usize,
+    read_budget: Arc<ByteBudget>,
     handles: Vec<JoinHandle<()>>,
 }
 
@@ -183,6 +451,21 @@ impl Transport {
         addresses: Vec<SocketAddr>,
         settings: TransportSettings,
     ) -> Result<Self, String> {
+        let bind_address = *addresses
+            .get(id as usize)
+            .ok_or("invalid local transport identity")?;
+        Self::bind_at(id, committee, key, addresses, bind_address, settings)
+    }
+
+    /// Bind locally while peer destinations use their advertised addresses.
+    pub fn bind_at(
+        id: Id,
+        committee: Committee,
+        key: Keypair,
+        addresses: Vec<SocketAddr>,
+        bind_address: SocketAddr,
+        settings: TransportSettings,
+    ) -> Result<Self, String> {
         if addresses.len() != committee.keys.len()
             || committee.keys.get(id as usize).map(|k| k.to_bytes()) != Some(key.public.to_bytes())
         {
@@ -190,17 +473,23 @@ impl Transport {
         }
         if settings.inbox_capacity == 0
             || settings.outbox_capacity == 0
+            || settings.max_deferred_frames_per_peer == 0
             || settings.max_inflight_frames == 0
-            || settings.max_inflight_bytes < MAX_FRAME_BYTES + 4
+            || settings.max_inflight_bytes < maximum_frame_bytes(&committee) + 4
+            || settings.max_outstanding_bytes / (addresses.len() - 1).max(1)
+                < maximum_frame_bytes(&committee) + 4
+            || settings.max_inbox_bytes < committee.max_wire_bytes()
+            || settings.max_read_buffer_bytes < maximum_frame_bytes(&committee)
             || settings.ack_timeout.is_zero()
             || settings.max_reader_connections == 0
             || settings.connect_timeout.is_zero()
             || settings.io_timeout.is_zero()
+            || settings.frame_read_timeout.is_zero()
             || settings.reconnect_delay.is_zero()
         {
             return Err("transport bounds and timeouts must be positive".into());
         }
-        let listener = TcpListener::bind(addresses[id as usize]).map_err(|e| e.to_string())?;
+        let listener = TcpListener::bind(bind_address).map_err(|e| e.to_string())?;
         listener.set_nonblocking(true).map_err(|e| e.to_string())?;
         let (in_tx, incoming) = mpsc::sync_channel(settings.inbox_capacity);
         let key = Arc::new(key);
@@ -210,8 +499,62 @@ impl Transport {
                 .filter(|peer| *peer != id)
                 .map(|peer| (peer, PeerCounters::default()))
                 .collect(),
+            written_category_boundary: "disjoint successful stream writes, including partial attempts and replay: original BATCH payload; remaining evidence/control; complete FETCH/DATA repair; frame/auth/bundle framing and ACK overhead; excludes TCP/IP headers and kernel retransmissions".into(),
+            resource_profile: committee.resource_profile().identifier().to_string(),
+            limits: [
+                ("protocol_message_bytes", committee.max_wire_bytes() as u64),
+                (
+                    "frame_bytes_excluding_length_prefix",
+                    maximum_frame_bytes(&committee) as u64,
+                ),
+                ("inbox_frames", settings.inbox_capacity as u64),
+                ("outbox_frames_per_peer", settings.outbox_capacity as u64),
+                (
+                    "deferred_frames_per_peer",
+                    settings.max_deferred_frames_per_peer as u64,
+                ),
+                (
+                    "retained_outbound_bytes_per_peer",
+                    (settings.max_outstanding_bytes / (addresses.len() - 1).max(1)) as u64,
+                ),
+                (
+                    "inflight_frames_per_peer",
+                    settings.max_inflight_frames as u64,
+                ),
+                (
+                    "inflight_bytes_per_peer",
+                    settings.max_inflight_bytes as u64,
+                ),
+                (
+                    "retained_outbound_bytes",
+                    settings.max_outstanding_bytes as u64,
+                ),
+                ("inbox_payload_bytes", settings.max_inbox_bytes as u64),
+                ("read_buffer_bytes", settings.max_read_buffer_bytes as u64),
+                ("reader_connections", settings.max_reader_connections as u64),
+                (
+                    "frame_read_timeout_ms",
+                    settings.frame_read_timeout.as_millis() as u64,
+                ),
+                ("ack_timeout_ms", settings.ack_timeout.as_millis() as u64),
+            ]
+            .into_iter()
+            .map(|(name, value)| (name.to_string(), value))
+            .collect(),
             ..TransportSnapshot::default()
         }));
+        let outbound_budget = ByteBudget::new(settings.max_outstanding_bytes);
+        let peer_outbound_budgets = (0..addresses.len() as Id)
+            .filter(|peer| *peer != id)
+            .map(|peer| {
+                (
+                    peer,
+                    ByteBudget::new(settings.max_outstanding_bytes / (addresses.len() - 1).max(1)),
+                )
+            })
+            .collect();
+        let max_deferred_frames_per_peer = settings.max_deferred_frames_per_peer;
+        let read_budget = ByteBudget::new(settings.max_read_buffer_bytes);
         let mut outgoing = BTreeMap::new();
         let mut handles = Vec::new();
         for (peer, address) in addresses.into_iter().enumerate() {
@@ -237,9 +580,12 @@ impl Transport {
             settings,
             stop.clone(),
             stats.clone(),
+            read_budget.clone(),
         );
         handles.push(thread::spawn(move || {
-            accept_loop(id, listener, in_tx, args.0, args.1, args.2, args.3, args.4)
+            accept_loop(
+                id, listener, in_tx, args.0, args.1, args.2, args.3, args.4, args.5,
+            )
         }));
         Ok(Self {
             id,
@@ -250,17 +596,30 @@ impl Transport {
             incoming,
             stop,
             stats,
+            outbound_budget,
+            peer_outbound_budgets,
+            deferred: BTreeMap::new(),
+            max_deferred_frames_per_peer,
+            retry_cursor: 0,
+            read_budget,
             handles,
         })
     }
 
-    /// Enqueue independently for this peer. Saturation is an explicit error;
-    /// callers must fail the run or retry, never discard the protocol action.
-    pub fn send(&mut self, to: Id, layer: Layer, payload: Vec<u8>) -> Result<u64, String> {
+    fn prepare(
+        &self,
+        to: Id,
+        layer: Layer,
+        payload: Vec<u8>,
+        accounting: PayloadAccounting,
+    ) -> Result<QueuedFrame, String> {
         if self.stop.load(Ordering::Acquire) {
             return Err("transport is shut down".into());
         }
-        let tx = self.outgoing.get(&to).ok_or("invalid/self destination")?;
+        if !self.outgoing.contains_key(&to) {
+            return Err("invalid/self destination".into());
+        }
+        accounting.validate(layer, &payload)?;
         let sequence = self
             .sequences
             .get(&to)
@@ -268,7 +627,7 @@ impl Transport {
             .unwrap_or(0)
             .checked_add(1)
             .ok_or("transport sequence exhausted")?;
-        let frame = make_frame(
+        let mut frame = make_frame(
             &self.committee,
             &self.key,
             self.id,
@@ -277,38 +636,215 @@ impl Transport {
             layer,
             payload,
         )?;
+        frame.accounting = accounting;
+        frame.reservation = Some(self.outbound_budget.reserve(frame.bytes.len()).ok_or_else(
+            || {
+                self.stats.lock().unwrap().resource_exhaustions += 1;
+                "transport resource envelope exhausted: aggregate retained byte budget".to_string()
+            },
+        )?);
+        frame.peer_reservation = Some(
+            self.peer_outbound_budgets[&to]
+                .reserve(frame.bytes.len())
+                .ok_or_else(|| {
+                    self.stats.lock().unwrap().resource_exhaustions += 1;
+                    format!(
+                        "transport resource envelope exhausted: retained byte budget for peer {to}"
+                    )
+                })?,
+        );
+        Ok(frame)
+    }
+
+    fn enqueue(&self, frame: QueuedFrame) -> Result<(), TrySendError<QueuedFrame>> {
+        let to = frame.auth.to;
+        let layer = frame.auth.layer;
         let payload_length = frame.auth.payload_length as u64;
         // Hold this lock over the enqueue so worker counters cannot precede
         // logical enqueue, including the outstanding decrement on fast peers.
         let mut stats = self.stats.lock().unwrap();
-        match tx.try_send(frame) {
+        match self.outgoing[&to].try_send(frame) {
             Ok(()) => {
-                self.sequences.insert(to, sequence);
                 let peer = stats.peers.get_mut(&to).unwrap();
                 peer.outstanding_frames += 1;
                 let layer = peer.layers.entry(layer).or_default();
                 layer.enqueued_frames += 1;
                 layer.enqueued_payload_bytes += payload_length;
-                Ok(sequence)
+                Ok(())
             }
-            Err(TrySendError::Full(_)) => {
-                stats.queue_full_failures += 1;
-                Err(format!("bounded transport outbox for peer {to} is full"))
-            }
-            Err(TrySendError::Disconnected(_)) => Err(format!("writer for peer {to} stopped")),
+            Err(error) => Err(error),
         }
     }
 
+    fn scheduled(&mut self, to: Id, layer: Layer, sequence: u64, payload_length: u64) {
+        self.sequences.insert(to, sequence);
+        let mut stats = self.stats.lock().unwrap();
+        let layer = stats
+            .peers
+            .get_mut(&to)
+            .unwrap()
+            .layers
+            .entry(layer)
+            .or_default();
+        layer.scheduled_frames += 1;
+        layer.scheduled_payload_bytes += payload_length;
+    }
+
+    /// Immediate enqueue retained for callers that explicitly handle failure.
+    /// The process runtime uses send_or_defer so mailbox saturation is retried.
+    pub fn send(&mut self, to: Id, layer: Layer, payload: Vec<u8>) -> Result<u64, String> {
+        if self
+            .deferred
+            .get(&to)
+            .is_some_and(|queue| !queue.is_empty())
+        {
+            return Err(format!("peer {to} has an earlier deferred FIFO entry"));
+        }
+        let frame = self.prepare(to, layer, payload, PayloadAccounting::EvidenceControl)?;
+        let sequence = frame.auth.sequence;
+        let payload_length = frame.auth.payload_length as u64;
+        match self.enqueue(frame) {
+            Ok(()) => {
+                self.scheduled(to, layer, sequence, payload_length);
+                Ok(sequence)
+            }
+            Err(TrySendError::Full(_frame)) => {
+                self.stats.lock().unwrap().queue_full_failures += 1;
+                Err(format!("bounded transport outbox for peer {to} is full"))
+            }
+            Err(TrySendError::Disconnected(_frame)) => Err(format!("writer for peer {to} stopped")),
+        }
+    }
+
+    /// Own the exact signed frame until it is queued and acknowledged. A full
+    /// writer mailbox is temporary backpressure, not a lost protocol effect.
+    /// FIFO spans every layer; a new frame never overtakes a deferred one.
+    /// Exhausting the declared finite envelope is an explicit terminal error.
+    pub fn send_or_defer(
+        &mut self,
+        to: Id,
+        layer: Layer,
+        payload: Vec<u8>,
+    ) -> Result<SendReceipt, String> {
+        self.send_or_defer_accounted(to, layer, payload, PayloadAccounting::EvidenceControl)
+    }
+
+    /// Accounting metadata follows the exact frame through deferral/replay and
+    /// does not change serialized bytes, authenticated identity or sequencing.
+    pub fn send_or_defer_accounted(
+        &mut self,
+        to: Id,
+        layer: Layer,
+        payload: Vec<u8>,
+        accounting: PayloadAccounting,
+    ) -> Result<SendReceipt, String> {
+        let backlog = self.deferred.get(&to).map_or(0, VecDeque::len);
+        if backlog >= self.max_deferred_frames_per_peer {
+            self.stats.lock().unwrap().resource_exhaustions += 1;
+            return Err(format!(
+                "transport resource envelope exhausted: deferred frame budget for peer {to}"
+            ));
+        }
+        let frame = self.prepare(to, layer, payload, accounting)?;
+        let sequence = frame.auth.sequence;
+        let payload_length = frame.auth.payload_length as u64;
+        let pending = if backlog > 0 {
+            Some(frame)
+        } else {
+            match self.enqueue(frame) {
+                Ok(()) => None,
+                Err(TrySendError::Full(frame)) => Some(frame),
+                Err(TrySendError::Disconnected(_frame)) => {
+                    return Err(format!("writer for peer {to} stopped"))
+                }
+            }
+        };
+        let deferred = pending.is_some();
+        if let Some(frame) = pending {
+            let bytes = frame.bytes.len() as u64;
+            self.deferred.entry(to).or_default().push_back(frame);
+            let mut stats = self.stats.lock().unwrap();
+            stats.deferred_accepts += 1;
+            let peer = stats.peers.get_mut(&to).unwrap();
+            peer.deferred_frames += 1;
+            peer.deferred_bytes += bytes;
+            peer.maximum_deferred_frames = peer.maximum_deferred_frames.max(peer.deferred_frames);
+            peer.maximum_deferred_bytes = peer.maximum_deferred_bytes.max(peer.deferred_bytes);
+        }
+        self.scheduled(to, layer, sequence, payload_length);
+        Ok(SendReceipt { sequence, deferred })
+    }
+
+    /// One head per peer per call, with a rotating first peer. Never wait on a
+    /// blocked peer and never rebuild/re-sign a retained frame. The event loop
+    /// calls this before handling its next input, including during drain.
+    pub fn retry_deferred(&mut self) -> Result<usize, String> {
+        if self.stop.load(Ordering::Acquire) {
+            return Err("transport is shut down".into());
+        }
+        let peers: Vec<_> = self.outgoing.keys().copied().collect();
+        if peers.is_empty() {
+            return Ok(0);
+        }
+        let first = self.retry_cursor % peers.len();
+        self.retry_cursor = (first + 1) % peers.len();
+        let mut enqueued = 0;
+        for offset in 0..peers.len() {
+            let peer = peers[(first + offset) % peers.len()];
+            let Some(frame) = self.deferred.get_mut(&peer).and_then(VecDeque::pop_front) else {
+                continue;
+            };
+            let bytes = frame.bytes.len() as u64;
+            match self.enqueue(frame) {
+                Ok(()) => {
+                    enqueued += 1;
+                    let mut stats = self.stats.lock().unwrap();
+                    let counters = stats.peers.get_mut(&peer).unwrap();
+                    counters.deferred_frames -= 1;
+                    counters.deferred_bytes -= bytes;
+                }
+                Err(TrySendError::Full(frame)) => {
+                    self.deferred.get_mut(&peer).unwrap().push_front(frame);
+                    self.stats.lock().unwrap().deferred_retry_blocked += 1;
+                }
+                Err(TrySendError::Disconnected(frame)) => {
+                    self.deferred.get_mut(&peer).unwrap().push_front(frame);
+                    return Err(format!(
+                        "writer for peer {peer} stopped with a retained frame"
+                    ));
+                }
+            }
+        }
+        Ok(enqueued)
+    }
+
     pub fn recv_timeout(&self, timeout: Duration) -> Result<Received, RecvTimeoutError> {
-        self.incoming.recv_timeout(timeout)
+        let incoming = self.incoming.recv_timeout(timeout)?;
+        self.stats.lock().unwrap().inbox_payload_bytes -= incoming.payload.len() as u64;
+        Ok(incoming)
     }
 
     pub fn try_recv(&self) -> Result<Received, mpsc::TryRecvError> {
-        self.incoming.try_recv()
+        let incoming = self.incoming.try_recv()?;
+        self.stats.lock().unwrap().inbox_payload_bytes -= incoming.payload.len() as u64;
+        Ok(incoming)
     }
 
     pub fn snapshot(&self) -> TransportSnapshot {
-        self.stats.lock().unwrap().clone()
+        let mut snapshot = self.stats.lock().unwrap().clone();
+        for (peer, budget) in &self.peer_outbound_budgets {
+            let counters = snapshot.peers.get_mut(peer).unwrap();
+            counters.retained_outbound_bytes = budget.used.load(Ordering::Acquire) as u64;
+            counters.maximum_retained_outbound_bytes =
+                budget.high_water.load(Ordering::Acquire) as u64;
+        }
+        snapshot.retained_outbound_bytes = self.outbound_budget.used.load(Ordering::Acquire) as u64;
+        snapshot.maximum_retained_outbound_bytes =
+            self.outbound_budget.high_water.load(Ordering::Acquire) as u64;
+        snapshot.read_buffer_bytes = self.read_budget.used.load(Ordering::Acquire) as u64;
+        snapshot.maximum_read_buffer_bytes =
+            self.read_budget.high_water.load(Ordering::Acquire) as u64;
+        snapshot
     }
 
     /// Stop accepting/retrying, interrupt bounded I/O waits, and join workers.
@@ -316,6 +852,7 @@ impl Transport {
     pub fn shutdown(&mut self) {
         self.stop.store(true, Ordering::Release);
         self.outgoing.clear();
+        self.deferred.clear();
         for handle in self.handles.drain(..) {
             let _ = handle.join();
         }
@@ -345,7 +882,7 @@ fn make_frame(
     layer: Layer,
     payload: Vec<u8>,
 ) -> Result<QueuedFrame, String> {
-    if payload.len() > wire::MAX_WIRE_BYTES || sequence == 0 {
+    if payload.len() > committee.max_wire_bytes() || sequence == 0 {
         return Err("transport payload/sequence exceeds permitted bounds".into());
     }
     let auth = FrameAuth {
@@ -373,6 +910,9 @@ fn make_frame(
         auth,
         bytes,
         payload_offset,
+        accounting: PayloadAccounting::EvidenceControl,
+        reservation: None,
+        peer_reservation: None,
     })
 }
 
@@ -381,7 +921,7 @@ fn verify_frame(
     to: Id,
     bytes: &[u8],
 ) -> Result<(FrameAuth, Vec<u8>), String> {
-    if bytes.len() < 4 || bytes.len() > MAX_FRAME_BYTES {
+    if bytes.len() < 4 || bytes.len() > maximum_frame_bytes(committee) {
         return Err("transport frame length is invalid".into());
     }
     let auth_len = u32::from_le_bytes(bytes[..4].try_into().unwrap()) as usize;
@@ -397,7 +937,7 @@ fn verify_frame(
         || auth.to != to
         || auth.from == to
         || auth.sequence == 0
-        || payload.len() > wire::MAX_WIRE_BYTES
+        || payload.len() > committee.max_wire_bytes()
         || auth.payload_length as usize != payload.len()
         || auth.payload_hash != payload_hash(payload)
     {
@@ -420,9 +960,10 @@ fn stopped() -> io::Error {
 }
 
 fn write_counted(
-    stream: &mut TcpStream,
+    stream: &mut impl Write,
     bytes: &[u8],
     stop: &AtomicBool,
+    mut on_write: impl FnMut(usize, usize),
 ) -> (usize, io::Result<()>) {
     let mut written = 0;
     while written < bytes.len() {
@@ -436,7 +977,10 @@ fn write_counted(
                     Err(io::Error::new(io::ErrorKind::WriteZero, "TCP write zero")),
                 )
             }
-            Ok(n) => written += n,
+            Ok(n) => {
+                on_write(written, n);
+                written += n;
+            }
             Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
             Err(e) => return (written, Err(e)),
         }
@@ -453,12 +997,33 @@ fn read_frame(
     allow_idle: bool,
     on_read: &mut impl FnMut(usize),
 ) -> io::Result<Vec<u8>> {
+    read_frame_reserved(
+        stream,
+        maximum,
+        stop,
+        allow_idle,
+        on_read,
+        None,
+        Duration::from_secs(2),
+    )
+    .map(|(bytes, _)| bytes)
+}
+
+fn read_frame_reserved(
+    stream: &mut TcpStream,
+    maximum: usize,
+    stop: &AtomicBool,
+    allow_idle: bool,
+    on_read: &mut impl FnMut(usize),
+    budget: Option<&Arc<ByteBudget>>,
+    frame_timeout: Duration,
+) -> io::Result<(Vec<u8>, Option<ByteReservation>)> {
     let mut prefix = [0u8; 4];
     let mut position = 0;
     let mut deadline = if allow_idle {
         None
     } else {
-        Some(Instant::now() + Duration::from_secs(2))
+        Some(Instant::now() + frame_timeout)
     };
     while position < prefix.len() {
         if stop.load(Ordering::Acquire) {
@@ -481,7 +1046,7 @@ fn read_frame(
             Ok(n) => {
                 on_read(n);
                 position += n;
-                deadline.get_or_insert(Instant::now() + Duration::from_secs(2));
+                deadline.get_or_insert(Instant::now() + frame_timeout);
             }
             Err(e)
                 if matches!(
@@ -500,6 +1065,23 @@ fn read_frame(
             "frame too large",
         ));
     }
+    // Reserve before allocation; blocked readers apply TCP backpressure without
+    // consuming arbitrary declared lengths. Idle connections hold no byte lease.
+    let reservation = if let Some(budget) = budget {
+        loop {
+            if stop.load(Ordering::Acquire) {
+                return Err(stopped());
+            }
+            if let Some(reservation) = budget.reserve(length) {
+                break Some(reservation);
+            }
+            pause(stop, Duration::from_millis(1));
+        }
+    } else {
+        None
+    };
+    // Local backpressure is not a peer's stalled-body timeout.
+    deadline = Some(Instant::now() + frame_timeout);
     let mut bytes = vec![0; length];
     let mut position = 0;
     while position < length {
@@ -525,7 +1107,7 @@ fn read_frame(
             Err(e) => return Err(e),
         }
     }
-    Ok(bytes)
+    Ok((bytes, reservation))
 }
 
 fn pause(stop: &AtomicBool, duration: Duration) {
@@ -729,14 +1311,29 @@ fn writer(
                     &mut connection.as_mut().unwrap().stream,
                     &entry.frame.bytes,
                     &stop,
+                    |offset, count| {
+                        let mut stats = stats.lock().unwrap();
+                        let counters = stats.peers.get_mut(&peer).unwrap();
+                        counters
+                            .written_categories
+                            .add(entry.frame.accounting.written(
+                                entry.frame.payload_offset,
+                                entry.frame.auth.payload_length as usize,
+                                offset,
+                                count,
+                            ));
+                        let layer = counters.layers.entry(entry.frame.auth.layer).or_default();
+                        layer.data_bytes_written += count as u64;
+                        layer.payload_bytes_written += (offset + count)
+                            .saturating_sub(entry.frame.payload_offset)
+                            .saturating_sub(offset.saturating_sub(entry.frame.payload_offset))
+                            as u64;
+                    },
                 );
                 {
                     let mut stats = stats.lock().unwrap();
                     let counters = stats.peers.get_mut(&peer).unwrap();
                     let layer = counters.layers.entry(entry.frame.auth.layer).or_default();
-                    layer.data_bytes_written += written as u64;
-                    layer.payload_bytes_written +=
-                        written.saturating_sub(entry.frame.payload_offset) as u64;
                     if result.is_ok() {
                         layer.full_frames_written += 1;
                     } else {
@@ -876,6 +1473,7 @@ fn accept_loop(
     settings: TransportSettings,
     stop: Arc<AtomicBool>,
     stats: Stats,
+    read_budget: Arc<ByteBudget>,
 ) {
     let active = Arc::new(AtomicUsize::new(0));
     let received = Arc::new(Mutex::new(BTreeMap::<Id, u64>::new()));
@@ -908,9 +1506,15 @@ fn accept_loop(
                     stats.clone(),
                     received.clone(),
                     active.clone(),
+                    read_budget.clone(),
+                    settings.max_inbox_bytes,
+                    settings.frame_read_timeout,
                 );
                 readers.push(thread::spawn(move || {
-                    reader(id, socket, args.0, args.1, args.2, args.3, args.4, args.5);
+                    reader(
+                        id, socket, args.0, args.1, args.2, args.3, args.4, args.5, args.7, args.8,
+                        args.9,
+                    );
                     args.6.fetch_sub(1, Ordering::AcqRel);
                 }));
             }
@@ -938,12 +1542,23 @@ fn reader(
     stop: Arc<AtomicBool>,
     stats: Stats,
     received: Arc<Mutex<BTreeMap<Id, u64>>>,
+    read_budget: Arc<ByteBudget>,
+    max_inbox_bytes: usize,
+    frame_timeout: Duration,
 ) {
     let mut known_peer = None;
     while !stop.load(Ordering::Acquire) {
-        let bytes = match read_frame(&mut stream, MAX_FRAME_BYTES, &stop, true, &mut |n| {
-            stats.lock().unwrap().data_bytes_read += n as u64;
-        }) {
+        let (bytes, _reservation) = match read_frame_reserved(
+            &mut stream,
+            maximum_frame_bytes(&committee),
+            &stop,
+            true,
+            &mut |n| {
+                stats.lock().unwrap().data_bytes_read += n as u64;
+            },
+            Some(&read_budget),
+            frame_timeout,
+        ) {
             Ok(bytes) => bytes,
             Err(error) => {
                 if !stop.load(Ordering::Acquire) && error.kind() != io::ErrorKind::ConnectionAborted
@@ -1010,10 +1625,24 @@ fn reader(
                         return;
                     }
                     incoming.received_at = Instant::now();
+                    let mut counters = stats.lock().unwrap();
+                    let payload_bytes = incoming.payload.len() as u64;
+                    if counters.inbox_payload_bytes + payload_bytes > max_inbox_bytes as u64 {
+                        drop(counters);
+                        pause(&stop, Duration::from_millis(1));
+                        continue;
+                    }
                     match inbox.try_send(incoming) {
-                        Ok(()) => break,
+                        Ok(()) => {
+                            counters.inbox_payload_bytes += payload_bytes;
+                            counters.maximum_inbox_payload_bytes = counters
+                                .maximum_inbox_payload_bytes
+                                .max(counters.inbox_payload_bytes);
+                            break;
+                        }
                         Err(TrySendError::Full(value)) => {
                             incoming = value;
+                            drop(counters);
                             pause(&stop, Duration::from_millis(1));
                         }
                         Err(TrySendError::Disconnected(_)) => return,
@@ -1047,14 +1676,16 @@ fn reader(
         let mut bytes = Vec::with_capacity(encoded.len() + 4);
         bytes.extend_from_slice(&(encoded.len() as u32).to_le_bytes());
         bytes.extend_from_slice(&encoded);
-        let (written, result) = write_counted(&mut stream, &bytes, &stop);
-        stats
-            .lock()
-            .unwrap()
-            .peers
-            .get_mut(&auth.from)
-            .unwrap()
-            .ack_bytes_written += written as u64;
+        let (_, result) = write_counted(&mut stream, &bytes, &stop, |_, count| {
+            let mut stats = stats.lock().unwrap();
+            let counters = stats.peers.get_mut(&auth.from).unwrap();
+            counters.ack_bytes_written += count as u64;
+            counters.written_categories.add(WrittenCategories {
+                transport_overhead_bytes: count as u64,
+                total_written_bytes: count as u64,
+                ..WrittenCategories::default()
+            });
+        });
         if result.is_err() {
             break;
         }
@@ -1071,6 +1702,179 @@ mod tests {
             (0..4).map(|i| wire::fixture_key(i).public).collect(),
         )
         .unwrap()
+    }
+
+    fn assert_category_conservation(peer: &PeerCounters) {
+        let bytes = &peer.written_categories;
+        assert_eq!(
+            bytes.total_written_bytes,
+            bytes.payload_bytes
+                + bytes.evidence_control_bytes
+                + bytes.repair_bytes
+                + bytes.transport_overhead_bytes
+        );
+        assert_eq!(
+            bytes.total_written_bytes,
+            peer.layers
+                .values()
+                .map(|layer| layer.data_bytes_written)
+                .sum::<u64>()
+                + peer.ack_bytes_written
+        );
+    }
+
+    fn bundle_payload(parts: &[&[u8]]) -> Vec<u8> {
+        let mut bytes = (parts.len() as u32).to_le_bytes().to_vec();
+        for part in parts {
+            bytes.extend_from_slice(&(part.len() as u32).to_le_bytes());
+            bytes.extend_from_slice(part);
+        }
+        bytes
+    }
+
+    #[test]
+    fn written_categories_partition_every_partial_range_and_bundle_boundary() {
+        let bundle = bundle_payload(&[&[1, 2, 3], &[4, 5]]);
+        // Oracle labels are independent byte-by-byte expected field layouts.
+        // 0: overhead, 1: original payload, 2: evidence/control, 3: repair.
+        for (accounting, layer, payload, labels) in [
+            (
+                PayloadAccounting::EvidenceControl,
+                Layer::Ordering,
+                vec![0; 9],
+                vec![2; 9],
+            ),
+            (
+                PayloadAccounting::BatchPayloadTail { bytes: 5 },
+                Layer::Dissemination,
+                vec![0; 12],
+                [vec![2; 7], vec![1; 5]].concat(),
+            ),
+            (
+                PayloadAccounting::Repair,
+                Layer::Dissemination,
+                vec![0; 7],
+                vec![3; 7],
+            ),
+            (
+                PayloadAccounting::OrderingBundle {
+                    member_lengths: vec![3, 2],
+                },
+                Layer::OrderingBundle,
+                bundle,
+                [vec![0; 8], vec![2; 3], vec![0; 4], vec![2; 2]].concat(),
+            ),
+        ] {
+            accounting.validate(layer, &payload).unwrap();
+            let labels = [vec![0; 23], labels].concat();
+            for start in 0..=labels.len() {
+                for end in start..=labels.len() {
+                    let bytes = accounting.written(23, payload.len(), start, end - start);
+                    let expected = |label| {
+                        labels[start..end]
+                            .iter()
+                            .filter(|value| **value == label)
+                            .count() as u64
+                    };
+                    assert_eq!(bytes.payload_bytes, expected(1));
+                    assert_eq!(bytes.evidence_control_bytes, expected(2));
+                    assert_eq!(bytes.repair_bytes, expected(3));
+                    assert_eq!(bytes.transport_overhead_bytes, expected(0));
+                    assert_eq!(bytes.total_written_bytes, (end - start) as u64);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn written_categories_reject_unbounded_or_inexact_bundle_metadata() {
+        let valid = bundle_payload(&[&[1, 2, 3], &[4, 5]]);
+        for member_lengths in [vec![], vec![3], vec![4, 1], vec![u32::MAX, 2], vec![0; 33]] {
+            assert!(PayloadAccounting::OrderingBundle { member_lengths }
+                .validate(Layer::OrderingBundle, &valid)
+                .is_err());
+        }
+        assert!(PayloadAccounting::BatchPayloadTail { bytes: 8 }
+            .validate(Layer::Dissemination, &[0; 7])
+            .is_err());
+        assert!(PayloadAccounting::Repair
+            .validate(Layer::Ordering, &[0; 7])
+            .is_err());
+    }
+
+    #[test]
+    fn actual_write_observer_charges_only_successful_partial_attempts_and_replay() {
+        struct ShortWriter {
+            remaining: usize,
+            interrupt: bool,
+        }
+        impl Write for ShortWriter {
+            fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+                if self.interrupt {
+                    self.interrupt = false;
+                    return Err(io::ErrorKind::Interrupted.into());
+                }
+                if self.remaining == 0 {
+                    return Err(io::ErrorKind::BrokenPipe.into());
+                }
+                let n = bytes.len().min(2).min(self.remaining);
+                self.remaining -= n;
+                Ok(n)
+            }
+            fn flush(&mut self) -> io::Result<()> {
+                Ok(())
+            }
+        }
+        let frame = [0; 12]; // 5 transport bytes, 2 evidence bytes, 5 payload bytes.
+        let accounting = PayloadAccounting::BatchPayloadTail { bytes: 5 };
+        let mut categories = WrittenCategories::default();
+        let stop = AtomicBool::new(false);
+        let (written, result) = write_counted(
+            &mut ShortWriter {
+                remaining: 7,
+                interrupt: true,
+            },
+            &frame,
+            &stop,
+            |start, count| categories.add(accounting.written(5, 7, start, count)),
+        );
+        assert_eq!(written, 7);
+        assert_eq!(result.unwrap_err().kind(), io::ErrorKind::BrokenPipe);
+        assert_eq!(categories.total_written_bytes, 7);
+        let (written, result) = write_counted(&mut Vec::new(), &frame, &stop, |start, count| {
+            categories.add(accounting.written(5, 7, start, count))
+        });
+        result.unwrap();
+        assert_eq!(written, 12);
+        assert_eq!(
+            categories,
+            WrittenCategories {
+                payload_bytes: 5,
+                evidence_control_bytes: 4,
+                repair_bytes: 0,
+                transport_overhead_bytes: 10,
+                total_written_bytes: 19
+            }
+        );
+    }
+
+    #[test]
+    fn original_batch_payload_tail_matches_canonical_serialization() {
+        let c = committee();
+        let mut store = crate::batch::BatchStore::new(c.clone(), 4).unwrap();
+        let record = store
+            .produce(&wire::fixture_key(0), 0, vec![11, 22, 33])
+            .unwrap();
+        let payload_bytes = record.payload.len();
+        let bytes = c.encode(&crate::composed::Message::Batch(record)).unwrap();
+        assert_eq!(&bytes[bytes.len() - payload_bytes..], &[11, 22, 33]);
+        let accounting = PayloadAccounting::BatchPayloadTail {
+            bytes: payload_bytes,
+        };
+        accounting.validate(Layer::Dissemination, &bytes).unwrap();
+        let written = accounting.written(0, bytes.len(), 0, bytes.len());
+        assert_eq!(written.payload_bytes, 3);
+        assert_eq!(written.evidence_control_bytes, (bytes.len() - 3) as u64);
     }
 
     #[test]
@@ -1166,6 +1970,394 @@ mod tests {
         .is_err());
         assert!(verify_frame(&c, 1, &frame.bytes[4..frame.bytes.len() - 1]).is_err());
         assert!(verify_frame(&c, 1, &[255; 20]).is_err());
+    }
+
+    #[test]
+    fn selected_profile_authenticates_larger_complete_frames() {
+        let c = Committee::with_profile(
+            [71; 32],
+            (0..31).map(|id| wire::fixture_key(id).public).collect(),
+            wire::ResourceProfile::Complete32MibN31V1,
+        )
+        .unwrap();
+        let settings = TransportSettings::for_committee(&c);
+        assert!(settings.max_inflight_bytes >= 2 * (maximum_frame_bytes(&c) + 4));
+        assert!(settings.max_read_buffer_bytes >= maximum_frame_bytes(&c));
+        let frame = make_frame(
+            &c,
+            &wire::fixture_key(0),
+            0,
+            1,
+            1,
+            Layer::Ordering,
+            vec![9; wire::MAX_WIRE_BYTES + 1],
+        )
+        .unwrap();
+        assert_eq!(
+            verify_frame(&c, 1, &frame.bytes[4..]).unwrap().1.len(),
+            wire::MAX_WIRE_BYTES + 1
+        );
+        assert!(verify_frame(&committee(), 1, &frame.bytes[4..]).is_err());
+        let mut changed = frame.bytes.clone();
+        *changed.last_mut().unwrap() ^= 1;
+        assert!(verify_frame(&c, 1, &changed[4..]).is_err());
+    }
+
+    #[test]
+    fn byte_leases_cover_queued_staged_and_pending_lifetimes() {
+        let budget = ByteBudget::new(10);
+        let first = budget.reserve(6).unwrap();
+        assert!(budget.reserve(5).is_none());
+        let second = budget.reserve(4).unwrap();
+        assert!(budget.reserve(usize::MAX).is_none());
+        assert_eq!(budget.used.load(Ordering::Acquire), 10);
+        drop(first);
+        assert_eq!(budget.used.load(Ordering::Acquire), 4);
+        drop(second);
+        assert_eq!(budget.used.load(Ordering::Acquire), 0);
+        assert_eq!(budget.high_water.load(Ordering::Acquire), 10);
+        let c = committee();
+        let mut frame =
+            make_frame(&c, &wire::fixture_key(0), 0, 1, 1, Layer::Ordering, vec![9]).unwrap();
+        let frame_budget = ByteBudget::new(frame.bytes.len());
+        frame.reservation = frame_budget.reserve(frame.bytes.len());
+        let pending = PendingFrame {
+            frame,
+            attempted: false,
+            sent_at: None,
+        };
+        assert!(frame_budget.reserve(1).is_none());
+        drop(pending);
+        assert_eq!(frame_budget.used.load(Ordering::Acquire), 0);
+    }
+
+    #[test]
+    fn byte_budget_is_shared_across_readers_and_peers() {
+        let budget = ByteBudget::new(128);
+        let threads: Vec<_> = (0..8)
+            .map(|_| {
+                let budget = budget.clone();
+                thread::spawn(move || {
+                    for _ in 0..1000 {
+                        if let Some(_lease) = budget.reserve(32) {
+                            assert!(budget.used.load(Ordering::Acquire) <= 128);
+                            thread::yield_now();
+                        }
+                    }
+                })
+            })
+            .collect();
+        for handle in threads {
+            handle.join().unwrap();
+        }
+        assert_eq!(budget.used.load(Ordering::Acquire), 0);
+        assert!(budget.high_water.load(Ordering::Acquire) <= 128);
+    }
+
+    fn mailbox_transport(
+        deferred_limit: usize,
+        peer_byte_limit: usize,
+    ) -> (Transport, BTreeMap<Id, Receiver<QueuedFrame>>) {
+        let committee = committee();
+        let mut outgoing = BTreeMap::new();
+        let mut receivers = BTreeMap::new();
+        for peer in 1..4 {
+            let (sender, receiver) = mpsc::sync_channel(1);
+            outgoing.insert(peer, sender);
+            receivers.insert(peer, receiver);
+        }
+        let (_, incoming) = mpsc::sync_channel(1);
+        let transport = Transport {
+            id: 0,
+            committee,
+            key: Arc::new(wire::fixture_key(0)),
+            outgoing,
+            sequences: BTreeMap::new(),
+            incoming,
+            stop: Arc::new(AtomicBool::new(false)),
+            stats: Arc::new(Mutex::new(TransportSnapshot {
+                peers: (1..4).map(|peer| (peer, PeerCounters::default())).collect(),
+                ..TransportSnapshot::default()
+            })),
+            outbound_budget: ByteBudget::new(peer_byte_limit * 3),
+            peer_outbound_budgets: (1..4)
+                .map(|peer| (peer, ByteBudget::new(peer_byte_limit)))
+                .collect(),
+            deferred: BTreeMap::new(),
+            max_deferred_frames_per_peer: deferred_limit,
+            retry_cursor: 0,
+            read_budget: ByteBudget::new(4096),
+            handles: vec![],
+        };
+        (transport, receivers)
+    }
+
+    #[test]
+    fn deferred_retry_keeps_exact_cross_layer_fifo_and_serves_healthy_peer() {
+        let (mut sender, receivers) = mailbox_transport(8, 8192);
+        assert!(
+            !sender
+                .send_or_defer(1, Layer::Ordering, vec![1])
+                .unwrap()
+                .deferred
+        );
+        assert!(
+            sender
+                .send_or_defer(1, Layer::Dissemination, vec![2])
+                .unwrap()
+                .deferred
+        );
+        assert!(
+            sender
+                .send_or_defer(1, Layer::OrderingBundle, vec![3])
+                .unwrap()
+                .deferred
+        );
+        let exact_second = sender.deferred[&1][0].bytes.clone();
+        sender.send_or_defer(2, Layer::Ordering, vec![4]).unwrap();
+        sender
+            .send_or_defer(2, Layer::Dissemination, vec![5])
+            .unwrap();
+        drop(receivers[&2].recv().unwrap());
+        assert_eq!(sender.retry_deferred().unwrap(), 1);
+        let healthy = receivers[&2].recv().unwrap();
+        assert_eq!(healthy.auth.sequence, 2);
+        assert_eq!(&healthy.bytes[healthy.payload_offset..], &[5]);
+        assert_eq!(sender.deferred[&1][0].bytes, exact_second);
+        // Repeated attempts while full retain the same signed bytes and sequence.
+        for _ in 0..3 {
+            assert_eq!(sender.retry_deferred().unwrap(), 0);
+        }
+        assert_eq!(sender.deferred[&1][0].bytes, exact_second);
+        let first = receivers[&1].recv().unwrap();
+        assert_eq!(first.auth.sequence, 1);
+        drop(first);
+        assert_eq!(sender.retry_deferred().unwrap(), 1);
+        let second = receivers[&1].recv().unwrap();
+        assert_eq!(second.bytes, exact_second);
+        assert_eq!(second.auth.layer, Layer::Dissemination);
+        drop(second);
+        assert_eq!(sender.retry_deferred().unwrap(), 1);
+        let third = receivers[&1].recv().unwrap();
+        assert_eq!(third.auth.sequence, 3);
+        assert_eq!(third.auth.layer, Layer::OrderingBundle);
+        let snapshot = sender.snapshot();
+        assert_eq!(snapshot.peers[&1].deferred_frames, 0);
+        assert_eq!(snapshot.peers[&1].deferred_bytes, 0);
+        assert_eq!(snapshot.peers[&1].maximum_deferred_frames, 2);
+        assert_eq!(snapshot.deferred_accepts, 3);
+        assert_eq!(snapshot.resource_exhaustions, 0);
+        assert_eq!(snapshot.queue_full_failures, 0);
+        assert_eq!(
+            snapshot.peers[&1]
+                .layers
+                .values()
+                .map(|l| l.scheduled_frames)
+                .sum::<u64>(),
+            3
+        );
+        assert_eq!(
+            snapshot.peers[&1]
+                .layers
+                .values()
+                .map(|l| l.enqueued_frames)
+                .sum::<u64>(),
+            3
+        );
+        drop(third);
+        drop(healthy);
+        assert_eq!(sender.snapshot().retained_outbound_bytes, 0);
+    }
+
+    #[test]
+    fn deferred_frames_retain_actual_wire_classification() {
+        let (mut sender, receivers) = mailbox_transport(8, 8192);
+        sender.send_or_defer(1, Layer::Ordering, vec![1]).unwrap();
+        let receipt = sender
+            .send_or_defer_accounted(
+                1,
+                Layer::Dissemination,
+                vec![2; 12],
+                PayloadAccounting::BatchPayloadTail { bytes: 5 },
+            )
+            .unwrap();
+        assert!(receipt.deferred);
+        assert_eq!(
+            sender.snapshot().peers[&1]
+                .written_categories
+                .total_written_bytes,
+            0
+        );
+        drop(receivers[&1].recv().unwrap());
+        sender.retry_deferred().unwrap();
+        let frame = receivers[&1].recv().unwrap();
+        let categories = frame
+            .accounting
+            .written(frame.payload_offset, 12, 0, frame.bytes.len());
+        assert_eq!(categories.payload_bytes, 5);
+        assert_eq!(categories.evidence_control_bytes, 7);
+        assert_eq!(categories.total_written_bytes, frame.bytes.len() as u64);
+    }
+
+    #[test]
+    fn deferred_frame_exhaustion_is_explicit_and_preserves_accepted_frames() {
+        let (mut sender, receivers) = mailbox_transport(1, 8192);
+        sender.send_or_defer(1, Layer::Ordering, vec![1]).unwrap();
+        sender.send_or_defer(1, Layer::Ordering, vec![2]).unwrap();
+        let retained = sender.snapshot().retained_outbound_bytes;
+        let error = sender
+            .send_or_defer(1, Layer::Ordering, vec![3])
+            .unwrap_err();
+        assert!(error.contains("resource envelope exhausted"));
+        assert_eq!(sender.snapshot().retained_outbound_bytes, retained);
+        assert_eq!(sender.sequences[&1], 2);
+        assert_eq!(sender.snapshot().resource_exhaustions, 1);
+        drop(receivers[&1].recv().unwrap());
+        sender.retry_deferred().unwrap();
+        let second = receivers[&1].recv().unwrap();
+        assert_eq!(second.auth.sequence, 2);
+        assert_eq!(&second.bytes[second.payload_offset..], &[2]);
+        assert_eq!(
+            sender.snapshot().peers[&1].layers[&Layer::Ordering].scheduled_frames,
+            2
+        );
+    }
+
+    #[test]
+    fn peer_byte_quota_retains_space_for_healthy_peers_and_releases_on_drain() {
+        let c = committee();
+        let size = make_frame(
+            &c,
+            &wire::fixture_key(0),
+            0,
+            1,
+            1,
+            Layer::Ordering,
+            vec![9; 100],
+        )
+        .unwrap()
+        .bytes
+        .len();
+        let (mut sender, receivers) = mailbox_transport(100, size * 2);
+        sender
+            .send_or_defer(1, Layer::Ordering, vec![9; 100])
+            .unwrap();
+        sender
+            .send_or_defer(1, Layer::Ordering, vec![9; 100])
+            .unwrap();
+        let error = sender
+            .send_or_defer(1, Layer::Ordering, vec![9; 100])
+            .unwrap_err();
+        assert!(error.contains("retained byte budget for peer 1"));
+        sender
+            .send_or_defer(2, Layer::Ordering, vec![8; 100])
+            .unwrap();
+        let snapshot = sender.snapshot();
+        assert_eq!(
+            snapshot.peers[&1].retained_outbound_bytes,
+            (size * 2) as u64
+        );
+        assert!(snapshot.peers[&1].maximum_retained_outbound_bytes <= (size * 2) as u64);
+        assert!(snapshot.maximum_retained_outbound_bytes <= (size * 6) as u64);
+        drop(receivers[&1].recv().unwrap());
+        sender.retry_deferred().unwrap();
+        drop(receivers[&1].recv().unwrap());
+        drop(receivers[&2].recv().unwrap());
+        assert_eq!(sender.snapshot().retained_outbound_bytes, 0);
+        assert_eq!(sender.snapshot().peers[&1].retained_outbound_bytes, 0);
+    }
+
+    #[test]
+    fn stopped_writer_retains_deferred_frame_and_reports_terminal_failure() {
+        let (mut sender, mut receivers) = mailbox_transport(8, 8192);
+        sender.send_or_defer(1, Layer::Ordering, vec![1]).unwrap();
+        sender.send_or_defer(1, Layer::Ordering, vec![2]).unwrap();
+        let exact = sender.deferred[&1][0].bytes.clone();
+        drop(receivers.remove(&1));
+        assert!(sender
+            .retry_deferred()
+            .unwrap_err()
+            .contains("stopped with a retained frame"));
+        assert_eq!(sender.deferred[&1][0].bytes, exact);
+        assert_eq!(sender.snapshot().peers[&1].deferred_frames, 1);
+    }
+
+    #[test]
+    #[ignore = "requires permission to bind localhost TCP sockets"]
+    fn deferred_tcp_peer_recovers_without_blocking_healthy_peer() {
+        let c = committee();
+        let addresses = free_addresses();
+        let settings = TransportSettings {
+            outbox_capacity: 1,
+            max_inflight_frames: 1,
+            max_deferred_frames_per_peer: 16,
+            ..TransportSettings::default()
+        };
+        let mut sender = Transport::bind(
+            0,
+            c.clone(),
+            wire::fixture_key(0),
+            addresses.clone(),
+            settings.clone(),
+        )
+        .unwrap();
+        let mut healthy = Transport::bind(
+            2,
+            c.clone(),
+            wire::fixture_key(2),
+            addresses.clone(),
+            settings.clone(),
+        )
+        .unwrap();
+        sender.send_or_defer(1, Layer::Ordering, vec![1]).unwrap();
+        wait_for(|| sender.snapshot().peers[&1].connection_failures > 0);
+        for sequence in 2..=8 {
+            let layer = if sequence % 2 == 0 {
+                Layer::Dissemination
+            } else {
+                Layer::Ordering
+            };
+            sender.send_or_defer(1, layer, vec![sequence]).unwrap();
+        }
+        assert!(sender.snapshot().peers[&1].deferred_frames > 0);
+        sender.send_or_defer(2, Layer::Ordering, vec![99]).unwrap();
+        assert_eq!(
+            healthy
+                .recv_timeout(Duration::from_secs(3))
+                .unwrap()
+                .payload,
+            vec![99]
+        );
+        let mut recovered =
+            Transport::bind(1, c, wire::fixture_key(1), addresses, settings).unwrap();
+        let mut received = Vec::new();
+        wait_for(|| {
+            sender.retry_deferred().unwrap();
+            while let Ok(frame) = recovered.try_recv() {
+                received.push(frame);
+            }
+            received.len() == 8
+                && sender.snapshot().peers[&1].outstanding_frames == 0
+                && sender.snapshot().peers[&1].deferred_frames == 0
+        });
+        for (index, frame) in received.iter().enumerate() {
+            assert_eq!(frame.sequence, index as u64 + 1);
+            assert_eq!(frame.payload, vec![index as u8 + 1]);
+        }
+        let snapshot = sender.snapshot();
+        assert_eq!(snapshot.resource_exhaustions, 0);
+        assert!(
+            snapshot.maximum_retained_outbound_bytes <= snapshot.limits["retained_outbound_bytes"]
+        );
+        for peer in snapshot.peers.values() {
+            assert!(
+                peer.maximum_retained_outbound_bytes
+                    <= snapshot.limits["retained_outbound_bytes_per_peer"]
+            );
+        }
+        sender.shutdown();
+        healthy.shutdown();
+        recovered.shutdown();
     }
 
     #[test]
@@ -1425,14 +2617,120 @@ mod tests {
             TransportSettings::default(),
         )
         .unwrap();
-        sender.send(1, Layer::Ordering, vec![44; 16]).unwrap();
+        sender
+            .send_or_defer_accounted(
+                1,
+                Layer::Dissemination,
+                vec![44; 16],
+                PayloadAccounting::BatchPayloadTail { bytes: 7 },
+            )
+            .unwrap();
         wait_for(|| sender.snapshot().peers[&1].outstanding_frames == 0);
         let counters = &sender.snapshot().peers[&1];
         assert_eq!(counters.retries, 1);
         assert_eq!(counters.ack_failures, 1);
-        assert_eq!(counters.layers[&Layer::Ordering].full_frames_written, 2);
-        assert_eq!(counters.layers[&Layer::Ordering].payload_bytes_written, 32);
+        assert_eq!(
+            counters.layers[&Layer::Dissemination].full_frames_written,
+            2
+        );
+        assert_eq!(
+            counters.layers[&Layer::Dissemination].payload_bytes_written,
+            32
+        );
+        assert_eq!(counters.written_categories.payload_bytes, 14);
+        assert_eq!(counters.written_categories.evidence_control_bytes, 18);
+        assert_category_conservation(counters);
         sender.shutdown();
         server.join().unwrap();
+    }
+
+    #[test]
+    #[ignore = "requires permission to bind localhost TCP sockets"]
+    fn real_tcp_written_categories_reconcile_payload_repair_bundles_and_acks() {
+        let c = committee();
+        let addresses = free_addresses();
+        let mut first = Transport::bind(
+            0,
+            c.clone(),
+            wire::fixture_key(0),
+            addresses.clone(),
+            TransportSettings::default(),
+        )
+        .unwrap();
+        let mut second = Transport::bind(
+            1,
+            c,
+            wire::fixture_key(1),
+            addresses,
+            TransportSettings::default(),
+        )
+        .unwrap();
+        let bundle = bundle_payload(&[&[1, 2, 3], &[4, 5]]);
+        first
+            .send_or_defer_accounted(
+                1,
+                Layer::Dissemination,
+                vec![9; 12],
+                PayloadAccounting::BatchPayloadTail { bytes: 5 },
+            )
+            .unwrap();
+        first
+            .send_or_defer_accounted(
+                1,
+                Layer::OrderingBundle,
+                bundle,
+                PayloadAccounting::OrderingBundle {
+                    member_lengths: vec![3, 2],
+                },
+            )
+            .unwrap();
+        second
+            .send_or_defer_accounted(
+                0,
+                Layer::Dissemination,
+                vec![8; 19],
+                PayloadAccounting::Repair,
+            )
+            .unwrap();
+        for sequence in 1..=2 {
+            assert_eq!(
+                second
+                    .recv_timeout(Duration::from_secs(3))
+                    .unwrap()
+                    .sequence,
+                sequence
+            );
+        }
+        assert_eq!(
+            first.recv_timeout(Duration::from_secs(3)).unwrap().payload,
+            vec![8; 19]
+        );
+        wait_for(|| {
+            first.snapshot().peers[&1].outstanding_frames == 0
+                && second.snapshot().peers[&0].outstanding_frames == 0
+        });
+        let first_snapshot = first.snapshot();
+        let second_snapshot = second.snapshot();
+        let a = &first_snapshot.peers[&1];
+        let b = &second_snapshot.peers[&0];
+        assert_category_conservation(a);
+        assert_category_conservation(b);
+        assert_eq!(a.written_categories.payload_bytes, 5);
+        assert_eq!(a.written_categories.evidence_control_bytes, 7 + 5);
+        assert_eq!(a.written_categories.repair_bytes, 0);
+        assert_eq!(b.written_categories.repair_bytes, 19);
+        assert_eq!(b.written_categories.payload_bytes, 0);
+        assert_eq!(b.written_categories.evidence_control_bytes, 0);
+        assert_eq!(a.ack_bytes_written, b.ack_bytes_read);
+        assert_eq!(b.ack_bytes_written, a.ack_bytes_read);
+        assert_eq!(
+            a.written_categories.total_written_bytes + b.written_categories.total_written_bytes,
+            first_snapshot.data_bytes_read
+                + second_snapshot.data_bytes_read
+                + a.ack_bytes_read
+                + b.ack_bytes_read
+        );
+        first.shutdown();
+        second.shutdown();
     }
 }

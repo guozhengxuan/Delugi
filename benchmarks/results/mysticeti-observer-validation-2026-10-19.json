@@ -1,0 +1,261 @@
+{
+  "schema": 1,
+  "status": "passed_local_observer_validation",
+  "date": "2026-10-19",
+  "protocol": "mysticeti",
+  "added_one_way_delay_ms": 0,
+  "configured_bound_ms": 100,
+  "binary": {
+    "path": "benchmarks/.cache/mysticeti-target/release/mysticeti",
+    "sha256": "6e53416ecd9731fa499073e09cb8a1a39cd9cf6059d592dbfbe5695733c9b604",
+    "bytes": 277169400,
+    "retained": "results/local/mysticeti-observer-source-20261019/retained-new/mysticeti"
+  },
+  "build_stamp": {
+    "path": "benchmarks/.cache/mysticeti-target/build-provenance.json",
+    "sha256": "3b226cdf24f2674bdd3def529182be2c7f656ae62883bc3fcc20033a4d28926f",
+    "retained": "results/local/mysticeti-observer-source-20261019/retained-new/build-provenance.json"
+  },
+  "source_freeze": {
+    "path": "results/local/mysticeti-observer-source-20261019/source-freeze-manifest.json",
+    "sha256": "aff0c36e14d30c0701de28df196bf66466a1b6963bd0b284bf6fa90906a8a4ae",
+    "bytes": 5549
+  },
+  "source_snapshot": "results/local/mysticeti-observer-source-20261019/snapshot-reviewed",
+  "tests": {
+    "native_core": 62,
+    "receipt_tests_included_in_core": 3,
+    "ignored": 0,
+    "baseline_python": 81,
+    "shared_cohort_python": 46,
+    "native_attempts": "Sandbox socket failures and inherited-proxy smoke failures retained; final offline proxy-isolated core suite passed without source changes."
+  },
+  "functional": [
+    {
+      "kind": "healthy",
+      "mode": "full",
+      "planned": 8,
+      "all_correct_completed": 8,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019/functional-healthy-full/manifest.json",
+      "manifest_sha256": "8207b74fcad1e61eeb611ae84e5387138f7042837e1780f911e978da3450b26e"
+    },
+    {
+      "kind": "healthy",
+      "mode": "compact",
+      "planned": 8,
+      "all_correct_completed": 8,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019/functional-healthy-compact/manifest.json",
+      "manifest_sha256": "1e4b36010dfc6e1168b5fd3c2bb2eafbc45f81a50391b98dcb1c2730b9698607"
+    },
+    {
+      "kind": "empty",
+      "mode": "full",
+      "planned": 0,
+      "all_correct_completed": 0,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019/functional-empty-full/manifest.json",
+      "manifest_sha256": "9263e8179bbb9ab8bce4c0b7b552a77c92393c5a838531d2d24c4f3240a83b07"
+    },
+    {
+      "kind": "empty",
+      "mode": "compact",
+      "planned": 0,
+      "all_correct_completed": 0,
+      "unfinished": 0,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019/functional-empty-compact/manifest.json",
+      "manifest_sha256": "97024fd5ff342371d38bb85c5cf91e98f2867cc7db0b4c3296146967cc39335f"
+    },
+    {
+      "kind": "unfinished",
+      "mode": "full",
+      "planned": 4,
+      "all_correct_completed": 0,
+      "unfinished": 4,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019/functional-unfinished-full/manifest.json",
+      "manifest_sha256": "2d16c54b733a75f5b09983fc27211b6af984d9d471cfe09f16f600dbe191fbf4"
+    },
+    {
+      "kind": "unfinished",
+      "mode": "compact",
+      "planned": 4,
+      "all_correct_completed": 0,
+      "unfinished": 4,
+      "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019/functional-unfinished-compact/manifest.json",
+      "manifest_sha256": "504991d99e787f7cd82b742dfb45894a0f92547cc384900d758465e4570df1e8"
+    }
+  ],
+  "overhead": {
+    "offered_tx_s": 1200,
+    "warmup_seconds": 1,
+    "measurement_seconds": 3,
+    "drain_seconds": 2,
+    "useful_bytes": 472,
+    "ingress_batch_ms": 10,
+    "trials": 6,
+    "finite_population_per_run": 4800,
+    "all_correct_completed_every_run": 4800,
+    "pairs": [
+      {
+        "order": [
+          "full",
+          "compact"
+        ],
+        "cpu_seconds": {
+          "full": 22.250476,
+          "compact": 22.147674,
+          "full_vs_compact_percent": 0.46416612417177205
+        },
+        "completion_tps": {
+          "full": 1200.0,
+          "compact": 1200.0,
+          "full_vs_compact_percent": 0.0
+        },
+        "tcp_written_bytes_per_second": {
+          "full": 30666479.547215354,
+          "compact": 30957920.193073902,
+          "full_vs_compact_percent": -0.9414089966022665
+        },
+        "sum_peak_rss_bytes": {
+          "full": 553877504,
+          "compact": 544604160,
+          "full_vs_compact_percent": 1.7027677496991522
+        }
+      },
+      {
+        "order": [
+          "compact",
+          "full"
+        ],
+        "cpu_seconds": {
+          "full": 22.382803000000003,
+          "compact": 22.1789,
+          "full_vs_compact_percent": 0.9193557841011168
+        },
+        "completion_tps": {
+          "full": 1201.0,
+          "compact": 1202.0,
+          "full_vs_compact_percent": -0.08319467554076532
+        },
+        "tcp_written_bytes_per_second": {
+          "full": 30428528.942158855,
+          "compact": 31438967.466893602,
+          "full_vs_compact_percent": -3.21396854333329
+        },
+        "sum_peak_rss_bytes": {
+          "full": 542392320,
+          "compact": 558514176,
+          "full_vs_compact_percent": -2.886561647452257
+        }
+      },
+      {
+        "order": [
+          "full",
+          "compact"
+        ],
+        "cpu_seconds": {
+          "full": 22.329674,
+          "compact": 22.302291,
+          "full_vs_compact_percent": 0.1227811080036556
+        },
+        "completion_tps": {
+          "full": 1201.0,
+          "compact": 1201.0,
+          "full_vs_compact_percent": 0.0
+        },
+        "tcp_written_bytes_per_second": {
+          "full": 30631167.33386946,
+          "compact": 30359679.2657691,
+          "full_vs_compact_percent": 0.8942389203909107
+        },
+        "sum_peak_rss_bytes": {
+          "full": 545685504,
+          "compact": 551862272,
+          "full_vs_compact_percent": -1.1192589733693525
+        }
+      }
+    ],
+    "median_full_vs_compact_cpu_percent": 0.46416612417177205
+  },
+  "limitations": [
+    "Three short local pairs do not establish a capacity difference or statistical significance.",
+    "Compared detailed per-request observer work above common identity validation, admission eligibility, raw native prefix receipts, resource samples and upstream native metrics.",
+    "Eligible completion uses configured local windows; CPU and TCP use their recorded actual sampling intervals, not an asserted common exact endpoint.",
+    "Native observer freezes only after a complete block and may finish after the declared deadline. Later completion is not backdated; post-freeze traffic through final scrape remains charged, trailing scrape-to-STOP writes unobserved.",
+    "Compact has no per-request latency or deadline estimates.",
+    "Independent signed native WAL-tail fidelity remains incomplete; formal comparison eligibility stays false.",
+    "Raw checkpoint/WAL storage grows with native blocks; compact bounds detailed observer state, not native protocol memory or disk."
+  ],
+  "cleanup": {
+    "owned_children": 48,
+    "all_reaped": true,
+    "shutdown_exit_codes": [
+      -15
+    ],
+    "expected_shutdown": "SIGTERM after SIGCONT for stopped owned validators",
+    "build": {
+      "scope": "benchmarks/.cache/mysticeti-target",
+      "before_logical_bytes": 1672276602,
+      "after_logical_bytes": 277171001,
+      "removed_logical_bytes": 1395105601,
+      "removed_entries": [
+        ".rustc_info.json",
+        "release/.fingerprint",
+        "release/mysticeti.d",
+        "release/incremental",
+        "release/.cargo-lock",
+        "release/examples",
+        "release/deps",
+        "release/build"
+      ],
+      "retained_binary_sha256": "6e53416ecd9731fa499073e09cb8a1a39cd9cf6059d592dbfbe5695733c9b604",
+      "retained_stamp_sha256": "3b226cdf24f2674bdd3def529182be2c7f656ae62883bc3fcc20033a4d28926f",
+      "all_cargo_and_owned_validator_processes_exited": true
+    },
+    "evidence": {
+      "removed_cache_bytes": 1867513856,
+      "raw_bytes": 4414044638,
+      "compressed_bytes": 1207293342,
+      "saved_bytes": 5074265152
+    },
+    "authoritative_raw_evidence": "recoverable from verified compressed files; original run manifests unchanged; derived SQL cache recipes retained"
+  },
+  "artifacts": {
+    "native-validation.json": {
+      "path": "results/local/mysticeti-observer-source-20261019/native-validation.json",
+      "sha256": "704c87bfaf8259227e4ebc80c6f46e5b2f1473504c07321f2b16c66139b98cb9",
+      "bytes": 3957
+    },
+    "functional-report.json": {
+      "path": "results/local/mysticeti-observer-source-20261019/functional-report.json",
+      "sha256": "7cc720ab109f3a36ab7ec95a775588ed6eacb74aa93f4208da8cc24bde7757e5",
+      "bytes": 60469
+    },
+    "overhead-report.json": {
+      "path": "results/local/mysticeti-observer-source-20261019/overhead-report.json",
+      "sha256": "359ce03d0f4b7e95cb78962abc26b9579ec71cfd829e2fe294c332ee84cef820",
+      "bytes": 64015
+    },
+    "build-cleanup.json": {
+      "path": "results/local/mysticeti-observer-source-20261019/build-cleanup.json",
+      "sha256": "e1fa2d5855df906663806d79f32eacde385b8e57204dbf40da7082463c104160",
+      "bytes": 639
+    },
+    "evidence-recovery-map.json": {
+      "path": "results/local/mysticeti-observer-source-20261019/evidence-recovery-map.json",
+      "sha256": "52d8ea8347ed40c349d73134e8d8112a3cabdcb901809c052cdcced4a199c9cb",
+      "bytes": 69434
+    },
+    "restore-evidence.py": {
+      "path": "results/local/mysticeti-observer-source-20261019/restore-evidence.py",
+      "sha256": "2774ec136504106560c2a9be61ea9e676e3e0fa9e7701742e6e6953e11eb41a8",
+      "bytes": 2337
+    },
+    "native-acceptance/failed-log-compression.json": {
+      "path": "results/local/mysticeti-observer-source-20261019/native-acceptance/failed-log-compression.json",
+      "sha256": "90f747d361743742b99d7ea109aad2ecedff57204d4816fdfdf020d422fc8a7c",
+      "bytes": 588
+    }
+  }
+}

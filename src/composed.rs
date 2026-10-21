@@ -15,6 +15,7 @@ use ed25519_dalek::Keypair;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
+use std::time::Instant;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum Message {
@@ -77,6 +78,12 @@ pub struct Node {
     pub ordered_at: BTreeMap<u64, u64>,
     pub executed_at: BTreeMap<u64, u64>,
     pub observations: BTreeMap<u64, Signed<Observation>>,
+    pub construction_metrics: crate::availability::ConstructionMetrics,
+    /// Optional measurement observer; absent from protocol identities/guards.
+    pub output_observed_us: Vec<u64>,
+    pub batch_observed_us: Vec<u64>,
+    output_clock: Option<Instant>,
+    output_receipt_observer: Option<Box<dyn Fn(&Transaction, &mut dyn FnMut()) + Send>>,
     committee: Committee,
     key: Keypair,
     availability: AvailabilityConfig,
@@ -104,6 +111,21 @@ pub struct Node {
 }
 
 impl Node {
+    /// Measurement-only synchronization around the exact contiguous append.
+    /// The observer must invoke append once; validation and effects stay outside.
+    pub fn observe_output_receipts(
+        &mut self,
+        observer: impl Fn(&Transaction, &mut dyn FnMut()) + Send + 'static,
+    ) {
+        self.output_receipt_observer = Some(Box::new(observer));
+    }
+    pub fn observe_output_from(&mut self, clock: Instant) -> Result<(), String> {
+        if !self.executed.is_empty() || !self.materialized_batches.is_empty() {
+            return Err("output observer must attach before any materialization".into());
+        }
+        self.output_clock = Some(clock);
+        Ok(())
+    }
     pub fn new(
         committee: Committee,
         id: Id,
@@ -142,6 +164,11 @@ impl Node {
             ordered_at: BTreeMap::new(),
             executed_at: BTreeMap::new(),
             observations: BTreeMap::new(),
+            construction_metrics: crate::availability::ConstructionMetrics::default(),
+            output_observed_us: Vec::new(),
+            batch_observed_us: Vec::new(),
+            output_clock: None,
+            output_receipt_observer: None,
             committee,
             key,
             availability,
@@ -265,7 +292,7 @@ impl Node {
             request: request.clone(),
             base: base.clone(),
         };
-        wire::encoded_size(&message)?;
+        self.committee.encoded_size(&message)?;
         self.report_sent.insert(round);
         if let Some(trace) = &self.causal {
             trace.mark(
@@ -359,7 +386,7 @@ impl Node {
         if from as usize >= self.committee.keys.len() {
             return Err("unknown channel peer".into());
         }
-        wire::encoded_size(&message)?;
+        self.committee.encoded_size(&message)?;
         match message {
             Message::Report { request, base } => {
                 let mut effects = self.answer_report(now, request, base)?;
@@ -446,27 +473,30 @@ impl Node {
                 .map(CausalTrace::now_us);
             // Construction consumes the frozen pool and this finite store snapshot
             // exactly once. Every unavailable advance has an immediate empty fallback.
-            let (x, pi) = self.availability.build_all_current(
+            let (x, pi, construction) = self.availability.build_all_current_with_metrics(
                 &self.bindings[&r],
                 &self.pools[&r],
                 &self.store,
             )?;
+            let (value_bytes, witness_bytes) = (x.len(), pi.len());
             if let Some(start) = construction_start {
                 self.causal.as_ref().unwrap().span(
                     "input_construct",
                     r,
                     start,
-                    json!({"value_bytes":x.len(),"witness_bytes":pi.len()}),
+                    json!({"value_bytes":value_bytes,"witness_bytes":witness_bytes,"construction":construction}),
                 );
             }
             self.committee.validate_input_size(&x, &pi)?;
             let next = self.ordering.supply_input(now, r, x, pi)?;
             self.input_ready.insert(r, now);
+            self.construction_metrics.add(&construction);
             // Errors before input fixation retain the pool for the next retry.
             // Remove before accept_ordering, which can itself call retry.
             self.pending_input_rounds.remove(&r);
             effects.push(Effect::Trace(
-                json!({"event":"ordering_input_ready","replica":self.id,"round":r,"at":now}),
+                json!({"event":"ordering_input_ready","replica":self.id,"round":r,"at":now,
+                    "value_bytes": value_bytes, "witness_bytes": witness_bytes, "construction": construction}),
             ));
             effects.extend(self.accept_ordering(now, next)?);
         }
@@ -484,7 +514,7 @@ impl Node {
                 };
                 let messages: Vec<_> = parts.into_iter().map(Message::DataPart).collect();
                 for message in &messages {
-                    wire::encoded_size(message)?;
+                    self.committee.encoded_size(message)?;
                 }
                 self.served.insert((requester, key));
                 self.pending_requests.remove(&(requester, key));
@@ -606,15 +636,34 @@ impl Node {
                     if !self.transaction_ids.insert(tx.id) {
                         continue;
                     }
-                    self.state = wire::hash(&("execution-step", self.state, tx.id, &tx.bytes));
-                    self.executed.push(Executed {
-                        round,
-                        producer: record.header.body.producer,
-                        height: record.header.body.height,
-                        batch_digest: digest,
-                        transaction: tx.id,
-                        state_hash: self.state,
-                    });
+                    let mut appended = false;
+                    let mut append = || {
+                        assert!(!appended, "output observer attempted a second append");
+                        appended = true;
+                        self.state = wire::hash(&("execution-step", self.state, tx.id, &tx.bytes));
+                        self.executed.push(Executed {
+                            round,
+                            producer: record.header.body.producer,
+                            height: record.header.body.height,
+                            batch_digest: digest,
+                            transaction: tx.id,
+                            state_hash: self.state,
+                        });
+                        if let Some(clock) = self.output_clock {
+                            self.output_observed_us
+                                .push(clock.elapsed().as_micros() as u64);
+                        }
+                    };
+                    if let Some(observer) = &self.output_receipt_observer {
+                        observer(&tx, &mut append);
+                    } else {
+                        append();
+                    }
+                    assert!(appended, "output observer omitted application append");
+                }
+                if let Some(clock) = self.output_clock {
+                    self.batch_observed_us
+                        .push(clock.elapsed().as_micros() as u64);
                 }
             }
             self.pending_ordered.pop_front();
@@ -1054,6 +1103,194 @@ mod tests {
         assert_eq!(n.observations[&1], signed);
         assert_eq!(signed.body.coordinates[0].checkpoint.height, 1);
         assert!(n.store.custody_count() > 0);
+    }
+    #[test]
+    fn synchronous_produce_retry_latches_admitted_output_before_own_ready_publication() {
+        use crate::workload::{self, AdmissionReceipt};
+        use std::sync::{Arc, Mutex};
+        let instance = [88; 32];
+        let bytes = wire::encode(&vec![workload::transaction(instance, 0, 0, 8)]).unwrap();
+        let mut source = node(0);
+        source.produce(0, bytes.clone()).unwrap();
+        let mut full = node(0);
+        let mut compact = node(0);
+        full.observe_output_from(Instant::now()).unwrap();
+        let a = Arc::new(Mutex::new(AdmissionReceipt::new(1)));
+        let b = Arc::new(Mutex::new(AdmissionReceipt::new(1)));
+        for (node, receipt) in [(&mut full, a.clone()), (&mut compact, b.clone())] {
+            receipt.lock().unwrap().admitted.insert(0);
+            node.observe_output_receipts(move |_, append| {
+                let mut receipt = receipt.lock().unwrap();
+                append();
+                receipt.materialized(0);
+            });
+        }
+        let mut targets = genesis(&full);
+        targets[0] = source.store.checkpoints(0).pop().unwrap();
+        deliver(&mut full, 1, targets.clone()).unwrap();
+        deliver(&mut compact, 1, targets).unwrap();
+        assert!(full.executed.is_empty());
+        assert!(compact.executed.is_empty());
+        let left = full.produce(2, bytes.clone()).unwrap();
+        let right = compact.produce(2, bytes).unwrap();
+        assert_eq!(format!("{left:?}"), format!("{right:?}"));
+        assert_eq!(full.executed, compact.executed);
+        assert_eq!(full.executed.len(), 1);
+        for receipt in [&a, &b] {
+            let mut receipt = receipt.lock().unwrap();
+            assert_eq!(receipt.ready.ones, 0);
+            assert_eq!(receipt.completed.ones, 1);
+            receipt.mark_ready(0);
+            assert_eq!(receipt.ready_pending, 0);
+        }
+    }
+    #[test]
+    fn full_and_compact_receipts_preserve_execution_and_latch_before_publication() {
+        use crate::workload::{self, AdmissionReceipt};
+        use std::sync::{Arc, Mutex};
+        let instance = [77; 32];
+        let normal = workload::transaction(instance, 0, 0, 8);
+        let preplayed = workload::transaction(instance, 0, 1, 8);
+        let mut wrong = workload::transaction(instance, 0, 2, 8);
+        wrong.bytes[20] ^= 1;
+        let mut source = node(1);
+        source
+            .produce(
+                0,
+                wire::encode(&vec![normal.clone(), preplayed, wrong, normal]).unwrap(),
+            )
+            .unwrap();
+        source
+            .produce(0, wire::encode(&Vec::<Transaction>::new()).unwrap())
+            .unwrap();
+        source.produce(0, vec![255]).unwrap(); // Exact malformed application no-op.
+        let mut full = node(0);
+        let mut compact = node(0);
+        full.observe_output_from(Instant::now()).unwrap();
+        let a = Arc::new(Mutex::new(AdmissionReceipt::new(3)));
+        let b = Arc::new(Mutex::new(AdmissionReceipt::new(3)));
+        for (node, receipt) in [(&mut full, a.clone()), (&mut compact, b.clone())] {
+            {
+                let mut r = receipt.lock().unwrap();
+                r.admitted.insert(0);
+                r.mark_ready(0);
+            }
+            node.observe_output_receipts(move |tx, append| {
+                if let Some((origin, seq, bytes)) = workload::identify(instance, tx) {
+                    if origin == 0 && seq < 3 && bytes == 8 {
+                        let mut membership = receipt.lock().unwrap();
+                        append();
+                        membership.materialized(seq);
+                        return;
+                    }
+                }
+                append();
+            });
+        }
+        let mut targets = genesis(&full);
+        targets[1] = source.store.checkpoints(1).pop().unwrap();
+        assert_eq!(
+            format!("{:?}", deliver(&mut full, 1, targets.clone()).unwrap()),
+            format!("{:?}", deliver(&mut compact, 1, targets.clone()).unwrap())
+        );
+        for part in source
+            .store
+            .serve_parts(&genesis(&full)[1], &targets[1])
+            .unwrap()
+        {
+            assert_eq!(
+                format!(
+                    "{:?}",
+                    full.receive(2, 1, Message::DataPart(part.clone())).unwrap()
+                ),
+                format!(
+                    "{:?}",
+                    compact.receive(2, 1, Message::DataPart(part)).unwrap()
+                )
+            );
+        }
+        // Independent ingress can advance before Runtime publishes handler
+        // effects. The append callback already froze preplay eligibility.
+        for receipt in [&a, &b] {
+            let mut r = receipt.lock().unwrap();
+            r.admitted.insert(1);
+            r.mark_ready(1);
+            assert_eq!(r.completed.ones, 1);
+            assert!(!r.completed.contains(1));
+            assert!(!r.seen_output.contains(2));
+        }
+        assert_eq!(full.executed, compact.executed);
+        assert_eq!(full.materialized_batches, compact.materialized_batches);
+        assert_eq!(full.executed.len(), 3);
+        assert_eq!(full.materialized_batches.len(), 3);
+        assert_eq!(full.output_observed_us.len(), 3);
+        assert!(compact.output_observed_us.is_empty());
+        assert!(compact.batch_observed_us.is_empty());
+        assert_eq!(
+            full.executed
+                .iter()
+                .fold(workload::output_seed(), workload::output_step),
+            compact
+                .executed
+                .iter()
+                .fold(workload::output_seed(), workload::output_step)
+        );
+        assert_eq!(
+            full.materialized_batches
+                .iter()
+                .fold(workload::batch_seed(), workload::batch_step),
+            compact
+                .materialized_batches
+                .iter()
+                .fold(workload::batch_seed(), workload::batch_step)
+        );
+        assert_ne!(
+            compact.materialized_batches[..1]
+                .iter()
+                .fold(workload::batch_seed(), workload::batch_step),
+            compact
+                .materialized_batches
+                .iter()
+                .fold(workload::batch_seed(), workload::batch_step)
+        );
+    }
+    #[test]
+    fn append_observer_tracks_verified_output_without_changing_log_or_effects() {
+        let mut source = node(1);
+        source.produce(0, payload(1)).unwrap();
+        let mut plain = node(0);
+        let mut observed = node(0);
+        let clock = Instant::now();
+        observed.observe_output_from(clock).unwrap();
+        let mut targets = genesis(&plain);
+        targets[1] = source.store.checkpoints(1).pop().unwrap();
+        let a = deliver(&mut plain, 1, targets.clone()).unwrap();
+        let b = deliver(&mut observed, 1, targets.clone()).unwrap();
+        assert_eq!(format!("{a:?}"), format!("{b:?}"));
+        assert!(observed.output_observed_us.is_empty());
+        let part = source
+            .store
+            .serve_parts(&genesis(&plain)[1], &targets[1])
+            .unwrap()
+            .remove(0);
+        let a = plain
+            .receive(2, 1, Message::DataPart(part.clone()))
+            .unwrap();
+        let b = observed
+            .receive(2, 1, Message::DataPart(part.clone()))
+            .unwrap();
+        let after = clock.elapsed().as_micros() as u64;
+        assert_eq!(format!("{a:?}"), format!("{b:?}"));
+        assert_eq!(plain.executed, observed.executed);
+        assert_eq!(plain.materialized_batches, observed.materialized_batches);
+        assert!(plain.output_observed_us.is_empty());
+        assert_eq!(observed.output_observed_us.len(), 1);
+        assert_eq!(observed.batch_observed_us.len(), 1);
+        assert!(observed.output_observed_us[0] <= observed.batch_observed_us[0]);
+        assert!(observed.batch_observed_us[0] <= after);
+        observed.receive(3, 1, Message::DataPart(part)).unwrap();
+        assert_eq!(observed.output_observed_us.len(), 1);
+        assert!(observed.observe_output_from(clock).is_err());
     }
     #[test]
     fn invalid_data_is_atomic_and_valid_retry_materializes_once() {

@@ -1,0 +1,50 @@
+Raptr-first evaluation work — 21 October 2026
+
+Decision
+The user's explicit priority supersedes the October 19 plan's supplementary
+Raptr designation. Raptr is the primary counterpart and takes precedence over
+further Shoal builds, live acceptance and campaign work. Keep Mysticeti and
+Autobahn's accepted work and all Shoal evidence. Execution remains local only.
+
+Implementation base
+Use the existing author implementation at aptos-labs/aptos-core, raptr-public,
+commit a4c98047cf8aeae3571168d02fb7e343140d2948. Maintain the local derivative
+as an exact pinned checkout plus versioned patches in Delugi; avoid replacing
+the native protocol with a new implementation. The current twelve-file diff
+matches benchmarks/patches/raptr-local.patch. Earlier native binaries were
+cleaned, so historical measurements do not establish a currently runnable build.
+
+First implementation increment
+1. Preserve the old source patch, dependency lock and historical results. Audit
+   the native admission, payload-fetch, committed-prefix and application-output
+   paths before choosing observer hooks. The existing completion-window average
+   cannot supply finite-cohort p50/p95/p99 or all-correct completion.
+2. Add independent finite authenticated workload and complete scheduled,
+   admitted, rejected, materialized and unfinished ledgers. Both observer modes
+   retain authentication, exact identity/order and finite receipts; compact
+   does not supply request latency. Expose real native admission timing rather
+   than relabel API-channel submission as insertion.
+3. Define application output from native committed prefixes and actual retained
+   verified payloads. Native asynchronous fetch callbacks may reorder completion;
+   observer/application materialization must preserve prefix refinement and
+   block behind missing earlier payload. Keep protocol voting, Quorum Store,
+   fetching, timers and native callbacks unchanged. Disclose any added
+   application materializer and its common cost in full/compact modes.
+4. Review source and adversarial fixtures before one bounded native rebuild.
+   Preserve source/compiler/binary identities, run healthy/empty/unfinished
+   accounting and actual fault controls, then enable only accepted campaign
+   routes. Remove disposable build intermediates after acceptance and retain
+   tested executables. No second large build runs concurrently.
+
+Timing and interpretation
+Start local validation at configured Delta=100ms and no added network delay.
+The previous failed delta=10ms VM calibration remains rejected. Calibrated
+delay, sustained capacity, multi-host trials and primary comparison conclusions
+require their own accepted evidence; changing priority does not promote old
+completion-window averages into the newer cohort contract.
+
+Shoal handoff
+Stop new Shoal experiments. Retain the completed new validator as built but
+runtime-unvalidated; its in-flight fixture build is stopped at the user's
+priority change. Preserve the old accepted artifacts, source freezes and
+independent review. Record cleanup and the stopped task-owned VM separately.

@@ -1,0 +1,142 @@
+Raptr primary-baseline readiness audit — 21 October 2026
+
+Scope: read-only inspection of existing checkout, adapter and small provenance
+reports. No build, benchmark, network access, VM action or production-source
+change. Historical archives were not exhaustively rehashed. The user priority
+override is recorded in 2026-10-21-raptr-priority.txt and baselines.json; venue
+claims are neither verified nor required by this audit.
+
+1. Exact implementation and artifact state
+
+Upstream: https://github.com/aptos-labs/aptos-core.git
+Reference: raptr-public
+Checked-out HEAD: a4c98047cf8aeae3571168d02fb7e343140d2948
+Checkout: benchmarks/baselines/raptr (origin is the same upstream URL).
+This is the native paper implementation, not current Aptos/Baby Raptr.
+
+The twelve tracked local modifications match raptr-local.patch byte-for-byte:
+  patch SHA256 f6f3e6bddf6843eb90da2b83bd4bce7e6d4f6d93e78be0c29e69f55163576fb0
+  lock SHA256  1468f49033cafb29e5b156678ddc9044e8a216cf474cd23db9ace9c646af2d41
+No untracked checkout files were reported. The patch narrows the workspace,
+repairs stale consensus-only storage/mempool APIs, configures local validator
+listeners, exposes native Delta, adjusts the synthetic client, and adds ingress
+and TCP meters. No file under raptr/src is modified. This does not by itself
+prove semantic equivalence of all integration changes; retain source review.
+
+Parsed lock audit: upstream 1,490 package identities, current 1,344; 146 removed,
+none added/upgraded, retained versions/sources/checksums unchanged. Fifty-eight
+retained dependency lists change. Resolving shortened dependency names leaves
+seven actual edge changes: aptos-netcore adds already-pinned metrics-core and
+once_cell; hyper-util, hyper, spin, env_logger, image and pathdiff lose optional
+edges with the reduced workspace feature closure. The dependency graph is not
+identical; the exact patched lock and build features must remain bound.
+
+The toolchain is Rust 1.78.0. There is currently no target/release/forge,
+target/release/aptos-node or target/delugi-baseline-build.json. Their removal is
+recorded in bundling-default-2026-10-14.json (Raptr target previously occupied
+45,624,116 KiB). Do not describe Raptr as currently runnable.
+
+timing-controlled-2026-10-13.json records this same current patch and lock, with
+historical Forge SHA f3aa5bb96ba739760ead7961afbd278713e9266c06bff59e548bf0ddb72ae80e
+and node SHA f6f398534c31cca1fb03d3395c198a522c8712400bb68177ddf34d3a949fbc47.
+The initial raptr-local report and intermediate matched report used earlier
+patches. Preserve all versions/results; none establish fresh cohort acceptance.
+
+2. Native architecture and the critical output boundary
+
+The adapter launches Forge and independent Aptos validator processes. Native
+Raptr ordering, optimistic dissemination, Quorum Store, BLS consensus signatures
+and authenticated Aptos networking remain in use. Each validator has three
+protocol TCP listeners; the adapter scopes all three for delay and TCP counting.
+Consensus-only mode uses real genesis plus FakeAptosDB, bypasses steady VM/ledger
+execution, retains Quorum Store RocksDB custody, and does not test crash recovery.
+This architecture differs materially from Delugi's smaller runtime; preserve
+native protocols and disclose implementation/storage/resource costs.
+
+The key gap is ordering versus materialization:
+  raptr/src/raptr/protocol.rs:675-814 commits QC/prefix refinements and returns
+  their ordered payload slices through dissemination.notify_commit.
+  consensus/src/raptr_manager.rs:1060-1141 then spawns an outer task and separate
+  per-payload get_transactions/notify_new_commit tasks. Fetch completion order
+  can differ from native commit order.
+  aptos-node/src/mempool.rs:61-84,270-283 removes locally pending sender/sequence
+  identities on those notifications and observes insertion-to-completion time.
+
+Therefore the existing completion counter is payload-ready local completion,
+not proof of a contiguous native-order application prefix. Capture native
+commit/refinement order before asynchronous spawning; add a common application
+materializer that releases the contiguous verified-payload prefix while keeping
+native fetching, callbacks and consensus effects unchanged. Preserve exact
+batch identity and native duplicate semantics separately from useful-request
+deduplication. Record this added materializer and its costs in both observer
+modes. Attaching receipts only to PendingTracker would be insufficient.
+
+3. Timing, workload and present measurements
+
+scripts/baselines/raptr.py:294-302 exposes Delta through --bound-ms (legacy
+--delta-ms). Default is 200ms; native multipliers are leader timeout 4Delta,
+partial-QC wait 0.1Delta, fetch 2Delta, round sync 15Delta, status 10Delta.
+Quorum Store's 150ms polling, 80ms minimum nonempty interval, 300ms maximum
+interval and 1,500ms payload wait are independent preserved parameters. Equal
+Delta does not equalize these batching costs. Added one-way delay is a separate
+network calibration. The native manager also sets a 10,000Delta run lifetime;
+future long/small-Delta trials must validate that lifetime against total run.
+
+The current client uses random sender/sequence identities and native
+NoAccountAuthenticator. Padding targets total serialized SignedTransaction
+bytes (512 by default), not the current common useful-byte population. Its
+staggered per-second slots can overlap HTTP requests; each slot pre-generates
+into a bounded queue and retains unfinished HTTP futures. It does not produce
+finite authenticated run/origin cohorts, scheduled/admitted/rejected ledgers or
+accounted backpressure (performance_test.rs:335-464).
+
+The adapter reports transaction-weighted completion-window mean latency from
+native mempool insertion to local payload-ready notification. It excludes
+generation/scheduling/HTTP ingress, cannot supply exact cohort p50/p95/p99 or
+unfinished quantiles, and does not compare all-correct output prefixes. It sums
+unique origin-local completion counts, correctly avoiding replicated throughput
+sums. Independently scraped ingress-minus-completion values are explicitly
+non-atomic estimates. Readiness and summarization require positive completions
+at every replica, so empty/zero-output cases currently fail instead of being
+accounted outcomes (raptr.py:104-189,441-476).
+
+Successful native TCP totals include authentication/framing, but there are no
+payload/evidence/repair categories, domain-separated crypto/proof CPU, retained
+payload/evidence accounting or common enforced whole-worker resource contract.
+
+4. Integration and provenance gates
+
+run_campaign.py:36 explicitly has empty Raptr node/fault capabilities; its
+formal protocol set still reflects the October 19 selection. run_comparison.py
+supports the legacy adapter only. deployment_prepare.py, native_campaign.py and
+remote_native.py do not yet support Raptr. Primary metadata is now correct, but
+must not bypass capability, accounting, artifact or formal resource gates.
+
+raptr.py:55-84 binds source/lock/compiler/env and Forge hash only. Forge may
+rebuild aptos-node during setup; both binaries are hashed only after a trial
+(raptr.py:393-491). Replace this with exact prebuilt role artifacts/recipe stamps
+and source guards before acceptance. Cleanup records remaining process-group
+members without making a nonempty list fail in the standalone adapter; require
+confirmed owned cleanup. Match existing proxy removal and telemetry force-disable
+rules before future isolated launches. No new execution was attempted here.
+
+5. Smallest implementation sequence
+
+First preserve the current patch/lock lineage and implement the native commit
+order, real admission and verified-payload hooks with full/compact parity.
+Reuse the shared finite signed-plan, bounded journal/receipt, SQLite reduction
+and origin-local clock contracts; do not reuse Shoal consensus-specific hooks.
+Test reversed fetch completion, blocked early payload, prefix refinement,
+duplicate/preplayed identity, empty and unfinished populations in source fixtures.
+
+Next provide a reproducible fixed native genesis/launch recipe (or explicit
+prebuilt Forge mode), stamp every executable role, and do one bounded build.
+Start with four local replicas, Delta=100ms, no added delay: healthy, empty,
+unfinished and finite owned pause, checking receipts, prefix fidelity and
+cleanup. Enable campaign capabilities only after their accepted evidence exists.
+
+Then add exact native omission/eligibility hooks and resource attribution before
+fault/frontier conclusions. Extend deployment packaging and enforced resource
+contracts from accepted local roles; no live remote execution is needed now.
+Retain the native fork/patch approach rather than porting Raptr into Delugi's
+runtime. This is a measurement/integration effort, not a new consensus algorithm.

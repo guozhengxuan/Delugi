@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "purpose": "development",
+  "spec_snapshot": "provenance/spec-2026-10-19.json",
+  "paper_repository": "results/local/observer-build-20261019-f48e7b394b91/snapshot/paper",
+  "protocols": [
+    "shoal"
+  ],
+  "families": [
+    "healthy"
+  ],
+  "nodes": [
+    4,
+    7
+  ],
+  "repeats": 1,
+  "measurement_seconds": 2,
+  "warmup_seconds": 1,
+  "drain_seconds": 5,
+  "deadline_ms": 1000,
+  "useful_transaction_bytes": 472,
+  "healthy_rates": [
+    40
+  ],
+  "common_below_capacity_rate": 20,
+  "bounds_ms": [
+    100
+  ],
+  "added_delays_ms": [
+    0
+  ],
+  "native_tuning": {
+    "shoal": {
+      "ingress_batch_ms": 10,
+      "batch_bytes": 500000
+    }
+  }
+}

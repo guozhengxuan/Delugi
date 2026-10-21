@@ -146,6 +146,49 @@ pub struct CachedCoordinate {
     pub witnesses: Vec<CachedWitness>,
 }
 
+/// Constructor work observed on the existing selection path. Local candidates
+/// are indexed checkpoints, not a claim that every associated payload is held.
+/// Empty-with-progress counters distinguish valid fallback from useful output;
+/// the workload ledger separately identifies pending honest application data.
+#[derive(Clone, Debug, Default, Serialize)]
+pub struct ConstructionMetrics {
+    pub completed_constructions: u64,
+    pub frozen_reports: u64,
+    pub advanced_coordinates: u64,
+    pub empty_coordinates: u64,
+    pub indexed_candidates: u64,
+    pub examined_candidates: u64,
+    pub base_proof_unavailable: u64,
+    pub source_suffix_unavailable: u64,
+    pub target_proof_unavailable: u64,
+    pub source_threshold_unmet: u64,
+    pub empty_with_local_candidates: u64,
+    pub empty_with_observed_advance: u64,
+    pub wholly_empty_inputs: u64,
+    pub wholly_empty_with_local_candidates: u64,
+    pub wholly_empty_with_observed_advance: u64,
+}
+
+impl ConstructionMetrics {
+    pub fn add(&mut self, other: &Self) {
+        self.completed_constructions += other.completed_constructions;
+        self.frozen_reports += other.frozen_reports;
+        self.advanced_coordinates += other.advanced_coordinates;
+        self.empty_coordinates += other.empty_coordinates;
+        self.indexed_candidates += other.indexed_candidates;
+        self.examined_candidates += other.examined_candidates;
+        self.base_proof_unavailable += other.base_proof_unavailable;
+        self.source_suffix_unavailable += other.source_suffix_unavailable;
+        self.target_proof_unavailable += other.target_proof_unavailable;
+        self.source_threshold_unmet += other.source_threshold_unmet;
+        self.empty_with_local_candidates += other.empty_with_local_candidates;
+        self.empty_with_observed_advance += other.empty_with_observed_advance;
+        self.wholly_empty_inputs += other.wholly_empty_inputs;
+        self.wholly_empty_with_local_candidates += other.wholly_empty_with_local_candidates;
+        self.wholly_empty_with_observed_advance += other.wholly_empty_with_observed_advance;
+    }
+}
+
 /// Conservative canonical upper bound for any u64-height PrefixProof. A basic
 /// proof has at most 64 peaks and 128 dyadic-cover roots. Crossing adds two
 /// such proofs, a completed root, and at most 64 top peaks. This does not cap
@@ -435,7 +478,7 @@ impl AvailabilityConfig {
     pub fn verify_encoded(&self, r: u64, x: &[u8], pi: &[u8]) -> Result<(), String> {
         self.committee.validate_input_size(x, pi)?;
         let x = self.decode_descriptor(x)?;
-        let pi: AvailabilityProof = wire::decode(pi)?;
+        let pi: AvailabilityProof = self.committee.decode(pi)?;
         self.verify_availability(r, &x, &pi)
     }
 
@@ -445,10 +488,10 @@ impl AvailabilityConfig {
         x: &Descriptor,
         pi: &AvailabilityProof,
     ) -> Result<(), String> {
-        // Each bounded size is at most 1 MiB and therefore fits usize. Keep the
+        // Each bounded size fits the selected complete-message profile and usize. Keep the
         // same x, pi, then combined-input guard order without allocating bytes.
-        let xb = wire::encoded_size(x)? as usize;
-        let pb = wire::encoded_size(pi)? as usize;
+        let xb = self.committee.encoded_size(x)? as usize;
+        let pb = self.committee.encoded_size(pi)? as usize;
         self.committee.validate_input_lengths(xb, pb)?;
         self.verify_frontier(&x.frontier)?;
         self.verify_frontier(&x.targets)?;
@@ -578,6 +621,21 @@ impl AvailabilityConfig {
         pool: &[Signed<Observation>],
         store: &BatchStore,
     ) -> Result<(Vec<u8>, Vec<u8>), String> {
+        let (value, proof, _) = self.build_all_current_with_metrics(base, pool, store)?;
+        Ok((value, proof))
+    }
+
+    pub fn build_all_current_with_metrics(
+        &self,
+        base: &NamedBase,
+        pool: &[Signed<Observation>],
+        store: &BatchStore,
+    ) -> Result<(Vec<u8>, Vec<u8>, ConstructionMetrics), String> {
+        let _cost = crate::meter::measure(crate::meter::Operation::AvailabilityConstruct);
+        let mut metrics = ConstructionMetrics {
+            frozen_reports: pool.len() as u64,
+            ..ConstructionMetrics::default()
+        };
         self.verify_named_base(base)?;
         let n = self.committee.keys.len();
         let f = (n - 1) / 3;
@@ -601,7 +659,13 @@ impl AvailabilityConfig {
         let mut targets = Vec::with_capacity(n);
         let mut coordinates = Vec::with_capacity(n);
         for k in 0..n {
-            let (target, wa) = self.build_coordinate(&base.frontier[k], k, pool, store)?;
+            let (target, wa) = self.build_coordinate_with_metrics(
+                &base.frontier[k],
+                k,
+                pool,
+                store,
+                &mut metrics,
+            )?;
             targets.push(target);
             coordinates.push(wa);
         }
@@ -617,7 +681,17 @@ impl AvailabilityConfig {
             sources: Vec::new(),
         };
         self.verify_availability(base.opportunity, &x, &pi)?;
-        Ok((wire::encode(&x)?, wire::encode(&pi)?))
+        let value = self.committee.encode(&x)?;
+        let proof = self.committee.encode(&pi)?;
+        metrics.completed_constructions = 1;
+        if metrics.advanced_coordinates == 0 {
+            metrics.wholly_empty_inputs = 1;
+            metrics.wholly_empty_with_local_candidates =
+                u64::from(metrics.empty_with_local_candidates > 0);
+            metrics.wholly_empty_with_observed_advance =
+                u64::from(metrics.empty_with_observed_advance > 0);
+        }
+        Ok((value, proof, metrics))
     }
 
     pub fn construct(
@@ -629,6 +703,7 @@ impl AvailabilityConfig {
         self.build_all_current(base, pool, store)
     }
 
+    #[cfg(test)]
     fn build_coordinate(
         &self,
         a: &Checkpoint,
@@ -636,21 +711,38 @@ impl AvailabilityConfig {
         pool: &[Signed<Observation>],
         store: &BatchStore,
     ) -> Result<(Checkpoint, WeakAvailability), String> {
+        self.build_coordinate_with_metrics(a, k, pool, store, &mut ConstructionMetrics::default())
+    }
+
+    fn build_coordinate_with_metrics(
+        &self,
+        a: &Checkpoint,
+        k: usize,
+        pool: &[Signed<Observation>],
+        store: &BatchStore,
+        metrics: &mut ConstructionMetrics,
+    ) -> Result<(Checkpoint, WeakAvailability), String> {
         let threshold = (self.committee.keys.len() - 1) / 3 + 1;
         let mut candidates = store.checkpoints(k as Id);
         candidates.retain(|target| target.height > a.height);
         sort_checkpoints(&mut candidates);
+        let local_candidates = candidates.len();
+        metrics.indexed_candidates += local_candidates as u64;
         for target in candidates {
+            metrics.examined_candidates += 1;
             let Ok(base_to_target) = store.proof(a, &target) else {
+                metrics.base_proof_unavailable += 1;
                 continue;
             };
             let mut usable = Vec::new();
             for (index, observation) in pool.iter().enumerate() {
                 let source_cp = &observation.body.coordinates[k].checkpoint;
                 if !store.holds(a, source_cp) {
+                    metrics.source_suffix_unavailable += 1;
                     continue;
                 }
                 let Ok(target_to_source) = store.proof(&target, source_cp) else {
+                    metrics.target_proof_unavailable += 1;
                     continue;
                 };
                 usable.push((
@@ -662,6 +754,7 @@ impl AvailabilityConfig {
             }
             usable.sort_by(|left, right| right.0.cmp(&left.0).then_with(|| left.1.cmp(&right.1)));
             if usable.len() < threshold {
+                metrics.source_threshold_unmet += 1;
                 continue;
             }
             let witnesses = usable
@@ -674,6 +767,7 @@ impl AvailabilityConfig {
                     target_to_source,
                 })
                 .collect();
+            metrics.advanced_coordinates += 1;
             return Ok((
                 target,
                 WeakAvailability::Witnesses {
@@ -682,6 +776,12 @@ impl AvailabilityConfig {
                 },
             ));
         }
+        metrics.empty_coordinates += 1;
+        metrics.empty_with_local_candidates += u64::from(local_candidates > 0);
+        metrics.empty_with_observed_advance += u64::from(
+            pool.iter()
+                .any(|observation| observation.body.coordinates[k].checkpoint.height > a.height),
+        );
         let mut ordered: Vec<_> = pool.iter().enumerate().collect();
         ordered.sort_by_key(|(_, observation)| observation.signer);
         let witnesses = ordered
@@ -1389,8 +1489,25 @@ mod tests {
             }
         }
         config.verify_availability(1, &x, &pi).unwrap();
+        let (measured_value, measured_proof, empty_metrics) = config
+            .build_all_current_with_metrics(&binding, &pool, &missing)
+            .unwrap();
+        assert_eq!(measured_value, wire::encode(&x).unwrap());
+        assert_eq!(measured_proof, wire::encode(&pi).unwrap());
+        assert_eq!(empty_metrics.completed_constructions, 1);
+        assert_eq!(empty_metrics.frozen_reports, 3);
+        assert_eq!(empty_metrics.empty_coordinates, 4);
+        assert_eq!(empty_metrics.empty_with_observed_advance, 4);
+        assert_eq!(empty_metrics.empty_with_local_candidates, 0);
+        assert_eq!(empty_metrics.wholly_empty_with_observed_advance, 1);
         let (advancing, _) = decoded(&config, &binding, &pool, &source_store);
         assert!(advancing.targets.iter().all(|c| c.height == 1));
+        let (_, _, ready_metrics) = config
+            .build_all_current_with_metrics(&binding, &pool, &source_store)
+            .unwrap();
+        assert_eq!(ready_metrics.advanced_coordinates, 4);
+        assert_eq!(ready_metrics.empty_coordinates, 0);
+        assert_eq!(ready_metrics.source_suffix_unavailable, 0);
     }
 
     #[test]
@@ -1403,6 +1520,13 @@ mod tests {
         let pool = observations(&config, &binding, &mut source);
         let (x, _) = decoded(&config, &binding, &pool, &leader);
         assert_eq!(x.targets[0].height, 0); // Holding target 1 alone is insufficient.
+        let (_, _, metrics) = config
+            .build_all_current_with_metrics(&binding, &pool, &leader)
+            .unwrap();
+        assert_eq!(metrics.empty_with_local_candidates, 1);
+        assert_eq!(metrics.source_suffix_unavailable, 3);
+        assert_eq!(metrics.source_threshold_unmet, 1);
+        assert_eq!(metrics.wholly_empty_with_local_candidates, 1);
     }
 
     #[test]
@@ -1660,10 +1784,17 @@ mod tests {
             wire::encode(&maximum).unwrap().len(),
             MAX_PREFIX_PROOF_BYTES
         );
-        for n in [4, 7] {
-            let committee =
-                Committee::new([71; 32], (0..n).map(|id| fixture_key(id).public).collect())
-                    .unwrap();
+        for (n, profile) in [
+            (4, wire::ResourceProfile::Legacy1MibV1),
+            (7, wire::ResourceProfile::Legacy1MibV1),
+            (31, wire::ResourceProfile::Complete32MibN31V1),
+        ] {
+            let committee = Committee::with_profile(
+                [71; 32],
+                (0..n).map(|id| fixture_key(id).public).collect(),
+                profile,
+            )
+            .unwrap();
             let config = AvailabilityConfig::new(committee, 4).unwrap();
             let f = (n as usize - 1) / 3;
             let quorum = n as usize - f;
@@ -1718,6 +1849,23 @@ mod tests {
                 fixed + quorum * (config.observation_budget() + 1)
                     > config.committee.input_budget()
             );
+            // Serialize the entire conservative u64-height aggregate, including
+            // the authenticated-base reserve. These synthetic roots test size
+            // closure; cryptographically valid inputs are tested separately.
+            let aggregate = AvailabilityProof {
+                authentication: vec![0; config.base_certificate_budget],
+                pool: vec![maximum_observation; quorum],
+                coordinates: vec![wa; n as usize],
+                sources: vec![],
+            };
+            let proof = config.committee.encode(&aggregate).unwrap();
+            config
+                .committee
+                .validate_input_size(&value, &proof)
+                .unwrap();
+            if n == 31 {
+                assert!(proof.len() > wire::MAX_WIRE_BYTES);
+            }
         }
         for n in [10, 13] {
             let committee =
@@ -1725,6 +1873,56 @@ mod tests {
                     .unwrap();
             assert!(AvailabilityConfig::new(committee, 4).is_err());
         }
+    }
+
+    #[test]
+    fn complete_profile_accepts_authenticated_all_current_and_empty_inputs_at_n31() {
+        let committee = Committee::with_profile(
+            [72; 32],
+            (0..31).map(|id| fixture_key(id).public).collect(),
+            wire::ResourceProfile::Complete32MibN31V1,
+        )
+        .unwrap();
+        let config = AvailabilityConfig::new(committee.clone(), 4).unwrap();
+        let mut store = BatchStore::new(committee, 4).unwrap();
+        let binding = base(&config, 1);
+        let empty_pool: Vec<_> = (0..21)
+            .map(|id| {
+                config
+                    .observe(&binding, &mut store, &fixture_key(id), id)
+                    .unwrap()
+            })
+            .collect();
+        let (empty_value, empty_proof) = config
+            .build_all_current(&binding, &empty_pool, &store)
+            .unwrap();
+        assert!(config.q(1, &empty_value, &empty_proof));
+        assert_eq!(
+            config.decode_descriptor(&empty_value).unwrap().targets,
+            binding.frontier
+        );
+        for id in 0..31 {
+            store.produce(&fixture_key(id), id, vec![id as u8]).unwrap();
+        }
+        let pool: Vec<_> = (0..21)
+            .map(|id| {
+                config
+                    .observe(&binding, &mut store, &fixture_key(id), id)
+                    .unwrap()
+            })
+            .collect();
+        let (value, proof) = config.build_all_current(&binding, &pool, &store).unwrap();
+        assert!(config.q(1, &value, &proof));
+        assert!(config
+            .decode_descriptor(&value)
+            .unwrap()
+            .targets
+            .iter()
+            .all(|point| point.height == 1));
+        assert!(!config.q(1, &value, &proof[..proof.len() - 1]));
+        let mut malformed: AvailabilityProof = config.committee.decode(&proof).unwrap();
+        malformed.pool[0].signature[0] ^= 1;
+        assert!(!config.q(1, &value, &config.committee.encode(&malformed).unwrap()));
     }
 
     #[test]

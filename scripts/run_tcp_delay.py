@@ -398,6 +398,9 @@ def archived_build(binary, manifest_path, output):
     return {"build_stamp": stamp, "binary_git_head": source["git_head"],
             "binary_source_scope": "original archived build source, independent of the current working tree",
             "binary_source_files": copied,
+            "binary_specification": source.get("specification", {
+                "review_status": "historical build did not record an explicit specification selection",
+                "note": "Use the original build manifest and source archive; do not infer a current specification pin."}),
             "archived_build_manifest": {"path": str(manifest_path), "sha256": run_network.sha(manifest_path.read_bytes())}}
 
 
@@ -417,6 +420,7 @@ def main():
     parser.add_argument("--delay-ms", type=float, default=10)
     parser.add_argument("--bound-ms", type=int, default=100)
     run_network.add_ordering_arguments(parser)
+    run_network.add_spec_arguments(parser)
     parser.add_argument("--rate", type=int, default=1000)
     parser.add_argument("--transaction-size", type=int, default=512)
     parser.add_argument("--ingress-batch-ms", type=int, default=100)
@@ -436,9 +440,13 @@ def main():
                            "limitations": "Userspace stream chunks, not IP packets or kernel shaping; TCP handshakes are not artificially delayed; real CPU/event-loop/OS scheduling may add delay; no bandwidth limit or packet loss; proxy scheduling metrics and RTT calibration retained",
                            "latency": "sustained: originating replica insertion before batch production to post-handler local materialization, completed-in-window; finite preloaded test endpoints are separately retained by the existing runner",
                            "traffic": "native counters include signed data frames and ACK stream bytes once at replica sockets; exclude proxy duplicate writes, control, TCP/IP headers and kernel retries"},
-                "settings": {k: v for k, v in vars(args).items() if k not in ("output", "binary", "archived_build_manifest")},
+                "settings": {k: v for k, v in vars(args).items() if k not in ("output", "binary", "archived_build_manifest", "spec_snapshot", "paper_repository")},
+                "scheduling": run_network.scheduling_provenance(run_network.ordering_options(
+                    args.bound_ms, args.ordering_batch, args.round_barrier_ms,
+                    args.progress_pacing_ms, args.ordering_mode)),
                 "machine": run_network.machine_metadata(), "source_files": [], "trials": []}
     try:
+        manifest["specification"] = run_network.archive_spec(args.spec_snapshot, output / "snapshot", args.paper_repository)
         if any(os.environ.get(name) for name in ("DELUGI_SHAPER_CONTROL", "DELUGI_NETWORK_DELAY_MS", "DELUGI_SHAPER_TOKEN_FILE")):
             raise RuntimeError("unset kernel-shaper environment for the isolated userspace diagnostic")
         binary = args.binary.resolve()
@@ -457,7 +465,7 @@ def main():
                                                      text=True, check=True).stdout.strip()
         if not args.archived_build_manifest:
             manifest["binary_git_head"] = manifest["harness_git_head"]
-        sources += [ROOT / name for name in ("scripts/run_tcp_delay.py", "scripts/run_network.py", "scripts/run_sustained.py", "scripts/network_delay.py", "tests/tcp_delay_test.py")]
+        sources += [ROOT / name for name in ("scripts/run_tcp_delay.py", "scripts/run_network.py", "scripts/run_sustained.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/spec_provenance.py", "tests/tcp_delay_test.py")]
         for source in sources:
             relative, data = source.relative_to(ROOT), source.read_bytes()
             destination = output / "snapshot" / relative
@@ -489,6 +497,7 @@ def main():
                 raise RuntimeError(f"source changed during run: {source['path']}")
         if run_network.sha(binary.read_bytes()) != manifest["binary"]["sha256"]:
             raise RuntimeError("binary changed during run")
+        run_network.verify_spec_unchanged(manifest["specification"])
         manifest["status"] = "passed"
     except Exception as error:
         manifest["status"], manifest["error"] = "failed", f"{type(error).__name__}: {error}"

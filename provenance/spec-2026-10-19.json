@@ -1,0 +1,74 @@
+{
+  "schema": 2,
+  "client_date": "2026-10-19",
+  "review_status": "reviewed",
+  "review": {
+    "plan": "benchmarks/plans/2026-10-19-evaluation-migration.txt",
+    "verdict": "approve with changes; changes incorporated into plan",
+    "review_url": "https://chatgpt.com/c/6ad0826d-7048-83ec-b309-e09c2dca6590"
+  },
+  "paper_repository": "/Users/zhengxuanguo/gitrepo/delugi-paper",
+  "paper_head": "b5f3e5f623cf2ed1fb9b9954bdeae7ac36a86b82",
+  "paper_tracked_status": [
+    " M protocol/ordering.tex",
+    "?? protocol/dissemination.tex"
+  ],
+  "files": [
+    {
+      "path": "protocol/ordering.tex",
+      "bytes": 54386,
+      "sha256": "c201812a71e1c233aa9ba6bb845a4947ae37c56f2342aa7b940bef91225de8c4"
+    },
+    {
+      "path": "protocol/dissemination.tex",
+      "bytes": 69894,
+      "sha256": "35743b5e009251d4ff7243d4527a76ee93cc58304b01505b92e66af434f7d825"
+    }
+  ],
+  "implementation_baseline": "b8b1d4ec7df3a09b253af25e07119e9fae2a10e2",
+  "claims": {
+    "contribution": "Prefix availability with ordinary signatures",
+    "change_from_2026_10_13": "Framing and accounting only; protocol behavior unchanged",
+    "input_readiness": "2 delta permits authenticated-base empty fallback; valid input does not imply productive output",
+    "reference_construction": "all-current observations or authenticated-base empty fallback; historical source reuse disabled",
+    "metadata_witness_bound": "O(kappa n^2 log T)",
+    "request_collection_witness_traffic_bound": "O(kappa n^3 log T), for all-current reference with X_r=0",
+    "output_denominators": {
+      "M_out": "payload bits in distinct exact emitted batch identities",
+      "U_out": "unique useful honest application payload bits, deduplicated by authenticated request identity"
+    },
+    "cost_scope": "Include failed/empty opportunities, repeated-prefix evidence, delayed sends, source distribution, repair, setup and carried-in evidence. Zero-output ratios are undefined; retain absolute costs."
+  },
+  "scheduling": {
+    "canonical": "immediate originating PROG",
+    "implementation_default": "PROG pacing plus immediate bundling, with no fill timer",
+    "required_ablation": [
+      "immediate/bundle-off",
+      "immediate/bundle-on",
+      "paced/bundle-off",
+      "paced/bundle-on"
+    ],
+    "transport_control": "identical bounded pipelined TCP, queues, authentication and validation",
+    "theorem_scope": "Canonical and paced results stay separate; tests do not transfer the canonical timing theorem."
+  },
+  "gates": {
+    "conformance": [
+      "cumulative signed observations and unequal-height MMR proofs",
+      "target selection after observations",
+      "producer streaming without receipt quorum gates",
+      "retained authenticated f+1 suffix sources",
+      "complete-evidence immutable payload-independent Q",
+      "authenticated bases and current/empty construction",
+      "exact unsigned-header fork identity and FIFO materialization"
+    ],
+    "performance": [
+      "independent offered arrivals and explicit scheduling mode",
+      "cohort/deadline/drain accounting including unfinished and zero-output cases",
+      "exact within-run output-prefix agreement",
+      "M_out and U_out kept separate; all costs reconciled"
+    ]
+  },
+  "artifact_manifest": "provenance/baselines.json",
+  "rebuildability": "Build recipes, pinned sources and patches are retained; generated binaries may be cleaned. A new run must verify its build identity.",
+  "note": "Only normative TeX sources are pinned here; the exported dissemination PDF is stale. Preserve all older manifests and raw evidence. Source hashes, including untracked files, are authoritative independently of paper HEAD."
+}

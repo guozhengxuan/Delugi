@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "status": "native_linux_validator_and_fixture_built",
+  "source_commit": "9653e47dc6a08f4bb15e8f138ad79fb2045fccab",
+  "source_diff_sha256": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+  "cargo_lock_sha256": "2c214ab7d67ab96213f456af9049d6c4536b2a708806d51075238f22d4439c89",
+  "binaries": [
+    {
+      "path": "/work/repo/benchmarks/.cache/shoal-target/release/aptos-node",
+      "sha256": "db88fd45cea148f92e863e627b516672d31ff8cd14de15f4898c8a824c528895",
+      "bytes": 126893120
+    },
+    {
+      "path": "/work/repo/benchmarks/.cache/shoal-target/release/shoal-fixture",
+      "sha256": "f8a3d265e4acf7f3db63576decca91ae8b649ab96e1bf23b37e28efd6c8fc5e6",
+      "bytes": 40011072
+    }
+  ],
+  "abi": {
+    "platform": "Linux-6.15.10-200.fc42.aarch64-aarch64-with-glibc2.35",
+    "machine": "aarch64",
+    "libc": [
+      "glibc",
+      "2.35"
+    ],
+    "dynamic_libraries": {
+      "/work/repo/benchmarks/.cache/shoal-target/release/aptos-node": "\tlinux-vdso.so.1 (0x0000ffffa8a58000)\n\tlibdw.so.1 => /lib/aarch64-linux-gnu/libdw.so.1 (0x0000ffffa3860000)\n\tlibstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000ffffa3630000)\n\tlibssl.so.3 => /lib/aarch64-linux-gnu/libssl.so.3 (0x0000ffffa3580000)\n\tlibcrypto.so.3 => /lib/aarch64-linux-gnu/libcrypto.so.3 (0x0000ffffa3170000)\n\tlibgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000ffffa3140000)\n\tlibm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000ffffa30a0000)\n\tlibc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000ffffa2ef0000)\n\t/lib/ld-linux-aarch64.so.1 (0x0000ffffa8a20000)\n\tlibelf.so.1 => /lib/aarch64-linux-gnu/libelf.so.1 (0x0000ffffa2ec0000)\n\tlibz.so.1 => /lib/aarch64-linux-gnu/libz.so.1 (0x0000ffffa2e90000)\n\tliblzma.so.5 => /lib/aarch64-linux-gnu/liblzma.so.5 (0x0000ffffa2e50000)\n\tlibbz2.so.1.0 => /lib/aarch64-linux-gnu/libbz2.so.1.0 (0x0000ffffa2e20000)\n",
+      "/work/repo/benchmarks/.cache/shoal-target/release/shoal-fixture": "\tlinux-vdso.so.1 (0x0000ffffa6f48000)\n\tlibstdc++.so.6 => /lib/aarch64-linux-gnu/libstdc++.so.6 (0x0000ffffa5440000)\n\tlibssl.so.3 => /lib/aarch64-linux-gnu/libssl.so.3 (0x0000ffffa5390000)\n\tlibcrypto.so.3 => /lib/aarch64-linux-gnu/libcrypto.so.3 (0x0000ffffa4f80000)\n\tlibgcc_s.so.1 => /lib/aarch64-linux-gnu/libgcc_s.so.1 (0x0000ffffa4f50000)\n\tlibm.so.6 => /lib/aarch64-linux-gnu/libm.so.6 (0x0000ffffa4eb0000)\n\tlibc.so.6 => /lib/aarch64-linux-gnu/libc.so.6 (0x0000ffffa4d00000)\n\t/lib/ld-linux-aarch64.so.1 (0x0000ffffa6f10000)\n"
+    }
+  },
+  "rustc": "rustc 1.75.0 (82e1608df 2023-12-21)\nbinary: rustc\ncommit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112\ncommit-date: 2023-12-21\nhost: aarch64-unknown-linux-gnu\nrelease: 1.75.0\nLLVM version: 17.0.6\n",
+  "native_commands": [
+    [
+      "cargo",
+      "+1.75.0",
+      "build",
+      "--release",
+      "--jobs",
+      "1",
+      "-p",
+      "aptos-node",
+      "--features",
+      "consensus-only-perf-test",
+      "--locked"
+    ],
+    [
+      "cargo",
+      "+1.75.0",
+      "build",
+      "--release",
+      "--jobs",
+      "1",
+      "--locked",
+      "-p",
+      "aptos-genesis",
+      "--bin",
+      "shoal-fixture"
+    ]
+  ],
+  "environment": {
+    "CARGO_TARGET_DIR": "/work/repo/benchmarks/.cache/shoal-target",
+    "CARGO_HOME": "/work/repo/benchmarks/.cache/shoal-cargo",
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_INCREMENTAL": "0",
+    "CARGO_PROFILE_RELEASE_DEBUG": "0"
+  },
+  "build_resource_observation": {
+    "peak_cgroup_memory_bytes": 11815022592,
+    "memory_peak_scope": "kernel cgroup memory.peak across the owned build container lifetime",
+    "peak_swap_bytes": 0,
+    "peak_filesystem_used_bytes": 14115696640,
+    "filesystem_scope": "allocated VM filesystem including source/toolchain/dependency caches/builds",
+    "guard_stop_reason": null
+  },
+  "strict_post_build_source_guard_passed": true,
+  "evidence_sha256": {
+    "results/local/shoal-local-vm-20261019/build-attempt5/manifest.json": "baf7e67d945ea2e0c2f06b3f11bfa380e24d3dfd509b88ad3b00c9a12998dcd1",
+    "results/local/shoal-local-vm-20261019/build-attempt5/source.patch": "c172be850c8329ffe9c77cf74ca6f6ff8eeeeba30b68a9c8ed2d3c5255796546",
+    "results/local/shoal-local-vm-20261019/build-attempt5/Cargo.lock": "2c214ab7d67ab96213f456af9049d6c4536b2a708806d51075238f22d4439c89",
+    "results/local/shoal-local-vm-20261019/build-attempt5/build.log": "e2f6c724d572211f5c80fd378bb8d4ee0c3cd07485aa74bead62592ea62596c4",
+    "results/local/shoal-local-vm-20261019/build-attempt5/build-resource-bound-attempt-5.json": "474d5f5c0bd04d0a528b67e077f01230cb1d169fc98c0a2bb98450df0d33e668",
+    "results/local/shoal-local-vm-20261019/post-build-source-guard.json": "654d38517a3197b528f1e9d2b6ad2e5ae0c078c25eaaaf86b54f1b758084f3cb"
+  },
+  "runtime_acceptance": {
+    "status": "native_local_functional_accounting_accepted",
+    "report": "benchmarks/results/shoal-native-local-acceptance-2026-10-19.json",
+    "report_sha256": "f99847114b0a9986282a90618045ee631f0ef02bf2aa319550fbb4cf92c75ee4",
+    "formal_comparison_eligible": false
+  }
+}

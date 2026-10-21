@@ -1,0 +1,60 @@
+Local Linux netem acceptance — setup/cleanup passed; timing calibration failed
+
+Executed twice on 19 October 2026 with both task-owned builds paused. The unchanged
+10 ms setting produced added median TCP RTTs of 29.374/26.709 ms and
+25.784/27.635 ms, outside the declared 20 ms +/-5 ms acceptance range. Unselected
+control ports stayed unchanged and selected ports returned to baseline after
+clearing. Both runs verified all owned filters/IFBs removed, four echo process
+groups reaped and no private named namespaces remaining. Raw samples and all
+helper state are retained in results/local/local-netem-validation-82693c1123504bfb827d204de7306637.
+Report: benchmarks/results/local-netem-calibration-2026-10-19.json.
+Afterward, an independent namespace inventory found no IFB links and a zero-use
+IFB module. Because the module was absent before this task's lab, the newly
+loaded module was unloaded and its absence verified. That evidence is retained
+beside both trial records.
+
+A separate guest timer check measured median 14.198 ms for requested 10 ms sleeps.
+This is consistent with VM timer/scheduling overshoot; it does not isolate its
+precise cause. Neither attempt establishes verified delta = 10 ms conditions, and
+no protocol benchmark used these conditions. No macOS network settings or cloud
+resources changed. The recipe below describes the executed isolation method.
+
+The user cannot access the Mac mini's administrator prompt. The task-owned
+Linux VM permits local kernel validation without changing macOS packet filters
+or creating cloud resources. The check ran at a completed RocksDB build boundary,
+with Shoal and Delugi compilation and protocol pilots paused.
+
+scripts/local_netem_check.py runs as Linux root inside that owned VM. It invokes
+unshare to create private mount, network and PID namespaces, hides the host's
+named-namespace and helper-state registries with private tmpfs mounts, and creates two connected private
+network namespaces. The existing remote_worker.py echo/probe and linux_netem.py
+controller run unchanged inside them. Four echo processes serve the selected
+and unselected control ports in both directions.
+
+The check collects 20 TCP RTT samples per direction/port before shaping, during
+10 ms ingress delay at each endpoint, and after cleanup. It verifies approximately
+20 ms added median RTT on selected traffic, unchanged control-port latency,
+return to baseline, exact owned shaping objects and unchanged interface root
+qdisc. All raw samples, helper setup/cleanup evidence, child process-group cleanup,
+namespace inventory, source hashes and Linux kernel version are retained. Helper
+state files are copied into the evidence directory before the private mounts
+vanish, including failed setup/cleanup state when present.
+
+The private PID namespace terminates descendants when its controller exits;
+normal cleanup additionally reaps each owned echo process group and removes the
+named namespaces. The outer controller has a four-minute timeout. It does not
+modify VM-host interfaces, the user's existing VM, or Mac network settings.
+
+Run only inside the task-owned Linux VM, from a root shell, after copying the
+three scripts together:
+python3 scripts/local_netem_check.py --output /task-owned/evidence/netem-check --delay-ms 10
+
+The output directory must be new. This is helper/RTT calibration, not a Delugi
+or counterpart benchmark and not independent proof of each one-way delay. A
+future timing-controlled protocol comparison still needs the actual validator
+placement, per-role shaping, common resource budgets and pre/post calibration.
+
+Unprivileged local acceptance tests cover selected delay, both directions,
+unselected controls, cleanup restoration, missing/nonfinite samples and incorrect
+summary medians. Live setup/cleanup acceptance passed; the declared timing
+calibration failed and must remain a separate acceptance gate.

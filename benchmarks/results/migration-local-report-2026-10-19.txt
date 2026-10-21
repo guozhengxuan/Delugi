@@ -1,0 +1,31 @@
+Delugi evaluation migration — local validation, 19 October 2026
+
+Current artifacts: four independent replicas, 1,200 tx/s offered, 472 useful bytes/request, 1 s warmup, 3 s measurement, 5 s drain. Added delay is 0 ms; physical localhost delay remains present. The exposed bound preset is 100 ms. Fault and optional crypto counters were disabled for this healthy pilot.
+
+Protocol     Output tx/s   p50 ms   p95 ms   p99 ms   Committee TCP MB/s   Cohort complete
+Delugi           1199.7   10.575   15.256   16.380               55.147    3600/3600
+Mysticeti        1200.0    7.358   10.882   13.098               31.061    3600/3600
+Autobahn         1196.3   11.888   23.916   26.076                4.660    3600/3600
+
+Latency runs from honest-origin admission to origin-local, payload-verified contiguous output. All 3,600 requests per protocol completed by collection; throughput covers only the measurement window. Cohorts retain unfinished requests and scheduled-submission latency. Traffic counts actual replica stream writes once, including authentication, framing and ACKs; client/control traffic, TCP/IP headers and retransmissions are excluded. Encoded transaction sizes are 532/520/512 bytes respectively.
+
+Delugi healthy committees of 4, 7 and 31, finite process pause and all-message omission passed. Signed manifests and request contents were verified. The zero-output fixture retained 120 scheduled requests, zero completions and undefined per-output ratios. Agreement checks every overlapping honest output prefix, including longer tails beyond a stalled replica.
+
+Selective payload publication: faulty replica 0 produced four signed batches with 256 fixture transactions and withheld messages from replicas 2 and 3. The final gate observed 10 omissions, completed 3,600/3,600 honest measurement requests and verified prefix 5,056. Faulty IDs contribute no U_out; their distinct batches remain in M_out and actual traffic costs. An earlier zero-omission smoke is labelled separately.
+
+Native omissions: Autobahn suppressed 88 worker-payload sends and completed 1,200/1,200 honest requests. Mysticeti suppressed its own signed blocks, which couple payload and consensus; 397/1,200 completed and 803 remained unfinished after a 30 s drain, with matching prefixes. Withdrawal hooks were verified. Native repair sampling at 5 s and grace at 15 s remain unchanged; they do not alone explain the incomplete recovery.
+
+The four scheduling/bundling cells preserved valid accounting and output agreement. Initial canonical+bundled left 2,099/3,600 unfinished, with censored p99 ≥6,739 ms. An isolated repeat completed by drain but p99 was 2,599.902 ms. Round admission outpaced delivery even before load, without pending payload materialization or transport resource exhaustion. Paced cells completed with p99 near 17 ms. This is retained ordering-churn evidence requiring further diagnosis.
+
+Three alternating operation-counter off/on pairs completed all 6,000 requests per run. Median throughput stayed 1,200 tx/s; p99 changed 16.604→17.077 ms (paired +2.85%). Committee CPU changed 27.119→26.593 s (paired −2.16%; short-run variation). Exact-output cohort hooks remained enabled throughout, so their total overhead is still unmeasured.
+
+This single short load point establishes no sustainable capacity. Matching useful input and the exposed 100 ms preset does not match every native timer, batching, worker or storage setting. Native persistent storage differs from Delugi's in-memory custody. Only unshaped local tests ran; no 10 ms shaping or remote execution occurred. Shoal++ has source/recipe work but no native cohort result. Raw evidence is retained; generated build intermediates were cleaned while preserving measured binaries and stamps.
+
+Evidence:
+benchmarks/results/migration-matched-n4-final-2026-10-19.json
+benchmarks/results/migration-local-acceptance-2026-10-19.json
+benchmarks/fixtures/canonical-round-delivery-divergence-2026-10-19.json
+benchmarks/results/native-semantic-omission-2026-10-19.json
+benchmarks/results/native-observer-withdrawal-2026-10-19.json
+
+The earlier matched table is retained with explicit metadata errata; original raw manifest hashes are unchanged. Harness checks: 65 runner tests, 16 cohort tests and 9 mocked remote-deployment tests passed. The latter are unit tests, not remote execution.

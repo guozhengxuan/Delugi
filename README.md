@@ -78,7 +78,7 @@ indexed proof state. If none is feasible, it reuses f+1 current reports' supplie
 base-to-source proofs for target=base; this empty suffix needs no payload.
 Every coordinate is current and the reference historical source table is empty.
 Availability-specific parser budgets reserve space for the complete accepted pool,
-base evidence and all constructed WAs within the 1 MiB message profile.
+base evidence and all constructed WAs within the selected complete-message profile.
 
 Option A allows distinct Byzantine forks in the common output. Materialization
 processes ordering round, producer index and suffix height, suppressing only an
@@ -103,14 +103,14 @@ cargo test --offline --locked
 cargo run --offline --locked --bin ordering-trace -- --rounds 4 --until 70
 cargo run --offline --locked --bin ordering-trace -- --silent 0 --rounds 4 --until 800
 cargo run --offline --locked --bin ordering-trace -- --silent 0 --rounds 8 --until 1500
-python3 scripts/run_ordering.py
+python3 scripts/run_ordering.py --spec-snapshot provenance/spec-2026-10-19.json
 cargo run --offline --locked --bin end-to-end-trace -- --until 300
 cargo run --offline --locked --bin end-to-end-trace -- --silent 0 --until 900
 cargo run --offline --locked --bin end-to-end-trace -- --delay-payload --data-delay 120 --descriptor-only --until 700
-python3 scripts/run_end_to_end.py
-python3 scripts/run_network.py
-python3 scripts/run_network.py --scenario silent --repeats 3 --bound-ms 250
-python3 scripts/run_sustained.py --rate 1000 --ingress-batch-ms 100 --warmup 10 --duration 30
+python3 scripts/run_end_to_end.py --spec-snapshot provenance/spec-2026-10-19.json
+python3 scripts/run_network.py --spec-snapshot provenance/spec-2026-10-19.json
+python3 scripts/run_network.py --spec-snapshot provenance/spec-2026-10-19.json --scenario silent --repeats 3 --bound-ms 250
+python3 scripts/run_sustained.py --spec-snapshot provenance/spec-2026-10-19.json --rate 1000 --ingress-batch-ms 100 --warmup 10 --duration 30
 ```
 
 A fresh machine must first fetch the locked dependencies with
@@ -118,6 +118,13 @@ A fresh machine must first fetch the locked dependencies with
 (`31010ca61`, 2025-12-16); each run records its actual compiler and dependency lockfile.
 `run_initial.py` forwards to the current suite. Archived initial-run snapshots
 preserve the earlier genesis-only implementation and its original runner.
+
+Every archiving runner requires an explicit `--spec-snapshot`; there is no automatic
+latest-version selection. The October 19 snapshot pins the reviewed normative TeX
+sources and keeps conformance checks separate from performance claims. To replay
+an older snapshot, select its original manifest and use `--paper-repository` to
+point to the matching paper tree or archived `snapshot/paper` directory. Selected
+hashes are checked before and after the run, and the sources are archived verbatim.
 
 The generic ordering simulator supports 4 or 7 replicas, configurable positive δ < Δ, one optional
 silent member, a finite input workload, and an observation deadline. Workload and
@@ -128,7 +135,7 @@ values and witnesses. It does not implement availability.
 
 Membership IDs are zero-based; round 1 is led by ID 0. Deterministic simulator
 fixture private keys are publicly derivable and strictly for tests. The wire configuration rejects
-committees whose mandatory metadata cannot fit the 1 MiB frame, and reserves the
+committees whose mandatory metadata cannot fit their selected frame profile, and reserves the
 worst-case history overhead before accepting bounded external values/witnesses.
 
 ## Acceptance scenarios
@@ -203,7 +210,8 @@ timing; it is now the implementation default.
 Immediate bundling combines already-enabled ordering messages for each recipient
 at the end of an effect drain, without a batching timer or waiting for additional
 messages. A physical frame carries at most 32 independently verified messages
-and at most 1 MiB of encoded payload. HISTORY3 remains unicast to its collector.
+and at most the selected profile’s encoded-payload limit (1 MiB in the legacy profile).
+HISTORY3 remains unicast to its collector.
 Logical message counters and physical frame/ACK byte counters are retained
 separately; trace packet identities include a bundle member index.
 
@@ -228,7 +236,7 @@ the default pacing deadline is 100 ms.
 For example, after building and stamping the release binary, the default run is:
 
 ```sh
-python3 scripts/run_tcp_delay.py --output results/local/progress-trial \
+python3 scripts/run_tcp_delay.py --spec-snapshot provenance/spec-2026-10-19.json --output results/local/progress-trial \
   --scenario sustained --rate 4000 --transaction-size 512 \
   --ingress-batch-ms 100 --warmup 10 --duration 30 \
   --delay-ms 10 --bound-ms 100
@@ -319,12 +327,34 @@ separate TCP runners measure independent processes on one host, including sustai
 loads and matched counterpart trials. Durable recovery, larger load sweeps and
 deployment across hosts remain work. Counterpart runs are recorded in `benchmarks/`.
 
-Sustained latency uses each origin replica's local clock from insertion immediately
-before signed batch production to post-handler materialization. The mean covers
-transactions completed inside the measurement window; pending transactions and
-achieved completion rate are reported alongside it. A successful later drain
-checks completeness and agreement without adding those late completions to the
-window's latency population.
+Existing-host deployment preparation is available in
+[`scripts/deployment_prepare.py`](scripts/deployment_prepare.py). It imports saved
+Loom inventories, bundles exact sources, plans pinned Linux builds, publishes
+verified artifacts and cleans only owned build intermediates. Build, publish and
+cleanup commands default to a local preview. The
+[deployment workflow](benchmarks/plans/2026-10-19-deployment-workflow.txt) gives the
+full sequence. Local mocked contracts are tested; live remote deployment has not
+been tested. Native artifacts use the separate fixed-protocol placement entry point
+[`scripts/remote_native.py`](scripts/remote_native.py), with a declared Python3.10+
+interpreter and an ingress/materialization observer on each validator host.
+Its local mocked lifecycle tests do not establish remote benchmark acceptance.
+
+The October 19 sustained runner schedules independent finite arrivals. Headline
+latency uses one origin-local monotonic clock from application admission to
+payload-verified contiguous output. Scheduled-arrival latency and post-handler
+publication are separate endpoints. The measured cohort contains every request
+scheduled in the half-open measurement interval, including late completions during
+the declared drain and unfinished requests. Censored p50/p95/p99 and deadline
+completion remain authoritative; a completed-only mean is explicitly labelled.
+Window goodput counts unique admitted honest requests output during that window,
+so it has a different population from the scheduled-request latency cohort.
+
+Authenticated workload records are collected in bounded, hashed pages and checked
+offline before a disk-backed exact reducer computes agreement and useful work.
+The archive has no aggregate 1 GiB limit; protocol runtime state still grows with
+the workload. Each run requires a new result directory and retains unfinished or
+zero-output outcomes. See the [current migration status](benchmarks/plans/2026-10-21-migration-status.txt)
+and [archive contract](benchmarks/plans/2026-10-19-cohort-storage.txt) for tested limits.
 
 Every nonself send is charged, including silent recipients and deliveries pending
 at observation end. HISTORY3/CLOSED charge to h+3; other sends charge to their
@@ -340,13 +370,42 @@ The runners create unique ignored `results/local/ordering-*` or
 preserves unsuccessful runs and requires identical signed replays. It rejects
 changed source files during archival and changed canonical specification hashes.
 Raw archives remain local and ignored; preserve them separately. Current paper
-working-tree hashes and Git HEAD are pinned in `provenance/spec-2026-10-13.json`.
+working-tree hashes and Git HEAD are pinned in `provenance/spec-2026-10-19.json`.
 The earlier snapshot and its measurements remain available for historical replay.
 
 [PROGRESS.md](PROGRESS.md) links the latest verified run.
 [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md) maps the formal modules and next
 stages. The current composition implements the 13 October Option A revision.
-The bounded availability profile supports 4 or 7 replicas, reserving complete
-u64-height proof vectors; larger committees require a larger message profile.
+The legacy `legacy-1mib-v1` profile supports availability committees of 4 or 7
+replicas, reserving complete u64-height proof vectors. The opt-in
+`complete-32mib-n31-v1` profile reserves complete messages up to 32 MiB and
+committees through 31. Its identifier, limits, and ordered membership are bound
+into the authenticated configuration; the legacy configuration hash stays unchanged.
+The larger profile retains the full u64 checkpoint range. It reserves the complete
+observation pool, all-current witnesses, authenticated base, and worst-case
+HISTORY3 before accepting inputs. Incomplete or oversized evidence cannot satisfy Q.
+
+Transport limits include aggregate byte budgets for queued/replayed outgoing frames,
+read buffers, and the protocol mailbox, as well as frame/count bounds. Inbox/read
+pressure waits; the process retains saturated outbox frames in bounded per-peer
+FIFO queues and rotates retries. Exhaustion of the finite envelope is an explicit
+failure, never a silent discard. The larger profile uses a 30-second transport body/ACK
+timeout, independently of ordering Δ. Byte high-water marks are included in snapshots.
+
+Actual successful stream-write counters split original BATCH payload bytes,
+evidence/control, complete FETCH/DATA repair messages, and transport overhead.
+Repair includes its embedded payload and evidence; overhead includes authentication,
+frame and bundle framing, and all ACK bytes. These disjoint categories sum exactly
+to outbound bytes, including partial writes and replays. Logical accepted-message
+counters remain separate. TCP/IP headers and kernel retransmissions are excluded.
+
+Optional operation metrics distinguish protocol signatures from data-frame and ACK
+authentication, and record content-hash, prefix-proof and construction work. Linux
+and macOS expose thread CPU time alongside monotonic elapsed time. Nested operation
+costs overlap and must not be summed; compare enabled and disabled trials to quantify
+observer overhead. Constructor counters distinguish empty inputs from productive
+advancement and record unavailable base proofs, source suffixes and source proofs.
+The application cohort ledger separately identifies pending honest data.
+
 The specification’s singleton procedure is not implemented. Durable recovery,
-bounded custody and distributed-host evaluation remain subsequent engineering work.
+bounded custody and validation of distributed-host campaigns remain subsequent work.

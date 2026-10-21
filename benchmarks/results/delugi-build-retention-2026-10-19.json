@@ -1,0 +1,9 @@
+{
+  "binary_sha256": "ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b",
+  "preserved_directory": "results/local/retained-artifacts-20261019/ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b",
+  "cleanup_output": "Removed 815 files, 311.7MiB total",
+  "preserved": [
+    "release/delugi-replica",
+    "release/delugi-replica.build.json"
+  ]
+}

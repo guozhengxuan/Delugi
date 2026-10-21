@@ -1,0 +1,99 @@
+Evaluation migration status — 21 October 2026
+
+Current authorization: approved local Delugi-to-Raptr shared-runtime phase.
+The user approved the reviewed architecture and periodic commits/pushes. Freeze
+contracts, extract Delugi without semantic changes, port Raptr first, then run
+local correctness/accounting gates. No cloud execution or additional counterpart
+port is included. The pause record below is historical and superseded.
+
+
+Current gate: implementation paused by explicit user instruction
+The user now requests protocol differences confined to core subtrees with shared
+network/crypto/node/mempool infrastructure, informed by Sonnino HotStuff/Ditto.
+Discuss the concrete module/interface and migration plan with delugi context;
+only the user can authorize resuming implementation. Native Raptr integration,
+all builds/tests/campaigns and cloud work are stopped while this plan is reviewed.
+The source checkpoint and per-agent pause records preserve all unfinished work:
+results/local/architecture-review-20261021/implementation-checkpoint/manifest.json
+results/local/raptr-priority-20261021/pause-native-architecture-review.txt
+results/local/raptr-priority-20261021/pause-harness-architecture-review.txt
+results/local/raptr-priority-20261021/pause-runner-architecture-review.txt
+The pre-pause Raptr artifact helper passed28 tests; independent ingress passed8.
+The new native observer/fixture/collector path has not been built or accepted.
+The continuation text below records prior work, not permission to resume it.
+
+Priority amendment
+Raptr is now the primary counterpart by explicit user direction. The previous
+supplementary designation is superseded. See
+benchmarks/plans/2026-10-21-raptr-priority.txt. New Shoal trials are deferred;
+the completed new validator is retained as runtime-unvalidated and its fixture
+build was stopped. Native source/audited accounting work is preserved.
+
+Scope
+Continue the reviewed October 19 migration with local tests only. No cloud
+resources or external-host execution. The task-owned local Linux VM is allowed;
+Mac administrator access is unavailable. No new verified delta = 10 ms protocol
+comparison has run. Historical artifacts and raw evidence remain retained.
+
+Accepted implementation and validation
+- Mysticeti frozen-output fidelity: 32 retained replica archives, eight runs and
+  1,988,196 complete-block checkpoints independently match signed native WAL
+  bytes and persisted CommitData order. Every correct-replica prefix agrees.
+  Full/compact healthy, empty, unfinished and one sustained pair were covered.
+  Peak reader RSS 52.6 MB; maximum per-replica scratch 473 MB, all removed. 52 Python
+  checks pass. The local adapter now verifies after owned process cleanup.
+  This proves the exact frozen prefix, not quorum certificates, admission
+  timestamps, fsync durability or a later WAL suffix. Native binary unchanged.
+  Report: benchmarks/results/mysticeti-wal-prefix-fidelity-2026-10-21.json.
+- Timing acceptance: one policy now recomputes raw medians and requires exact
+  distinct directed ring/role identities. At delta = 10 ms accept added RTT 20 ± 5 ms;
+  cleanup must return within 2 ms of baseline. Invalid baseline evidence is
+  rejected before setup; invalid active evidence clears owned rules. Mac checks
+  also require an unselected control. All four failed VM observations remain
+  rejected. 205 focused checks and all five historical Shoal manifest replays
+  pass. Report: benchmarks/results/campaign-timing-validation-2026-10-21.json.
+- Local Shoal campaign integration: healthy n4/n7 and previously accepted n4
+  pause/semantic omission routes are enabled, requiring complete native startup
+  readiness, swap disabled and exact owned-child cleanup. Local added-delay
+  Shoal cases, n31 and unaccepted fault/committee combinations remain refused.
+- Future Shoal deployment: all-host prepare/arm, nonce/plan-bound abort for late
+  workers, native bootstrap/REST/counter/observer readiness, host-local epochs,
+  full receipt collection and transferred revalidation. Receipt failures fail
+  acceptance; finite populations reconcile per correct origin. 61 local checks
+  pass. No remote execution. Report:
+  benchmarks/results/remote-shoal-readiness-2026-10-21.json.
+- Current combined Python checkpoint: 366 main and 120 baseline tests pass.
+  The sandbox initially denied the existing loopback-only HTTP fixture; the
+  baseline suite passed when local binding was allowed. Source snapshots and
+  both logs remain retained. Report:
+  benchmarks/results/combined-local-validation-2026-10-21.json.
+- Shoal pause evidence: owned PID/start/session identity, bounded observed
+  stop/resume acknowledgements, and separate configured/actual interval bounds.
+  29 focused checks and one real Linux owned-child pause/resume/final-freeze
+  smoke pass; child reaped. Native source and receipt contracts unchanged.
+  Evidence: results/local/shoal-pause-observation-20261021/report.json and
+  results/local/shoal-observer-source-20261021/pause-linux-smoke.json.
+
+Deferred Shoal native acceptance
+Shoal full/compact native source and Python helpers are frozen and independently
+reviewed. Both modes retain payload/signature validation, exact raw output order,
+finite identity membership, first-output admission eligibility and complete-batch
+freeze. Compact has no detailed request timestamps. Empty/repeated batches,
+checkpoint mutation and pre-admission output accounting have focused regressions.
+The validator built; the fixture build was stopped when Raptr took priority.
+No new Shoal functional controls, observer pairs, fault reruns or n4/n7 campaign
+trials ran. Their recipes remain prepared. Runtime acceptance is still pending;
+the old accepted binaries and new runtime-unvalidated validator are retained.
+
+Remaining migration gates
+The larger migration remains incomplete. Families B/C need a bounded multi-event
+fault engine, native leader/nonleader opportunity identities, repeated bursts,
+and joined committed-descriptor/blocked-payload/recovery evidence. Native category
+conservation, proof/transport/storage attribution and retained/hottest-replica
+resources need further work. Source and acceptance distinctions are recorded in
+benchmarks/plans/2026-10-21-remaining-gates.txt. Formal comparison eligibility stays
+false until the relevant gates pass. Distributed execution and calibrated remote
+delay/loss remain deferred under the user's local-only direction.
+
+Earlier accepted binaries, fixtures, measurements and cleanup figures are in
+benchmarks/plans/2026-10-19-migration-status.txt and their immutable reports.

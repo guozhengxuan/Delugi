@@ -2,12 +2,15 @@
 """Archive composed transaction-path semantic traces, never network performance samples."""
 from datetime import datetime, timezone
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import platform
 import subprocess
 import sys
 import uuid
+
+from spec_provenance import add_spec_arguments, archive_spec, verify_spec_unchanged, scheduling_provenance
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -17,10 +20,13 @@ def sha(data):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    add_spec_arguments(parser)
+    args = parser.parse_args()
     run = ROOT / "results" / "local" / ("composed-" + uuid.uuid4().hex)
     run.mkdir(parents=True, exist_ok=False)
     manifest = {
-        "schema": 2,
+        "schema": 3,
         "classification": "deterministic_semantic_trace",
         "started_utc": datetime.now(timezone.utc).isoformat(),
         "machine": {"system": platform.system(), "release": platform.release(), "arch": platform.machine()},
@@ -32,6 +38,9 @@ def main():
         "input_readiness": "Finite batch workload is prepared before ordering starts; each leader automatically requests reports on entry; all-current construction with empty fallback; readiness and proposal time recorded separately",
         "accounting": "Every nonself packet, including silent recipients, injected duplicates, and control traffic beyond workload; serialization bytes exclude transport overhead",
         "warmup": "None; finite semantic traces, not performance trials",
+        "gate": "correctness_conformance_only",
+        "scheduling": scheduling_provenance({"ordering_mode": "progress", "ordering_batch": False, "progress_pacing_ms": 100},
+                                             transport="deterministic_event_queue"),
     }
 
     def command(args, label):
@@ -48,7 +57,7 @@ def main():
     try:
         sources = [ROOT / name for name in (
             "Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-            "scripts/run_end_to_end.py", "provenance/spec-2026-10-13.json",
+            "scripts/run_end_to_end.py", "scripts/spec_provenance.py",
         )]
         sources += sorted((ROOT / "src").rglob("*.rs"))
         sources += sorted((ROOT / "tests").rglob("*.rs"))
@@ -59,15 +68,8 @@ def main():
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
-        spec = json.loads((ROOT / "provenance/spec-2026-10-13.json").read_text())
-        for entry in spec["files"]:
-            data = (Path(spec["paper_repository"]) / entry["path"]).read_bytes()
-            if sha(data) != entry["sha256"]:
-                raise RuntimeError(f"Specification changed: {entry['path']}; review and record a fresh provenance snapshot")
-            dest = run / "snapshot" / "paper" / entry["path"]
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(data)
-        manifest["paper_head"] = spec["paper_head"]
+        manifest["specification"] = archive_spec(args.spec_snapshot, run / "snapshot", args.paper_repository)
+        manifest["paper_head"] = manifest["specification"]["paper_head"]
         manifest["rustc"] = command(["rustc", "--version", "--verbose"], "rustc").strip()
         manifest["cargo"] = command(["cargo", "--version"], "cargo").strip()
         command(["cargo", "fmt", "--check"], "format")
@@ -121,6 +123,7 @@ def main():
         for entry in manifest["source_files"]:
             if sha((ROOT / entry["path"]).read_bytes()) != entry["sha256"]:
                 raise RuntimeError(f"Source changed during archive: {entry['path']}; rerun with stable sources")
+        verify_spec_unchanged(manifest["specification"])
         manifest["status"] = "passed"
     except Exception as error:
         manifest["status"] = "failed"

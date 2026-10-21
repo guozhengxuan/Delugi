@@ -86,6 +86,7 @@ pub struct BatchStore {
     committee: Committee,
     config: Config,
     records: BTreeMap<(Id, Digest), Record>,
+    retained_payload_bytes: u64,
     /// One mutable tip per fork and independently imported base. Each State already
     /// retains every historical checkpoint and proof node; prefix copies are not
     /// separate branches.
@@ -113,6 +114,7 @@ impl BatchStore {
             committee,
             config,
             records: BTreeMap::new(),
+            retained_payload_bytes: 0,
             branches: BTreeMap::new(),
             children: BTreeMap::new(),
             prefixes: BTreeMap::new(),
@@ -139,6 +141,9 @@ impl BatchStore {
     }
     pub fn record_count(&self) -> usize {
         self.records.len()
+    }
+    pub fn retained_payload_bytes(&self) -> u64 {
+        self.retained_payload_bytes
     }
     pub fn custody_count(&self) -> usize {
         self.custody.len()
@@ -212,6 +217,7 @@ impl BatchStore {
             .entry((h.producer, h.height, h.previous))
             .or_default()
             .insert(digest);
+        self.retained_payload_bytes += record.payload.len() as u64;
         self.records.insert(key, record);
         true
     }

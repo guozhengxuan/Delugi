@@ -1,0 +1,1832 @@
+{
+  "schema": 1,
+  "date": "2026-10-19",
+  "status": "passed",
+  "classification": "native_implementation_cohort_comparison",
+  "settings": {
+    "rates": [
+      1200
+    ],
+    "repeats": 1,
+    "warmup_seconds": 1,
+    "measurement_seconds": 3,
+    "serialized_transaction_bytes": 512,
+    "useful_transaction_bytes": 472,
+    "deadline_ms": 1000,
+    "drain_seconds": 5.0,
+    "ingress_batch_ms": 10,
+    "replicas": 4,
+    "faults": 0,
+    "network": "localhost TCP",
+    "execution": "sequential; no overlapping protocol trials",
+    "order": "rate, repeat, protocol; protocol order rotates by repeat",
+    "one_way_added_network_delay_ms": 0,
+    "bound_ms": 100
+  },
+  "machine": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "cpu_count": 12,
+    "python": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]"
+  },
+  "measurement_boundaries": {
+    "throughput": "Unique origin-node completions per second, using disjoint origin observations; replicas are not summed as replicated system output.",
+    "latency": "Intended-arrival cohorts; admission to origin-local payload-verified contiguous output with censored p50/p95/p99 and independent scheduled-to-output accounting. Legacy adapters require explicit diagnostics mode.",
+    "traffic": "Sum of successful replica TCP stream writes, including protocol data, authentication, framing and application ACKs. Excludes metrics/client control, TCP/IP headers and kernel retransmissions. Reads recorded separately, never added to writes.",
+    "conditions": "Matched node count, hardware, offered useful workload, warmup and measurement duration. Native encoding, consensus units, workers, timeouts, cryptography and storage remain explicit. Native implementation comparison, not isolated protocol causality. Configured protocol bound matched; no added kernel delay, observed localhost network latency is not assumed zero.",
+    "capacity": "One offered-load point (1200 tx/s), one repetition and a 3-second measurement are a short functional native implementation pilot; no sustainable or maximum capacity is inferred."
+  },
+  "artifact_identities": {
+    "delugi": {
+      "binary": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "sources": {
+        "Cargo.toml": "0e7a856f7055c5eadde12b3c0f7d6f8a3a96e5ba11ed605b005b6ceb8d78b56d",
+        "Cargo.lock": "5d5f7ed1cc873e55299e2b9e772e9b6b74e78477aa2bd5eb564669983363965f",
+        "scripts/run_sustained.py": "3b81fc82b7b752f871146ff0d2c3f239fb9b7b88deb422429a7b6be7591957e2",
+        "scripts/run_network.py": "d579706059967bea250de571c2f55a329957009e7d62b1068eaa98c181eb9d3a",
+        "scripts/network_delay.py": "0739c28993bdae7efdd3eece17bc5ec016543e534381ccb598a3f972b2192c37",
+        "scripts/cohort_metrics.py": "9969f2a8e47d38800f975805d3cc46024761329e9bb33ac52d24e7845074d5a4",
+        "scripts/spec_provenance.py": "e94afad3469f741b3d96af2c422fd036d82a5b3d495062595b55494238b71b51",
+        "scripts/remote_deployment.py": "ca10f7db28b473f6ae8b148c202287237a7c86783ec8320d27667279d8b9e24c",
+        "scripts/remote_worker.py": "80e620ec9f24041290b1062b67f5cb6fb3eb8d8bdcc8ce6b74f896fcb915966b",
+        "scripts/linux_netem.py": "233b3f3f4e45a011e8622bc75bd26849e5221017d2e4c78033412f93cfaeba34",
+        "tests/sustained_runner_test.py": "c676108cd61cb2683529916f2a93cc6ba2fd716f27c51928757ab62157089ce3",
+        "tests/cohort_metrics_test.py": "b3fca9b72b05a6059f94387297aa3ef1d60d7c2c4f5bd711b9586b1200116944",
+        "src/availability.rs": "996d27bd99b2b4d76fe4a27ad629005f668e34d6d73a57583b926ec86c757994",
+        "src/batch.rs": "a394788126cd0f17de5e2925b7c1727139bc30c2a72a1b0646121bee44a0df1d",
+        "src/bin/delugi_replica.rs": "67c03ef911ab847b379d34b15febbd5090be5b4e03c0c0bbe22087d737c2e86e",
+        "src/bin/end_to_end_trace.rs": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2",
+        "src/bin/ordering_trace.rs": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9",
+        "src/causal.rs": "d4469866313242c2c728a49b9e93e7085ffbb19ee32f9c5fb17bdf8271560e0b",
+        "src/composed.rs": "5cf4f5f4983841c5b4728bf5ff3ac06b98d2592b678f7508109a40ce552c32cd",
+        "src/end_to_end.rs": "38a7cb9757420557e8aacabeabc3173f0973402a52a3cea9c607b32ca06b71a9",
+        "src/history.rs": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8",
+        "src/lib.rs": "d14cc9de826e1b309c4374dd959b8e3b41dc91a471c31a4c9a0859f2ddd6f425",
+        "src/meter.rs": "6c2d5b6581b78c1bc2f6c4d884086712870f3b81b336d37fb22265d522922944",
+        "src/mmr.rs": "5a6010fb1d59d0ea96c3bb1bc0a5f277e3987c0260246de4e9778ef8e291541f",
+        "src/process.rs": "e22f3e55e215277af64c3f911992a3f8ff2cc1cf356156df533ec469bb136472",
+        "src/replica.rs": "abe18b46903257ae655829334d8a3ede4f3cf83128c77a20c4899d57fd7a61a7",
+        "src/scanner.rs": "f5e92967ceeec4b9d1504e74409e23ed8c40692fc45fe60400d716c2abc95ee9",
+        "src/simulation.rs": "7446dbf5e155d802604eced471a486bfefd5cd3b5bef3fcfe4ec135f76e0bdc3",
+        "src/slot.rs": "bd695eff64f8186fde52b61a361549fa97dd3d2e88ef816799c2303f3af108e6",
+        "src/transport.rs": "ef240d842d3de7eb4be59d6786b3f8e1868c3b08e18109eea9acf6dc69e735b6",
+        "src/wire.rs": "e8cebfd3f29f51b9575ba1de220f437fa7a560bcc83c223334780c5e1b5c3044",
+        "src/workload.rs": "eb10752343cfcb0d49ade3e3353ec8eff3fb6f80286e07b24ba12a00bf55bdf4"
+      }
+    },
+    "mysticeti": {
+      "source_commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+      "source_diff": "651094de9de3c95f4ddc8e3a2ac8a6a09816e23fe1010a09cbbaae7d33a088be",
+      "binary": "5196f48bdf8af27a26dc3d13fc7789ccdfa270225702c448d80ed92b89802250",
+      "runner": "d59b3640a8a10b979c6a6a8e71907955082a6b883c4f948b09a095754cc82d4a"
+    },
+    "autobahn": {
+      "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+      "source_diff": "1d08cce40d8221c16cfd1fdfdb8584de95bdba5439ab716da0604fd5565b7361",
+      "binaries": {
+        "node": "1e74761da1eb64768c07d3280b6c130ddf1c12da22c3051609b44c6670ffc3b4",
+        "benchmark_client": "a31243ff612e9cb038fc26c0f21d0c4c9db984b3ae7c6c67276aa3d87e6c4773"
+      },
+      "build_stamp": {
+        "protocol": "autobahn",
+        "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+        "source_remote": "https://github.com/neilgiri/autobahn-artifact.git",
+        "reference": "autobahn",
+        "status": "built",
+        "started_unix_ns": 1792402501315319000,
+        "native_crypto_and_storage": true,
+        "target": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/autobahn-target",
+        "commands": [
+          [
+            "cargo",
+            "+stable",
+            "build",
+            "--release",
+            "--jobs",
+            "2",
+            "-p",
+            "node",
+            "--features",
+            "benchmark",
+            "--locked"
+          ]
+        ],
+        "environment": {
+          "CARGO_TARGET_DIR": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/autobahn-target",
+          "CARGO_HOME": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/autobahn-cargo",
+          "CARGO_BUILD_JOBS": "2",
+          "CARGO_INCREMENTAL": "0",
+          "LIBCLANG_PATH": "/opt/homebrew/opt/llvm@14/lib",
+          "Z_LIB_DIR": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib"
+        },
+        "rustc": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: aarch64-apple-darwin\nrelease: 1.92.0\nLLVM version: 21.1.3\n",
+        "cargo_lock_sha256": "1271a945958ec5e1d28058b7cbb553a9482f435366e392987164c9fcec5721b3",
+        "binaries": [
+          {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/autobahn-target/release/node",
+            "sha256": "1e74761da1eb64768c07d3280b6c130ddf1c12da22c3051609b44c6670ffc3b4",
+            "bytes": 10120768
+          },
+          {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/.cache/autobahn-target/release/benchmark_client",
+            "sha256": "a31243ff612e9cb038fc26c0f21d0c4c9db984b3ae7c6c67276aa3d87e6c4773",
+            "bytes": 3322000
+          }
+        ],
+        "source_diff_sha256": "1d08cce40d8221c16cfd1fdfdb8584de95bdba5439ab716da0604fd5565b7361",
+        "runner_sha256": "d45ce83de8835c85ae2485e3d5485f6ea45c3477537e5dc3309b7cf38944f116"
+      },
+      "runner": "f1e5adb129ca3e99a5c2951dc3370157485ab4e6f78f775643f20080d8314850"
+    }
+  },
+  "source_manifest": {
+    "path": "results/local/migration-matched-n4-20261019/manifest.json",
+    "sha256": "43d5ef9bc4185687faf8abd8746b7615eeec89f98ad2f4e0405de4ede3dda630"
+  },
+  "calibration_before": null,
+  "calibration_after": null,
+  "trials": [
+    {
+      "protocol": "delugi",
+      "rate": 1200,
+      "repeat": 0,
+      "label": "delugi-1200-repeat-0",
+      "command": [
+        "/usr/local/bin/python3",
+        "/Users/zhengxuanguo/gitrepo/Delugi/scripts/run_sustained.py",
+        "--rate",
+        "1200",
+        "--warmup",
+        "1",
+        "--duration",
+        "3",
+        "--ingress-batch-ms",
+        "10",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/migration-matched-n4-20261019/delugi-1200-repeat-0",
+        "--skip-build",
+        "--spec-snapshot",
+        "/Users/zhengxuanguo/gitrepo/Delugi/provenance/spec-2026-10-19.json",
+        "--useful-bytes",
+        "472",
+        "--drain",
+        "5.0",
+        "--deadline-ms",
+        "1000",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "started_unix_ns": 1792403280770132000,
+      "returncode": 0,
+      "finished_unix_ns": 1792403286900372000,
+      "manifest": {
+        "path": "results/local/migration-matched-n4-20261019/delugi-1200-repeat-0/manifest.json",
+        "sha256": "bbf3de2723f5e5f50379bc724a6c8fe42e3c707f68de8fb76fc50424494de9bf"
+      },
+      "comparison": {
+        "protocol": "delugi",
+        "replicas": 4,
+        "offered_tx_s": 1200,
+        "transaction_bytes": 532,
+        "warmup_seconds": 1.0,
+        "ingress_batch_ms": 10,
+        "measurement_seconds": 3.000192,
+        "unique_completion_tps": 1200.0,
+        "mean_latency_ms": 10.508709444444445,
+        "latency_endpoint": "admission to origin-local payload-verified contiguous output; intended-arrival cohort with censoring",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 167034500,
+        "replica_tcp_read_bytes": 167019301,
+        "replica_tcp_written_bytes_per_second": 55674601.57601254,
+        "completion_count": 3600,
+        "generated_count": 3600,
+        "generation_tps": 1200.0,
+        "pending_at_start": 12,
+        "pending_at_end": 12,
+        "generation_target_met": true,
+        "completion_target_met": true,
+        "process_cpu_seconds": 16.575768,
+        "hottest_replica_written_bytes": 41859209,
+        "protocol_bound_ms": 100,
+        "admission_count": 3600,
+        "admission_tps": 1200.0,
+        "u_out_bytes": 1699200,
+        "useful_goodput_bytes_per_second": 566400.0,
+        "carried_in_completion_count": 12,
+        "m_out_bytes": 1924800,
+        "m_out_replica": 0,
+        "m_out_boundary": "distinct exact batch payloads in selected replica measurement window",
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "accounting_schema": 1,
+        "useful_transaction_bytes": 472,
+        "cohort": {
+          "schema": 1,
+          "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+          "clock": "per-origin monotonic; remote membership has no cross-clock latency",
+          "cohort": "honest-origin intended arrivals in each half-open measurement window",
+          "deadline_ms": 1000.0,
+          "deadline_start": "intended_submission",
+          "origins": [
+            {
+              "origin": 0,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 900,
+              "window_u_out_bytes": 424800,
+              "window_seconds": 3.0
+            },
+            {
+              "origin": 1,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 900,
+              "window_u_out_bytes": 424800,
+              "window_seconds": 3.0
+            },
+            {
+              "origin": 2,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 900,
+              "window_u_out_bytes": 424800,
+              "window_seconds": 3.0
+            },
+            {
+              "origin": 3,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 900,
+              "window_u_out_bytes": 424800,
+              "window_seconds": 3.0
+            }
+          ],
+          "scheduled": 3600,
+          "admitted": 3600,
+          "rejected": 0,
+          "completed": 3600,
+          "unfinished": 0,
+          "deadline_completion_fraction": 1.0,
+          "deadline_fraction_status": "observed",
+          "deadline_unresolved": 0,
+          "deadline_missed": 0,
+          "deadline_completion_fraction_upper_bound": 1.0,
+          "worst_origin_deadline_completion_fraction": 1.0,
+          "admission_to_output": {
+            "population": 3600,
+            "completed": 3600,
+            "unfinished": 0,
+            "p50": {
+              "value_ms": 10.484,
+              "lower_bound_ms": 10.484,
+              "status": "observed"
+            },
+            "p95": {
+              "value_ms": 15.24,
+              "lower_bound_ms": 15.24,
+              "status": "observed"
+            },
+            "p99": {
+              "value_ms": 16.524,
+              "lower_bound_ms": 16.524,
+              "status": "observed"
+            }
+          },
+          "scheduled_to_output": {
+            "population": 3600,
+            "completed": 3600,
+            "unfinished": 0,
+            "p50": {
+              "value_ms": 10.673,
+              "lower_bound_ms": 10.673,
+              "status": "observed"
+            },
+            "p95": {
+              "value_ms": 15.446,
+              "lower_bound_ms": 15.446,
+              "status": "observed"
+            },
+            "p99": {
+              "value_ms": 16.631,
+              "lower_bound_ms": 16.631,
+              "status": "observed"
+            }
+          },
+          "all_correct_collection": {
+            "completed": 3600,
+            "unfinished": 0,
+            "fraction": 1.0,
+            "boundary": "final exact output collection; not remote event latency"
+          },
+          "window": {
+            "completion_count": 3600,
+            "unique_completion_tps": 1200.0,
+            "admission_count": 3600,
+            "admission_tps": 1200.0,
+            "u_out_bytes": 1699200,
+            "useful_goodput_bytes_per_second": 566400.0,
+            "carried_in_completion_count": 12,
+            "m_out_bytes": 1924800,
+            "m_out_replica": 0,
+            "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+          },
+          "finite_run": {
+            "m_out_bytes": 2566400,
+            "u_out_bytes": 2265600,
+            "unique_honest_completion_count": 4800,
+            "output_replica": 0,
+            "output_prefix_count": 4800,
+            "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+          },
+          "all_correct_origin_observed": {
+            "endpoint": "notification of verified common output prefix received on origin's own monotonic clock; includes polling/controller/return delay",
+            "scheduled_to_observation": {
+              "population": 3600,
+              "completed": 3600,
+              "unfinished": 0,
+              "p50": {
+                "value_ms": 274.768,
+                "lower_bound_ms": 274.768,
+                "status": "observed"
+              },
+              "p95": {
+                "value_ms": 499.765,
+                "lower_bound_ms": 499.765,
+                "status": "observed"
+              },
+              "p99": {
+                "value_ms": 519.963,
+                "lower_bound_ms": 519.963,
+                "status": "observed"
+              }
+            },
+            "deadline_unresolved": 0,
+            "deadline_completion_fraction_lower_bound": 1.0,
+            "worst_origin_deadline_completion_fraction_lower_bound": 1.0,
+            "origins": {
+              "0": {
+                "scheduled": 900,
+                "observed_by_deadline": 900
+              },
+              "1": {
+                "scheduled": 900,
+                "observed_by_deadline": 900
+              },
+              "2": {
+                "scheduled": 900,
+                "observed_by_deadline": 900
+              },
+              "3": {
+                "scheduled": 900,
+                "observed_by_deadline": 900
+              }
+            }
+          },
+          "all_correct_observed_deadlines": {
+            "clock_model": "single-host monotonic epoch bridges bounded by control request round trips",
+            "completion_endpoint": "controller receipt of exact output-prefix snapshots at every correct replica; includes polling and return delay",
+            "deadline_ms": 1000.0,
+            "deadline_start": "intended_submission",
+            "clock_offset_bounds_us": {
+              "0": [
+                4225577050743.0,
+                4225577051275.833
+              ],
+              "1": [
+                4225577051565.875,
+                4225577052117.625
+              ],
+              "2": [
+                4225577052854.333,
+                4225577053879.541
+              ],
+              "3": [
+                4225577053879.0,
+                4225577054782.458
+              ]
+            },
+            "origins": [
+              {
+                "origin": 0,
+                "scheduled": 900,
+                "observed_by_deadline": 900,
+                "clock_boundary_uncertain": 0,
+                "not_observed_by_deadline": 0,
+                "unfinished_at_collection": 0,
+                "deadline_unresolved_at_collection": 0,
+                "completion_fraction_lower_bound": 1.0
+              },
+              {
+                "origin": 1,
+                "scheduled": 900,
+                "observed_by_deadline": 900,
+                "clock_boundary_uncertain": 0,
+                "not_observed_by_deadline": 0,
+                "unfinished_at_collection": 0,
+                "deadline_unresolved_at_collection": 0,
+                "completion_fraction_lower_bound": 1.0
+              },
+              {
+                "origin": 2,
+                "scheduled": 900,
+                "observed_by_deadline": 900,
+                "clock_boundary_uncertain": 0,
+                "not_observed_by_deadline": 0,
+                "unfinished_at_collection": 0,
+                "deadline_unresolved_at_collection": 0,
+                "completion_fraction_lower_bound": 1.0
+              },
+              {
+                "origin": 3,
+                "scheduled": 900,
+                "observed_by_deadline": 900,
+                "clock_boundary_uncertain": 0,
+                "not_observed_by_deadline": 0,
+                "unfinished_at_collection": 0,
+                "deadline_unresolved_at_collection": 0,
+                "completion_fraction_lower_bound": 1.0
+              }
+            ],
+            "scheduled": 3600,
+            "completion_fraction_lower_bound": 1.0,
+            "worst_origin_completion_fraction_lower_bound": 1.0,
+            "clock_boundary_uncertain": 0,
+            "deadline_unresolved_at_collection": 0,
+            "unfinished_at_collection": 0
+          }
+        },
+        "deadline_ms": 1000.0,
+        "cost": {
+          "boundary": "window",
+          "written_bytes": 167034500,
+          "written_bytes_per_u_out_byte": 98.30184792843691,
+          "written_bytes_per_m_out_byte": 86.78018495428097
+        },
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "scheduled_count": 3600,
+        "mean_latency_population": "completed members of intended-arrival cohort; quantiles retain unfinished",
+        "drain_complete": true,
+        "comparison_contract": "exact_materialization_cohorts_v1",
+        "tcp_written_bytes_per_completion": 46395.50131334378,
+        "offered_load_completion_fraction": 1.0,
+        "achieved_generation_fraction": 1.0,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "timing": {
+        "added_network_delay_ms": 0,
+        "bound_ms": 100,
+        "kernel_shaping": false
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          104,
+          181,
+          230,
+          182,
+          166,
+          56,
+          176,
+          34,
+          253,
+          250,
+          61,
+          182,
+          151,
+          44,
+          23,
+          106,
+          59,
+          113,
+          158,
+          212,
+          8,
+          9,
+          189,
+          198,
+          253,
+          118,
+          131,
+          156,
+          100,
+          80,
+          166,
+          126
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          104,
+          181,
+          230,
+          182,
+          166,
+          56,
+          176,
+          34,
+          253,
+          250,
+          61,
+          182,
+          151,
+          44,
+          23,
+          106,
+          59,
+          113,
+          158,
+          212,
+          8,
+          9,
+          189,
+          198,
+          253,
+          118,
+          131,
+          156,
+          100,
+          80,
+          166,
+          126
+        ],
+        "replicas_agree": true
+      },
+      "drain_seconds": 0.00452087540179491,
+      "global_pending_by_replica": {
+        "0": 0,
+        "1": 0,
+        "2": 0,
+        "3": 0
+      },
+      "raw_manifest_verified": true
+    },
+    {
+      "protocol": "mysticeti",
+      "rate": 1200,
+      "repeat": 0,
+      "label": "mysticeti-1200-repeat-0",
+      "command": [
+        "/usr/local/bin/python3",
+        "/Users/zhengxuanguo/gitrepo/Delugi/scripts/baselines/mysticeti.py",
+        "--rate",
+        "1200",
+        "--warmup",
+        "1",
+        "--duration",
+        "3",
+        "--ingress-batch-ms",
+        "10",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/migration-matched-n4-20261019/mysticeti-1200-repeat-0",
+        "--useful-bytes",
+        "472",
+        "--drain",
+        "5.0",
+        "--deadline-ms",
+        "1000",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "started_unix_ns": 1792403286901385000,
+      "returncode": 0,
+      "finished_unix_ns": 1792403299494640000,
+      "manifest": {
+        "path": "results/local/migration-matched-n4-20261019/mysticeti-1200-repeat-0/manifest.json",
+        "sha256": "907225617de72994f23e4d718dc23e4db87471ae541df24d6537bc8c4d6df23b"
+      },
+      "comparison": {
+        "accounting_schema": 1,
+        "all_replica_commit_tps_max": 1198.6883185258168,
+        "all_replica_commit_tps_min": 1198.434943832933,
+        "bound_mapping": "Experiment mapping: native leader-readiness timeout T = 1 * Delta; quorum-clock gating remains unchanged.",
+        "bound_ms": 100,
+        "cohort": {
+          "admission_to_output": {
+            "completed": 3600,
+            "p50": {
+              "lower_bound_ms": 7.368,
+              "status": "observed",
+              "value_ms": 7.368
+            },
+            "p95": {
+              "lower_bound_ms": 10.898,
+              "status": "observed",
+              "value_ms": 10.898
+            },
+            "p99": {
+              "lower_bound_ms": 13.248,
+              "status": "observed",
+              "value_ms": 13.248
+            },
+            "population": 3600,
+            "unfinished": 0
+          },
+          "admitted": 3600,
+          "all_correct_collection": {
+            "boundary": "final exact output collection; not remote event latency",
+            "completed": 3600,
+            "fraction": 1.0,
+            "unfinished": 0
+          },
+          "clock": "per-origin monotonic; remote membership has no cross-clock latency",
+          "cohort": "honest-origin intended arrivals in each half-open measurement window",
+          "completed": 3600,
+          "deadline_completion_fraction": 1.0,
+          "deadline_completion_fraction_upper_bound": 1.0,
+          "deadline_fraction_status": "observed",
+          "deadline_missed": 0,
+          "deadline_ms": 1000,
+          "deadline_start": "intended_submission",
+          "deadline_unresolved": 0,
+          "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+          "finite_run": {
+            "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained",
+            "m_out_bytes": 2457600,
+            "output_prefix_count": 4800,
+            "output_replica": 0,
+            "u_out_bytes": 2265600,
+            "unique_honest_completion_count": 4800
+          },
+          "origins": [
+            {
+              "admitted": 900,
+              "completed": 900,
+              "deadline_completed": 900,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "deadline_missed": 0,
+              "deadline_unresolved": 0,
+              "oldest_outstanding_ms": 0.0,
+              "origin": 0,
+              "pending": 0,
+              "rejected": 0,
+              "scheduled": 900,
+              "unfinished": 0,
+              "window_completion_count": 900,
+              "window_seconds": 3.0,
+              "window_u_out_bytes": 424800
+            },
+            {
+              "admitted": 900,
+              "completed": 900,
+              "deadline_completed": 900,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "deadline_missed": 0,
+              "deadline_unresolved": 0,
+              "oldest_outstanding_ms": 0.0,
+              "origin": 1,
+              "pending": 0,
+              "rejected": 0,
+              "scheduled": 900,
+              "unfinished": 0,
+              "window_completion_count": 900,
+              "window_seconds": 3.0,
+              "window_u_out_bytes": 424800
+            },
+            {
+              "admitted": 900,
+              "completed": 900,
+              "deadline_completed": 900,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "deadline_missed": 0,
+              "deadline_unresolved": 0,
+              "oldest_outstanding_ms": 0.0,
+              "origin": 2,
+              "pending": 0,
+              "rejected": 0,
+              "scheduled": 900,
+              "unfinished": 0,
+              "window_completion_count": 900,
+              "window_seconds": 3.0,
+              "window_u_out_bytes": 424800
+            },
+            {
+              "admitted": 900,
+              "completed": 900,
+              "deadline_completed": 900,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "deadline_missed": 0,
+              "deadline_unresolved": 0,
+              "oldest_outstanding_ms": 0.0,
+              "origin": 3,
+              "pending": 0,
+              "rejected": 0,
+              "scheduled": 900,
+              "unfinished": 0,
+              "window_completion_count": 900,
+              "window_seconds": 3.0,
+              "window_u_out_bytes": 424800
+            }
+          ],
+          "rejected": 0,
+          "scheduled": 3600,
+          "scheduled_to_output": {
+            "completed": 3600,
+            "p50": {
+              "lower_bound_ms": 7.519,
+              "status": "observed",
+              "value_ms": 7.519
+            },
+            "p95": {
+              "lower_bound_ms": 11.05,
+              "status": "observed",
+              "value_ms": 11.05
+            },
+            "p99": {
+              "lower_bound_ms": 14.097,
+              "status": "observed",
+              "value_ms": 14.097
+            },
+            "population": 3600,
+            "unfinished": 0
+          },
+          "schema": 1,
+          "unfinished": 0,
+          "window": {
+            "admission_count": 3600,
+            "admission_tps": 1200.0,
+            "carried_in_completion_count": 12,
+            "completion_count": 3600,
+            "m_out_boundary": "distinct exact batch payloads in selected replica measurement window",
+            "m_out_bytes": 1843200,
+            "m_out_replica": 0,
+            "u_out_bytes": 1699200,
+            "unique_completion_tps": 1200.0,
+            "useful_goodput_bytes_per_second": 566400.0
+          },
+          "worst_origin_deadline_completion_fraction": 1.0
+        },
+        "completion_count": 3600,
+        "completion_count_scope": "Sum of disjoint own-origin transaction commit counts, one origin at each replica, over that replica's scrape interval.",
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "finite_run_resource_cost": {
+          "boundary": "finite_run",
+          "written_bytes": 263961310,
+          "written_bytes_per_m_out_byte": 107.40613199869792,
+          "written_bytes_per_u_out_byte": 116.50834657485876
+        },
+        "generated_count": 3600,
+        "generation_tps": 1200.0,
+        "ingress_batch_ms": 10,
+        "latency_endpoint": "Admission at independent ingress thread to origin-local payload-verified native linearized output, measured by one monotonic clock; no VM execution or durable-fsync claim.",
+        "leader_timeout_ms": 100,
+        "mean_latency_ms": 7.474434166666667,
+        "mean_latency_scope": "Completed measurement-cohort members only; censored cohort quantiles and unfinished count are authoritative.",
+        "measurement_seconds": 3.00365112,
+        "offered_tx_s": 1200,
+        "protocol": "mysticeti",
+        "replica_tcp_read_bytes": 93003766,
+        "replica_tcp_written_bytes": 93005034,
+        "replica_tcp_written_bytes_per_second": 30963993.581251875,
+        "replicas": 4,
+        "resource_cost": {
+          "boundary": "window",
+          "written_bytes": 93005034,
+          "written_bytes_per_m_out_byte": 50.45846028645833,
+          "written_bytes_per_u_out_byte": 54.734600988700564
+        },
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "transaction_bytes": 520,
+        "unique_completion_tps": 1200.0,
+        "useful_transaction_bytes": 472,
+        "warmup_seconds": 1.0,
+        "comparison_contract": "exact_materialization_cohorts_v1",
+        "tcp_written_bytes_per_completion": 25803.327984376563,
+        "offered_load_completion_fraction": 1.0,
+        "achieved_generation_fraction": 1.0,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "timing": {
+        "added_network_delay_ms": 0,
+        "bound_ms": 100,
+        "kernel_shaping": false
+      },
+      "raw_manifest_verified": true
+    },
+    {
+      "protocol": "autobahn",
+      "rate": 1200,
+      "repeat": 0,
+      "label": "autobahn-1200-repeat-0",
+      "command": [
+        "/usr/local/bin/python3",
+        "/Users/zhengxuanguo/gitrepo/Delugi/scripts/baselines/autobahn.py",
+        "--rate",
+        "1200",
+        "--warmup",
+        "1",
+        "--duration",
+        "3",
+        "--ingress-batch-ms",
+        "10",
+        "--output",
+        "/Users/zhengxuanguo/gitrepo/Delugi/results/local/migration-matched-n4-20261019/autobahn-1200-repeat-0",
+        "--useful-bytes",
+        "472",
+        "--drain",
+        "5.0",
+        "--deadline-ms",
+        "1000",
+        "--bound-ms",
+        "100"
+      ],
+      "status": "passed",
+      "started_unix_ns": 1792403299495890000,
+      "returncode": 0,
+      "finished_unix_ns": 1792403310754242000,
+      "manifest": {
+        "path": "results/local/migration-matched-n4-20261019/autobahn-1200-repeat-0/manifest.json",
+        "sha256": "ab5b6f9c2ddbbb4364814882b584b036b6b255c792a2ba7b2b95f61839e80dc1"
+      },
+      "comparison": {
+        "protocol": "autobahn",
+        "replicas": 4,
+        "offered_tx_s": 1200,
+        "bound_ms": 100,
+        "transaction_bytes": 512,
+        "useful_transaction_bytes": 472,
+        "ingress_batch_ms": 10,
+        "warmup_seconds": 1.0,
+        "measurement_seconds": 3.0,
+        "accounting_schema": 1,
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "latency_endpoint": "Independent origin application ingress to payload-verified contiguous native header/worker-batch output using one local monotonic clock; includes observer polling and local read cost.",
+        "cohort": {
+          "schema": 1,
+          "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+          "clock": "per-origin monotonic; remote membership has no cross-clock latency",
+          "cohort": "honest-origin intended arrivals in each half-open measurement window",
+          "deadline_ms": 1000.0,
+          "deadline_start": "intended_submission",
+          "origins": [
+            {
+              "origin": 0,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 896,
+              "window_u_out_bytes": 422912,
+              "window_seconds": 3.0
+            },
+            {
+              "origin": 1,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 901,
+              "window_u_out_bytes": 425272,
+              "window_seconds": 3.0
+            },
+            {
+              "origin": 2,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 897,
+              "window_u_out_bytes": 423384,
+              "window_seconds": 3.0
+            },
+            {
+              "origin": 3,
+              "scheduled": 900,
+              "admitted": 900,
+              "rejected": 0,
+              "completed": 900,
+              "unfinished": 0,
+              "pending": 0,
+              "deadline_completed": 900,
+              "deadline_unresolved": 0,
+              "deadline_missed": 0,
+              "deadline_completion_fraction": 1.0,
+              "deadline_completion_fraction_upper_bound": 1.0,
+              "oldest_outstanding_ms": 0.0,
+              "window_completion_count": 900,
+              "window_u_out_bytes": 424800,
+              "window_seconds": 3.0
+            }
+          ],
+          "scheduled": 3600,
+          "admitted": 3600,
+          "rejected": 0,
+          "completed": 3600,
+          "unfinished": 0,
+          "deadline_completion_fraction": 1.0,
+          "deadline_fraction_status": "observed",
+          "deadline_unresolved": 0,
+          "deadline_missed": 0,
+          "deadline_completion_fraction_upper_bound": 1.0,
+          "worst_origin_deadline_completion_fraction": 1.0,
+          "admission_to_output": {
+            "population": 3600,
+            "completed": 3600,
+            "unfinished": 0,
+            "p50": {
+              "value_ms": 11.638,
+              "lower_bound_ms": 11.638,
+              "status": "observed"
+            },
+            "p95": {
+              "value_ms": 23.33,
+              "lower_bound_ms": 23.33,
+              "status": "observed"
+            },
+            "p99": {
+              "value_ms": 26.084,
+              "lower_bound_ms": 26.084,
+              "status": "observed"
+            }
+          },
+          "scheduled_to_output": {
+            "population": 3600,
+            "completed": 3600,
+            "unfinished": 0,
+            "p50": {
+              "value_ms": 11.857,
+              "lower_bound_ms": 11.857,
+              "status": "observed"
+            },
+            "p95": {
+              "value_ms": 23.55,
+              "lower_bound_ms": 23.55,
+              "status": "observed"
+            },
+            "p99": {
+              "value_ms": 26.267,
+              "lower_bound_ms": 26.267,
+              "status": "observed"
+            }
+          },
+          "all_correct_collection": {
+            "completed": 3600,
+            "unfinished": 0,
+            "fraction": 1.0,
+            "boundary": "final exact output collection; not remote event latency"
+          },
+          "window": {
+            "completion_count": 3594,
+            "unique_completion_tps": 1198.0,
+            "admission_count": 3600,
+            "admission_tps": 1200.0,
+            "u_out_bytes": 1696368,
+            "useful_goodput_bytes_per_second": 565456.0,
+            "carried_in_completion_count": 9,
+            "m_out_bytes": 1840128,
+            "m_out_replica": 0,
+            "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+          },
+          "finite_run": {
+            "m_out_bytes": 2457600,
+            "u_out_bytes": 2265600,
+            "unique_honest_completion_count": 4800,
+            "output_replica": 0,
+            "output_prefix_count": 4800,
+            "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+          }
+        },
+        "unique_completion_tps": 1198.0,
+        "completion_count": 3594,
+        "mean_latency_ms": 12.372821666666667,
+        "mean_latency_scope": "completed cohort members only; censored cohort quantiles authoritative",
+        "generated_count": 3600,
+        "generation_tps": 1200.0,
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "replica_tcp_written_bytes": 14001602,
+        "replica_tcp_read_bytes": 15859202,
+        "replica_tcp_written_bytes_per_second": 4667200.666666667,
+        "end_pending_generated_transactions_at_origins": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "resource_cost": {
+          "boundary": "window",
+          "written_bytes": 14001602,
+          "written_bytes_per_u_out_byte": 8.253870622412117,
+          "written_bytes_per_m_out_byte": 7.609036980036171
+        },
+        "finite_run_resource_cost": {
+          "boundary": "finite_run",
+          "written_bytes": 29206222,
+          "written_bytes_per_u_out_byte": 12.891164371468927,
+          "written_bytes_per_m_out_byte": 11.884042154947917
+        },
+        "comparison_contract": "exact_materialization_cohorts_v1",
+        "tcp_written_bytes_per_completion": 3895.82693377852,
+        "offered_load_completion_fraction": 0.9983333333333333,
+        "achieved_generation_fraction": 1.0,
+        "completion_rate_at_least_95_percent_of_target": true
+      },
+      "timing": {
+        "added_network_delay_ms": 0,
+        "bound_ms": 100,
+        "kernel_shaping": false
+      },
+      "raw_manifest_verified": true
+    }
+  ],
+  "aggregate": [
+    {
+      "protocol": "autobahn",
+      "offered_tx_s": 1200,
+      "successful_trials": 1,
+      "unique_completion_tps": {
+        "median": 1198.0,
+        "min": 1198.0,
+        "max": 1198.0
+      },
+      "mean_latency_ms": {
+        "median": 12.372821666666667,
+        "min": 12.372821666666667,
+        "max": 12.372821666666667
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 4667200.666666667,
+        "min": 4667200.666666667,
+        "max": 4667200.666666667
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 3895.82693377852,
+        "min": 3895.82693377852,
+        "max": 3895.82693377852
+      },
+      "offered_load_completion_fraction": {
+        "median": 0.9983333333333333,
+        "min": 0.9983333333333333,
+        "max": 0.9983333333333333
+      },
+      "generation_tps": {
+        "median": 1200.0,
+        "min": 1200.0,
+        "max": 1200.0
+      },
+      "useful_goodput_bytes_per_second": null,
+      "process_cpu_seconds": null,
+      "hottest_replica_written_bytes": null,
+      "cohort_trials": 1,
+      "cohort_outcomes": {
+        "scheduled": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "admitted": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "rejected": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "completed": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "unfinished": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_missed": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_unresolved": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_completion_fraction": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "worst_origin_deadline_completion_fraction": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      },
+      "cohort_quantiles": {
+        "admission_to_output": {
+          "p50": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 11.638,
+              "min": 11.638,
+              "max": 11.638
+            },
+            "lower_bound_ms": {
+              "median": 11.638,
+              "min": 11.638,
+              "max": 11.638
+            },
+            "trials": [
+              {
+                "value_ms": 11.638,
+                "lower_bound_ms": 11.638,
+                "status": "observed"
+              }
+            ]
+          },
+          "p95": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 23.33,
+              "min": 23.33,
+              "max": 23.33
+            },
+            "lower_bound_ms": {
+              "median": 23.33,
+              "min": 23.33,
+              "max": 23.33
+            },
+            "trials": [
+              {
+                "value_ms": 23.33,
+                "lower_bound_ms": 23.33,
+                "status": "observed"
+              }
+            ]
+          },
+          "p99": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 26.084,
+              "min": 26.084,
+              "max": 26.084
+            },
+            "lower_bound_ms": {
+              "median": 26.084,
+              "min": 26.084,
+              "max": 26.084
+            },
+            "trials": [
+              {
+                "value_ms": 26.084,
+                "lower_bound_ms": 26.084,
+                "status": "observed"
+              }
+            ]
+          }
+        },
+        "scheduled_to_output": {
+          "p50": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 11.857,
+              "min": 11.857,
+              "max": 11.857
+            },
+            "lower_bound_ms": {
+              "median": 11.857,
+              "min": 11.857,
+              "max": 11.857
+            },
+            "trials": [
+              {
+                "value_ms": 11.857,
+                "lower_bound_ms": 11.857,
+                "status": "observed"
+              }
+            ]
+          },
+          "p95": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 23.55,
+              "min": 23.55,
+              "max": 23.55
+            },
+            "lower_bound_ms": {
+              "median": 23.55,
+              "min": 23.55,
+              "max": 23.55
+            },
+            "trials": [
+              {
+                "value_ms": 23.55,
+                "lower_bound_ms": 23.55,
+                "status": "observed"
+              }
+            ]
+          },
+          "p99": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 26.267,
+              "min": 26.267,
+              "max": 26.267
+            },
+            "lower_bound_ms": {
+              "median": 26.267,
+              "min": 26.267,
+              "max": 26.267
+            },
+            "trials": [
+              {
+                "value_ms": 26.267,
+                "lower_bound_ms": 26.267,
+                "status": "observed"
+              }
+            ]
+          }
+        }
+      },
+      "window_resource_ratios": {
+        "written_bytes_per_m_out_byte": {
+          "median": 7.609036980036171,
+          "min": 7.609036980036171,
+          "max": 7.609036980036171
+        },
+        "written_bytes_per_u_out_byte": {
+          "median": 8.253870622412117,
+          "min": 8.253870622412117,
+          "max": 8.253870622412117
+        }
+      },
+      "latency_endpoints": [
+        "Independent origin application ingress to payload-verified contiguous native header/worker-batch output using one local monotonic clock; includes observer polling and local read cost."
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true
+    },
+    {
+      "protocol": "delugi",
+      "offered_tx_s": 1200,
+      "successful_trials": 1,
+      "unique_completion_tps": {
+        "median": 1200.0,
+        "min": 1200.0,
+        "max": 1200.0
+      },
+      "mean_latency_ms": {
+        "median": 10.508709444444445,
+        "min": 10.508709444444445,
+        "max": 10.508709444444445
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 55674601.57601254,
+        "min": 55674601.57601254,
+        "max": 55674601.57601254
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 46395.50131334378,
+        "min": 46395.50131334378,
+        "max": 46395.50131334378
+      },
+      "offered_load_completion_fraction": {
+        "median": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "generation_tps": {
+        "median": 1200.0,
+        "min": 1200.0,
+        "max": 1200.0
+      },
+      "useful_goodput_bytes_per_second": {
+        "median": 566400.0,
+        "min": 566400.0,
+        "max": 566400.0
+      },
+      "process_cpu_seconds": {
+        "median": 16.575768,
+        "min": 16.575768,
+        "max": 16.575768
+      },
+      "hottest_replica_written_bytes": {
+        "median": 41859209,
+        "min": 41859209,
+        "max": 41859209
+      },
+      "cohort_trials": 1,
+      "cohort_outcomes": {
+        "scheduled": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "admitted": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "rejected": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "completed": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "unfinished": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_missed": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_unresolved": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_completion_fraction": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "worst_origin_deadline_completion_fraction": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      },
+      "cohort_quantiles": {
+        "admission_to_output": {
+          "p50": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 10.484,
+              "min": 10.484,
+              "max": 10.484
+            },
+            "lower_bound_ms": {
+              "median": 10.484,
+              "min": 10.484,
+              "max": 10.484
+            },
+            "trials": [
+              {
+                "value_ms": 10.484,
+                "lower_bound_ms": 10.484,
+                "status": "observed"
+              }
+            ]
+          },
+          "p95": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 15.24,
+              "min": 15.24,
+              "max": 15.24
+            },
+            "lower_bound_ms": {
+              "median": 15.24,
+              "min": 15.24,
+              "max": 15.24
+            },
+            "trials": [
+              {
+                "value_ms": 15.24,
+                "lower_bound_ms": 15.24,
+                "status": "observed"
+              }
+            ]
+          },
+          "p99": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 16.524,
+              "min": 16.524,
+              "max": 16.524
+            },
+            "lower_bound_ms": {
+              "median": 16.524,
+              "min": 16.524,
+              "max": 16.524
+            },
+            "trials": [
+              {
+                "value_ms": 16.524,
+                "lower_bound_ms": 16.524,
+                "status": "observed"
+              }
+            ]
+          }
+        },
+        "scheduled_to_output": {
+          "p50": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 10.673,
+              "min": 10.673,
+              "max": 10.673
+            },
+            "lower_bound_ms": {
+              "median": 10.673,
+              "min": 10.673,
+              "max": 10.673
+            },
+            "trials": [
+              {
+                "value_ms": 10.673,
+                "lower_bound_ms": 10.673,
+                "status": "observed"
+              }
+            ]
+          },
+          "p95": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 15.446,
+              "min": 15.446,
+              "max": 15.446
+            },
+            "lower_bound_ms": {
+              "median": 15.446,
+              "min": 15.446,
+              "max": 15.446
+            },
+            "trials": [
+              {
+                "value_ms": 15.446,
+                "lower_bound_ms": 15.446,
+                "status": "observed"
+              }
+            ]
+          },
+          "p99": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 16.631,
+              "min": 16.631,
+              "max": 16.631
+            },
+            "lower_bound_ms": {
+              "median": 16.631,
+              "min": 16.631,
+              "max": 16.631
+            },
+            "trials": [
+              {
+                "value_ms": 16.631,
+                "lower_bound_ms": 16.631,
+                "status": "observed"
+              }
+            ]
+          }
+        }
+      },
+      "window_resource_ratios": {
+        "written_bytes_per_m_out_byte": {
+          "median": 86.78018495428097,
+          "min": 86.78018495428097,
+          "max": 86.78018495428097
+        },
+        "written_bytes_per_u_out_byte": {
+          "median": 98.30184792843691,
+          "min": 98.30184792843691,
+          "max": 98.30184792843691
+        }
+      },
+      "latency_endpoints": [
+        "admission to origin-local payload-verified contiguous output; intended-arrival cohort with censoring"
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true
+    },
+    {
+      "protocol": "mysticeti",
+      "offered_tx_s": 1200,
+      "successful_trials": 1,
+      "unique_completion_tps": {
+        "median": 1200.0,
+        "min": 1200.0,
+        "max": 1200.0
+      },
+      "mean_latency_ms": {
+        "median": 7.474434166666667,
+        "min": 7.474434166666667,
+        "max": 7.474434166666667
+      },
+      "replica_tcp_written_bytes_per_second": {
+        "median": 30963993.581251875,
+        "min": 30963993.581251875,
+        "max": 30963993.581251875
+      },
+      "tcp_written_bytes_per_completion": {
+        "median": 25803.327984376563,
+        "min": 25803.327984376563,
+        "max": 25803.327984376563
+      },
+      "offered_load_completion_fraction": {
+        "median": 1.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "generation_tps": {
+        "median": 1200.0,
+        "min": 1200.0,
+        "max": 1200.0
+      },
+      "useful_goodput_bytes_per_second": null,
+      "process_cpu_seconds": null,
+      "hottest_replica_written_bytes": null,
+      "cohort_trials": 1,
+      "cohort_outcomes": {
+        "scheduled": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "admitted": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "rejected": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "completed": {
+          "median": 3600,
+          "min": 3600,
+          "max": 3600
+        },
+        "unfinished": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_missed": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_unresolved": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "deadline_completion_fraction": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "worst_origin_deadline_completion_fraction": {
+          "median": 1.0,
+          "min": 1.0,
+          "max": 1.0
+        }
+      },
+      "cohort_quantiles": {
+        "admission_to_output": {
+          "p50": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 7.368,
+              "min": 7.368,
+              "max": 7.368
+            },
+            "lower_bound_ms": {
+              "median": 7.368,
+              "min": 7.368,
+              "max": 7.368
+            },
+            "trials": [
+              {
+                "lower_bound_ms": 7.368,
+                "status": "observed",
+                "value_ms": 7.368
+              }
+            ]
+          },
+          "p95": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 10.898,
+              "min": 10.898,
+              "max": 10.898
+            },
+            "lower_bound_ms": {
+              "median": 10.898,
+              "min": 10.898,
+              "max": 10.898
+            },
+            "trials": [
+              {
+                "lower_bound_ms": 10.898,
+                "status": "observed",
+                "value_ms": 10.898
+              }
+            ]
+          },
+          "p99": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 13.248,
+              "min": 13.248,
+              "max": 13.248
+            },
+            "lower_bound_ms": {
+              "median": 13.248,
+              "min": 13.248,
+              "max": 13.248
+            },
+            "trials": [
+              {
+                "lower_bound_ms": 13.248,
+                "status": "observed",
+                "value_ms": 13.248
+              }
+            ]
+          }
+        },
+        "scheduled_to_output": {
+          "p50": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 7.519,
+              "min": 7.519,
+              "max": 7.519
+            },
+            "lower_bound_ms": {
+              "median": 7.519,
+              "min": 7.519,
+              "max": 7.519
+            },
+            "trials": [
+              {
+                "lower_bound_ms": 7.519,
+                "status": "observed",
+                "value_ms": 7.519
+              }
+            ]
+          },
+          "p95": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 11.05,
+              "min": 11.05,
+              "max": 11.05
+            },
+            "lower_bound_ms": {
+              "median": 11.05,
+              "min": 11.05,
+              "max": 11.05
+            },
+            "trials": [
+              {
+                "lower_bound_ms": 11.05,
+                "status": "observed",
+                "value_ms": 11.05
+              }
+            ]
+          },
+          "p99": {
+            "all_trials_observed": true,
+            "exact_ms": {
+              "median": 14.097,
+              "min": 14.097,
+              "max": 14.097
+            },
+            "lower_bound_ms": {
+              "median": 14.097,
+              "min": 14.097,
+              "max": 14.097
+            },
+            "trials": [
+              {
+                "lower_bound_ms": 14.097,
+                "status": "observed",
+                "value_ms": 14.097
+              }
+            ]
+          }
+        }
+      },
+      "window_resource_ratios": {
+        "written_bytes_per_m_out_byte": {
+          "median": 50.45846028645833,
+          "min": 50.45846028645833,
+          "max": 50.45846028645833
+        },
+        "written_bytes_per_u_out_byte": {
+          "median": 54.734600988700564,
+          "min": 54.734600988700564,
+          "max": 54.734600988700564
+        }
+      },
+      "latency_endpoints": [
+        "Admission at independent ingress thread to origin-local payload-verified native linearized output, measured by one monotonic clock; no VM execution or durable-fsync claim."
+      ],
+      "all_trials_reached_95_percent_of_offered_rate": true
+    }
+  ],
+  "valid_trials": 3,
+  "failed_attempts": 0,
+  "network_scope": "Unshaped localhost TCP; added delay 0, physical/queue delay is measured rather than assumed zero. This is not a delta=10ms experiment.",
+  "counterpart_scope": "Four independent replica processes. Native internal batching, worker counts, cryptography, storage and latency start/end semantics remain recorded implementation differences. Mysticeti uses explicit leader-readiness timeout T=Delta.",
+  "validation": "Every raw child-manifest SHA verified; successful trial metrics and timing evidence revalidated; aggregate recomputed without omitting failed attempts.",
+  "metadata_corrections": [
+    {
+      "field": "measurement_boundaries.capacity",
+      "archived_driver_text": "Two offered-load points measure sustained delivery under these conditions; no maximum capacity is inferred.",
+      "correction": "One offered-load point (1200 tx/s), one repetition and a 3-second measurement are a short functional native implementation pilot; no sustainable or maximum capacity is inferred.",
+      "raw_evidence": "Original source-manifest and child-manifest files/hashes are unchanged."
+    },
+    {
+      "field": "settings.serialized_transaction_bytes",
+      "correction": "Legacy 512-byte flag was unused in the cohort comparison; common useful content was472bytes. Actual encoded sizes were Delugi532, Mysticeti520, Autobahn512bytes."
+    }
+  ],
+  "timer_mapping_limit": "Delta=100ms maps to native exposed leader/header readiness settings only. Mysticeti native repair sampling remains5s and its grace timer15s; other native batching, repair, synchronization and transport timers remain recorded implementation-specific settings."
+}

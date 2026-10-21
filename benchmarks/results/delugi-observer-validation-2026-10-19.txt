@@ -1,0 +1,17 @@
+Delugi observer validation — 2026-10-19
+
+Passed: 248 ordinary Rust tests (224 unit + 24 integration), 19 actual localhost gates, 328 repository Python tests and 68 baseline Python tests. 21 focused Rust checks also passed; they overlap the ordinary suite.
+New same-binary release: fa90c1a08ac4dc5d86b68a0b9b99d3ce7a2e0d9c8cbc3fe12b3613f5a09d4a7a. Previous ab895b5b… binary/stamp retained unchanged.
+Six functional fixtures passed: healthy 8/8 in each mode; empty 0/0; nonempty unfinished 0/4 with all 4 admissions retained. Signed exact transaction/batch receipts, full schema 2 parity, finite counts, compact unavailable latency and traffic conservation passed.
+Six isolated local runs, n = 4, 1,200 tx/s, 472 useful bytes, 1 s warmup + 3 s measurement, up to 2 s drain, added delay 0 ms and configured bound 100 ms. Every run completed 4,800/4,800 at all 4 replicas.
+
+Pair  Order          CPU full/compact(s)  CPU delta   Goodput full/compact(tx/s)  RSS delta
+1     full/compact   16.434/16.176       +1.595%     1200.33/1200.38             +1.982%
+2     compact/full   16.434/16.363       +0.428%     1199.99/1200.24             +1.792%
+3     full/compact   16.111/16.081       +0.185%     1200.25/1200.40             +1.435%
+
+CPU/traffic/goodput use the same per-replica sampled-window counters. RSS is the sum of process high-water marks through measurement end, not simultaneous whole-machine memory. Exact finite receipts and total-run costs use quiescence plus transport drain. Post-freeze receipt signing/collection and shutdown are excluded.
+Full p99 admission→exact output: 16.409, 16.506, 16.421 ms. Compact has no request latency. Three short pairs do not establish capacity or total observer-free cost; both modes retain the same validation, append synchronization, finite bitmaps and exact fingerprints.
+Build cleanup saved 331,468,800 allocated bytes; target now 3,162,112 bytes, retaining only the current executable and stamp. All 48 owned replica children exited 0. Native VM artifacts were untouched.
+Raw tests/release/receipts/snapshots and detailed results: /Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91
+Tracked summary: /Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-observer-validation-2026-10-19.json

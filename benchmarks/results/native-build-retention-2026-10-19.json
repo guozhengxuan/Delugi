@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "policy": "Only exact verified executables and build sidecars remain in native target directories; generated intermediate files removed after final pilots",
+  "protocols": [
+    {
+      "protocol": "autobahn",
+      "before_allocated_bytes": 454361088,
+      "after_allocated_bytes": 13492224,
+      "removed_allocated_bytes": 440868864,
+      "binaries": [
+        {
+          "path": "benchmarks/.cache/autobahn-target/release/node",
+          "sha256": "94ab120726a9f80841411c59e882fdce17e775fd354ff33eba1db2bb47491412",
+          "bytes": 10160544
+        },
+        {
+          "path": "benchmarks/.cache/autobahn-target/release/benchmark_client",
+          "sha256": "a31243ff612e9cb038fc26c0f21d0c4c9db984b3ae7c6c67276aa3d87e6c4773",
+          "bytes": 3322000
+        }
+      ],
+      "build_stamp": "benchmarks/.cache/autobahn-target/build-provenance.json",
+      "build_stamp_sha256": "9969d6361e336163c73dbf569896e40541f747d7dec59ebc2fc03cf68c389b4f"
+    },
+    {
+      "protocol": "mysticeti",
+      "before_allocated_bytes": 1575092224,
+      "after_allocated_bytes": 278155264,
+      "removed_allocated_bytes": 1296936960,
+      "binaries": [
+        {
+          "path": "benchmarks/.cache/mysticeti-target/release/mysticeti",
+          "sha256": "48ae50d1c869570c2bd2abf7c4f3687a2fd97fc476074e0741cd41909a54a341",
+          "bytes": 278149032
+        }
+      ],
+      "build_stamp": "benchmarks/.cache/mysticeti-target/build-provenance.json",
+      "build_stamp_sha256": "055a112beb63e016b28497fbc6bb205887d9296995639564ba32326dda4f713a"
+    }
+  ]
+}

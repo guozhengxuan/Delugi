@@ -6,7 +6,7 @@
 //! pass; delivery is a separate pass and cannot influence classification.
 
 use crate::history::Entry;
-use crate::wire::{hash, proposal_digest, Digest, Header, Signed};
+use crate::wire::{hash, proposal_digest, Committee, Digest, Header, Signed};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -103,6 +103,32 @@ pub fn release(
     values: &BTreeMap<(u64, Digest), Vec<u8>>,
     cursor: &mut u64,
 ) -> Vec<Delivery> {
+    release_matching(statuses, headers, values, cursor, |value, digest| {
+        hash(value) == *digest
+    })
+}
+
+/// Profile-aware delivery for the authenticated committee. The legacy public
+/// release helper remains byte-for-byte compatible for existing fixtures.
+pub(crate) fn release_with_committee(
+    committee: &Committee,
+    statuses: &BTreeMap<u64, Status>,
+    headers: &BTreeMap<(u64, Digest), Signed<Header>>,
+    values: &BTreeMap<(u64, Digest), Vec<u8>>,
+    cursor: &mut u64,
+) -> Vec<Delivery> {
+    release_matching(statuses, headers, values, cursor, |value, digest| {
+        committee.validate_input_size(value, &[]).is_ok() && committee.hash(value) == *digest
+    })
+}
+
+fn release_matching(
+    statuses: &BTreeMap<u64, Status>,
+    headers: &BTreeMap<(u64, Digest), Signed<Header>>,
+    values: &BTreeMap<(u64, Digest), Vec<u8>>,
+    cursor: &mut u64,
+    matches: impl Fn(&Vec<u8>, &Digest) -> bool,
+) -> Vec<Delivery> {
     let mut deliveries = Vec::new();
     while let Some(round) = cursor.checked_add(1) {
         match statuses.get(&round) {
@@ -113,7 +139,7 @@ pub fn release(
                     None => break,
                 };
                 let value = match values.get(&(round, *digest)) {
-                    Some(value) if hash(value) == header.body.value_hash => value,
+                    Some(value) if matches(value, &header.body.value_hash) => value,
                     _ => break,
                 };
                 deliveries.push(Delivery {

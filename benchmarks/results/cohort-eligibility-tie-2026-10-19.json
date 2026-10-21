@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "defect": "A pre-admission output and later admission can share the same microsecond timestamp; timestamp comparison alone must not grant sampled-window useful credit.",
+  "fix": "Require the recorded eligible local completion in both legacy and streamed reducers. Preserve raw outputs, exact M_out and censored membership.",
+  "tests_passed": 53,
+  "new_regressions": 2,
+  "reproduced_failures_before_fix": 2,
+  "frozen_evidence": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/same-microsecond-eligibility-69f41e4ff1894c02a8d71ad862561cb6",
+  "existing_delugi_replay": {
+    "status": "passed",
+    "scope": "offline reduction of existing authenticated full-mode archives; no new protocol execution",
+    "trials": [
+      {
+        "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-healthy-full/manifest.json",
+        "manifest_sha256": "962fdaed1cc26012c038a78a5011aab895b0e6195c6783e402e3a8c442667ed2",
+        "exact_summary_unchanged": true,
+        "completed": 7,
+        "unfinished": 0,
+        "window_u_out_bytes": 3304,
+        "index_sha256_matches_previously_authenticated_archive": "47cc014a1d6330c4a12d2160dcc486065e47bcf64b1b3fba134e8f20a37b63ce"
+      },
+      {
+        "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-empty-full/manifest.json",
+        "manifest_sha256": "4e5bd692d874749b2bb6ef73b98ef187ceb67ac76b96403953140ecae7fb7ada",
+        "exact_summary_unchanged": true,
+        "completed": 0,
+        "unfinished": 0,
+        "window_u_out_bytes": 0,
+        "index_sha256_matches_previously_authenticated_archive": "12124f79152e3a8c70820f2a315c019765bfcf8352cafd5888cca31e1f807360"
+      },
+      {
+        "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/functional-unfinished-full/manifest.json",
+        "manifest_sha256": "fad84bda8c0e35df20fc0d4cdd1bad0df7c966fd2d7dc9ccc7699c226e8d0202",
+        "exact_summary_unchanged": true,
+        "completed": 0,
+        "unfinished": 3,
+        "window_u_out_bytes": 0,
+        "index_sha256_matches_previously_authenticated_archive": "e1c4c63baee9d2a1c7dc57b038c573e883e290416a937ca8edece7ba85b6139d"
+      },
+      {
+        "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-1-full/manifest.json",
+        "manifest_sha256": "976c8b8e028a1f982de83206a034537a02997f559dd8a7550180fedbad85516a",
+        "exact_summary_unchanged": true,
+        "completed": 3600,
+        "unfinished": 0,
+        "window_u_out_bytes": 1699672,
+        "index_sha256_matches_previously_authenticated_archive": "0de0f8571f5919258596c28ff38984f0fdf9881bcda6d92edf356cf2e99309f3"
+      },
+      {
+        "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-4-full/manifest.json",
+        "manifest_sha256": "2280227d821cbeed144f384652c8f6991c26e55cb893d5362ece524fc9094113",
+        "exact_summary_unchanged": true,
+        "completed": 3600,
+        "unfinished": 0,
+        "window_u_out_bytes": 1699200,
+        "index_sha256_matches_previously_authenticated_archive": "608d0328fc9317d3e3261dfd2decef8cd99f11efe3ac6bcaf1639dd6ce74c053"
+      },
+      {
+        "manifest": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/observer-validation-20261019-f48e7b394b91/overhead-5-full/manifest.json",
+        "manifest_sha256": "0e8f8aa28fb928cc0d3b02ec4c5104b0429bb0323a9e41924898aa5589c3b7ea",
+        "exact_summary_unchanged": true,
+        "completed": 3600,
+        "unfinished": 0,
+        "window_u_out_bytes": 1699200,
+        "index_sha256_matches_previously_authenticated_archive": "e978ce7631600d78231a858d14c63aeab4cb99cfbaa510a825643054dc875ac7"
+      }
+    ],
+    "reducer_sha256": {
+      "scripts/cohort_metrics.py": "44caccf0fee96b551e7b618875b4dd5f89a78d37e58f410466ec29fde80ab7fd",
+      "scripts/cohort_store.py": "0f8f8b2d1d9877e45077089bf1f273ecbe7942a19e1b55caca1d7d98377ef1f1"
+    }
+  }
+}

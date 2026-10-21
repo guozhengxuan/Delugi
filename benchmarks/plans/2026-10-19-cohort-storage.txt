@@ -1,0 +1,58 @@
+Bounded cohort archive and exact disk reduction
+2026-10-19
+
+Current sustained trials write cohorts/index.json (schema 2), rather than a single
+cohorts.json. The small index contains one metadata entry per replica. Each of
+its requests, outputs and batches streams has a JSONL shard index, whose entries
+name and hash bounded JSON control pages. The main index hashes each stream
+index; stream indexes hash each page. The run manifest records the main-index
+hash and the derived SQLite database hash. Control logs stream directly to disk;
+ledger responses appear as references to their saved pages rather than a second
+copy retained in controller memory.
+
+Per-component bounds:
+  main index:       1 MiB
+  shard-index line: 4 KiB
+  page:             8 MiB, at most 1,024 rows
+  row:              16 KiB
+  SQLite page cache:16 MiB; mmap disabled; temporary sorting uses files
+
+There is no aggregate schema-2 archive byte limit. Paths must be relative and
+confined, with no dot traversal or symlink components. Both readers walk open
+directory descriptors, preventing intermediate symlink replacement races.
+Truncated indexes, missing pages, mismatched hashes/counts, noncontiguous offsets,
+extra terminal pages and oversized components fail verification.
+
+Offline authentication:
+  delugi-replica --config CONFIG --verify-workload-archive cohorts/index.json
+
+The Rust verifier checks strict Ed25519 workload manifests, exact finite request
+population and sequence, deterministic request content/ID and intended schedule,
+output identity/ordinal, exact-batch ordinal, and stage/publication boundaries.
+It retains one bounded page and committee-sized metadata, not the population's
+IDs. The old --verify-workload-ledger command remains available for schema-1
+historical files, retaining its old 1 GiB input envelope.
+
+The Python CohortDatabase joins streams on disk, enforces unique admissions and
+exact batches, reconciles own-origin materialization times, and computes exact
+nearest-rank quantiles with censored requests retained. Replayed application IDs
+receive first-output credit only. Unknown and unadmitted outputs remain in the
+raw evidence and exact-batch denominator; explicit exclusion diagnostics show
+that they receive zero honest useful-output credit. Materialization is bounded
+by quiescence. Publication and all-correct notification receipt are separately
+bounded by collection, allowing a notification after local materialization has
+frozen. Its censor horizon is also collection.
+
+Validation includes exact equality to the old reducer on generated mixed
+complete/rejected/unfinished/faulty/replayed cohorts and an n31 generated stream
+with 3,968 requests and 123,008 replicated output rows. The measurement artifact
+is benchmarks/results/cohort-storage-validation-2026-10-19.json. Python traced
+allocations and whole-process RSS are reported separately. No >1 GiB archive or
+multi-minute n31 protocol benchmark is claimed by that generated fixture.
+
+Storage still grows with evidence. SQLite's indexes and raw pages are O(total
+recorded rows). Replicas still retain O(N) timing maps, protocol/custody state
+and output history. This migration removes the controller/offline-verifier
+whole-file and 1 GiB bottleneck; it does not make replica runtime state bounded
+independently of workload history. Disk exhaustion remains an explicit failed
+run, with partial files preserved for diagnosis.

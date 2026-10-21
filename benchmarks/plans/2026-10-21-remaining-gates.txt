@@ -1,0 +1,130 @@
+Remaining October 19 migration gates — source audit, 21 October 2026
+
+Scope
+Read against 2026-10-19-evaluation-migration.txt while the new Shoal observer
+artifact builds. No production edits, tests, builds, native trials, SSH or cloud
+actions were performed for this audit. Paths and line numbers below identify
+the current checkout. Historical accepted artifacts remain separate from the
+Oct21 source/fixture checkpoints and the currently building Shoal artifact.
+
+Finding
+The remaining Family B/C cases are implementation gaps, not merely unrun
+benchmarks. run_campaign.py:43-115 declares them but deliberately gives every
+reviewed scenario an execution_requirement; adapter_command at :260 refuses
+those rows. tests/campaign_runner_test.py:133-188 verifies enumeration, fixed
+fault unions, and explicit incomplete status. It does not execute these faults.
+Existing local omission/pause results establish the simpler timed mechanisms.
+
+1. Native leader/nonleader eligibility — missing
+Current sender omission observes only time, peer, native unit kind and size.
+scripts/baselines/native_fault.rs:11-35 has no round/slot/view, elected leader,
+reputation state, opportunity ID, or eligible-trigger receipt. Native payload
+hooks are already located at genuine publication/repair paths:
+  - Mysticeti patch: own signed block send (payload and consensus are coupled).
+  - Autobahn patch: worker batch broadcast and optional worker repair reply;
+    primary consensus continues.
+  - Shoal patch: own node/certified-node publication and repair units that
+    contain the faulty author's node; native control and honest custody remain.
+These units cannot be relabeled data-only or all-message silence interchangeably.
+validate_fault_effect (run_campaign.py:374-389) checks positive omission counts,
+not a valid leader/nonleader opportunity or subsequent honest opportunities.
+
+Required hook: record the actual native election result and opportunity identity
+before the relevant send, then activate the predeclared faulty identity only
+when its predicate holds. Use Mysticeti universal_committer.get_leaders
+(crates/mysticeti-core/src/consensus/universal_committer.rs:80), Autobahn's active
+primary LeaderElector(slot,view) (primary/src/leader.rs:38 and core.rs:1000,1858),
+and Shoal's existing anchor/reputation adapter (dag/anchor_election/
+leader_reputation_adapter.rs:137,145,211,224). Do not use Autobahn's separate
+legacy consensus crate election or replace Shoal reputation with round-robin.
+Archive selected/observed opportunities, effective dropped units, withdrawal,
+and subsequent honest decisions. Delugi's three honest anchors remain its own
+diagnostic, not a counterpart schedule requirement.
+
+2. Repeated bursts, withdrawal and transient loss — missing execution
+native_fault.rs:13 caches exactly one (start,end) pair forever. native_faults.py:
+14-68 accepts one omission source, one static recipient allowlist and a finite
+interval constrained to measurement; it cannot express a through-drain attack,
+multiple intervals, changing recipient sets or multiple faulty senders.
+Delugi also has one FaultConfig interval (src/process.rs:113-138). Campaign
+planning already bounds the union to f (run_campaign.py:120-129), but the adapter
+rejects multiple faulty identities (:264-265). The planned three-burst rows
+therefore have no runtime implementation.
+Linux helper setup/status/cleanup and drop-counter retention exist
+(linux_netem.py:233-278,393); current remote shaping is setup-through-drain
+(remote_deployment.py:249 onward). A timed loss-on/loss-off event executor and
+per-event observed drop/withdrawal efficacy gate are missing. Static packet loss
+is not transient loss and does not substitute for semantic sender omission.
+
+3. Committed descriptor with blocked payload — partial primitives, missing case
+Delugi already stops at the first missing exact suffix and emits FETCH
+(src/composed.rs:574-601); invalid-data/retry and pending-custody unit fixtures
+exist (:1296,1332). Process logs direct_commit and ordered_descriptor
+(src/process.rs:1119-1127), and constructor/readiness metrics exist. These are
+useful primitives, not the required natural network campaign witness.
+Autobahn already preserves the ordered slot/header prefix and halts its
+application materializer on missing retained batches
+(scripts/baselines/autobahn_cohort.py:182-209), including a blocked-header count.
+There is no accepted scenario joining a native-valid descriptor decision to the
+exact absent payload, holders/repair attempts, blocked FIFO head, later output
+gap, and eventual recovery. Mysticeti/Shoal direct payload paths may make the
+same descriptor/payload separation unavailable: audit the actual validation
+boundary and report that property rather than forcing invalid references.
+Existing CER-with-missing-proposal-metadata tests are not payload witnesses.
+Missing: proposal fate versus transaction replay reduction and an efficacy gate
+that rejects a fault run where the claimed blocked interval never occurs.
+
+4. Native resource attribution — aggregate primitives exist; closure missing
+Implemented: actual successful native TCP totals, per-host/process raw samples,
+optional ordinary sign/verify/batch-verify thread CPU (native_cpu.rs:17-49),
+M_out versus honest U_out, source-bound cohorts, and whole-worker CPU/memory/swap
+contracts (remote_worker.py:56-120,224-235; campaign_resources.py:145-183).
+Local native tests cover existing hooks; placement/resource contracts have local
+mock/subprocess tests. The new Shoal full/compact artifact is not yet accepted.
+
+Missing: native successful-write categories payload/evidence-control/repair/
+transport with conservation under partial writes/replay; separate transport
+authentication CPU where present; proof/certificate-assembly and storage CPU;
+retained-state size and a common hottest-replica summary. Mark nonapplicable
+proof types explicitly (these baselines have no Delugi MMR), not as zero work.
+Shoal explicitly leaves Ed25519, Noise and BLS assembly outside its ordinary
+primitive meter (shoal.py:347-349). Preserve that scope.
+Local Shoal can read frozen shared TCP counters after confirmed suspension
+(shoal.py:175-198). Remote native currently samples while children still run
+and explicitly excludes the later tail (remote_native.py:384-402;
+native_campaign.py:145-150). Closing this gap requires a defined endpoint and
+terminal counter collection; do not label sampled lower bounds complete costs.
+Persistence/fsync inventories already exist in
+2026-10-19-native-artifact-audit.txt:17-19. They still need measured storage-service attribution. Cgroup io.stat
+is retained when available; neither it nor child peak RSS is exact live retained
+protocol memory. Explicit disk/network capacity enforcement is not yet common;
+CPU/memory/swap equality alone cannot complete the full resource requirement.
+
+Smallest next implementation sequence
+1. Add a bounded immutable event schedule and event journal to the existing
+   fault interface: fixed identity union, multiple intervals, per-event recipient
+   policies, activation/withdrawal, no-op detection. Test boundaries/overlap,
+   late arming and multiple events locally before rebuilding native artifacts.
+2. Add native opportunity witnesses and predicate-triggered activation at the
+   existing native leader paths. Test wrong-leader rejection and unavailable
+   opportunities; then enable only the corresponding campaign rows. Keep timed
+   legacy diagnostics separate. Implement all-message silence only with an
+   explicit native outgoing-control scope and replay/withdrawal behavior.
+3. Join descriptor/ordered-unit decisions, exact missing dependencies, repair
+   events and FIFO-head/output events. Start with the existing Delugi/Autobahn
+   primitives; add one admissible blocked-payload fixture per applicable design.
+   Never delete honest custody or bypass validation to obtain the witness.
+4. Close native counter endpoints and categories, preserving total-byte
+   conservation; add transport/proof/storage attribution and hottest-replica
+   reduction. Extend finite loss event efficacy separately from sender omission.
+5. Run only the smallest local acceptance fixtures for each new capability,
+   keeping current artifacts immutable. Repeated multi-minute frontier/family
+   measurements and actual remote execution remain unrun acceptance work, not
+   prerequisites for finishing these source/local-test increments.
+
+Related completed checkpoint
+results/local/remote-shoal-readiness-20261021/revision-3/report.json records 61
+local checks for prepare/arm/full receipts and cleanup. It does not implement
+the missing event engine, leader triggers, blocked-payload campaign or native
+cost decomposition. Formal native comparison stays explicitly ineligible
+(run_campaign.py:456-462); this audit does not promote any incomplete gate.

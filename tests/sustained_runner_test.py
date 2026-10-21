@@ -30,6 +30,65 @@ def windows():
 
 
 class WindowAccounting(unittest.TestCase):
+    def test_common_backlog_excludes_output_before_own_batching(self):
+        for mode in ("full", "compact"):
+            with self.subTest(mode=mode):
+                data = windows()
+                for replica in data.values():
+                    for boundary, unbatched in (("measurement_start", 1), ("measurement_end", 2)):
+                        load = replica[boundary]["load"]
+                        load.update(observer_mode=mode, admitted=load["completed"],
+                                    inserted=load["completed"]-unbatched, pending=0, arrival_pending=unbatched)
+                        if mode == "compact":
+                            load.update(latency_sum_us=0, latency_histogram_ms={})
+                result = runner.summarize_windows(data, 50, 512, 1)
+                self.assertEqual(result["comparison"]["pending_at_start"], 0)
+                self.assertEqual(result["comparison"]["pending_at_end"], 0)
+                self.assertEqual(result["comparison"]["pending_boundary"], "admitted requests without eligible own-origin output")
+                self.assertTrue(all(row["unbatched_admissions_at_end"] == 2 for row in result["per_replica"]))
+                if mode == "full":
+                    self.assertEqual(result["comparison"]["mean_latency_ms"], 4)
+                    self.assertEqual(result["comparison"]["latency_endpoint"],
+                                     "admission to origin-local payload-verified contiguous append; completed-in-sampled-window population")
+                data[0]["measurement_end"]["load"]["admitted"] = 29
+                with self.assertRaisesRegex(AssertionError, "completions exceed admissions"):
+                    runner.summarize_windows(data, 50, 512, 1)
+
+    def test_legacy_backlog_and_timing_are_preserved_with_explicit_scope(self):
+        data = windows()
+        for replica in data.values():
+            replica["measurement_start"]["load"]["arrival_pending"] = 2
+            replica["measurement_end"]["load"]["arrival_pending"] = 3
+        result = runner.summarize_windows(data, 50, 512, 1)["comparison"]
+        self.assertEqual(result["pending_at_start"], 28)
+        self.assertEqual(result["pending_at_end"], 52)
+        self.assertIn("admission count unavailable", result["pending_boundary"])
+        self.assertIn("legacy completed-in-window timing", result["latency_endpoint"])
+        data[0]["measurement_end"]["load"]["admitted"] = 40
+        with self.assertRaisesRegex(AssertionError, "admission counter availability changed"):
+            runner.summarize_windows(data, 50, 512, 1)
+
+    def test_compact_keeps_shared_counts_and_has_no_latency(self):
+        data = windows()
+        for replica in data.values():
+            for boundary in ("measurement_start", "measurement_end"):
+                replica[boundary]["load"].update(observer_mode="compact", latency_sum_us=0, latency_histogram_ms={})
+        result = runner.summarize_windows(data, 50, 512, 1)
+        self.assertEqual(result["comparison"]["completion_count"], 80)
+        self.assertIsNone(result["comparison"]["mean_latency_ms"])
+        self.assertFalse(result["comparison"]["latency_available"])
+        self.assertFalse(result["comparison"]["comparison_eligible"])
+        self.assertTrue(all(x is None for x in result["latency_quantiles"].values()))
+        data[0]["measurement_end"]["load"]["latency_histogram_ms"] = {"1": 20}
+        with self.assertRaisesRegex(AssertionError, "cannot report detailed latency"):
+            runner.summarize_windows(data, 50, 512, 1)
+
+    def test_mixed_observer_windows_rejected(self):
+        data = windows()
+        data[0]["measurement_end"]["load"]["observer_mode"] = "compact"
+        with self.assertRaisesRegex(AssertionError, "observer mode changed"):
+            runner.summarize_windows(data, 50, 512, 1)
+
     def test_excludes_warmup_and_counts_each_transaction_only_at_origin(self):
         result = runner.summarize_windows(windows(), 50, 512, 1)
         actual = result["comparison"]
@@ -99,6 +158,25 @@ class WindowAccounting(unittest.TestCase):
         with self.assertRaises(AssertionError):
             runner.assert_common_prefix(replies,17)
 
+    def test_lagging_or_faulty_replica_cannot_make_prefix_check_vacuous(self):
+        controller = Mock()
+        nodes = {0: {"executed_count": 0}, 1: {"executed_count": 2}, 2: {"executed_count": 4}, 3: {"executed_count": 4}}
+        def replies(ids, kind, count):
+            return [{"reply": {"data": {"count": count, "state_hash": [replica if count == 4 else 7]}}} for replica in ids]
+        controller.many.side_effect = replies
+        with self.assertRaisesRegex(AssertionError, "disagree"):
+            runner.assert_correct_prefixes(controller, nodes, [1, 2, 3])
+        self.assertEqual(controller.many.call_args_list[0].args[0], [1, 2, 3])
+        self.assertEqual(controller.many.call_args_list[0].kwargs["count"], 2)
+        self.assertEqual(controller.many.call_args_list[1].args[0], [2, 3])
+        self.assertEqual(controller.many.call_args_list[1].kwargs["count"], 4)
+
+    def test_faulty_authored_output_is_counted_without_useful_ingress(self):
+        data = {i: snapshot(1, 100, 100, 0, {}, 100, 100) for i in range(4)}
+        for value in data.values():
+            value["executed_count"] = 464
+        self.assertEqual(runner.assert_agreement(data, extra_generated=64)["unique_generated_transactions"], 464)
+
     def test_partial_process_launch_reaps_children_already_started(self):
         child = Mock()
         child.finish.return_value = {"id":0,"exit_code":-15,"telemetry_errors":[]}
@@ -107,11 +185,35 @@ class WindowAccounting(unittest.TestCase):
              patch.object(runner.subprocess,"run",return_value=keygen), \
              patch.object(runner,"unused_addresses",return_value=[f"127.0.0.1:{9000+i}" for i in range(8)]), \
              patch.object(runner,"Child",side_effect=[child,RuntimeError("second spawn failed")]):
-            result = runner.run_trial(Path("/unused/binary"),Path(directory),1000,1,1)
+            result = runner.run_trial(Path("/unused/binary"),Path(directory) / "trial",1000,1,1)
         self.assertEqual(result["status"],"failed")
         self.assertIn("second spawn failed",result["error"])
         child.finish.assert_called_once_with()
         self.assertEqual(len(result["children"]),1)
+
+    def test_existing_trial_evidence_cannot_be_overwritten(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = Path(directory) / "result.json"
+            evidence.write_text("historical evidence\n")
+            with patch.object(runner.subprocess, "run") as command, \
+                 self.assertRaises(FileExistsError):
+                runner.run_trial(Path("/unused/binary"), Path(directory), 1000, 1, 1)
+            command.assert_not_called()
+            self.assertEqual(evidence.read_text(), "historical evidence\n")
+
+    def test_existing_cli_output_is_rejected_before_archiving_or_building(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = Path(directory) / "manifest.json"
+            evidence.write_text("historical manifest\n")
+            with patch.object(sys, "argv", ["run_sustained.py", "--rate", "1000", "--output", directory,
+                                           "--spec-snapshot", "unused-snapshot.json"]), \
+                 patch.object(runner, "archive_spec") as archive, \
+                 patch.object(runner.subprocess, "run") as command, \
+                 self.assertRaises(FileExistsError):
+                runner.main()
+            archive.assert_not_called()
+            command.assert_not_called()
+            self.assertEqual(evidence.read_text(), "historical manifest\n")
 
     def test_skip_build_stamp_binds_source_compiler_and_binary(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -202,11 +304,12 @@ class NetworkShapingLifecycle(unittest.TestCase):
                 (runner.time, "sleep", Mock()),
             ]:
                 stack.enter_context(patch.object(owner, name, replacement))
-            result = runner.run_trial(Path("/unused/binary"), Path(directory), 1000, 1, 1,
-                                      batch_ms=100, bound_ms=100)
-            self.assertEqual(json.loads((Path(directory) / "result.json").read_text()),
+            trial = Path(directory) / "trial"
+            result = runner.run_trial(Path("/unused/binary"), trial, 1000, 1, 1,
+                                      batch_ms=100, bound_ms=100, cohort_accounting=False)
+            self.assertEqual(json.loads((trial / "result.json").read_text()),
                              json.loads(json.dumps(result)))
-            self.assertEqual((Path(directory) / "network_delay.py").read_bytes(),
+            self.assertEqual((trial / "network_delay.py").read_bytes(),
                              (runner.ROOT / "scripts/network_delay.py").read_bytes())
         return result, events, children
 

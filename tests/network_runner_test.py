@@ -294,6 +294,24 @@ class TrafficValidation(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, "unacknowledged"):
             runner.aggregate_traffic(snapshots, None)
 
+    def test_deferred_frame_is_pending_until_actual_writer_enqueue(self):
+        snapshots = transport_fixture()
+        peer = snapshots[0]["transport"]["peers"]["1"]
+        peer["deferred_frames"] = 1
+        self.assertEqual(runner.queued_frames(snapshots[0]), 1)
+        with self.assertRaisesRegex(AssertionError, "deferred transport work"):
+            runner.aggregate_traffic(snapshots, None)
+        peer["deferred_frames"] = 0
+        peer["layers"]["Ordering"]["scheduled_frames"] = 2
+        with self.assertRaisesRegex(AssertionError, "deferred transport work"):
+            runner.aggregate_traffic(snapshots, None)
+
+    def test_resource_exhaustion_cannot_be_reported_as_successful_drain(self):
+        snapshots = transport_fixture()
+        snapshots[0]["transport"]["resource_exhaustions"] = 1
+        with self.assertRaisesRegex(AssertionError, "resource envelope exhausted"):
+            runner.aggregate_traffic(snapshots, None)
+
     def test_unread_stream_byte_invalidates_measurement(self):
         snapshots = transport_fixture()
         snapshots[0]["transport"]["data_bytes_read"] -= 1

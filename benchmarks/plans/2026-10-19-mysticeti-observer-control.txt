@@ -1,0 +1,125 @@
+Mysticeti detailed observer control: source checkpoint and validation plan
+2026-10-19
+
+Status: source implemented, lightweight fixtures checked; native compilation,
+four-process acceptance and overhead measurements are pending an explicitly
+coordinated local slot. No new native binary or performance claim is produced by
+this checkpoint. The previous measured binary, patch and stamp are preserved in
+results/local/mysticeti-observer-source-20261019/retained-before/.
+
+Contract
+
+--cohort-observer full (default) retains the detailed finite-cohort journal and
+schema2/SQLite reduction. compact suppresses per-request timing and journal rows.
+Both execute the same native generator, validation, linearizer, commit handler,
+storage, network, repair, crypto and existing upstream metrics. Both pay for the
+same finite membership bitmaps, raw native prefix fingerprints, complete-block
+checkpoints and two process-resource samples. An overhead pair therefore measures
+detailed journal/timing work above that common correctness observer, not the cost
+of all instrumentation relative to the untouched native artifact.
+
+Each raw native transaction advances the receipt, including unknown application
+bytes and foreign-origin metadata. Every complete native block advances the batch
+receipt, including empty and unknown-only blocks. Identity uses all serialized
+BlockReference bytes, never the truncated Display/Debug form. Useful credit uses
+the first own-origin output's admission eligibility under the same observer lock:
+pre-admission output remains ineligible after later admission, including timestamp
+ties; an admitted output does not have to await its own generator batch-ready event.
+
+The common native observer's request file latches a requested local cutoff. If a
+block is active, it finishes normally before the observer freezes its prefix.
+The exporter allows at most 10 seconds for this complete-block boundary; the
+controller allows 12 seconds for the atomic final header. It releases the shared
+lock before writing bitmap files, and native protocol execution continues. The
+full journal stops with this same observer prefix. The original declared deadline,
+actual prefix freeze, controller export completion, final traffic scrape and
+SIGSTOP timestamp are distinct and retained. Later prefix completion is not
+presented as completion by the earlier deadline. Traffic through the post-export
+scrape remains charged; the scrape-to-STOP tail is explicitly unsampled. Process
+CPU samples retain their actual offsets from configured boundaries. Missing
+samples produce unavailable CPU, not zero. Upstream histogram latency is not a
+substitute for compact cohort latency.
+
+Receipts are source-bound observer evidence. Independent signed native WAL-tail
+fidelity remains incomplete. Both new finite modes remain explicitly ineligible
+for formal comparisons until that fidelity and new endpoint validation are
+complete. Compact has no request latency quantiles or deadline estimates. Existing
+archived full/legacy readers remain available; the local control is not silently
+enabled in remote placement.
+
+Bounds
+
+The trusted configuration binds n <= 31 and at most 5,000,000 finite IDs per
+origin before bitmap IO. Native bitmap state is approximately (sum(counts) +
+6 * own_count)/8 bytes, plus small hashes/counters and buffered IO; this does not
+bound native protocol/storage/runtime memory. Full mode still writes per-request
+journals; compact writes one bounded checkpoint per complete block. Export uses
+4096-byte chunks and a final header <= 256 KiB. Python checks trusted counts,
+fixed paths, regular files/no immediate symlink, full consumed-byte hashes,
+popcounts, padding, stage membership and checkpoint prefix consistency. Its
+bitmap working set is O(n * 4096), not O(finite requests); disk checkpoints remain
+O(native blocks). Every file has an explicit 128 GiB disk envelope. This is an
+observer storage limit, not a capacity or duration claim. A complete experiment
+must separately record protocol WAL growth and actual disk/RSS.
+
+Pending coordinated validation (fresh exclusive evidence directories)
+
+1. Freeze source hashes, canonical patch and selected toolchain/lock. Verify the
+   current measured executable and old stamp still match retained-before. Verify
+   git -C benchmarks/baselines/mysticeti diff HEAD equals the canonical patch.
+   Keep any failed attempt and its exact source snapshot; repairs require a new
+   snapshot. Do not overwrite historical evidence or relabel the old binary.
+
+2. Run cargo with one job and the artifact's pinned toolchain/CARGO_HOME/target
+   settings, first mysticeti-core cohort::receipt_tests, then the native origin
+   guard and applicable native core unit tests. These three new receipt tests
+   cover identical full/compact raw effects, preplay, output before readiness,
+   unknown/foreign/empty blocks, complete-block freeze, and full digest prefix
+   collisions. Run the baseline Python suite plus native_cohort_store/cohort
+   suites; preserve all logs. Existing standalone rustc predicate tests only
+   check the extracted pure predicate and do not establish crate compilation.
+
+3. Build once through scripts/baselines/mysticeti.py --build-only --build with a
+   fresh output directory. Preserve the resulting executable and build stamp,
+   verify patch/source/lock/binary binding, then use that one binary for both
+   modes. No build work may compete with live timing measurements.
+
+4. Six local functional fixtures, each mode on each input: healthy finite n4,
+   empty finite population, and nonempty unfinished/zero-output finite population.
+   Use added delta=0, bound=100 ms, useful=472 bytes, no omission, crypto meter off.
+   Healthy initial fixture: rate8, warmup0, duration1, drain2, ingress10 ms. Empty
+   fixture: rate1, warmup0, duration0.001, drain0. Nonempty unfinished fixture:
+   rate4, warmup0, duration1, drain0, ingress10000 ms. Assert actual outcome rather
+   than assume those parameters produce zero output; retain any failed fixture.
+   Both modes must verify exact raw prefixes and finite counts, no fabricated
+   compact latency, comparison-ineligible flags, all cleanup records, and unchanged
+   shared native effects. Full schema2 M_out/U_out must equal common receipt values;
+   original deadlines stay distinct from complete-block freeze. Check late-cutoff
+   records, zero populations, missing rows, wrong padding/hash and foreign metadata.
+
+5. If functional gates pass, reserve a quiet slot for three alternating pairs
+   full/compact, compact/full, full/compact: n4, total rate1200, warmup1 s,
+   duration3 s, drain2 s, useful472, ingress10 ms, bound100 ms, added delta0.
+   Keep workload, binaries, native metrics/logging, workers and resource settings
+   identical. Report each raw pair's common observer-window admission/completion,
+   actual CPU interval/offset, CPU seconds, peak RSS, actual TCP sample interval,
+   traffic and finite completion; never mix the sampling boundaries or infer
+   capacity/significance from three short pairs. Detail both absolute results
+   and full/compact ratios. Native builtin histogram values are diagnostics only.
+
+6. Reap every owned process, CONT any stopped child before termination, retain
+   exact binary/stamp and evidence, and remove only verified owned build
+   intermediates after Cargo exits. Re-hash retained artifacts after cleanup.
+   Do not start cloud, external-host or privileged shaping work for this plan.
+
+Primary source paths
+
+benchmarks/baselines/mysticeti/crates/mysticeti-core/src/transactions_generator.rs
+benchmarks/baselines/mysticeti/crates/mysticeti-core/src/block_handler.rs
+benchmarks/patches/mysticeti-local.patch
+scripts/baselines/mysticeti.py
+scripts/baselines/mysticeti_receipts.py
+scripts/baselines/mysticeti_receipts_test.py
+scripts/baselines/mysticeti_test.py
+scripts/baselines/native_cohort_store.py (Mysticeti method only)
+tests/native_cohort_store_test.py

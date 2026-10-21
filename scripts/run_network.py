@@ -24,6 +24,10 @@ import time
 import uuid
 
 ROOT = Path(__file__).resolve().parents[1]
+# Also support the standalone importlib-based regression tests.
+if str(ROOT / "scripts") not in sys.path:
+    sys.path.insert(0, str(ROOT / "scripts"))
+from spec_provenance import add_spec_arguments, archive_spec, verify_spec_unchanged, scheduling_provenance
 MAX_REPLY = 16 * 1024 * 1024
 
 
@@ -416,7 +420,9 @@ class Child:
 
 
 class Controller:
-    def __init__(self, config, directory, children):
+    def __init__(self, config, directory, children, *, streaming=False):
+        self.stream = (directory / "control.jsonl").open("w") if streaming else None
+        self.streaming = streaming
         self.config, self.directory, self.children = config, directory, children
         self.sequence = 0
         self.lock = threading.Lock()
@@ -455,7 +461,11 @@ class Controller:
                   "start_unix_us": begin_us, "start_monotonic_ns": begin_ns,
                   "duration_us": (time.monotonic_ns() - begin_ns) // 1000, "reply": reply}
         with self.lock:
-            self.commands.append(record)
+            if not self.streaming:
+                self.commands.append(record)
+            elif kind not in {"cohort", "outputs", "batches"} or reply.get("ok") is not True:
+                self.stream.write(json.dumps(record, separators=(",", ":")) + "\n")
+                self.stream.flush()
             self.traffic[node_id]["requests"] += 1
             self.traffic[node_id]["written_bytes"] += len(raw)
             self.traffic[node_id]["read_bytes"] += len(reply_raw)
@@ -481,15 +491,52 @@ class Controller:
             time.sleep(.01)
         raise TimeoutError(f"timed out waiting for {label}")
 
+    def archive_record(self, record):
+        """Persist a ledger-page reference after its separately hashed page is saved."""
+        if self.streaming:
+            with self.lock:
+                self.stream.write(json.dumps(record, separators=(",", ":")) + "\n")
+                self.stream.flush()
+
     def save(self):
-        with (self.directory / "control.jsonl").open("w") as stream:
-            for command in sorted(self.commands, key=lambda item: item["start_monotonic_ns"]):
-                stream.write(json.dumps(command) + "\n")
+        if self.streaming:
+            with self.lock:
+                if not self.stream.closed:
+                    self.stream.flush()
+                    self.stream.close()
+        else:
+            with (self.directory / "control.jsonl").open("w") as stream:
+                for command in sorted(self.commands, key=lambda item: item["start_monotonic_ns"]):
+                    stream.write(json.dumps(command) + "\n")
         (self.directory / "snapshots.json").write_text(json.dumps(self.last_snapshots, indent=2) + "\n")
 
 
 def queued_frames(snapshot):
-    return sum(peer["outstanding_frames"] for peer in snapshot["transport"]["peers"].values())
+    return sum(peer["outstanding_frames"] + peer.get("deferred_frames", 0)
+               for peer in snapshot["transport"]["peers"].values())
+
+
+WRITTEN_CATEGORY_KEYS = ("payload_bytes", "evidence_control_bytes", "repair_bytes", "transport_overhead_bytes")
+
+
+def written_categories(snapshot):
+    """Conserve actual successful TCP writes, including partials/replays/ACKs."""
+    peers = list(snapshot["transport"]["peers"].values())
+    if not peers or not any("written_categories" in peer for peer in peers):
+        return {"available": False, "reason": "legacy snapshot has no actual-written category counters"}
+    if not all("written_categories" in peer for peer in peers):
+        raise AssertionError("partial actual-written category population")
+    totals = dict.fromkeys((*WRITTEN_CATEGORY_KEYS, "total_written_bytes"), 0)
+    for peer in peers:
+        row = peer["written_categories"]
+        if any(type(row.get(key)) is not int or row[key] < 0 for key in totals):
+            raise AssertionError("invalid actual-written category counter")
+        actual = peer["ack_bytes_written"] + sum(layer["data_bytes_written"] for layer in peer["layers"].values())
+        if sum(row[key] for key in WRITTEN_CATEGORY_KEYS) != row["total_written_bytes"] or actual != row["total_written_bytes"]:
+            raise AssertionError("actual-written categories do not conserve TCP bytes")
+        for key in totals:
+            totals[key] += row[key]
+    return {"available": True, "boundary": "successful replica TCP writes; partial writes, retransmissions and ACKs included", **totals}
 
 
 def aggregate_traffic(snapshots, silent, workload_rounds=4):
@@ -512,11 +559,19 @@ def aggregate_traffic(snapshots, silent, workload_rounds=4):
                "acknowledged_frames": layer_total("acknowledged_frames"),
                "accepted_frames": layer_total("accepted_frames"),
                "outstanding_frames": peer_total("outstanding_frames"),
+               "deferred_frames": sum(peer.get("deferred_frames", 0) for peer in peers),
+               "scheduled_frames": sum(layer.get("scheduled_frames", layer["enqueued_frames"]) for layer in layers),
                "retries": peer_total("retries"),
                "partial_frame_written_bytes": peer_total("partial_frame_bytes_written"),
                "connection_failures": peer_total("connection_failures"),
                "rejected_frames": transport["rejected_frames"],
-               "queue_full_failures": transport["queue_full_failures"]}
+               "queue_full_failures": transport["queue_full_failures"],
+               "deferred_accepts": transport.get("deferred_accepts", 0),
+               "resource_exhaustions": transport.get("resource_exhaustions", 0)}
+        if row["deferred_frames"] or row["scheduled_frames"] != row["enqueued_frames"]:
+            raise AssertionError(f"replica {node_id}: deferred transport work at cutoff")
+        if row["resource_exhaustions"]:
+            raise AssertionError(f"replica {node_id}: transport resource envelope exhausted")
         indices = snapshot["protocol"]["by_index"]
         row["workload_index_enqueued_bytes"] = sum(counter["encoded_bytes"] for index, counter in indices.items() if int(index) <= workload_rounds)
         row["beyond_workload_enqueued_bytes"] = sum(counter["encoded_bytes"] for index, counter in indices.items() if int(index) > workload_rounds)
@@ -536,12 +591,16 @@ def aggregate_traffic(snapshots, silent, workload_rounds=4):
         row["auth_and_framing_written_bytes"] = row["data_frame_written_bytes"] - row["protocol_payload_written_bytes"]
         row["socket_written_bytes"] = row["data_frame_written_bytes"] + row["ack_written_bytes"]
         row["socket_read_bytes"] = row["data_frame_read_bytes"] + row["ack_read_bytes"]
+        row["written_categories"] = written_categories(snapshot)
         if row["outstanding_frames"] or row["acknowledged_frames"] != row["enqueued_frames"]:
             raise AssertionError(f"replica {node_id}: unacknowledged transport work at cutoff")
         if node_id == silent and row["enqueued_frames"]:
             raise AssertionError("silent replica enqueued a protocol frame")
         by_replica[str(node_id)] = row
-    total = {name: sum(row[name] for row in by_replica.values()) for name in next(iter(by_replica.values()))}
+    total = {name: sum(row[name] for row in by_replica.values()) for name in next(iter(by_replica.values())) if name != "written_categories"}
+    total["written_categories"] = ({"available": True, **{key: sum(row["written_categories"][key] for row in by_replica.values())
+        for key in (*WRITTEN_CATEGORY_KEYS, "total_written_bytes")}} if all(row["written_categories"]["available"] for row in by_replica.values())
+        else {"available": False, "reason": "actual-written categories unavailable in legacy snapshots"})
     if total["data_frame_written_bytes"] != total["data_frame_read_bytes"] or total["ack_written_bytes"] != total["ack_read_bytes"]:
         raise AssertionError("successful TCP writes and reads do not balance after drain")
     return {"per_replica": by_replica, "total": total,
@@ -708,15 +767,19 @@ def main():
     parser.add_argument("--skip-checks", action="store_true", help="development only: skip format/unit checks, still build release")
     parser.add_argument("--scenario", choices=["all", "honest", "silent"], default="all")
     add_ordering_arguments(parser)
+    add_spec_arguments(parser)
     args = parser.parse_args()
     if args.repeats < 1 or not 10 <= args.bound_ms <= 10000 or args.timeout <= 0 or not 1 <= args.transaction_bytes <= 4096:
         parser.error("invalid bounded experiment arguments")
     run = ROOT / "results" / "local" / ("network-" + uuid.uuid4().hex)
     run.mkdir(parents=True)
-    manifest = {"schema": 2, "classification": "real_process_loopback_tcp_option_a_integration",
+    manifest = {"schema": 3, "classification": "real_process_loopback_tcp_option_a_integration",
                 "status": "incomplete", "started_utc": datetime.now(timezone.utc).isoformat(),
                 "scope": "Four independent replica processes, authenticated framed loopback TCP, real Ed25519/MMR/Option A availability/ordering/materialization; optional protocol-silent process; signed leader REPORT requests, authenticated earlier bases, all-current construction and exact-batch output. This network fixture uses nonforking producers; Byzantine forks and non-genesis base validation are exercised separately by Rust tests",
                 "machine": machine_metadata(),
+                "gate": "real_process_correctness_integration_not_capacity",
+                "scheduling": scheduling_provenance(ordering_options(args.bound_ms, args.ordering_batch,
+                    args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode)),
                 "method": {"workload": "4 finite batch waves preloaded before ordering starts, 2 distinct transactions per honest producer per wave; no warmup; not saturation throughput",
                            "preload_gate": "Prepare enables dissemination without ordering; harness waits until all correct replicas hold each wave, then starts ordering after wave four. Leaders issue signed REPORTs and replicas answer automatically. There are no controller report commands. Preload gates are fixture coordination, not protocol rules",
                            "traffic": "Separate logical protocol bytes, authenticated envelope/framing bytes, actual successful TCP stream reads/writes, and client control bytes; excludes TCP/IP/link overhead and kernel retransmissions",
@@ -738,7 +801,7 @@ def main():
 
     try:
         sources = [ROOT / item for item in ("Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
-                                            "scripts/run_network.py", "provenance/spec-2026-10-13.json")]
+                                            "scripts/run_network.py", "scripts/spec_provenance.py")]
         sources += sorted((ROOT / "src").rglob("*.rs")) + sorted((ROOT / "tests").rglob("*.rs"))
         sources += sorted((ROOT / "tests").glob("*network*.py"))
         for source in sources:
@@ -747,15 +810,8 @@ def main():
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
-        spec = json.loads((ROOT / "provenance/spec-2026-10-13.json").read_text())
-        for entry in spec["files"]:
-            data = (Path(spec["paper_repository"]) / entry["path"]).read_bytes()
-            if sha(data) != entry["sha256"]:
-                raise RuntimeError(f"specification changed: {entry['path']}")
-            dest = run / "snapshot" / "paper" / entry["path"]
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(data)
-        manifest["paper_head"] = spec["paper_head"]
+        manifest["specification"] = archive_spec(args.spec_snapshot, run / "snapshot", args.paper_repository)
+        manifest["paper_head"] = manifest["specification"]["paper_head"]
         manifest["rustc"] = command(["rustc", "--version", "--verbose"], "rustc").strip()
         manifest["cargo"] = command(["cargo", "--version"], "cargo").strip()
         if not args.skip_checks:
@@ -789,6 +845,7 @@ def main():
             manifest["scenario_summary"].append({"scenario": scenario,
                 "all_correct_completion": summary_ms([trial["latency"]["all_correct_completion_from_first_submission_us"] for trial in trials]),
                 "finite_workload_transactions_per_second": [trial["latency"]["finite_workload_transactions_per_second"] for trial in trials]})
+        verify_spec_unchanged(manifest["specification"])
         manifest["status"] = "passed"
     except Exception as error:
         manifest.update({"status": "failed", "error": str(error)})

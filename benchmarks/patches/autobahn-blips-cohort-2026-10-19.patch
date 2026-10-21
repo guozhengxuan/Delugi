@@ -1,0 +1,311 @@
+diff --git a/crypto/src/lib.rs b/crypto/src/lib.rs
+index 117923b..2163d55 100644
+--- a/crypto/src/lib.rs
++++ b/crypto/src/lib.rs
+@@ -183,6 +183,7 @@ pub struct Signature {
+ 
+ impl Signature {
+     pub fn new(digest: &Digest, secret: &SecretKey) -> Self {
++        let _cpu = benchmark_cpu::begin(0);
+         let keypair = dalek::Keypair::from_bytes(&secret.0).expect("Unable to load secret key");
+         let sig = keypair.sign(&digest.0).to_bytes();
+         let part1 = sig[..32].try_into().expect("Unexpected signature length");
+@@ -198,6 +199,7 @@ impl Signature {
+     }
+ 
+     pub fn verify(&self, digest: &Digest, public_key: &PublicKey) -> Result<(), CryptoError> {
++        let _cpu = benchmark_cpu::begin(1);
+         let signature = ed25519::signature::Signature::from_bytes(&self.flatten())?;
+         let key = dalek::PublicKey::from_bytes(&public_key.0)?;
+         key.verify_strict(&digest.0, &signature)
+@@ -207,6 +209,7 @@ impl Signature {
+     where
+         I: IntoIterator<Item = &'a (PublicKey, Signature)>,
+     {
++        let _cpu = benchmark_cpu::begin(2);
+         let mut messages: Vec<&[u8]> = Vec::new();
+         let mut signatures: Vec<dalek::Signature> = Vec::new();
+         let mut keys: Vec<dalek::PublicKey> = Vec::new();
+@@ -222,6 +225,7 @@ impl Signature {
+     where
+         I: IntoIterator<Item = &'a (PublicKey, Signature)>,
+     {
++        let _cpu = benchmark_cpu::begin(3);
+         let mut messages: Vec<&[u8]> = Vec::new();
+         let mut signatures: Vec<dalek::Signature> = Vec::new();
+         let mut keys: Vec<dalek::PublicKey> = Vec::new();
+@@ -263,3 +267,57 @@ impl SignatureService {
+             .expect("Failed to receive signature from Signature Service")
+     }
+ }
++
++pub mod benchmark_cpu {
++// Copied verbatim into each instrumented native crypto module. Disabled unless
++// BENCHMARK_CPU_PATH is set. Synchronous guards never cross an await point.
++use std::{fs, io::Write, os::raw::{c_int, c_long}, path::PathBuf,
++    sync::{OnceLock, atomic::{AtomicU64, Ordering}}, time::Duration};
++
++#[repr(C)] struct Timespec { tv_sec: c_long, tv_nsec: c_long }
++extern "C" { fn clock_gettime(id: c_int, time: *mut Timespec) -> c_int; }
++#[cfg(target_os = "linux")] const THREAD_CLOCK: c_int = 3;
++#[cfg(target_os = "macos")] const THREAD_CLOCK: c_int = 16;
++#[cfg(target_os = "linux")] const MONOTONIC_CLOCK: c_int = 1;
++#[cfg(target_os = "macos")] const MONOTONIC_CLOCK: c_int = 6;
++fn clock(id: c_int) -> u64 {
++    let mut ts = Timespec { tv_sec: 0, tv_nsec: 0 };
++    assert_eq!(unsafe { clock_gettime(id, &mut ts) }, 0, "benchmark CPU clock unavailable");
++    ts.tv_sec as u64 * 1_000_000_000 + ts.tv_nsec as u64
++}
++static COUNT: [AtomicU64; 4] = [AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0)];
++static CPU: [AtomicU64; 4] = [AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0),AtomicU64::new(0)];
++static CONFIG: OnceLock<Option<PathBuf>> = OnceLock::new();
++
++fn enabled() -> bool {
++    CONFIG.get_or_init(|| {
++        let path = std::env::var_os("BENCHMARK_CPU_PATH").map(PathBuf::from)?;
++        let output = path.clone();
++        std::thread::Builder::new().name("native-crypto-observer".into()).spawn(move || loop {
++            let names = ["ordinary_sign", "ordinary_verify", "ordinary_verify_batch", "ordinary_verify_batch_multi"];
++            let fields: Vec<String> = names.iter().enumerate().map(|(i,name)| format!(
++                "\"{}\":{{\"calls\":{},\"thread_cpu_ns\":{}}}", name,
++                COUNT[i].load(Ordering::Relaxed), CPU[i].load(Ordering::Relaxed))).collect();
++            let row = format!("{{\"schema\":1,\"monotonic_ns\":{},\"scope\":\"native synchronous ordinary protocol authentication; hashing and input decoding included; elapsed thread CPU, not wall time; failed attempts charged\",\"operations\":{{{}}}}}\n", clock(MONOTONIC_CLOCK), fields.join(","));
++            let temporary = output.with_extension("tmp");
++            let mut file = fs::File::create(&temporary).expect("create native CPU snapshot");
++            file.write_all(row.as_bytes()).expect("write native CPU snapshot");
++            fs::rename(temporary, &output).expect("publish native CPU snapshot");
++            std::thread::sleep(Duration::from_millis(20));
++        }).expect("start native crypto observer");
++        Some(path)
++    }).is_some()
++}
++
++pub struct Guard { kind: usize, start_ns: u64 }
++pub fn begin(kind: usize) -> Option<Guard> {
++    if enabled() { Some(Guard { kind, start_ns: clock(THREAD_CLOCK) }) } else { None }
++}
++impl Drop for Guard {
++    fn drop(&mut self) {
++        CPU[self.kind].fetch_add(clock(THREAD_CLOCK).saturating_sub(self.start_ns), Ordering::Relaxed);
++        COUNT[self.kind].fetch_add(1, Ordering::Relaxed);
++    }
++}
++
++}
+diff --git a/network/Cargo.toml b/network/Cargo.toml
+index af12e8d..ce54cad 100644
+--- a/network/Cargo.toml
++++ b/network/Cargo.toml
+@@ -6,6 +6,7 @@ edition = "2018"
+ publish = false
+ 
+ [dependencies]
++libc = "0.2"
+ tokio = { version = "1.5.0", features = ["rt", "net", "sync", "macros", "time"] }
+ tokio-util = { version = "0.6.6", features = ["codec"] }
+ thiserror = "1.0.24"
+diff --git a/network/src/lib.rs b/network/src/lib.rs
+index b55c173..84be84d 100644
+--- a/network/src/lib.rs
++++ b/network/src/lib.rs
+@@ -11,3 +11,100 @@ pub mod common;
+ pub use crate::receiver::{MessageHandler, Receiver, Writer};
+ pub use crate::reliable_sender::{CancelHandler, ReliableSender};
+ pub use crate::simple_sender::SimpleSender;
++
++
++/// Opt-in application observation and successful TCP stream IO accounting.
++/// This does not replace native protocol, retry, batching or storage services.
++pub mod observer {
++    use std::{fs::{self, OpenOptions}, io::{self, Write}, path::PathBuf, pin::Pin,
++        sync::{Mutex, Once, OnceLock, atomic::{AtomicU64, Ordering}}, task::{Context,Poll}};
++    use tokio::{io::{AsyncRead,AsyncWrite,ReadBuf},net::TcpStream};
++    static DIRECTORY: OnceLock<Option<PathBuf>>=OnceLock::new();
++    static METRICS: Once=Once::new();
++    static EVENT_LOCK: Mutex<()>=Mutex::new(());
++    static PAYLOAD_LOCK: Mutex<()>=Mutex::new(());
++    static WRITTEN: AtomicU64=AtomicU64::new(0);
++    static READ: AtomicU64=AtomicU64::new(0);
++    static WINDOW_WRITTEN: AtomicU64=AtomicU64::new(0);
++    static WINDOW_READ: AtomicU64=AtomicU64::new(0);
++    fn parameter(name:&str)->u64 { std::env::var(name).ok().and_then(|v|v.parse().ok()).unwrap_or(0) }
++    pub fn now_us()->u64 {
++        let mut ts=libc::timespec{tv_sec:0,tv_nsec:0};
++        assert_eq!(unsafe{libc::clock_gettime(libc::CLOCK_MONOTONIC,&mut ts)},0);
++        (ts.tv_sec as u64*1_000_000_000+ts.tv_nsec as u64).saturating_sub(parameter("BENCHMARK_EPOCH_NS"))/1000
++    }
++    fn directory()->Option<&'static PathBuf> {
++        let dir=DIRECTORY.get_or_init(||std::env::var_os("BENCHMARK_OBSERVER_DIR").map(|p|{let p=PathBuf::from(p);fs::create_dir_all(&p).expect("observer directory");p})).as_ref();
++        if let Some(dir)=dir { METRICS.call_once(|| {let dir=dir.clone();std::thread::Builder::new().name("observer-io".into()).spawn(move||loop{
++            let row=format!(r#"{{"observed_us":{},"written_bytes":{},"read_bytes":{},"window_written_bytes":{},"window_read_bytes":{}}}"#,now_us(),WRITTEN.load(Ordering::Relaxed),READ.load(Ordering::Relaxed),WINDOW_WRITTEN.load(Ordering::Relaxed),WINDOW_READ.load(Ordering::Relaxed));
++            fs::write(dir.join("io.tmp"),row).expect("observer IO write");fs::rename(dir.join("io.tmp"),dir.join("io.json")).expect("observer IO publish");
++            std::thread::sleep(std::time::Duration::from_millis(10));
++        }).expect("observer IO thread");}); }
++        dir
++    }
++    pub fn enabled()->bool {directory().is_some()}
++    pub fn hex(bytes:&[u8])->String {bytes.iter().map(|b|format!("{b:02x}")).collect()}
++    fn append(name:&str,row:String){let _guard=EVENT_LOCK.lock().unwrap();if let Some(dir)=directory(){let mut file=OpenOptions::new().create(true).append(true).open(dir.join(name)).expect("observer event file");writeln!(file,"{row}").expect("observer event write");}}
++    pub fn available(digest:&[u8],payload:&[u8]) {
++        if let Some(dir)=directory() {let _guard=PAYLOAD_LOCK.lock().unwrap();let digest=hex(digest);let time=now_us();
++            if dir.join(format!("batch-{digest}.bin")).exists(){return;}
++            fs::write(dir.join(format!("batch-{digest}.tmp")),payload).expect("observer payload write");
++            fs::rename(dir.join(format!("batch-{digest}.tmp")),dir.join(format!("batch-{digest}.bin"))).expect("observer payload publish");
++            append("available.jsonl",format!(r#"{{"digest":"{digest}","available_us":{time}}}"#));
++        }
++    }
++    pub fn slot_header(slot:u64,id:&[u8],parent:&[u8],author:&[u8],height:u64,batches:Vec<String>){if enabled(){append("slots.jsonl",format!(r#"{{"event":"header","slot":{slot},"height":{height},"author":"{}","header_id":"{}","parent_id":"{}","ordered_us":{},"batches":[{}]}}"#,hex(author),hex(id),hex(parent),now_us(),batches.iter().map(|s|format!("\"{s}\"")).collect::<Vec<_>>().join(",")));}}
++    pub fn complete_slot(slot:u64){if enabled(){append("slots.jsonl",format!(r#"{{"event":"complete","slot":{slot},"ordered_us":{}}}"#,now_us()));}}
++    fn count(n:usize,write:bool){let (total,window)=if write{(&WRITTEN,&WINDOW_WRITTEN)}else{(&READ,&WINDOW_READ)};total.fetch_add(n as u64,Ordering::Relaxed);
++        if enabled(){let now=now_us();let start=parameter("BENCHMARK_WARMUP_US");if now>0 && now>=start && now<start+parameter("BENCHMARK_DURATION_US"){window.fetch_add(n as u64,Ordering::Relaxed);}}
++    }
++    pub struct CountedStream(pub TcpStream);
++    impl AsyncRead for CountedStream {fn poll_read(mut self:Pin<&mut Self>,cx:&mut Context<'_>,buf:&mut ReadBuf<'_>)->Poll<io::Result<()>> {let before=buf.filled().len();let result=Pin::new(&mut self.0).poll_read(cx,buf);if let Poll::Ready(Ok(()))=&result{count(buf.filled().len()-before,false);}result}}
++    impl AsyncWrite for CountedStream {
++        fn poll_write(mut self:Pin<&mut Self>,cx:&mut Context<'_>,buf:&[u8])->Poll<io::Result<usize>>{let result=Pin::new(&mut self.0).poll_write(cx,buf);if let Poll::Ready(Ok(n))=&result{count(*n,true);}result}
++        fn poll_write_vectored(mut self:Pin<&mut Self>,cx:&mut Context<'_>,bufs:&[io::IoSlice<'_>])->Poll<io::Result<usize>>{let result=Pin::new(&mut self.0).poll_write_vectored(cx,bufs);if let Poll::Ready(Ok(n))=&result{count(*n,true);}result}
++        fn is_write_vectored(&self)->bool{self.0.is_write_vectored()}
++        fn poll_flush(mut self:Pin<&mut Self>,cx:&mut Context<'_>)->Poll<io::Result<()>>{Pin::new(&mut self.0).poll_flush(cx)}
++        fn poll_shutdown(mut self:Pin<&mut Self>,cx:&mut Context<'_>)->Poll<io::Result<()>>{Pin::new(&mut self.0).poll_shutdown(cx)}
++    }
++}
++
++pub mod benchmark_fault {
++// Copied verbatim into each native transport module. Only a configured faulty
++// sender invokes this on native payload/publication units. It does not edit data,
++// quorum predicates, honest custody, or native request/recovery algorithms.
++use std::{collections::HashSet, fs, io::Write, os::raw::{c_int,c_long}, path::PathBuf,
++    sync::{Mutex,OnceLock}};
++#[repr(C)] struct Timespec { tv_sec:c_long, tv_nsec:c_long }
++extern "C" { fn clock_gettime(id:c_int, time:*mut Timespec)->c_int; }
++#[cfg(target_os="linux")] const CLOCK:c_int=1;
++#[cfg(target_os="macos")] const CLOCK:c_int=6;
++pub fn monotonic_ns()->u64 { let mut ts=Timespec{tv_sec:0,tv_nsec:0};assert_eq!(unsafe{clock_gettime(CLOCK,&mut ts)},0);ts.tv_sec as u64*1_000_000_000+ts.tv_nsec as u64 }
++struct Config { control:PathBuf, log:PathBuf, allowed:HashSet<String>, repair:bool }
++static CONFIG:OnceLock<Option<Config>>=OnceLock::new();
++static INTERVAL:OnceLock<(u64,u64)>=OnceLock::new();
++static LOG:Mutex<()>=Mutex::new(());
++pub fn permit(kind:&str, peer:&str, bytes:usize)->bool {
++    let config=CONFIG.get_or_init(|| Some(Config {
++        control:PathBuf::from(std::env::var_os("BENCHMARK_FAULT_CONTROL")?),
++        log:PathBuf::from(std::env::var_os("BENCHMARK_FAULT_LOG")?),
++        allowed:std::env::var("BENCHMARK_FAULT_ALLOWED").unwrap_or_default().split(',').filter(|x|!x.is_empty()).map(str::to_owned).collect(),
++        repair:std::env::var("BENCHMARK_FAULT_REPAIR").as_deref()==Ok("1"),
++    }));
++    let Some(config)=config else{return true};
++    if kind=="payload_repair" && !config.repair {return true}
++    if INTERVAL.get().is_none() {
++        match fs::read_to_string(&config.control) {
++            Ok(text)=>{let values:Vec<u64>=text.split_whitespace().map(|x|x.parse().expect("invalid benchmark fault time")).collect();assert_eq!(values.len(),2);assert!(values[0]<values[1]);let _=INTERVAL.set((values[0],values[1]));},
++            Err(error) if error.kind()==std::io::ErrorKind::NotFound=>return true,
++            Err(error)=>panic!("read benchmark fault interval: {}",error),
++        }
++    }
++    let (start,end)=*INTERVAL.get().unwrap();let now=monotonic_ns();
++    if now<start || now>=end || config.allowed.contains(peer) {return true}
++    let _guard=LOG.lock().unwrap();let mut file=fs::OpenOptions::new().create(true).append(true).open(&config.log).expect("open omission log");
++    writeln!(file,"{{\"kind\":\"{}\",\"peer\":\"{}\",\"serialized_bytes_omitted\":{},\"monotonic_ns\":{}}}",kind,peer,bytes,now).expect("write omission log");
++    false
++}
++
++}
+diff --git a/network/src/receiver.rs b/network/src/receiver.rs
+index a5f9ef2..affd6a5 100644
+--- a/network/src/receiver.rs
++++ b/network/src/receiver.rs
+@@ -15,7 +15,7 @@ use tokio_util::codec::{Framed, LengthDelimitedCodec};
+ pub mod receiver_tests;
+ 
+ /// Convenient alias for the writer end of the TCP channel.
+-pub type Writer = SplitSink<Framed<TcpStream, LengthDelimitedCodec>, Bytes>;
++pub type Writer = SplitSink<Framed<crate::observer::CountedStream, LengthDelimitedCodec>, Bytes>;
+ 
+ #[async_trait]
+ pub trait MessageHandler: Clone + Send + Sync + 'static {
+@@ -68,7 +68,7 @@ impl<Handler: MessageHandler> Receiver<Handler> {
+     /// using the provided handler.
+     async fn spawn_runner(socket: TcpStream, peer: SocketAddr, handler: Handler) {
+         tokio::spawn(async move {
+-            let transport = Framed::new(socket, LengthDelimitedCodec::new());
++            let transport = Framed::new(crate::observer::CountedStream(socket), LengthDelimitedCodec::new());
+             let (mut writer, mut reader) = transport.split();
+             while let Some(frame) = reader.next().await {
+                 match frame.map_err(|e| NetworkError::FailedToReceiveMessage(peer, e)) {
+diff --git a/network/src/reliable_sender.rs b/network/src/reliable_sender.rs
+index ed2ab0a..29b38fa 100644
+--- a/network/src/reliable_sender.rs
++++ b/network/src/reliable_sender.rs
+@@ -187,7 +187,7 @@ impl Connection {
+         // which we are still waiting to receive an ACK.
+         let mut pending_replies = VecDeque::new();
+ 
+-        let (mut writer, mut reader) = Framed::new(stream, LengthDelimitedCodec::new()).split();
++        let (mut writer, mut reader) = Framed::new(crate::observer::CountedStream(stream), LengthDelimitedCodec::new()).split();
+         let error = 'connection: loop {
+             // Try to send all messages of the buffer.
+             while let Some((data, handler)) = self.buffer.pop_front() {
+diff --git a/network/src/simple_sender.rs b/network/src/simple_sender.rs
+index 9aa3f70..7053f67 100644
+--- a/network/src/simple_sender.rs
++++ b/network/src/simple_sender.rs
+@@ -104,7 +104,7 @@ impl Connection {
+     async fn run(&mut self) {
+         // Try to connect to the peer.
+         let (mut writer, mut reader) = match TcpStream::connect(self.address).await {
+-            Ok(stream) => Framed::new(stream, LengthDelimitedCodec::new()).split(),
++            Ok(stream) => Framed::new(crate::observer::CountedStream(stream), LengthDelimitedCodec::new()).split(),
+             Err(e) => {
+                 warn!(
+                     "{}",
+diff --git a/primary/src/committer.rs b/primary/src/committer.rs
+index 3217866..b2e3908 100644
+--- a/primary/src/committer.rs
++++ b/primary/src/committer.rs
+@@ -149,6 +149,7 @@ impl Committer {
+ 
+                                 // Commit all of the headers  //TODO: Zip all histories for fairness
+                                 for header in headers { //TODO: Iter from old to new?
++                                    network::observer::slot_header(state.last_executed_slot+1,header.id.as_ref(),header.parent_cert.header_digest.as_ref(),header.author.as_ref(),header.height,header.payload.keys().map(|d|network::observer::hex(d.as_ref())).collect());
+                                     if write_to_log {
+                                         info!("Committed {}", header);
+                                         debug!("Committed header payload key size {:?}", header.payload.keys().len());
+@@ -166,6 +167,7 @@ impl Committer {
+                                     debug!("Finish upcall");
+                                 }
+                             }
++                            network::observer::complete_slot(state.last_executed_slot+1);
+                             state.last_executed_slot += 1;
+                         },
+                         _ => {}
+diff --git a/worker/src/batch_maker.rs b/worker/src/batch_maker.rs
+index 277952f..b0d133f 100644
+--- a/worker/src/batch_maker.rs
++++ b/worker/src/batch_maker.rs
+@@ -325,7 +325,8 @@ impl BatchMaker {
+             self.network.broadcast(new_addresses, bytes).await; 
+         } else {
+             //debug!("sending batch normally");
+-            let (_, addresses): (Vec<_>, _) = self.workers_addresses.iter().cloned().unzip();
++            let (_, addresses): (Vec<_>, Vec<std::net::SocketAddr>) = self.workers_addresses.iter().cloned().unzip();
++        let addresses = addresses.into_iter().filter(|address| network::benchmark_fault::permit("payload_initial", &address.to_string(), serialized.len())).collect();
+             self.network.broadcast(addresses, bytes).await; 
+         }
+         
+diff --git a/worker/src/processor.rs b/worker/src/processor.rs
+index 62fc5f7..df961a4 100644
+--- a/worker/src/processor.rs
++++ b/worker/src/processor.rs
+@@ -41,6 +41,13 @@ impl Processor {
+ 
+                 // Store the batch.
+                 store.write(digest.to_vec(), batch).await;
++                if network::observer::enabled() {
++                    let mut reader=store.clone();let digest=digest.clone();
++                    tokio::spawn(async move {
++                        let payload=reader.read(digest.to_vec()).await.expect("observer native store read").expect("native retained payload");
++                        network::observer::available(digest.as_ref(),&payload);
++                    });
++                }
+                 //store.write(digest.to_vec(), Vec::default()).await;
+ 
+                 // Deliver the batch's digest.

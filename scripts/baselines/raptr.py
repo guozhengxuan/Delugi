@@ -322,6 +322,9 @@ def configure_network_shaping(configs, archive, manifest):
     helper = ROOT / "scripts/network_delay.py"
     shutil.copy2(helper, archive / helper.name)
     manifest["network_shaping_helper_sha256"] = sha256(helper)
+    policy = ROOT / "scripts/timing_calibration.py"
+    shutil.copy2(policy, archive / policy.name)
+    manifest["network_timing_policy_sha256"] = sha256(policy)
     shaping = configure_from_environment("raptr", ports)
     manifest["network_shaping"] = shaping
     return shaping

@@ -3,6 +3,8 @@
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 from types import SimpleNamespace
@@ -13,7 +15,48 @@ runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
 
 
+class NativeMaterializationGuard(unittest.TestCase):
+    def test_foreign_application_origin_does_not_receive_useful_credit(self):
+        # Compile only the exact pure identity/author guard. Native crate/state
+        # integration remains a separately coordinated Cargo gate.
+        patch = runner.PATCH.read_text()
+        added = "\n".join(line[1:] for line in patch.splitlines()
+                          if line.startswith("+") and not line.startswith("+++"))
+        function = "    pub fn credited_identity(" + added.split("    pub fn credited_identity(", 1)[1].split("    pub fn stage(", 1)[0]
+        source = function + r'''
+fn main() {
+    let identity=(1u64,0u64,1usize,String::from("fixture-identity"));
+    assert!(!credited_identity(Some(&identity),0));
+    assert!(credited_identity(Some(&identity),1));
+    assert!(!credited_identity(None,0));
+}
+'''
+        with tempfile.TemporaryDirectory(prefix="delugi-native-guard-") as directory:
+            path = Path(directory)
+            (path / "guard.rs").write_text(source)
+            subprocess.run(["rustc", "--edition=2021", str(path / "guard.rs"), "-o", str(path / "guard")],
+                           check=True, capture_output=True)
+            subprocess.run([str(path / "guard")], check=True, capture_output=True)
+
+    def test_compact_requires_finite_mode_and_full_remains_default(self):
+        self.assertEqual(runner.argument_parser().parse_args([]).cohort_observer,"full")
+        self.assertEqual(runner.argument_parser().parse_args(["--cohort-observer","compact"]).cohort_observer,"compact")
+        with mock.patch.object(sys,"argv",["mysticeti.py","--legacy-window","--cohort-observer","compact"]):
+            with self.assertRaises(SystemExit):runner.main()
+
+
 class MetricsTests(unittest.TestCase):
+    def test_finite_window_replaces_legacy_population_and_backlog_labels(self):
+        finite={"window":{"completion_count":2,"admission_count":3,"admission_tps":3,"unique_completion_tps":2,"measurement_seconds":1},
+                "origins":[{"pending_admitted":0,"not_admitted":1},{"pending_admitted":1,"not_admitted":2}]}
+        result=runner.finite_window_summary(finite)
+        self.assertEqual(result["completion_count"],2)
+        self.assertEqual(result["generated_count"],3)
+        self.assertEqual(result["end_pending_generated_transactions_at_origins"],[0,1])
+        self.assertEqual(result["end_not_admitted_transactions_at_origins"],[1,2])
+        self.assertIn("Eligible own-origin",result["completion_count_scope"])
+        self.assertIn("observer prefix freeze",result["end_pending_scope"])
+
     def snapshot(self, seconds, count, total):
         text = f'''# TYPE latency_s histogram
 latency_s_bucket{{workload="shared",le="0.1"}} {count}
@@ -42,9 +85,11 @@ latency_s_sum{{workload="shared"}} {total}
         with self.assertRaises(RuntimeError):
             runner.summarize(self.snapshot(10, 5, 1), self.snapshot(40, 3, 0.5), 0)
 
-    def test_no_progress_is_failure(self):
-        with self.assertRaises(RuntimeError):
-            runner.summarize(self.snapshot(10, 5, 1), self.snapshot(40, 5, 1), 0)
+    def test_zero_output_is_accounted_with_undefined_latency(self):
+        result = runner.summarize(self.snapshot(10, 5, 1), self.snapshot(40, 5, 1), 0)
+        self.assertEqual(result["commit_throughput_tx_s"], 0)
+        self.assertIsNone(result["mean_generation_to_commit_latency_ms"])
+        self.assertIsNone(result["p99_histogram_upper_bound_ms"])
 
     def test_native_log_common_prefix(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -163,7 +208,7 @@ class ShapingLifecycleTests(unittest.TestCase):
                 "cargo_lock_sha256": runner.sha256(source / "Cargo.lock"),
                 "source_diff_sha256": runner.hashlib.sha256(b"").hexdigest(),
             })
-            events, processes = [], []
+            events, processes, streams = [], [], []
 
             def genesis(command, *_args, **_kwargs):
                 path = Path(command[command.index("--working-directory") + 1])
@@ -175,6 +220,14 @@ class ShapingLifecycleTests(unittest.TestCase):
             def spawn(*_args, **_kwargs):
                 process = mock.Mock(pid=100 + len(processes), returncode=None)
                 process.poll.return_value = None
+                streams.append(_kwargs["stdout"])
+                if not processes:
+                    def exited_before_continue(_signal):
+                        events.append("exit_race")
+                        process.returncode = 0
+                        process.poll.return_value = 0
+                        raise ProcessLookupError("owned child already exited")
+                    process.send_signal.side_effect = exited_before_continue
                 def terminate():
                     events.append("terminate")
                     process.returncode = -15
@@ -200,7 +253,8 @@ class ShapingLifecycleTests(unittest.TestCase):
 
             def clear():
                 events.append("clear")
-                self.assertTrue(all(process.returncode == -15 for process in processes))
+                self.assertEqual([process.returncode for process in processes], [0, -15, -15, -15])
+                self.assertTrue(all(stream.closed for stream in streams))
                 return {"cleared": True}
 
             with mock.patch.multiple(runner, SOURCE=source, TARGET=target, BINARY=binary), \
@@ -216,13 +270,79 @@ class ShapingLifecycleTests(unittest.TestCase):
                     mock.patch.object(runner.network_delay, "configure_from_environment", side_effect=configure), \
                     mock.patch.object(runner.network_delay, "clear_from_environment", side_effect=clear):
                 self.assertEqual(runner.main(), 1)
-            self.assertEqual(events, ["ready", "configure", "warmup", *(["terminate"] * 4), "clear"])
+            self.assertEqual(events, ["ready", "configure", "warmup", "exit_race", *(["terminate"] * 3), "clear"])
+            processes[0].terminate.assert_not_called()
+            for process in processes:
+                process.wait.assert_called_once_with(timeout=5)
             manifest = json.loads((output / "manifest.json").read_text())
             self.assertEqual(manifest["network_shaping"], {"delay_ms": 10})
             self.assertEqual(manifest["network_shaping_cleanup"], {"cleared": True})
             self.assertEqual(manifest["status"], "failed")
             self.assertIn("simulated warmup failure", manifest["error"])
             self.assertEqual(manifest["settings"]["leader_timeout_seconds"], 0.1)
+
+    def test_cleanup_failure_does_not_skip_other_children_or_streams(self):
+        first, second = mock.Mock(), mock.Mock()
+        first.poll.return_value = None
+        first.send_signal.side_effect = PermissionError("fixture signal failure")
+        first.wait.side_effect = [subprocess.TimeoutExpired("owned", 5), subprocess.TimeoutExpired("owned", 5)]
+        second.poll.return_value = 0
+        streams = [mock.Mock(), mock.Mock()]
+        streams[0].close.side_effect = OSError("fixture close failure")
+        errors = runner.cleanup_owned_children([first, second], streams)
+        first.kill.assert_called_once()
+        second.send_signal.assert_not_called()
+        second.wait.assert_called_once_with(timeout=5)
+        for stream in streams: stream.close.assert_called_once()
+        self.assertEqual([row["stage"] for row in errors], ["continue/terminate", "wait/kill", "close"])
+
+
+class CohortTests(unittest.TestCase):
+    def journal(self, output, *, materialized=True):
+        key = runner.cohort_request_id(0, 0, 4)
+        events = [{"event":"start", "origin":0, "elapsed_us":0, "window_start_us":0,
+                   "window_end_us":1000000, "observed_us":2000000, "rate":1,"count":1,"useful_bytes":4},
+                  {"event":"admitted","request_id":key,"elapsed_us":100},
+                  {"event":"batch_ready","request_id":key,"elapsed_us":1000}]
+        if materialized:
+            events += [{"event":"batch","exact_batch_id":"complete-native-digest","payload_bytes":44,"elapsed_us":1200},
+                       {"event":"materialized","request_id":key,"origin":0,"sequence":0,"useful_bytes":4,
+                        "elapsed_us":1201,"output_index":0,"exact_batch_id":"complete-native-digest"}]
+        output.write_text("\n".join(json.dumps(event) for event in events)+"\n")
+        return runner.read_cohort(output,0)
+
+    def test_exact_materialization_and_same_clock_latency(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger=self.journal(Path(tmp)/"events.jsonl")
+            summary=runner.cohort_metrics.summarize_cohorts({0:ledger})
+            self.assertEqual(summary["completed"],1)
+            self.assertEqual(summary["admission_to_output"]["p50"]["value_ms"],1.101)
+            self.assertEqual(summary["window"]["u_out_bytes"],4)
+            self.assertEqual(summary["window"]["m_out_bytes"],44)
+
+    def test_unfinished_native_cohort_preserved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            ledger=self.journal(Path(tmp)/"events.jsonl",materialized=False)
+            summary=runner.cohort_metrics.summarize_cohorts({0:ledger})
+            self.assertEqual(summary["unfinished"],1)
+            self.assertEqual(summary["window"]["unique_completion_tps"],0)
+            self.assertEqual(summary["admission_to_output"]["p99"]["status"],"censored")
+            self.assertEqual(runner.check_output_prefixes({0:ledger})["common_prefix_length"],0)
+
+    def test_digest_mismatch_rejects_equal_leader_reference(self):
+        a={"outputs":[{"output_index":0,"request_id":"same-request","exact_batch_id":"digest-a"}]}
+        b={"outputs":[{"output_index":0,"request_id":"same-request","exact_batch_id":"digest-b"}]}
+        with self.assertRaises(RuntimeError): runner.check_output_prefixes({0:a,1:b})
+
+    def test_empty_replica_does_not_hide_divergent_longer_outputs(self):
+        a={"outputs":[{"output_index":0,"request_id":"a","exact_batch_id":"batch"}]}
+        b={"outputs":[{"output_index":0,"request_id":"b","exact_batch_id":"batch"}]}
+        with self.assertRaises(RuntimeError):runner.check_output_prefixes({0:{"outputs":[]},1:a,2:b})
+
+    def test_content_identity_covers_origin_sequence_and_payload(self):
+        self.assertNotEqual(runner.cohort_request_id(0,0,4),runner.cohort_request_id(1,0,4))
+        self.assertNotEqual(runner.cohort_request_id(0,0,4),runner.cohort_request_id(0,1,4))
+        self.assertNotEqual(runner.cohort_request_id(0,0,4),runner.cohort_request_id(0,0,5))
 
 
 if __name__ == "__main__":

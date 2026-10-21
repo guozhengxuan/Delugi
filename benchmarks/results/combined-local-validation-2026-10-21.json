@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-21",
+  "status": "passed",
+  "scope": "Final local Python checkpoint after observed Shoal pause ledger; loopback fixtures only, no cloud or remote host execution",
+  "source_changed_during_tests": [],
+  "checks": [
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "*_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 366,
+      "elapsed_seconds": 4.080872291699052,
+      "log": "results/local/combined-local-validation-20261021/attempt-3/tests.log",
+      "log_sha256": "c001176dd7bc3868afc92f92a2267c0f8cb403177a28c0ab6de505107a4877a8"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "scripts/baselines",
+        "-p",
+        "*_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 120,
+      "elapsed_seconds": 37.53114183433354,
+      "log": "results/local/combined-local-validation-20261021/attempt-3/scripts-baselines.log",
+      "log_sha256": "126de4c5b9b8f3b96d351d99d7f8848024b703ad4e9dc514d5225a33605c64f1"
+    }
+  ],
+  "source_snapshot": "results/local/combined-local-validation-20261021/attempt-3/source",
+  "previous_attempt": {
+    "manifest": "results/local/combined-local-validation-20261021/attempt-2/manifest.json",
+    "sha256": "594d33ca7aa45d1a3ccb7fd8eb94d3b1d0505d20c186306ed351709969c3434d"
+  },
+  "evidence_manifest": "results/local/combined-local-validation-20261021/attempt-3/manifest.json",
+  "evidence_manifest_sha256": "5e5cf4ea751c85fa6f2de59956b5d2bd6e4a206238ee849d9048adea361f9a33",
+  "passed_python_tests": 486
+}

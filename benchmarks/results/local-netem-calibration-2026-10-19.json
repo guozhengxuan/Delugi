@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "status": "calibration_failed",
+  "requested_added_delay_ms": 10,
+  "expected_added_rtt_ms": 20,
+  "acceptance_tolerance_ms": 5,
+  "actual_added_rtt_ms": [
+    29.374141,
+    26.709096,
+    25.7837155,
+    27.6349395
+  ],
+  "no_protocol_runs": true,
+  "all_owned_cleanup_verified": true,
+  "no_mac_network_changes": true,
+  "no_cloud_resources": true,
+  "attempts": [
+    {
+      "attempt": 1,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/local-netem-validation-82693c1123504bfb827d204de7306637/attempt1",
+      "process_exit_code": 1,
+      "result_sha256": "66c4c26360b991f17b9b48ca9f62d01855330a9f4c3287683a84f922f749164b",
+      "kernel": "6.15.10-200.fc42.aarch64",
+      "setup_objects_verified": true,
+      "owned_cleanup_verified": true,
+      "assessment": {
+        "checks": [
+          {
+            "added_median_rtt_ms": 29.374141,
+            "addition_matches": false,
+            "expected_added_rtt_ms": 20.0,
+            "port": 19400,
+            "returned_to_baseline": true,
+            "scope": "selected",
+            "sender": 0
+          },
+          {
+            "added_median_rtt_ms": 0.001583000000000001,
+            "addition_matches": true,
+            "expected_added_rtt_ms": 0,
+            "port": 19401,
+            "returned_to_baseline": true,
+            "scope": "unselected_control",
+            "sender": 0
+          },
+          {
+            "added_median_rtt_ms": 26.709096,
+            "addition_matches": false,
+            "expected_added_rtt_ms": 20.0,
+            "port": 19400,
+            "returned_to_baseline": true,
+            "scope": "selected",
+            "sender": 1
+          },
+          {
+            "added_median_rtt_ms": 0.001416500000000001,
+            "addition_matches": true,
+            "expected_added_rtt_ms": 0,
+            "port": 19401,
+            "returned_to_baseline": true,
+            "scope": "unselected_control",
+            "sender": 1
+          }
+        ],
+        "passed": false,
+        "scope": "two-way TCP echo RTT; no independent one-way or protocol-latency claim"
+      }
+    },
+    {
+      "attempt": 2,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/local-netem-validation-82693c1123504bfb827d204de7306637/attempt2",
+      "process_exit_code": 1,
+      "result_sha256": "aba94b6998b4da1696ceba483eca5af4e36ef5960e450f1c8b935da6a104859c",
+      "kernel": "6.15.10-200.fc42.aarch64",
+      "setup_objects_verified": true,
+      "owned_cleanup_verified": true,
+      "assessment": {
+        "checks": [
+          {
+            "added_median_rtt_ms": 25.7837155,
+            "addition_matches": false,
+            "expected_added_rtt_ms": 20.0,
+            "port": 19400,
+            "returned_to_baseline": true,
+            "scope": "selected",
+            "sender": 0
+          },
+          {
+            "added_median_rtt_ms": 0.0007074999999999998,
+            "addition_matches": true,
+            "expected_added_rtt_ms": 0,
+            "port": 19401,
+            "returned_to_baseline": true,
+            "scope": "unselected_control",
+            "sender": 0
+          },
+          {
+            "added_median_rtt_ms": 27.6349395,
+            "addition_matches": false,
+            "expected_added_rtt_ms": 20.0,
+            "port": 19400,
+            "returned_to_baseline": true,
+            "scope": "selected",
+            "sender": 1
+          },
+          {
+            "added_median_rtt_ms": 0.0008535000000000001,
+            "addition_matches": true,
+            "expected_added_rtt_ms": 0,
+            "port": 19401,
+            "returned_to_baseline": true,
+            "scope": "unselected_control",
+            "sender": 1
+          }
+        ],
+        "passed": false,
+        "scope": "two-way TCP echo RTT; no independent one-way or protocol-latency claim"
+      }
+    }
+  ],
+  "timer_diagnostic": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/local-netem-validation-82693c1123504bfb827d204de7306637/guest-timer-probe.json",
+    "sha256": "57f5ca2bb12cc1d195d333e3a5f3fc39c9644edd9d632879f829be38e3b5b944",
+    "rows": [
+      {
+        "requested_sleep_ms": 1.0,
+        "median_ms": 1.356199
+      },
+      {
+        "requested_sleep_ms": 10.0,
+        "median_ms": 14.1977645
+      },
+      {
+        "requested_sleep_ms": 100.0,
+        "median_ms": 102.5901085
+      }
+    ]
+  },
+  "interpretation": "The configured10ms delay did not achieve the declared RTT calibration tolerance. Guest sleep overshoot is consistent with VM timer/scheduling delay, but does not isolate its precise cause. Do not use this VM setup as verified delta10ms protocol evidence. Control ports and post-clear restoration passed.",
+  "evidence": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/local-netem-validation-82693c1123504bfb827d204de7306637",
+  "measurement_conditions": "Both task-owned Cargo/native builds paused; no concurrent protocol benchmark. Private veth/network/mount/PID namespaces within task-owned AppleHV VM; same-port TCP echo;20 samples per direction/port/phase, raw retained.",
+  "kernel_module_cleanup": {
+    "unloaded_verified": true,
+    "basis": "IFB initially unloaded; task lab was only loader; no IFB links in any observed process network namespace and module usecount zero",
+    "evidence": [
+      {
+        "path": "ifb-before-resume.json",
+        "source": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/shoal-local-vm-20261019/ifb-before-resume.json",
+        "sha256": "84cdd41881e5ba214699388b47cae13ed2c43164171223fe85aa8fddf343fcfd"
+      },
+      {
+        "path": "ifb-cleanup.json",
+        "source": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/shoal-local-vm-20261019/ifb-cleanup.json",
+        "sha256": "35a6c7f6224a525e68d0280c4a6eb457d7e02351caa5c6aaa0dd53dd44120ff5"
+      }
+    ],
+    "recorded_utc": "2026-10-19T11:35:13.709501+00:00"
+  }
+}

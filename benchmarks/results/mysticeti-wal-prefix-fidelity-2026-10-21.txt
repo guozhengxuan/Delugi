@@ -1,0 +1,20 @@
+Mysticeti frozen native prefix verification — 2026-10-21
+
+Verified all 32 retained replica archives across full/compact healthy, empty,
+unfinished and one sustained-load pair. All eight runs agree on every overlapping
+complete-block prefix. The reader independently checked 1,988,196 checkpoints
+against signed native WAL blocks, including empty and unknown payload outputs.
+
+52 Python tests pass. The archived replay read 1,027,434,621 WAL bytes in 280.0 s;
+cross-replica comparison took 7.07 s. Peak process RSS was 52.6 MB and maximum
+per-replica scratch was 473.0 MB. All derived scratch was removed. Original
+compressed evidence and historical manifests remain unchanged.
+
+The local adapter now runs this check after child cleanup and retains proof hashes.
+This closes frozen output-prefix byte/order fidelity. Persisted CommitData is not
+a signed consensus certificate, and this does not independently prove admission
+timestamps, fsync durability or any later WAL suffix. Formal eligibility remains
+false. No protocol implementation, binary, live trial or latency result changed.
+
+Detailed report: benchmarks/results/mysticeti-wal-prefix-fidelity-2026-10-21.json
+Raw verification evidence: results/local/mysticeti-wal-prefix-20261021

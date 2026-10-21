@@ -2392,7 +2392,8 @@ impl Replica {
     pub fn receive(&mut self, now: u64, message: Message) -> Result<Vec<Effect>, String> {
         self.set_time(now)?;
         // Check an entire bounded frame before any state mutation from its fields.
-        wire::encoded_size(&wire::MessageRef::from(&message))?;
+        self.committee
+            .encoded_size(&wire::MessageRef::from(&message))?;
         self.ingest(message)?;
         self.settle()
     }
@@ -2494,7 +2495,8 @@ impl Replica {
         });
     }
     fn enqueue_outgoing(&mut self, to: Option<Id>, message: Message) -> Result<Message, String> {
-        wire::encoded_size(&wire::MessageRef::from(&message))?;
+        self.committee
+            .encoded_size(&wire::MessageRef::from(&message))?;
         if self
             .round_barriers
             .as_ref()
@@ -2853,7 +2855,9 @@ impl Replica {
             return;
         }
         if let Some(value) = value {
-            if wire::hash(&value) == header.body.value_hash && !self.values.contains_key(&(r, d)) {
+            if self.committee.hash(&value) == header.body.value_hash
+                && !self.values.contains_key(&(r, d))
+            {
                 self.values.insert((r, d), value);
                 self.version += 1;
             }
@@ -3221,9 +3225,9 @@ impl Replica {
             let header = Header {
                 context: self.committee.context.clone(),
                 round: r,
-                value_hash: wire::hash(&value),
-                witness_hash: wire::hash(&witness),
-                history_hash: wire::hash(&history),
+                value_hash: self.committee.hash(&value),
+                witness_hash: self.committee.hash(&witness),
+                history_hash: self.committee.hash(&history),
                 entries: history::project(r, &history),
             };
             let proposal = Proposal {
@@ -3507,7 +3511,8 @@ impl Replica {
         // the latter, which apply_actions rejects. The live suffix still gets
         // the original monotonicity assertion, including commits lacking data.
         self.statuses.extend(statuses);
-        let delivered = scanner::release(
+        let delivered = scanner::release_with_committee(
+            &self.committee,
             &self.statuses,
             &self.headers,
             &self.values,
@@ -3613,9 +3618,9 @@ impl Replica {
             let header = Header {
                 context: self.committee.context.clone(),
                 round: r,
-                value_hash: wire::hash(&value),
-                witness_hash: wire::hash(&witness),
-                history_hash: wire::hash(&history),
+                value_hash: self.committee.hash(&value),
+                witness_hash: self.committee.hash(&witness),
+                history_hash: self.committee.hash(&history),
                 entries: history::project(r, &history),
             };
             let proposal = Proposal {

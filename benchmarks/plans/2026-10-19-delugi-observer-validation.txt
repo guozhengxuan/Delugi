@@ -1,0 +1,67 @@
+Delugi observer control — executed validation and retention plan
+Status: passed on 19 October 2026. Evidence: results/local/observer-validation-20261019-f48e7b394b91; concise report benchmarks/results/delugi-observer-validation-2026-10-19.json. The small correctness build used one Cargo job alongside the Shoal native build; all live fixtures and paired measurements ran with the native build paused. Passed 248 ordinary Rust checks, 19 actual TCP/process checks and 396 Python checks, then six functional fixtures and six paired trials. New binary fa90c1a08ac4dc5d86b68a0b9b99d3ce7a2e0d9c8cbc3fe12b3613f5a09d4a7a is retained with its stamp. Build cleanup removed 331,468,800 allocated bytes; target is 3,162,112 bytes. Localhost only; added network delay 0 ms, configured bound 100 ms. No admin, shaping or cloud actions in these observer trials. The recipe below records the prepared procedure; actual commands, environment and source snapshots are authoritative in the evidence manifest.
+
+Retained baseline (verified by read-only hash on 2026-10-19)
+Executable: results/local/retained-artifacts-20261019/ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b/delugi-replica
+SHA256: ab895b5bd6f06a67717e8f72ac10b69280487350eb02043b00c594d3fbb5b86b
+Bytes:2970896
+Matching stamp: sibling delugi-replica.build.json
+Stamp SHA256:f82b62d9e247ba1c9af5bf146765a90589185b079e128638a8ff61ec0c3cd7f0
+Current target/release copies have these same hashes. Do not modify either retained file or the migration-hardening-build-20261019 source snapshot. The new common receipt baseline changes runtime observer work and must receive a new binary/stamp; old measurements cannot be relabeled as full/compact observer results.
+
+Evidence root and source freeze
+Use one new exclusive results/local/observer-validation-<fresh-uuid> directory. Before any test, copy Cargo.toml/Cargo.lock, src/**/*.rs, tests/**/*.rs, all relevant Python runner/reducer tests and helpers, and the explicit provenance/spec-2026-10-19.json into snapshot/ preserving relative paths. Record SHA256+bytes for every copied file, compiler/Python versions, git HEAD and binary/stamp hashes. Store each subprocess argv, start/end UTC, return code and complete stdout/stderr in this evidence root. Re-hash source after tests/build/pilots; any source drift invalidates reuse of the frozen test/build claim. Do not overwrite earlier failed attempts. Source fixtures and raw finite bitmaps/pages remain retained.
+
+Focused Rust checks (sequential, from repository root)
+Environment on each Cargo invocation: CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=2.
+
+cargo test --offline --locked --lib workload::tests -- --test-threads=1
+cargo test --offline --locked --lib ledger::tests -- --test-threads=1
+cargo test --offline --locked --lib composed::tests::full_and_compact_receipts_preserve_execution_and_latch_before_publication -- --exact
+cargo test --offline --locked --lib composed::tests::synchronous_produce_retry_latches_admitted_output_before_own_ready_publication -- --exact
+cargo test --offline --locked --lib composed::tests::append_observer_tracks_verified_output_without_changing_log_or_effects -- --exact
+cargo test --offline --locked --lib process::tests::batching_after_eligible_output_does_not_restore_pending_timestamps -- --exact
+cargo test --offline --locked --lib process::tests::actual_total_rate_population_is_capped_before_workload_allocation -- --exact
+cargo test --offline --locked --lib meter::tests::observer_receipt_authentication_has_separate_control_accounting -- --exact
+
+Acceptance: signed header/manifest and finite population verification; exact lengths/padding/counts/hashes; empty streams; preplay never credited retrospectively; successful admission metadata publication; completion before own batch-ready; no stale pending timestamps; same full/compact application output, exact batch receipts and effects including malformed/empty batches; receipt signing classified as observer/control.
+
+Complete ordinary and real TCP/process regression checks
+cargo test --offline --locked --all-targets -- --test-threads=1
+cargo test --offline --locked --all-targets -- --ignored --test-threads=1
+
+The ignored suite includes actual localhost four-process ordering/recovery, Byzantine-frame validation, transport reconnect/backpressure/category conservation, and the near32MiB complete witness transfer. Use task-scoped localhost permission if required. No external network. Preserve failure logs and stop before release construction if any relevant test fails; repair only the identified issue, re-freeze changed source, then rerun affected checks and final full gates.
+
+Python gates
+python3 -m unittest discover -s tests -p '*test.py'
+python3 -m unittest discover -s scripts/baselines -p '*test.py'
+
+One release build, stamped and source-archived
+Only after passing gates and confirming the retained old executable/stamp hashes, run with the same low-storage build environment:
+python3 scripts/run_sustained.py --spec-snapshot provenance/spec-2026-10-19.json --build-only --output results/local/observer-build-<fresh-uuid>
+
+The runner archives exact sources, performs one offline locked release build, checks source stability and creates a matching .build.json. Preserve the new executable/stamp in a fresh SHA256-named retained-artifacts directory before removing any intermediate build outputs. All subsequent fixtures/pairs use --skip-build with this same executable/stamp and unchanged sources. Never bypass the build-stamp equality check.
+
+Same-binary four-process functional fixtures (both --cohort-observer full and compact)
+Common arguments: --spec-snapshot provenance/spec-2026-10-19.json --skip-build --nodes4 --bound-ms100 --useful-bytes472 --ordering-mode progress --progress-pacing-ms100. Flags are separated as shown in the concrete commands below. Each output path must be new/exclusive. Ensure no DELUGI shaper environment is active; record added delay0 rather than claiming10ms.
+
+Healthy (eight finite requests, all complete):
+python3 scripts/run_sustained.py --spec-snapshot provenance/spec-2026-10-19.json --skip-build --nodes 4 --bound-ms 100 --useful-bytes 472 --ordering-mode progress --progress-pacing-ms 100 --rate 40 --warmup 0 --duration 0.2 --drain 1 --batch-ms 10 --cohort-observer full --output results/local/observer-healthy-full-<fresh-uuid>
+Repeat with compact and a fresh compact path, same binary/options.
+
+Zero finite population (nonzero configured rate, finite duration rounds to zero requests):
+Same command family with --rate 1 --warmup 0 --duration 0.1 --drain 0 --batch-ms 10, in both modes.
+
+Nonempty unfinished/zero-output population (four intended/admitted requests; own batch flush deliberately after declared endpoint):
+Same command family with --rate 40 --warmup 0 --duration 0.1 --drain 0 --batch-ms 1000 --max-batch-transactions 128, in both modes. This is a finite endpoint fixture, not an attack or protocol recovery result. Assert the retained receipt population includes unfinished members; if host/controller scheduling crosses the batch deadline and completes them, record the actual outcome and do not claim incomplete-fixture acceptance. No request deletion or forced protocol state.
+
+Fixture gates
+Both modes: verify all signed schema3 headers/manifests and every bitmap; all correct overlapping transaction and exact-batch prefixes; no replicated useful-output summation; finite admission/rejection/unarrived/unfinished counts; actual written-byte category conservation; no owned process remains. Full additionally verifies existing schema2+SQLite admission/output ledger and genuine timestamps; compact must have zero detailed observer rows/timestamp vectors, unavailable latency/deadline fields, and explicit comparison_eligible=false at comparison, trial and manifest levels. Full/compact do not need identical output ordering across separate independent runs; each run must agree internally and match its exact finite population/receipt contract.
+
+Alternating same-binary overhead pairs, only after functional acceptance
+Run six sequential trials in order full,compact,compact,full,full,compact (three paired repetitions), no concurrent build/benchmark. Common settings: four processes, rate1200tx/s, useful472bytes, warmup1s, measurement3s, drain2s, batch10ms, max batch128, bound 100 ms, PROG pacing100ms, immediate bundling default enabled, optional operation meter off, added delay 0 ms, no faults. Example:
+python3 scripts/run_sustained.py --spec-snapshot provenance/spec-2026-10-19.json --skip-build --nodes 4 --bound-ms 100 --useful-bytes 472 --ordering-mode progress --progress-pacing-ms 100 --rate 1200 --warmup 1 --duration 3 --drain 2 --batch-ms 10 --max-batch-transactions 128 --cohort-observer full --output results/local/observer-pair1-full-<fresh-uuid>
+Use compact/full as the declared sequence requires, unique paths, otherwise identical arguments. Preserve each manifest/source snapshot/config, signed receipt bitmap files, full-mode schema2/SQLite, stdout/stderr, snapshots, cleanup receipt, sampled process CPU/RSS, traffic-category totals and operation-meter mode. Report paired CPU/throughput/RSS/traffic deltas, finite all-correct completion and repetition variation. Use observer_window_metrics for common sampled-window endpoints in both modes; full exact cohort tails are additional diagnostic evidence and cannot be compared against nonexistent compact latencies. Do not infer capacity or total observer-free overhead from these short pairs.
+
+Retention and cleanup
+Keep only exact executables+stamps and source/test/raw-evidence archives needed for reproducibility. Remove newly generated Cargo intermediates only after hashes are verified and no Cargo/native/replica process is running; do not delete retained binaries, historical evidence, source archives or protocol stores belonging to unfinished runs. Record before/after allocated bytes and the exact owned paths removed. No host-wide cleanup and no removal of the native Shoal VM/build owned by the other task. Final report must clearly separate source-only changes, compiled/tested version, functional fixtures and noisy short overhead pairs.

@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "scope": "native observer correctness and four-process functional check, no timing comparison",
+  "native_source_commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+  "binary_sha256": "a4c55313c1913c1fb338946bb4fd15486e0ccd45e7ae4c37abdaec02fc73e473",
+  "patch_sha256": "0d958122528c395ec13f8c0ff979ecbfaf3fd88b29374454d6086af8244f4335",
+  "native_guard_test": "passed: foreign_application_origin_does_not_abort_native_commit_observation",
+  "healthy": {
+    "manifest": "results/local/mysticeti-origin-guard-healthy-20261019/manifest.json",
+    "sha256": "1e53ecad26f26b96afdf2f7039a048666a9e5143f71353cd28d5b914f38b387f",
+    "measured_completed": 1200,
+    "measured_scheduled": 1200,
+    "full_prefix_lengths": [
+      2400,
+      2400,
+      2400,
+      2400
+    ],
+    "agreement": true
+  },
+  "cleanup": "Removed 2596 files, 1.0GiB total",
+  "retained_binary": "benchmarks/.cache/mysticeti-target/release/mysticeti",
+  "prior_measured_binary_sha256": "48ae50d1c869570c2bd2abf7c4f3687a2fd97fc476074e0741cd41909a54a341",
+  "added_network_delay_ms": 0
+}

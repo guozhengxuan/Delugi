@@ -69,11 +69,16 @@ class MysticetiMeasurementTests(unittest.TestCase):
                 with self.assertRaises((RuntimeError, ValueError)):
                     MYSTICETI.summarize(before, broken, 0)
 
-    def test_no_progress_is_rejected(self):
+    def test_zero_output_retains_window_and_undefined_latency(self):
         before, after = snapshots()
         after["values"] = copy.deepcopy(before["values"])
-        with self.assertRaises((RuntimeError, ValueError)):
-            MYSTICETI.summarize(before, after, 0)
+        result = MYSTICETI.summarize(before, after, 0)
+        self.assertEqual(result["measurement_seconds"], 1)
+        self.assertEqual(result["committed_transaction_observations"], 0)
+        self.assertEqual(result["commit_throughput_tx_s"], 0)
+        self.assertIsNone(result["mean_generation_to_commit_latency_ms"])
+        for percentile in (50, 95, 99):
+            self.assertIsNone(result[f"p{percentile}_histogram_upper_bound_ms"])
 
 
 if __name__ == "__main__":

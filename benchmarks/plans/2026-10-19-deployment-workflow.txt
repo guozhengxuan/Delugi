@@ -1,0 +1,255 @@
+Exact artifact preparation and existing-host deployment — 19 October 2026
+
+Current acceptance scope: local unit tests and mocked Linux/SSH contracts only.
+No host installation, SSH connection, cloud API request, resource creation or
+remote benchmark was performed to validate this workflow. Native artifact
+publication and fixed-protocol placement scripts have local mocked tests.
+Live native placement acceptance remains unverified.
+
+Relationship to Loom
+The reference is Loom/benchmark/alibaba/{remote,instance,settings}.py and
+Loom/benchmark/fabfile.py. Their lifecycle is represented by these explicit phases:
+  existing-host selection: deployment_prepare.py inventory-from-loom
+  exact source selection: deployment_prepare.py bundle
+  install/build/download: deployment_prepare.py plan, then build
+  upload and artifact inventory: deployment_prepare.py plan, then publish
+  Delugi config/launch/evidence: run_sustained.py --inventory
+  Delugi process/network stop: runner's nonce/PID-start guarded cleanup
+  build-intermediate cleanup: deployment_prepare.py clean
+Future cloud leasing is a separate alibaba_deployment.py workflow. This preparation
+script only reads saved inventories and never reads Loom's access-key file.
+
+Local preparation
+Use a new output path for each bundle, plan execution and measurement. The examples
+below are plans; build/publish/clean make no SSH connection without --execute.
+Use explicit instance IDs in replica order from an already saved inventory or
+Delugi lease. Host keys must already be verified and written to known_hosts by the
+operator. The script requires StrictHostKeyChecking=yes and does not trust keys
+obtained from an unauthenticated scan.
+
+  python3 scripts/deployment_prepare.py inventory-from-loom \
+    --settings /Users/zhengxuanguo/gitrepo/Loom/benchmark/settings.json \
+    --saved-inventory EXISTING_SAVED_INVENTORY.json \
+    --instance-ids INSTANCE0 INSTANCE1 INSTANCE2 INSTANCE3 \
+    --known-hosts VERIFIED_KNOWN_HOSTS --memory-bytes 17179869184 \
+    --output results/local/deployment-UNIQUE/hosts.json
+
+The saved host must be Running, have one public IPv4 for SSH and one private IPv4
+for protocol traffic, and match Loom's configured region. The chosen memory value
+must equal saved nominal whole-host memory. Actual dedicated-host memory is checked
+on the remote machine and recorded as observed physical RAM; smaller enforced
+memory budgets require a delegated cgroup. Generated inventories declare
+swap_bytes=0: dedicated hosts must report zero configured swap before and after
+the run; delegated cgroups enforce and read back memory.swap.max. Explicit nonzero
+swap budgets are retained and matched as part of the resource contract. Legacy
+inventories without a swap policy remain diagnostic and cannot pass the formal
+resource gate. CPU affinity is explicit. Supply
+--network-interface only after identifying the real interface; no guessed eth0.
+
+  python3 scripts/deployment_prepare.py bundle --protocol delugi \
+    --output results/local/deployment-UNIQUE/source
+  python3 scripts/deployment_prepare.py plan \
+    --hosts results/local/deployment-UNIQUE/hosts.json \
+    --bundle results/local/deployment-UNIQUE/source \
+    --output results/local/deployment-UNIQUE/build-plan.json
+  python3 scripts/deployment_prepare.py build \
+    --plan results/local/deployment-UNIQUE/build-plan.json
+
+Delugi bundles exact Cargo.toml, Cargo.lock and Rust sources. Native bundles select
+the published pin in provenance/baselines.json, verify HEAD, require the exact
+reviewed instrumentation diff and dependency lock, then include tracked source
+files. New patched files must be indexed with git apply --intent-to-add, as the
+native preparation helper does. A mismatched checkout is rejected, never reset.
+Controller runners and their explicit dependencies are archived as evidence.
+Arbitrary workspace files, generated benchmark identities, access credentials,
+raw results and build directories are not swept into a source archive.
+
+Source archives normalize metadata and record every path, size and SHA256. Both
+external metadata and the archived manifest must match before planning. The plan
+binds the archive, helper version, exact protocol/recipe and a fresh nonce. It
+becomes invalid if these files change. All uploads/downloads stream bounded chunks.
+
+Fixed build profiles
+Delugi: Rust1.92.0; explicit exact numeric toolchain override permitted.
+Mysticeti: Rust1.78.0; pinned paper package mysticeti, release debug disabled.
+Autobahn / Autobahn-blips: Rust1.92.0; node with benchmark feature, plus native client.
+Shoal: Rust1.75.0; separate aptos-node consensus-only-perf-test and shoal-fixture
+builds, release debug disabled. See 2026-10-19-shoal-linux-recipe.txt for the native
+paper mode, estimated scratch/RAM needs and remaining live acceptance gates.
+All recipes use --locked, jobs1 by default and CARGO_INCREMENTAL=0. They preserve
+native source-level build flags. Current deployment ABI profile is Linux x86_64;
+local ARM64 Linux experiments require their own explicit build profile and cannot
+be published under this one.
+
+After a future authorized execution, adding --execute --output NEW_BUILD_RESULT
+to the build command performs build/download on replica0 only. An optional explicit
+--install-system-packages installs the fixed prerequisite package list; there is
+no general shell-command interface, distribution upgrade or autoremove. Existing
+rustup is used with nonce-owned Cargo/Rustup homes. If rustup is absent, include
+--rustup-init CHECKSUM_REVIEWED_INSTALLER while bundling. Shoal additionally needs
+--protoc-archive CHECKSUM_REVIEWED_PROTOC_21_4_LINUX_X86_64_ZIP; the worker verifies
+the bundled digest and protoc3.21.4 output. Dependency downloads are locked, and
+actual compiler, installed OS package versions, build arguments, log hashes,
+ABI/library dependencies, elapsed time and child peak RSS are retained. Package
+installation and downloads are future host actions, not part of local acceptance.
+
+The returned artifacts.tar includes binaries, exact build sidecars, build logs and
+controller evidence. Source identity is checked again after building. Downloaded
+archive hashes, protocol/recipe/binary names and receipts must all agree. A build
+receipt's binary hash and source bundle hash must match its sidecar. Interrupted
+builds remain inspectable; a new nonce is required to rebuild them. A completed
+action can be retried only while its saved binaries and stamps still match.
+
+Publication and later Delugi evaluation
+Create a second plan with --artifacts NEW_BUILD_RESULT/artifacts.tar instead of
+--bundle. This creates a distinct nonce for publication, then preview it with:
+  python3 scripts/deployment_prepare.py publish --plan PUBLISH_PLAN.json
+Future --execute --output NEW_PUBLICATION_RESULT distributes artifacts to all
+selected hosts, validates hash and Linux ABI/library availability, and writes an
+inventory.json. Native inventories have remote_runner_supported=false for the
+Delugi runner. They require the separate native placement plan described below.
+
+For a future authorized Delugi run, a locally built binary from the same Rust
+source is also required for offline archive verification. The sustained runner
+checks its build stamp separately from each remote binary and archives both.
+Example after those prerequisites, not executed in this migration:
+  python3 scripts/run_sustained.py --inventory NEW_PUBLICATION_RESULT/inventory.json \
+    --nodes 4 --rate 1000 --warmup 2 --duration 4 --drain 10 \
+    --bound-ms 100 --useful-bytes 472 --spec-snapshot provenance/spec-2026-10-19.json \
+    --binary LOCAL_STAMPED_BINARY --skip-build --output NEW_RUN_DIRECTORY
+For scoped Linux delay, set top-level inventory netem={"delay_ms":10,
+"loss_percent":0} and each host's verified network_interface. This requires future
+explicit host privilege. The runner records before/configured/after peer RTTs,
+scopes filters to peer benchmark TCP endpoints including reverse ACK traffic, and
+cleans only nonce-owned filters/queues. No delay is claimed without calibration.
+
+Evidence and cleanup
+The runner retains per-replica output and errors, exact paginated cohort shards,
+source/specification/binary hashes, resource and traffic evidence, SSH actions and
+network cleanup outcomes under its local result directory. Remote runtime files
+remain in the nonce-owned evaluation directory. Delugi controls stay on loopback
+behind strict-host-key SSH tunnels. Termination checks nonce and PID-start identity.
+Build cleanup is a separate reviewed action:
+  python3 scripts/deployment_prepare.py clean --plan BUILD_OR_PUBLISH_PLAN.json
+Future --execute removes only that nonce's target/cargo/rustup/source/assets/protoc
+directories. It retains binaries, build sidecars, artifacts.tar, receipts, source
+bundle and logs. It refuses substituted symlinks and ownership mismatch. It never
+deletes another checkout, invokes killall, changes a cloud lease, or claims a
+successful remote benchmark based on local mocked tests.
+
+Fixed native placement scripts
+scripts/remote_native.py supports Mysticeti, Autobahn, Autobahn-blips and Shoal
+with fixed config generation and argv recipes in scripts/baselines/native_placement.py.
+Use --python-executable /usr/bin/python3.10 when importing an Ubuntu22.04 inventory,
+or declare another already installed absolute Python3.10+ path. Ubuntu20.04's
+default Python3.8 cannot run these native collectors. Interpreter version, resolved
+path and binary hash are checked before native launch and retained; the selected
+interpreter runs every host supervisor and application collector. No interpreter
+installer is assumed. The preparation/upload bootstrap remains Python3.8-compatible.
+
+After a native publication, create a finite settings JSON, for example:
+  {"rate":400,"useful_bytes":472,"warmup":1,"duration":3,"drain":5,
+   "bound_ms":100,"batch_ms":10,"batch_bytes":500000}
+Then, without connecting to hosts:
+  python3 scripts/remote_native.py plan --publication PUBLICATION/deployment.json \
+    --settings FINITE_SETTINGS.json --output NATIVE_PLAN.json
+  python3 scripts/remote_native.py run --plan NATIVE_PLAN.json --output NEW_RESULT
+Adding --execute is a future authorized host action. It verifies exact published
+binary/patch/source stamps; uploads an exact controller archive; generates one
+native configuration/genesis ceremony on the builder; routes private configuration
+only to the assigned host; launches fixed native roles; streams evidence back;
+compares exact output prefixes; and reduces origin-local finite-cohort accounting.
+RPC actions are enumerated. Partial failures retain local and remote evidence.
+
+Mysticeti retains native genesis and validator processes. Its arrival trigger and
+observer use the validator's process-local Instant. Its native metrics listener
+binds a wildcard address; private firewall/security-group isolation is required,
+and scrapes originate on the validator host. Autobahn retains one primary, one
+worker and one application materializer per validator. Each host chooses its own
+CLOCK_MONOTONIC epoch and shares it only among those local roles. Native external
+consensus/primary/worker ports and host-local worker/client ports are distinguished
+in the plan. Shoal binds private validator addresses before the genesis ceremony;
+its signed workload ingress and materialization reducer run on the same host as
+the native validator, using that host's CLOCK_MONOTONIC. No timestamp recorded on
+one host is subtracted from a timestamp on another. Start dispatch bounds and raw
+local epochs do not imply synchronized global windows or an all-correct deadline.
+
+Each host's resource wrapper owns the supervisor and all native/application
+descendants under one CPU/memory envelope. The fixed faulty set can select a finite
+whole-native-process pause; application ingress remains scheduled independently.
+Alternatively, omit_replica, omission_after, omission_seconds, publish_to_replica,
+attacker_rate and omit_repair select the existing native semantic-omission hooks.
+The omission source must belong to faulty, and attacker arrivals receive no honest
+useful-work credit. Autobahn maps recipients to worker-to-worker endpoints and
+leaves its primary outside payload omission. Mysticeti uses native authority IDs;
+Shoal uses exact account IDs emitted by the native genesis ceremony. Each host
+writes its omission interval in that host's own monotonic clock. crypto_meter=on
+records existing native synchronous crypto CPU samples; disabled remains default.
+
+Optional settings network={"delay_ms":10,"loss_percent":0} require every host's
+explicit network_interface and future host privilege for the scoped helper. The
+native network adapter uses the same nonce-owned ingress netem lifecycle. It
+selects every external native peer role and reverse ACK flow, excluding controls
+and host-local application/worker links. Before/configured/after RTT rings cover
+every selected role port, preserve raw samples and reject failed delay or cleanup
+calibration. Packet loss and semantic publication omission remain distinct.
+
+Nonce and PID-start checks guard termination, and a finite supervisor timeout
+bounds disconnection. The wrapper resumes and terminates the owned process group,
+uses a bounded kill fallback, and confirms the group disappeared before recording
+an exit state. A timeout or unexpected surviving descendant invalidates a nominal
+zero exit from the supervisor. Cleanup retains native stores/configuration and
+evidence. Last native traffic/crypto samples precede process shutdown; their scope
+explicitly excludes later writes/crypto, while wrapper resource totals are separate.
+
+Runtime evidence uses a separate streaming format with chunks of at most8MiB,
+per-chunk/per-file hashes, ownership metadata and a retained whole-stream hash.
+Files and shards are traversed and decoded incrementally without an archive member
+map in memory. Export writes directly over SSH, without a second remote archive
+copy. The plan declares a128GiB payload and2million-file envelope per host. Local
+storage contains both the retained transfer stream and verified extracted evidence;
+those copies count against actual disk availability. Capacity or disk exhaustion
+is a failed run, never truncation or omitted unfinished work. Source/configuration
+bundles retain their independent4GiB safety envelope. Schema2 cohort reduction
+uses bounded pages and a disk-backed database; native custody/materializer state
+still grows with workload and remains a separately measured resource. Shoal's
+source hooks and compiled native execution remain separate gates. All native
+placement results retain comparison_eligible=false until their full native and
+remote measurement contract has been accepted.
+
+Campaign routing and immutable resources
+For native protocols, run_campaign.py's remote_inventories[protocol][committee]
+entry points to the publication deployment.json containing all binary receipts;
+Delugi entries continue to point to the Delugi host inventory. The campaign uses
+scripts/native_campaign.py for fixed native placement and writes the common
+manifest.json measurement shape. It supports the existing healthy, finite pause,
+semantic payload omission and setup-through-drain packet-loss cells. Required
+leader-triggered/multi-event/transient-loss cases remain explicit incomplete rows.
+The adapter preserves comparison_eligible=false; formal campaigns reject that
+status and incomplete native-order fidelity even when cohort reduction succeeds.
+
+Every selected source inventory/publication and its hash is archived once at
+campaign start. Every trial rechecks both original bytes and SSH host-key inventory
+before launch and before acceptance. Static placement and all declared budgets are
+bound to a per(protocol,committee) resource_contract_sha256. Actual wrapper evidence
+must confirm the same whole-worker CPU/memory/swap enforcement, nonce and empty process
+group. Repetitions cannot change placement, and counterpart protocols at one n must
+have matching declared/effective per-validator and total resource envelopes; optional
+disk/network budgets are retained. Netem delay/loss is deliberately outside this
+resource hash. Local machine metadata cannot satisfy formal resource enforcement.
+Current resource contracts use schema2. A shared offline structural verifier checks
+the complete placement, requested/effective CPU, memory and swap proof, and derived
+counterpart budget summary before formal acceptance or frontier selection. An old
+hash-valid "verified" label without the current proof remains diagnostic only;
+development replay identifies that scope explicitly.
+The fixed native build recipe is carried from publication receipt into the launch
+plan and checked against every executable's actual build sidecar. Recording a
+different recipe beside unchanged executable bytes cannot satisfy provenance.
+
+Native traffic records actual host-local sample intervals and offsets. Mysticeti
+scrape and Shoal counter boundaries must be within max(5ms,min(100ms,2% of the
+measurement duration)) of their declared local endpoints. Stale/delayed samples
+fail acceptance; exact window-filtered Autobahn counters must be sampled after the
+window ends. No shared clock is inferred. All native peer-role calibration rings
+are checked, including Autobahn's three external roles. Normalized manifests retain
+raw cost sample scopes, native-unit omission counts and per-host crypto samples.

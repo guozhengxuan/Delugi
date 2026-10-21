@@ -1,0 +1,1168 @@
+{
+  "source_commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+  "source_diff_sha256": "e6fe0e75134bdb11bdddc732012cc9c6e6f15cd1673f6f6d31b2f1845ea6daec",
+  "artifact": "results/local/migration-autobahn-cohort-healthy-atomic-20261019",
+  "description": "Original native application upcalls traverse proposals HashMap and newest-first lane histories. All1200measurement requests reachedallreplicas, but exact order failed. This fixture preserves the observed failure before supplied deterministic within-slot application linearization.",
+  "first_outputs": {
+    "0": [
+      {
+        "request_id": "1:0:1c32220b8d55241f3f4c581a7484f22bf2b3821ad71ec68c43a6b1e3aa2aff60",
+        "origin": 1,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 0,
+        "exact_batch_id": "285918c5fdd8ec32eae9099415bcc478c5074c4fe7d00273193c22382e420367",
+        "materialized_us": 8980
+      },
+      {
+        "request_id": "2:0:5dd70e0e83a7920a2d20910e4659859bc7b5bb3c837b86a4e669548f8796a641",
+        "origin": 2,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 1,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 16065
+      },
+      {
+        "request_id": "2:1:bc5657fd24e0d4115a0d54ae93113fc17582e61afde16457234998fc88cbbd12",
+        "origin": 2,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 2,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 16065
+      },
+      {
+        "request_id": "0:0:d8c532cf8c210e80d685fb1c1f5e454c47be356d6febb5257682ac4c8703aade",
+        "origin": 0,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 3,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 16153
+      },
+      {
+        "request_id": "0:1:4e6940dd9d926312054413083c686d12aa89b2204a36f6919b115407ea719c40",
+        "origin": 0,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 4,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 16153
+      },
+      {
+        "request_id": "3:0:ed70c174213e1f1392359cb2baf0761f604146c6cbb68e7aa8999edbaad0a451",
+        "origin": 3,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 5,
+        "exact_batch_id": "e995381996bdfb235d310c355e1fd0d1fb0cd797516311dcc50d142365db2dbf",
+        "materialized_us": 16235
+      },
+      {
+        "request_id": "1:1:ee9dd0c5cb787802bb923800e7f5e539d386be0bdbd856bdde7bc33d4d87224e",
+        "origin": 1,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 6,
+        "exact_batch_id": "70db73133d32b26edff1846c6a5dfda1af08badca583b340e947e089635901ec",
+        "materialized_us": 25415
+      },
+      {
+        "request_id": "3:1:b1b15b22fa68fe9b92426158e5b01f0f32ba6810fdc7ddf0e2780fb1127327d1",
+        "origin": 3,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 7,
+        "exact_batch_id": "1c7aa7527e88ebabca222eabe3f5d9fd01dcf46c7dac316f841c2ebb2b2fb99b",
+        "materialized_us": 25449
+      },
+      {
+        "request_id": "0:2:52885666e885315965639c5767f39389497cf2b784349cb81618b1c38a886c7d",
+        "origin": 0,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 8,
+        "exact_batch_id": "ae716dbeb8d8956d2f4233ebc190a522928179f8d1a2e05df2061299fd2be71b",
+        "materialized_us": 26854
+      },
+      {
+        "request_id": "1:2:9b9ff41ba0ca6d3ee9a85f3c7beff023ac9fb22e556873d984f5a43ab7747a61",
+        "origin": 1,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 9,
+        "exact_batch_id": "a2da38890164f59e4dcdac66aba56a880756ca8cdfbf991624383d6725afc9ab",
+        "materialized_us": 26897
+      },
+      {
+        "request_id": "2:2:14b130874e30b71f85e18da6b9976c4f07b15992472e59d6c399c1daf8f07d10",
+        "origin": 2,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 10,
+        "exact_batch_id": "feff461169138da1683ec9232da0dbd06c8bdfd1dfa51c4c28d411ae3ad03f6b",
+        "materialized_us": 26930
+      },
+      {
+        "request_id": "3:2:4ff286da1df3e6582377d399b0cd632f829450b198ebb25c54b7d64c212d61b4",
+        "origin": 3,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 11,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 36669
+      },
+      {
+        "request_id": "3:3:89bf3de30e0235b934215ddfcb41207b61071d67423726c61b48486467466372",
+        "origin": 3,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 12,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 36669
+      },
+      {
+        "request_id": "0:3:2bc09ef9d717cc8b07aa679d80006394c56331d7973a25464295426e79108a71",
+        "origin": 0,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 13,
+        "exact_batch_id": "8d3937e48db6e598152d047824eea8d2c858d6d416374a04b8457b975d4ac490",
+        "materialized_us": 36714
+      },
+      {
+        "request_id": "2:3:e545f960d889171c4c34885bc7fd37c3d3172397741ef6b401b0f250ca3c2419",
+        "origin": 2,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 14,
+        "exact_batch_id": "dc52b41357a69e0ee62047f1a80f9124920be569df48ea5b55ec0634e466c0a9",
+        "materialized_us": 36736
+      },
+      {
+        "request_id": "1:3:872ed71e34a25fd91a85cf17a29d9ac3a04048e91966a6b421e08230001ad389",
+        "origin": 1,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 15,
+        "exact_batch_id": "92e4d94ab95186256b542f8e17cd27e1c552d10a1a2372f7d5397564d4bf0b46",
+        "materialized_us": 46608
+      },
+      {
+        "request_id": "3:4:3eddf1cf2db2c928122d2c4b5ed7ea392f1a6c1f9fd066fbd9bf2a450fe10b0f",
+        "origin": 3,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 16,
+        "exact_batch_id": "afe1c6abb47d4d250dc5360de8ee183a6b0745b0a7343a36e5830feb6b3d99b4",
+        "materialized_us": 46629
+      },
+      {
+        "request_id": "0:4:a0aa246636e1f5bda8fca93cbec2a4f53e11fc7ba124ef6ab581a07f09a680ab",
+        "origin": 0,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 17,
+        "exact_batch_id": "a6bda1fb17dd045759961c6fdb5ae4487664712a4714e100d40d11f9a1eec9b3",
+        "materialized_us": 48303
+      },
+      {
+        "request_id": "2:4:3b76899e5c150e0a28c98a21ee56e941ab53e5edfe87ef7901cb17cdf0c3c3f0",
+        "origin": 2,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 18,
+        "exact_batch_id": "16d99f570326512ad61fd3c76bf4fa2364501db5bcde37f4cb6b0d874ea406d6",
+        "materialized_us": 48321
+      },
+      {
+        "request_id": "3:5:e98223b29e856689b4467092ec851345d89281497cbe3ef9723b99f9e0746656",
+        "origin": 3,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 19,
+        "exact_batch_id": "983b7dc7d4da3ae076e3bb097c9b7aa897297b605b53dd808c0cbfd34be868dd",
+        "materialized_us": 57196
+      },
+      {
+        "request_id": "1:4:76740d180633853eee958f58ad74f04db0ee7704ce315763d9998309d52ce485",
+        "origin": 1,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 20,
+        "exact_batch_id": "78d1ad7e94f1d06679f9199e0265a7f1316c4b220e0a621acc460bf4f9cef943",
+        "materialized_us": 57214
+      },
+      {
+        "request_id": "2:5:471d4d0c863d9ebd50cbda2c570213d92ce6ba84a48d8f576cd02992927d3cd0",
+        "origin": 2,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 21,
+        "exact_batch_id": "c5e6b03d75f214a0b8f2cc28a544d74aa96d44980c577d45314dfd5e19291d66",
+        "materialized_us": 57231
+      },
+      {
+        "request_id": "3:6:d4cc9d259beebe41395f0b28720c5994e2767b546ec0e9410e42ec84089a7a38",
+        "origin": 3,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 22,
+        "exact_batch_id": "3d95a6001f62dc52e50f1517799c33f3eee7644e658ffd3b559e52f1a1be1e6a",
+        "materialized_us": 66197
+      },
+      {
+        "request_id": "0:5:89ba260ae983de9cf22e079d2d177863a62d812b859232462dbeb1afd8921534",
+        "origin": 0,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 23,
+        "exact_batch_id": "8c8800a564c9d523dc939d71b61d918a224e716eba78b602453cc2f8ffc97c0a",
+        "materialized_us": 66216
+      },
+      {
+        "request_id": "1:5:ba86825e8a90380a805b0af6d93da2a6b9007651946bc24180e49364b83ace6f",
+        "origin": 1,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 24,
+        "exact_batch_id": "cf07a802d6a6773d9b130750071b16c59e0a8209ce830a6a66faef7c605668d4",
+        "materialized_us": 66235
+      },
+      {
+        "request_id": "2:6:ba07e195926e6bcec7a56c840df0f5aa71f8880182c1a107a4bef57bb102cf6f",
+        "origin": 2,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 25,
+        "exact_batch_id": "b4c0cf2e5ff442b8aeed14a507b7390ad19d3bf69b17b6c2f74ea9c9e6179855",
+        "materialized_us": 72306
+      },
+      {
+        "request_id": "0:6:7a4def152d73c933698a259a1f23b7f93d8c00915430e5281cc307070325ee55",
+        "origin": 0,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 26,
+        "exact_batch_id": "f4c39418bf59fee6967370be0415f6ba621c521fbf81126a00a0d45ce30e9511",
+        "materialized_us": 72326
+      },
+      {
+        "request_id": "1:6:1b4d469f99e345c7b356ad1343981a37efada181e10e0ca852616b3bdb2cca13",
+        "origin": 1,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 27,
+        "exact_batch_id": "6e3c1b4f3351d371e6a86f20fe5c10e4322197280806004d089defda3216192f",
+        "materialized_us": 79154
+      },
+      {
+        "request_id": "0:7:b799c4e3b0d6baa87b4d9fa510fe1fbe2fe4932253b2eea4d0fc5228c72844f0",
+        "origin": 0,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 28,
+        "exact_batch_id": "3b73e499958bf8e279d24a136c8efd9e39ba7b408fc713325b1c37aee198f2e2",
+        "materialized_us": 79170
+      },
+      {
+        "request_id": "3:7:51b06494ae6b631efbe992060bd43c8278018278e78b6fdc7d8b1e54ca419cd0",
+        "origin": 3,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 29,
+        "exact_batch_id": "17637f4dad6a8a3135f193232f297464c0257903ccc85b0084525da858fd93a9",
+        "materialized_us": 79186
+      },
+      {
+        "request_id": "1:7:0a7dc88bf9873b9a9c3aad8de923b1d901111c8bc294e2195fba77e223fb9d5b",
+        "origin": 1,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 30,
+        "exact_batch_id": "aecd9ce9f0a89ae02a6212537d4513799094def2d7df3216ad49c6d8bd8839bb",
+        "materialized_us": 90173
+      },
+      {
+        "request_id": "2:7:6d10a49a39eb3863793ca4c243e5eeae7615f2ed122ebdf8d16957f2571d5d48",
+        "origin": 2,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 31,
+        "exact_batch_id": "b6a50e534e04623061e42c7f67aaec3856284cbbf71efcdb709076fda5ad43d6",
+        "materialized_us": 90195
+      }
+    ],
+    "1": [
+      {
+        "request_id": "1:0:1c32220b8d55241f3f4c581a7484f22bf2b3821ad71ec68c43a6b1e3aa2aff60",
+        "origin": 1,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 0,
+        "exact_batch_id": "285918c5fdd8ec32eae9099415bcc478c5074c4fe7d00273193c22382e420367",
+        "materialized_us": 8183
+      },
+      {
+        "request_id": "2:0:5dd70e0e83a7920a2d20910e4659859bc7b5bb3c837b86a4e669548f8796a641",
+        "origin": 2,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 1,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 15552
+      },
+      {
+        "request_id": "2:1:bc5657fd24e0d4115a0d54ae93113fc17582e61afde16457234998fc88cbbd12",
+        "origin": 2,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 2,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 15552
+      },
+      {
+        "request_id": "0:0:d8c532cf8c210e80d685fb1c1f5e454c47be356d6febb5257682ac4c8703aade",
+        "origin": 0,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 3,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 15638
+      },
+      {
+        "request_id": "0:1:4e6940dd9d926312054413083c686d12aa89b2204a36f6919b115407ea719c40",
+        "origin": 0,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 4,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 15638
+      },
+      {
+        "request_id": "3:0:ed70c174213e1f1392359cb2baf0761f604146c6cbb68e7aa8999edbaad0a451",
+        "origin": 3,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 5,
+        "exact_batch_id": "e995381996bdfb235d310c355e1fd0d1fb0cd797516311dcc50d142365db2dbf",
+        "materialized_us": 15719
+      },
+      {
+        "request_id": "3:1:b1b15b22fa68fe9b92426158e5b01f0f32ba6810fdc7ddf0e2780fb1127327d1",
+        "origin": 3,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 6,
+        "exact_batch_id": "1c7aa7527e88ebabca222eabe3f5d9fd01dcf46c7dac316f841c2ebb2b2fb99b",
+        "materialized_us": 25523
+      },
+      {
+        "request_id": "1:1:ee9dd0c5cb787802bb923800e7f5e539d386be0bdbd856bdde7bc33d4d87224e",
+        "origin": 1,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 7,
+        "exact_batch_id": "70db73133d32b26edff1846c6a5dfda1af08badca583b340e947e089635901ec",
+        "materialized_us": 25558
+      },
+      {
+        "request_id": "1:2:9b9ff41ba0ca6d3ee9a85f3c7beff023ac9fb22e556873d984f5a43ab7747a61",
+        "origin": 1,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 8,
+        "exact_batch_id": "a2da38890164f59e4dcdac66aba56a880756ca8cdfbf991624383d6725afc9ab",
+        "materialized_us": 27215
+      },
+      {
+        "request_id": "0:2:52885666e885315965639c5767f39389497cf2b784349cb81618b1c38a886c7d",
+        "origin": 0,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 9,
+        "exact_batch_id": "ae716dbeb8d8956d2f4233ebc190a522928179f8d1a2e05df2061299fd2be71b",
+        "materialized_us": 27254
+      },
+      {
+        "request_id": "2:2:14b130874e30b71f85e18da6b9976c4f07b15992472e59d6c399c1daf8f07d10",
+        "origin": 2,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 10,
+        "exact_batch_id": "feff461169138da1683ec9232da0dbd06c8bdfd1dfa51c4c28d411ae3ad03f6b",
+        "materialized_us": 27286
+      },
+      {
+        "request_id": "3:2:4ff286da1df3e6582377d399b0cd632f829450b198ebb25c54b7d64c212d61b4",
+        "origin": 3,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 11,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 35555
+      },
+      {
+        "request_id": "3:3:89bf3de30e0235b934215ddfcb41207b61071d67423726c61b48486467466372",
+        "origin": 3,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 12,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 35555
+      },
+      {
+        "request_id": "2:3:e545f960d889171c4c34885bc7fd37c3d3172397741ef6b401b0f250ca3c2419",
+        "origin": 2,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 13,
+        "exact_batch_id": "dc52b41357a69e0ee62047f1a80f9124920be569df48ea5b55ec0634e466c0a9",
+        "materialized_us": 35602
+      },
+      {
+        "request_id": "0:3:2bc09ef9d717cc8b07aa679d80006394c56331d7973a25464295426e79108a71",
+        "origin": 0,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 14,
+        "exact_batch_id": "8d3937e48db6e598152d047824eea8d2c858d6d416374a04b8457b975d4ac490",
+        "materialized_us": 35625
+      },
+      {
+        "request_id": "3:4:3eddf1cf2db2c928122d2c4b5ed7ea392f1a6c1f9fd066fbd9bf2a450fe10b0f",
+        "origin": 3,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 15,
+        "exact_batch_id": "afe1c6abb47d4d250dc5360de8ee183a6b0745b0a7343a36e5830feb6b3d99b4",
+        "materialized_us": 45918
+      },
+      {
+        "request_id": "1:3:872ed71e34a25fd91a85cf17a29d9ac3a04048e91966a6b421e08230001ad389",
+        "origin": 1,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 16,
+        "exact_batch_id": "92e4d94ab95186256b542f8e17cd27e1c552d10a1a2372f7d5397564d4bf0b46",
+        "materialized_us": 45938
+      },
+      {
+        "request_id": "0:4:a0aa246636e1f5bda8fca93cbec2a4f53e11fc7ba124ef6ab581a07f09a680ab",
+        "origin": 0,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 17,
+        "exact_batch_id": "a6bda1fb17dd045759961c6fdb5ae4487664712a4714e100d40d11f9a1eec9b3",
+        "materialized_us": 47622
+      },
+      {
+        "request_id": "2:4:3b76899e5c150e0a28c98a21ee56e941ab53e5edfe87ef7901cb17cdf0c3c3f0",
+        "origin": 2,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 18,
+        "exact_batch_id": "16d99f570326512ad61fd3c76bf4fa2364501db5bcde37f4cb6b0d874ea406d6",
+        "materialized_us": 47641
+      },
+      {
+        "request_id": "1:4:76740d180633853eee958f58ad74f04db0ee7704ce315763d9998309d52ce485",
+        "origin": 1,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 19,
+        "exact_batch_id": "78d1ad7e94f1d06679f9199e0265a7f1316c4b220e0a621acc460bf4f9cef943",
+        "materialized_us": 57013
+      },
+      {
+        "request_id": "2:5:471d4d0c863d9ebd50cbda2c570213d92ce6ba84a48d8f576cd02992927d3cd0",
+        "origin": 2,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 20,
+        "exact_batch_id": "c5e6b03d75f214a0b8f2cc28a544d74aa96d44980c577d45314dfd5e19291d66",
+        "materialized_us": 57039
+      },
+      {
+        "request_id": "3:5:e98223b29e856689b4467092ec851345d89281497cbe3ef9723b99f9e0746656",
+        "origin": 3,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 21,
+        "exact_batch_id": "983b7dc7d4da3ae076e3bb097c9b7aa897297b605b53dd808c0cbfd34be868dd",
+        "materialized_us": 57062
+      },
+      {
+        "request_id": "3:6:d4cc9d259beebe41395f0b28720c5994e2767b546ec0e9410e42ec84089a7a38",
+        "origin": 3,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 22,
+        "exact_batch_id": "3d95a6001f62dc52e50f1517799c33f3eee7644e658ffd3b559e52f1a1be1e6a",
+        "materialized_us": 66283
+      },
+      {
+        "request_id": "0:5:89ba260ae983de9cf22e079d2d177863a62d812b859232462dbeb1afd8921534",
+        "origin": 0,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 23,
+        "exact_batch_id": "8c8800a564c9d523dc939d71b61d918a224e716eba78b602453cc2f8ffc97c0a",
+        "materialized_us": 66302
+      },
+      {
+        "request_id": "1:5:ba86825e8a90380a805b0af6d93da2a6b9007651946bc24180e49364b83ace6f",
+        "origin": 1,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 24,
+        "exact_batch_id": "cf07a802d6a6773d9b130750071b16c59e0a8209ce830a6a66faef7c605668d4",
+        "materialized_us": 66320
+      },
+      {
+        "request_id": "2:6:ba07e195926e6bcec7a56c840df0f5aa71f8880182c1a107a4bef57bb102cf6f",
+        "origin": 2,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 25,
+        "exact_batch_id": "b4c0cf2e5ff442b8aeed14a507b7390ad19d3bf69b17b6c2f74ea9c9e6179855",
+        "materialized_us": 72582
+      },
+      {
+        "request_id": "0:6:7a4def152d73c933698a259a1f23b7f93d8c00915430e5281cc307070325ee55",
+        "origin": 0,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 26,
+        "exact_batch_id": "f4c39418bf59fee6967370be0415f6ba621c521fbf81126a00a0d45ce30e9511",
+        "materialized_us": 72602
+      },
+      {
+        "request_id": "0:7:b799c4e3b0d6baa87b4d9fa510fe1fbe2fe4932253b2eea4d0fc5228c72844f0",
+        "origin": 0,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 27,
+        "exact_batch_id": "3b73e499958bf8e279d24a136c8efd9e39ba7b408fc713325b1c37aee198f2e2",
+        "materialized_us": 79932
+      },
+      {
+        "request_id": "1:6:1b4d469f99e345c7b356ad1343981a37efada181e10e0ca852616b3bdb2cca13",
+        "origin": 1,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 28,
+        "exact_batch_id": "6e3c1b4f3351d371e6a86f20fe5c10e4322197280806004d089defda3216192f",
+        "materialized_us": 79949
+      },
+      {
+        "request_id": "3:7:51b06494ae6b631efbe992060bd43c8278018278e78b6fdc7d8b1e54ca419cd0",
+        "origin": 3,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 29,
+        "exact_batch_id": "17637f4dad6a8a3135f193232f297464c0257903ccc85b0084525da858fd93a9",
+        "materialized_us": 79972
+      },
+      {
+        "request_id": "2:7:6d10a49a39eb3863793ca4c243e5eeae7615f2ed122ebdf8d16957f2571d5d48",
+        "origin": 2,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 30,
+        "exact_batch_id": "b6a50e534e04623061e42c7f67aaec3856284cbbf71efcdb709076fda5ad43d6",
+        "materialized_us": 90394
+      },
+      {
+        "request_id": "1:7:0a7dc88bf9873b9a9c3aad8de923b1d901111c8bc294e2195fba77e223fb9d5b",
+        "origin": 1,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 31,
+        "exact_batch_id": "aecd9ce9f0a89ae02a6212537d4513799094def2d7df3216ad49c6d8bd8839bb",
+        "materialized_us": 90415
+      }
+    ],
+    "2": [
+      {
+        "request_id": "1:0:1c32220b8d55241f3f4c581a7484f22bf2b3821ad71ec68c43a6b1e3aa2aff60",
+        "origin": 1,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 0,
+        "exact_batch_id": "285918c5fdd8ec32eae9099415bcc478c5074c4fe7d00273193c22382e420367",
+        "materialized_us": 8619
+      },
+      {
+        "request_id": "3:0:ed70c174213e1f1392359cb2baf0761f604146c6cbb68e7aa8999edbaad0a451",
+        "origin": 3,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 1,
+        "exact_batch_id": "e995381996bdfb235d310c355e1fd0d1fb0cd797516311dcc50d142365db2dbf",
+        "materialized_us": 14680
+      },
+      {
+        "request_id": "2:0:5dd70e0e83a7920a2d20910e4659859bc7b5bb3c837b86a4e669548f8796a641",
+        "origin": 2,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 2,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 14727
+      },
+      {
+        "request_id": "2:1:bc5657fd24e0d4115a0d54ae93113fc17582e61afde16457234998fc88cbbd12",
+        "origin": 2,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 3,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 14727
+      },
+      {
+        "request_id": "0:0:d8c532cf8c210e80d685fb1c1f5e454c47be356d6febb5257682ac4c8703aade",
+        "origin": 0,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 4,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 14808
+      },
+      {
+        "request_id": "0:1:4e6940dd9d926312054413083c686d12aa89b2204a36f6919b115407ea719c40",
+        "origin": 0,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 5,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 14808
+      },
+      {
+        "request_id": "1:1:ee9dd0c5cb787802bb923800e7f5e539d386be0bdbd856bdde7bc33d4d87224e",
+        "origin": 1,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 6,
+        "exact_batch_id": "70db73133d32b26edff1846c6a5dfda1af08badca583b340e947e089635901ec",
+        "materialized_us": 26406
+      },
+      {
+        "request_id": "3:1:b1b15b22fa68fe9b92426158e5b01f0f32ba6810fdc7ddf0e2780fb1127327d1",
+        "origin": 3,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 7,
+        "exact_batch_id": "1c7aa7527e88ebabca222eabe3f5d9fd01dcf46c7dac316f841c2ebb2b2fb99b",
+        "materialized_us": 26447
+      },
+      {
+        "request_id": "2:2:14b130874e30b71f85e18da6b9976c4f07b15992472e59d6c399c1daf8f07d10",
+        "origin": 2,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 8,
+        "exact_batch_id": "feff461169138da1683ec9232da0dbd06c8bdfd1dfa51c4c28d411ae3ad03f6b",
+        "materialized_us": 26480
+      },
+      {
+        "request_id": "0:2:52885666e885315965639c5767f39389497cf2b784349cb81618b1c38a886c7d",
+        "origin": 0,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 9,
+        "exact_batch_id": "ae716dbeb8d8956d2f4233ebc190a522928179f8d1a2e05df2061299fd2be71b",
+        "materialized_us": 26513
+      },
+      {
+        "request_id": "1:2:9b9ff41ba0ca6d3ee9a85f3c7beff023ac9fb22e556873d984f5a43ab7747a61",
+        "origin": 1,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 10,
+        "exact_batch_id": "a2da38890164f59e4dcdac66aba56a880756ca8cdfbf991624383d6725afc9ab",
+        "materialized_us": 26543
+      },
+      {
+        "request_id": "0:3:2bc09ef9d717cc8b07aa679d80006394c56331d7973a25464295426e79108a71",
+        "origin": 0,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 11,
+        "exact_batch_id": "8d3937e48db6e598152d047824eea8d2c858d6d416374a04b8457b975d4ac490",
+        "materialized_us": 36296
+      },
+      {
+        "request_id": "3:2:4ff286da1df3e6582377d399b0cd632f829450b198ebb25c54b7d64c212d61b4",
+        "origin": 3,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 12,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 36320
+      },
+      {
+        "request_id": "3:3:89bf3de30e0235b934215ddfcb41207b61071d67423726c61b48486467466372",
+        "origin": 3,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 13,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 36320
+      },
+      {
+        "request_id": "2:3:e545f960d889171c4c34885bc7fd37c3d3172397741ef6b401b0f250ca3c2419",
+        "origin": 2,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 14,
+        "exact_batch_id": "dc52b41357a69e0ee62047f1a80f9124920be569df48ea5b55ec0634e466c0a9",
+        "materialized_us": 36363
+      },
+      {
+        "request_id": "1:3:872ed71e34a25fd91a85cf17a29d9ac3a04048e91966a6b421e08230001ad389",
+        "origin": 1,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 15,
+        "exact_batch_id": "92e4d94ab95186256b542f8e17cd27e1c552d10a1a2372f7d5397564d4bf0b46",
+        "materialized_us": 45931
+      },
+      {
+        "request_id": "3:4:3eddf1cf2db2c928122d2c4b5ed7ea392f1a6c1f9fd066fbd9bf2a450fe10b0f",
+        "origin": 3,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 16,
+        "exact_batch_id": "afe1c6abb47d4d250dc5360de8ee183a6b0745b0a7343a36e5830feb6b3d99b4",
+        "materialized_us": 45952
+      },
+      {
+        "request_id": "0:4:a0aa246636e1f5bda8fca93cbec2a4f53e11fc7ba124ef6ab581a07f09a680ab",
+        "origin": 0,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 17,
+        "exact_batch_id": "a6bda1fb17dd045759961c6fdb5ae4487664712a4714e100d40d11f9a1eec9b3",
+        "materialized_us": 47645
+      },
+      {
+        "request_id": "2:4:3b76899e5c150e0a28c98a21ee56e941ab53e5edfe87ef7901cb17cdf0c3c3f0",
+        "origin": 2,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 18,
+        "exact_batch_id": "16d99f570326512ad61fd3c76bf4fa2364501db5bcde37f4cb6b0d874ea406d6",
+        "materialized_us": 47665
+      },
+      {
+        "request_id": "2:5:471d4d0c863d9ebd50cbda2c570213d92ce6ba84a48d8f576cd02992927d3cd0",
+        "origin": 2,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 19,
+        "exact_batch_id": "c5e6b03d75f214a0b8f2cc28a544d74aa96d44980c577d45314dfd5e19291d66",
+        "materialized_us": 56878
+      },
+      {
+        "request_id": "1:4:76740d180633853eee958f58ad74f04db0ee7704ce315763d9998309d52ce485",
+        "origin": 1,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 20,
+        "exact_batch_id": "78d1ad7e94f1d06679f9199e0265a7f1316c4b220e0a621acc460bf4f9cef943",
+        "materialized_us": 56898
+      },
+      {
+        "request_id": "3:5:e98223b29e856689b4467092ec851345d89281497cbe3ef9723b99f9e0746656",
+        "origin": 3,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 21,
+        "exact_batch_id": "983b7dc7d4da3ae076e3bb097c9b7aa897297b605b53dd808c0cbfd34be868dd",
+        "materialized_us": 56918
+      },
+      {
+        "request_id": "1:5:ba86825e8a90380a805b0af6d93da2a6b9007651946bc24180e49364b83ace6f",
+        "origin": 1,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 22,
+        "exact_batch_id": "cf07a802d6a6773d9b130750071b16c59e0a8209ce830a6a66faef7c605668d4",
+        "materialized_us": 66337
+      },
+      {
+        "request_id": "0:5:89ba260ae983de9cf22e079d2d177863a62d812b859232462dbeb1afd8921534",
+        "origin": 0,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 23,
+        "exact_batch_id": "8c8800a564c9d523dc939d71b61d918a224e716eba78b602453cc2f8ffc97c0a",
+        "materialized_us": 66357
+      },
+      {
+        "request_id": "3:6:d4cc9d259beebe41395f0b28720c5994e2767b546ec0e9410e42ec84089a7a38",
+        "origin": 3,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 24,
+        "exact_batch_id": "3d95a6001f62dc52e50f1517799c33f3eee7644e658ffd3b559e52f1a1be1e6a",
+        "materialized_us": 66376
+      },
+      {
+        "request_id": "2:6:ba07e195926e6bcec7a56c840df0f5aa71f8880182c1a107a4bef57bb102cf6f",
+        "origin": 2,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 25,
+        "exact_batch_id": "b4c0cf2e5ff442b8aeed14a507b7390ad19d3bf69b17b6c2f74ea9c9e6179855",
+        "materialized_us": 72311
+      },
+      {
+        "request_id": "0:6:7a4def152d73c933698a259a1f23b7f93d8c00915430e5281cc307070325ee55",
+        "origin": 0,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 26,
+        "exact_batch_id": "f4c39418bf59fee6967370be0415f6ba621c521fbf81126a00a0d45ce30e9511",
+        "materialized_us": 72332
+      },
+      {
+        "request_id": "3:7:51b06494ae6b631efbe992060bd43c8278018278e78b6fdc7d8b1e54ca419cd0",
+        "origin": 3,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 27,
+        "exact_batch_id": "17637f4dad6a8a3135f193232f297464c0257903ccc85b0084525da858fd93a9",
+        "materialized_us": 79747
+      },
+      {
+        "request_id": "0:7:b799c4e3b0d6baa87b4d9fa510fe1fbe2fe4932253b2eea4d0fc5228c72844f0",
+        "origin": 0,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 28,
+        "exact_batch_id": "3b73e499958bf8e279d24a136c8efd9e39ba7b408fc713325b1c37aee198f2e2",
+        "materialized_us": 79764
+      },
+      {
+        "request_id": "1:6:1b4d469f99e345c7b356ad1343981a37efada181e10e0ca852616b3bdb2cca13",
+        "origin": 1,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 29,
+        "exact_batch_id": "6e3c1b4f3351d371e6a86f20fe5c10e4322197280806004d089defda3216192f",
+        "materialized_us": 79784
+      },
+      {
+        "request_id": "2:7:6d10a49a39eb3863793ca4c243e5eeae7615f2ed122ebdf8d16957f2571d5d48",
+        "origin": 2,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 30,
+        "exact_batch_id": "b6a50e534e04623061e42c7f67aaec3856284cbbf71efcdb709076fda5ad43d6",
+        "materialized_us": 90142
+      },
+      {
+        "request_id": "1:7:0a7dc88bf9873b9a9c3aad8de923b1d901111c8bc294e2195fba77e223fb9d5b",
+        "origin": 1,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 31,
+        "exact_batch_id": "aecd9ce9f0a89ae02a6212537d4513799094def2d7df3216ad49c6d8bd8839bb",
+        "materialized_us": 90165
+      }
+    ],
+    "3": [
+      {
+        "request_id": "1:0:1c32220b8d55241f3f4c581a7484f22bf2b3821ad71ec68c43a6b1e3aa2aff60",
+        "origin": 1,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 0,
+        "exact_batch_id": "285918c5fdd8ec32eae9099415bcc478c5074c4fe7d00273193c22382e420367",
+        "materialized_us": 8672
+      },
+      {
+        "request_id": "3:0:ed70c174213e1f1392359cb2baf0761f604146c6cbb68e7aa8999edbaad0a451",
+        "origin": 3,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 1,
+        "exact_batch_id": "e995381996bdfb235d310c355e1fd0d1fb0cd797516311dcc50d142365db2dbf",
+        "materialized_us": 16295
+      },
+      {
+        "request_id": "2:0:5dd70e0e83a7920a2d20910e4659859bc7b5bb3c837b86a4e669548f8796a641",
+        "origin": 2,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 2,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 16352
+      },
+      {
+        "request_id": "2:1:bc5657fd24e0d4115a0d54ae93113fc17582e61afde16457234998fc88cbbd12",
+        "origin": 2,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 3,
+        "exact_batch_id": "afcd40588af86412e0d0ff52dd22638d74182a2c97ce712bf5b2189bf2533791",
+        "materialized_us": 16352
+      },
+      {
+        "request_id": "0:0:d8c532cf8c210e80d685fb1c1f5e454c47be356d6febb5257682ac4c8703aade",
+        "origin": 0,
+        "sequence": 0,
+        "useful_bytes": 472,
+        "output_index": 4,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 16433
+      },
+      {
+        "request_id": "0:1:4e6940dd9d926312054413083c686d12aa89b2204a36f6919b115407ea719c40",
+        "origin": 0,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 5,
+        "exact_batch_id": "cffcb974b0c9f85b738919d0bd51c6d90e8669cab5e2ed71db93324a82cfb6ac",
+        "materialized_us": 16433
+      },
+      {
+        "request_id": "1:1:ee9dd0c5cb787802bb923800e7f5e539d386be0bdbd856bdde7bc33d4d87224e",
+        "origin": 1,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 6,
+        "exact_batch_id": "70db73133d32b26edff1846c6a5dfda1af08badca583b340e947e089635901ec",
+        "materialized_us": 25476
+      },
+      {
+        "request_id": "3:1:b1b15b22fa68fe9b92426158e5b01f0f32ba6810fdc7ddf0e2780fb1127327d1",
+        "origin": 3,
+        "sequence": 1,
+        "useful_bytes": 472,
+        "output_index": 7,
+        "exact_batch_id": "1c7aa7527e88ebabca222eabe3f5d9fd01dcf46c7dac316f841c2ebb2b2fb99b",
+        "materialized_us": 25510
+      },
+      {
+        "request_id": "0:2:52885666e885315965639c5767f39389497cf2b784349cb81618b1c38a886c7d",
+        "origin": 0,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 8,
+        "exact_batch_id": "ae716dbeb8d8956d2f4233ebc190a522928179f8d1a2e05df2061299fd2be71b",
+        "materialized_us": 27173
+      },
+      {
+        "request_id": "2:2:14b130874e30b71f85e18da6b9976c4f07b15992472e59d6c399c1daf8f07d10",
+        "origin": 2,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 9,
+        "exact_batch_id": "feff461169138da1683ec9232da0dbd06c8bdfd1dfa51c4c28d411ae3ad03f6b",
+        "materialized_us": 27213
+      },
+      {
+        "request_id": "1:2:9b9ff41ba0ca6d3ee9a85f3c7beff023ac9fb22e556873d984f5a43ab7747a61",
+        "origin": 1,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 10,
+        "exact_batch_id": "a2da38890164f59e4dcdac66aba56a880756ca8cdfbf991624383d6725afc9ab",
+        "materialized_us": 27246
+      },
+      {
+        "request_id": "0:3:2bc09ef9d717cc8b07aa679d80006394c56331d7973a25464295426e79108a71",
+        "origin": 0,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 11,
+        "exact_batch_id": "8d3937e48db6e598152d047824eea8d2c858d6d416374a04b8457b975d4ac490",
+        "materialized_us": 35098
+      },
+      {
+        "request_id": "2:3:e545f960d889171c4c34885bc7fd37c3d3172397741ef6b401b0f250ca3c2419",
+        "origin": 2,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 12,
+        "exact_batch_id": "dc52b41357a69e0ee62047f1a80f9124920be569df48ea5b55ec0634e466c0a9",
+        "materialized_us": 35123
+      },
+      {
+        "request_id": "3:2:4ff286da1df3e6582377d399b0cd632f829450b198ebb25c54b7d64c212d61b4",
+        "origin": 3,
+        "sequence": 2,
+        "useful_bytes": 472,
+        "output_index": 13,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 35146
+      },
+      {
+        "request_id": "3:3:89bf3de30e0235b934215ddfcb41207b61071d67423726c61b48486467466372",
+        "origin": 3,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 14,
+        "exact_batch_id": "5cb5ee3410c2a1630ed107b3bf3c10aabce21e72d903d19d5ac1466681a67a92",
+        "materialized_us": 35146
+      },
+      {
+        "request_id": "3:4:3eddf1cf2db2c928122d2c4b5ed7ea392f1a6c1f9fd066fbd9bf2a450fe10b0f",
+        "origin": 3,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 15,
+        "exact_batch_id": "afe1c6abb47d4d250dc5360de8ee183a6b0745b0a7343a36e5830feb6b3d99b4",
+        "materialized_us": 46564
+      },
+      {
+        "request_id": "1:3:872ed71e34a25fd91a85cf17a29d9ac3a04048e91966a6b421e08230001ad389",
+        "origin": 1,
+        "sequence": 3,
+        "useful_bytes": 472,
+        "output_index": 16,
+        "exact_batch_id": "92e4d94ab95186256b542f8e17cd27e1c552d10a1a2372f7d5397564d4bf0b46",
+        "materialized_us": 46585
+      },
+      {
+        "request_id": "0:4:a0aa246636e1f5bda8fca93cbec2a4f53e11fc7ba124ef6ab581a07f09a680ab",
+        "origin": 0,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 17,
+        "exact_batch_id": "a6bda1fb17dd045759961c6fdb5ae4487664712a4714e100d40d11f9a1eec9b3",
+        "materialized_us": 46604
+      },
+      {
+        "request_id": "2:4:3b76899e5c150e0a28c98a21ee56e941ab53e5edfe87ef7901cb17cdf0c3c3f0",
+        "origin": 2,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 18,
+        "exact_batch_id": "16d99f570326512ad61fd3c76bf4fa2364501db5bcde37f4cb6b0d874ea406d6",
+        "materialized_us": 46623
+      },
+      {
+        "request_id": "1:4:76740d180633853eee958f58ad74f04db0ee7704ce315763d9998309d52ce485",
+        "origin": 1,
+        "sequence": 4,
+        "useful_bytes": 472,
+        "output_index": 19,
+        "exact_batch_id": "78d1ad7e94f1d06679f9199e0265a7f1316c4b220e0a621acc460bf4f9cef943",
+        "materialized_us": 57344
+      },
+      {
+        "request_id": "2:5:471d4d0c863d9ebd50cbda2c570213d92ce6ba84a48d8f576cd02992927d3cd0",
+        "origin": 2,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 20,
+        "exact_batch_id": "c5e6b03d75f214a0b8f2cc28a544d74aa96d44980c577d45314dfd5e19291d66",
+        "materialized_us": 57362
+      },
+      {
+        "request_id": "3:5:e98223b29e856689b4467092ec851345d89281497cbe3ef9723b99f9e0746656",
+        "origin": 3,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 21,
+        "exact_batch_id": "983b7dc7d4da3ae076e3bb097c9b7aa897297b605b53dd808c0cbfd34be868dd",
+        "materialized_us": 57382
+      },
+      {
+        "request_id": "1:5:ba86825e8a90380a805b0af6d93da2a6b9007651946bc24180e49364b83ace6f",
+        "origin": 1,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 22,
+        "exact_batch_id": "cf07a802d6a6773d9b130750071b16c59e0a8209ce830a6a66faef7c605668d4",
+        "materialized_us": 66387
+      },
+      {
+        "request_id": "3:6:d4cc9d259beebe41395f0b28720c5994e2767b546ec0e9410e42ec84089a7a38",
+        "origin": 3,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 23,
+        "exact_batch_id": "3d95a6001f62dc52e50f1517799c33f3eee7644e658ffd3b559e52f1a1be1e6a",
+        "materialized_us": 66408
+      },
+      {
+        "request_id": "0:5:89ba260ae983de9cf22e079d2d177863a62d812b859232462dbeb1afd8921534",
+        "origin": 0,
+        "sequence": 5,
+        "useful_bytes": 472,
+        "output_index": 24,
+        "exact_batch_id": "8c8800a564c9d523dc939d71b61d918a224e716eba78b602453cc2f8ffc97c0a",
+        "materialized_us": 66428
+      },
+      {
+        "request_id": "2:6:ba07e195926e6bcec7a56c840df0f5aa71f8880182c1a107a4bef57bb102cf6f",
+        "origin": 2,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 25,
+        "exact_batch_id": "b4c0cf2e5ff442b8aeed14a507b7390ad19d3bf69b17b6c2f74ea9c9e6179855",
+        "materialized_us": 72295
+      },
+      {
+        "request_id": "0:6:7a4def152d73c933698a259a1f23b7f93d8c00915430e5281cc307070325ee55",
+        "origin": 0,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 26,
+        "exact_batch_id": "f4c39418bf59fee6967370be0415f6ba621c521fbf81126a00a0d45ce30e9511",
+        "materialized_us": 72315
+      },
+      {
+        "request_id": "0:7:b799c4e3b0d6baa87b4d9fa510fe1fbe2fe4932253b2eea4d0fc5228c72844f0",
+        "origin": 0,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 27,
+        "exact_batch_id": "3b73e499958bf8e279d24a136c8efd9e39ba7b408fc713325b1c37aee198f2e2",
+        "materialized_us": 80213
+      },
+      {
+        "request_id": "1:6:1b4d469f99e345c7b356ad1343981a37efada181e10e0ca852616b3bdb2cca13",
+        "origin": 1,
+        "sequence": 6,
+        "useful_bytes": 472,
+        "output_index": 28,
+        "exact_batch_id": "6e3c1b4f3351d371e6a86f20fe5c10e4322197280806004d089defda3216192f",
+        "materialized_us": 80235
+      },
+      {
+        "request_id": "3:7:51b06494ae6b631efbe992060bd43c8278018278e78b6fdc7d8b1e54ca419cd0",
+        "origin": 3,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 29,
+        "exact_batch_id": "17637f4dad6a8a3135f193232f297464c0257903ccc85b0084525da858fd93a9",
+        "materialized_us": 80254
+      },
+      {
+        "request_id": "1:7:0a7dc88bf9873b9a9c3aad8de923b1d901111c8bc294e2195fba77e223fb9d5b",
+        "origin": 1,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 30,
+        "exact_batch_id": "aecd9ce9f0a89ae02a6212537d4513799094def2d7df3216ad49c6d8bd8839bb",
+        "materialized_us": 89282
+      },
+      {
+        "request_id": "2:7:6d10a49a39eb3863793ca4c243e5eeae7615f2ed122ebdf8d16957f2571d5d48",
+        "origin": 2,
+        "sequence": 7,
+        "useful_bytes": 472,
+        "output_index": 31,
+        "exact_batch_id": "b6a50e534e04623061e42c7f67aaec3856284cbbf71efcdb709076fda5ad43d6",
+        "materialized_us": 91044
+      }
+    ]
+  }
+}

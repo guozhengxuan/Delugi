@@ -1,7 +1,7 @@
 //! Canonical wire and cryptographic checks for Delugi ordering.
 //!
 //! The profile uses SHA-256, ordinary Ed25519 signatures, fixed-width integers,
-//! little-endian Bincode 1.3 encoding, and a 1 MiB encoded-message limit. The wire
+//! little-endian Bincode 1.3 encoding, and an explicit bounded message profile. The wire
 //! types contain no maps. Generic encoding helpers must likewise receive ordered
 //! canonical structures, never unordered maps. Parsing and verification have no
 //! protocol-state side effects; a valid VOTE signature does not validate any
@@ -22,6 +22,42 @@ pub type Digest = [u8; 32];
 pub type Id = u32;
 
 pub const MAX_WIRE_BYTES: usize = 1024 * 1024;
+/// Versioned experiment resource envelopes, not limits on protocol heights.
+/// The legacy constructor and free encoding helpers retain their original 1 MiB
+/// behavior. Larger complete evidence must use the selected committee's helpers.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
+pub enum ResourceProfile {
+    #[default]
+    #[serde(rename = "legacy-1mib-v1")]
+    Legacy1MibV1,
+    #[serde(rename = "complete-32mib-n31-v1")]
+    Complete32MibN31V1,
+}
+
+impl ResourceProfile {
+    pub fn identifier(self) -> &'static str {
+        match self {
+            Self::Legacy1MibV1 => "legacy-1mib-v1",
+            Self::Complete32MibN31V1 => "complete-32mib-n31-v1",
+        }
+    }
+
+    pub fn max_wire_bytes(self) -> usize {
+        match self {
+            Self::Legacy1MibV1 => MAX_WIRE_BYTES,
+            Self::Complete32MibN31V1 => 32 * 1024 * 1024,
+        }
+    }
+
+    pub fn max_committee_members(self) -> usize {
+        match self {
+            // An allocation guard before constructing exact worst-case HISTORY3
+            // fixtures; the existing mandatory-frame check is tighter in practice.
+            Self::Legacy1MibV1 => 1024,
+            Self::Complete32MibN31V1 => 31,
+        }
+    }
+}
 /// Leave room for the protocol's `r + 3` indexing without wrapping.
 pub const MAX_ROUND: u64 = u64::MAX - 3;
 pub const GENESIS_HISTORY_ROUNDS: u64 = 3;
@@ -131,10 +167,14 @@ impl<'a> From<&'a Message> for MessageRef<'a> {
 }
 
 fn options() -> impl Options {
+    options_with_limit(MAX_WIRE_BYTES)
+}
+
+fn options_with_limit(maximum: usize) -> impl Options {
     bincode::DefaultOptions::new()
         .with_fixint_encoding()
         .with_little_endian()
-        .with_limit(MAX_WIRE_BYTES as u64)
+        .with_limit(maximum as u64)
         .reject_trailing_bytes()
 }
 
@@ -166,6 +206,11 @@ pub fn decode<T: DeserializeOwned>(bytes: &[u8]) -> Result<T, String> {
 /// serializers and oversized local inputs are programmer errors and panic.
 pub fn hash<T: Serialize>(value: &T) -> Digest {
     let encoded = encode(value).expect("hash input must be canonical and bounded");
+    hash_encoded(&encoded)
+}
+
+fn hash_encoded(encoded: &[u8]) -> Digest {
+    let _cost = crate::meter::measure(crate::meter::Operation::ContentHash);
     let mut hasher = Sha256::new();
     hasher.update(PROFILE.as_bytes());
     hasher.update(b"\0content-hash\0");
@@ -205,10 +250,14 @@ fn signing_bytes<T: Serialize + SigningDomain>(signer: Id, body: &T) -> Result<V
 /// Sign a trusted local header/statement; this does not validate its semantics.
 pub fn sign<T: Serialize + Clone + SigningDomain>(key: &Keypair, signer: Id, body: T) -> Signed<T> {
     let bytes = signing_bytes(signer, &body).expect("signed input must be bounded");
+    let signature = {
+        let _cost = crate::meter::measure(crate::meter::Operation::signature(T::DOMAIN, true));
+        key.sign(&bytes).to_bytes().to_vec()
+    };
     Signed {
         signer,
         body,
-        signature: key.sign(&bytes).to_bytes().to_vec(),
+        signature,
     }
 }
 
@@ -309,7 +358,142 @@ fn maximum_control_frames(n: usize) -> [Message; 3] {
 /// Reserve enough bytes that *every* legal history, report, and VOTE still fits
 /// with the accepted application input. Fixed-width vector lengths make each
 /// added input byte contribute exactly one encoded byte to its enclosing frame.
+#[cfg(test)]
 fn input_budget_for_members(n: usize) -> Result<usize, String> {
+    input_budget_for_profile(n, MAX_WIRE_BYTES)
+}
+
+#[cfg(test)]
+mod resource_profile_tests {
+    use super::*;
+
+    fn committee(profile: ResourceProfile, n: u32) -> Committee {
+        Committee::with_profile(
+            [91; 32],
+            (0..n).map(|i| fixture_key(i).public).collect(),
+            profile,
+        )
+        .unwrap()
+    }
+
+    #[test]
+    fn legacy_identity_and_encoding_remain_unchanged() {
+        let c = committee(ResourceProfile::Legacy1MibV1, 4);
+        let original = (
+            "committee-configuration",
+            PROFILE,
+            "sha256/ed25519-strict/bincode1.3-fixint-little-endian",
+            MAX_WIRE_BYTES as u64,
+            MAX_ROUND,
+            GENESIS_HISTORY_ROUNDS,
+            input_budget_for_members(4).unwrap() as u64,
+            c.keys.iter().map(|key| key.to_bytes()).collect::<Vec<_>>(),
+        );
+        assert_eq!(c.context.configuration, hash(&original));
+        let message = Message::History3(
+            match maximum_control_frames(4).into_iter().last().unwrap() {
+                Message::History3(report) => report,
+                _ => unreachable!(),
+            },
+        );
+        assert_eq!(c.encode(&message), encode(&message));
+        assert_eq!(c.hash(&message), hash(&message));
+    }
+
+    #[test]
+    fn profiles_are_authenticated_and_committee_allocation_is_bounded() {
+        let legacy = committee(ResourceProfile::Legacy1MibV1, 4);
+        let complete = committee(ResourceProfile::Complete32MibN31V1, 4);
+        assert_ne!(legacy.context.configuration, complete.context.configuration);
+        assert_eq!(complete.max_wire_bytes(), 32 * 1024 * 1024);
+        assert!(Committee::with_profile(
+            [91; 32],
+            (0..34).map(|i| fixture_key(i).public).collect(),
+            ResourceProfile::Complete32MibN31V1
+        )
+        .is_err());
+        assert!(serde_json::from_str::<ResourceProfile>("\"complete-unbounded\"").is_err());
+    }
+
+    #[test]
+    fn large_complete_proposal_is_bounded_before_q_and_not_accepted_by_legacy() {
+        let c = committee(ResourceProfile::Complete32MibN31V1, 31);
+        let value = vec![7; MAX_WIRE_BYTES + 1];
+        let witness = vec![8; MAX_WIRE_BYTES + 1];
+        let history = History::Empty;
+        let proposal = Proposal {
+            header: sign(
+                &fixture_key(0),
+                0,
+                Header {
+                    context: c.context.clone(),
+                    round: 1,
+                    value_hash: c.hash(&value),
+                    witness_hash: c.hash(&witness),
+                    history_hash: c.hash(&history),
+                    entries: Entries::empty(),
+                },
+            ),
+            value,
+            witness,
+            history,
+        };
+        c.verify_proposal(&proposal, |_, _, _| true).unwrap();
+        let digest = proposal_digest(&proposal.header.body);
+        let mut cursor = 0;
+        let delivered = crate::scanner::release_with_committee(
+            &c,
+            &std::collections::BTreeMap::from([(1, crate::scanner::Status::Commit(digest))]),
+            &std::collections::BTreeMap::from([((1, digest), proposal.header.clone())]),
+            &std::collections::BTreeMap::from([((1, digest), proposal.value.clone())]),
+            &mut cursor,
+        );
+        assert_eq!(cursor, 1);
+        assert_eq!(delivered[0].value, proposal.value);
+        let message = Message::Propose(proposal.clone());
+        let encoded = c.encode(&message).unwrap();
+        assert!(encoded.len() > MAX_WIRE_BYTES);
+        assert!(encode(&message).is_err());
+        assert!(decode::<Message>(&encoded).is_err());
+        assert!(matches!(
+            c.decode::<Message>(&encoded).unwrap(),
+            Message::Propose(_)
+        ));
+        assert!(c.decode::<Message>(&encoded[..encoded.len() - 1]).is_err());
+        let mut trailing = encoded.clone();
+        trailing.push(0);
+        assert!(c.decode::<Message>(&trailing).is_err());
+        let mut changed = proposal;
+        changed.witness[0] ^= 1;
+        let reached_q = std::cell::Cell::new(false);
+        assert!(c
+            .verify_proposal(&changed, |_, _, _| {
+                reached_q.set(true);
+                true
+            })
+            .is_err());
+        assert!(!reached_q.get());
+    }
+
+    #[test]
+    fn largest_history_and_vote_fit_with_maximum_accepted_input() {
+        let c = committee(ResourceProfile::Complete32MibN31V1, 31);
+        let mut frames = maximum_control_frames(31);
+        if let Message::Propose(proposal) = &mut frames[0] {
+            proposal.witness.resize(c.input_budget(), 0);
+        }
+        assert_eq!(
+            c.encoded_size(&frames[0]).unwrap() as usize,
+            c.max_wire_bytes()
+        );
+        for message in frames {
+            assert!(c.encoded_size(&message).unwrap() as usize <= c.max_wire_bytes());
+        }
+        assert!(c.validate_input_lengths(c.input_budget(), 1).is_err());
+    }
+}
+
+fn input_budget_for_profile(n: usize, maximum: usize) -> Result<usize, String> {
     let frames = maximum_control_frames(n);
     let mut overhead = 0;
     for (index, frame) in frames.iter().enumerate() {
@@ -319,14 +503,14 @@ fn input_budget_for_members(n: usize) -> Result<usize, String> {
             .with_no_limit()
             .serialized_size(frame)
             .map_err(|e| e.to_string())?;
-        if bytes > MAX_WIRE_BYTES as u64 {
+        if bytes > maximum as u64 {
             return Err("committee mandatory ordering frames exceed the wire limit".into());
         }
         if index < 2 {
             overhead = overhead.max(bytes);
         }
     }
-    Ok(MAX_WIRE_BYTES - overhead as usize)
+    Ok(maximum - overhead as usize)
 }
 
 /// Exact cryptographic inputs, rather than a message digest or protocol object
@@ -401,6 +585,7 @@ impl SignatureCache {
 pub struct Committee {
     pub context: Context,
     pub keys: Vec<PublicKey>,
+    resource_profile: ResourceProfile,
     input_budget: usize,
     signature_cache: Arc<Mutex<SignatureCache>>,
     #[cfg(test)]
@@ -409,9 +594,20 @@ pub struct Committee {
 
 impl Committee {
     pub fn new(instance: Digest, keys: Vec<PublicKey>) -> Result<Self, String> {
+        Self::with_profile(instance, keys, ResourceProfile::Legacy1MibV1)
+    }
+
+    pub fn with_profile(
+        instance: Digest,
+        keys: Vec<PublicKey>,
+        resource_profile: ResourceProfile,
+    ) -> Result<Self, String> {
         let n = keys.len();
         if n < 4 || (n - 1) % 3 != 0 || n > Id::MAX as usize {
             return Err("committee requires n = 3f + 1 >= 4 representable members".into());
+        }
+        if n > resource_profile.max_committee_members() {
+            return Err("committee exceeds the selected resource profile".into());
         }
         let mut ordered_keys = Vec::with_capacity(n);
         for key in &keys {
@@ -421,26 +617,38 @@ impl Committee {
             }
             ordered_keys.push(bytes);
         }
-        let input_budget = input_budget_for_members(n)?;
+        let input_budget = input_budget_for_profile(n, resource_profile.max_wire_bytes())?;
         // All wire limits, algorithms, the HISTORY3 boundary, the derived input
         // budget, and ordered membership are configuration identity.
         let profile = (
             "committee-configuration",
             PROFILE,
             "sha256/ed25519-strict/bincode1.3-fixint-little-endian",
-            MAX_WIRE_BYTES as u64,
+            resource_profile.max_wire_bytes() as u64,
             MAX_ROUND,
             GENESIS_HISTORY_ROUNDS,
             input_budget as u64,
             ordered_keys,
         );
         encoded_size(&profile)?;
+        // Preserve legacy bytes and configuration hashes exactly. New envelopes
+        // additionally name their version and committee allocation bound.
+        let configuration = if resource_profile == ResourceProfile::Legacy1MibV1 {
+            hash(&profile)
+        } else {
+            hash(&(
+                profile,
+                resource_profile.identifier(),
+                resource_profile.max_committee_members() as u64,
+            ))
+        };
         Ok(Self {
             context: Context {
                 instance,
-                configuration: hash(&profile),
+                configuration,
             },
             keys,
+            resource_profile,
             input_budget,
             signature_cache: Arc::new(Mutex::new(SignatureCache::new(
                 SIGNATURE_CACHE_ENTRIES,
@@ -455,6 +663,45 @@ impl Committee {
     /// The budget leaves room for the largest legal HISTORY3 in any round.
     pub fn input_budget(&self) -> usize {
         self.input_budget
+    }
+
+    pub fn resource_profile(&self) -> ResourceProfile {
+        self.resource_profile
+    }
+
+    pub fn max_wire_bytes(&self) -> usize {
+        self.resource_profile.max_wire_bytes()
+    }
+
+    pub fn encode<T: Serialize>(&self, value: &T) -> Result<Vec<u8>, String> {
+        options_with_limit(self.max_wire_bytes())
+            .serialize(value)
+            .map_err(|e| e.to_string())
+    }
+
+    pub fn decode<T: DeserializeOwned>(&self, bytes: &[u8]) -> Result<T, String> {
+        if bytes.len() > self.max_wire_bytes() {
+            return Err("encoded message exceeds the selected resource profile".into());
+        }
+        options_with_limit(self.max_wire_bytes())
+            .deserialize(bytes)
+            .map_err(|e| e.to_string())
+    }
+
+    pub(crate) fn encoded_size<T: Serialize + ?Sized>(&self, value: &T) -> Result<u64, String> {
+        options_with_limit(self.max_wire_bytes())
+            .serialized_size(value)
+            .map_err(|e| e.to_string())
+    }
+
+    /// Same content domain and canonical bytes as the legacy helper, with this
+    /// committee's allocation bound. The configuration digest binds the profile.
+    pub fn hash<T: Serialize>(&self, value: &T) -> Digest {
+        hash_encoded(
+            &self
+                .encode(value)
+                .expect("hash input must be canonical and bounded"),
+        )
     }
 
     /// Validate locally supplied bytes before fixing the input or hashing it.
@@ -503,14 +750,18 @@ impl Committee {
             .map(|cache| cache.entries.contains(&cache_key))
             .unwrap_or(false)
         {
+            crate::meter::signature_cache_hit();
             return Ok(());
         }
         // Never hold the cache lock during cryptography. A poisoned cache is
         // bypassed, not trusted; the original strict check still decides.
         #[cfg(test)]
         self.strict_verifications.fetch_add(1, Ordering::Relaxed);
-        key.verify_strict(&cache_key.preimage, &signature)
-            .map_err(|_| "invalid Ed25519 signature".to_string())?;
+        {
+            let _cost = crate::meter::measure(crate::meter::Operation::signature(T::DOMAIN, false));
+            key.verify_strict(&cache_key.preimage, &signature)
+                .map_err(|_| "invalid Ed25519 signature".to_string())?;
+        }
         if let Ok(mut cache) = self.signature_cache.lock() {
             cache.insert_verified(cache_key);
         }
@@ -571,17 +822,17 @@ impl Committee {
         q: impl Fn(u64, &[u8], &[u8]) -> bool,
     ) -> Result<(), String> {
         // Include the outer message discriminator in the total frame budget.
-        encoded_size(&MessageRef::Propose(proposal))?;
+        self.encoded_size(&MessageRef::Propose(proposal))?;
         self.validate_input_size(&proposal.value, &proposal.witness)?;
         self.verify_header(&proposal.header)?;
         let header = &proposal.header.body;
-        if header.value_hash != hash(&proposal.value) {
+        if header.value_hash != self.hash(&proposal.value) {
             return Err("proposal value does not match its header".into());
         }
-        if header.witness_hash != hash(&proposal.witness) {
+        if header.witness_hash != self.hash(&proposal.witness) {
             return Err("proposal witness does not match its header".into());
         }
-        if header.history_hash != hash(&proposal.history) {
+        if header.history_hash != self.hash(&proposal.history) {
             return Err("proposal history does not match its header".into());
         }
         history::verify_history(self, header.round, &proposal.history)?;

@@ -29,7 +29,7 @@ def pipe_ids(listing):
 
 
 def validate_request(protocol, ports, delay_ms):
-    if protocol not in {"calibration", "delugi", "raptr", "mysticeti"}:
+    if protocol not in {"calibration", "delugi", "raptr", "mysticeti", "autobahn", "shoal"}:
         raise ValueError("unknown protocol")
     if not isinstance(ports, list) or not 1 <= len(ports) <= 128:
         raise ValueError("expected 1..128 replica TCP ports")

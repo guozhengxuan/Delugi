@@ -1,0 +1,12 @@
+{
+  "after_returncode": 0,
+  "before_returncode": 1,
+  "evidence": "results/local/native-finite-eligibility-f4af9d1bce5e40528e925998f1ac2f4e",
+  "implementation": "require own-origin eligible completion in auxiliary all-correct finite output query",
+  "manifest_sha256": "024e1c597968f857b4f507b79ee740fd8de800ba62a1fec60b143643ec643f94",
+  "regression_tests": 1,
+  "schema": 1,
+  "scope": "Auxiliary native finite receipt requires eligible own-origin completion, matching primary cohort accounting.",
+  "status": "passed",
+  "unchanged": "Raw outputs, M_out, and main cohort accounting remain unchanged."
+}

@@ -12,6 +12,7 @@ import socket
 import statistics
 import threading
 import time
+import timing_calibration
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_REQUEST = 32768
@@ -113,6 +114,7 @@ def calibration(directory, delay_ms=10):
             client.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             clients.append(client)
         result["baseline_rtt_ms"] = sample(clients[0], 20)
+        result["control_baseline_rtt_ms"] = sample(clients[1], 20)
         result["shaping"] = configure_from_environment("calibration", [listeners[0].getsockname()[1]])
         if result["shaping"] is None:
             raise RuntimeError("Calibration requires a configured kernel shaper")
@@ -120,9 +122,11 @@ def calibration(directory, delay_ms=10):
         result["control_rtt_ms"] = sample(clients[1], 20)
         added = statistics.median(result["shaped_rtt_ms"]) - statistics.median(result["baseline_rtt_ms"])
         result["median_added_rtt_ms"] = added
-        if not 1.5 * delay_ms <= added <= 3.5 * delay_ms:
+        if not timing_calibration.addition(statistics.median(result["baseline_rtt_ms"]),
+                                          statistics.median(result["shaped_rtt_ms"]), delay_ms)["addition_matches"]:
             raise RuntimeError(f"Expected about {2*delay_ms}ms added RTT; observed {added:.3f}ms")
-        if statistics.median(result["control_rtt_ms"]) >= delay_ms:
+        if not timing_calibration.addition(statistics.median(result["control_baseline_rtt_ms"]),
+                                          statistics.median(result["control_rtt_ms"]), 0)["addition_matches"]:
             raise RuntimeError("Unselected control socket was delayed")
         result["status"] = "passed"
     except Exception as error:
@@ -130,6 +134,12 @@ def calibration(directory, delay_ms=10):
     finally:
         try:
             result["cleanup"] = clear_from_environment()
+            if result["status"] == "passed":
+                result["after_cleanup_rtt_ms"] = sample(clients[0], 20)
+                result["control_after_cleanup_rtt_ms"] = sample(clients[1], 20)
+                result["assessment"] = timing_calibration.local_record(result, delay_ms)
+                if not result["assessment"]["passed"]:
+                    raise RuntimeError("RTT did not return to baseline after owned shaping cleanup")
         except Exception as error:
             result["status"], result["cleanup_error"] = "failed", str(error)
         for client in clients:

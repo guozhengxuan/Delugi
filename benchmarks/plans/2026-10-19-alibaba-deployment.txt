@@ -1,0 +1,32 @@
+Alibaba Cloud deployment proposal — 19 October 2026
+
+Source: /Users/zhengxuanguo/gitrepo/Loom/benchmark/settings.json and Alibaba ECS/VPC read-only API responses archived under results/local/alibaba-{discovery,preflight}-20261019.json.
+
+Verified existing configuration
+- Regions: eu-central-1, eu-west-1, ap-southeast-1, ap-northeast-2.
+- Instance type: ecs.g9i.xlarge (4 vCPUs, 16 GiB RAM, confirmed by DescribeInstanceTypes). Loom key pair and Loom VPC exist in all four regions.
+- No ECS instances currently exist in the four configured regions.
+- Loom uses Ubuntu 20.04 x86_64, ESSD, postpaid compute and pay-by-traffic public networking with a 100 Mbps limit.
+- Loom's example create setting is two instances per region. It contains no spending cap.
+
+Read-only price quote
+The ECS DescribePrice API returned the following per-instance hourly CNY prices for ecs.g9i.xlarge with a 200 GiB ESSD system disk, one-hour period, VPC and pay-by-traffic public networking. Variable outbound traffic is additional; these are live quotes, not a spending guarantee.
+eu-central-1: 1.68464; eu-west-1: 1.62384; ap-southeast-1: 1.7708; ap-northeast-2: 1.73728.
+Singapore: 4 machines = 7.0832 CNY/hour; 7 = 12.3956; 31 = 54.8948.
+
+Proposed bounded first phase
+- Start with one build host in Singapore (ap-southeast-1), then four independent validators, then seven and thirty-one after functional gates pass.
+- Maximum simultaneous instances: 31, created only as needed; eight-hour maximum resource lifetime in the initial proposal. The refined fixed-price profile below shortens this to seven hours.
+- Proposed spending authorization: CNY 500 for this first phase, including build, compute, disk and outbound transfer. The refined fixed-price profile below removes variable public traffic charges and reserves a cost margin.
+- Use private same-region addresses for controlled-delay trials. Measure baseline RTT before adding delay; cross-continent placement cannot realize a 10 ms one-way delay preset.
+- Use Loom's other three regions for later WAN experiments with witnessed natural delays and a separately bounded deployment.
+- Use a Delugi-specific security group and ownership tags; reuse only the existing VPC and public key. SSH access is scoped to the controller, protocol ports to the experiment peers. Lifecycle operations name exact owned resource IDs and never invoke Loom's broad cleanup.
+- Retain source hashes, build recipes, binaries, machine metadata and experiment evidence. Clean generated build trees after copying verified artifacts. Delete owned cloud instances/disks/security groups at the end; leave Loom's VPC/key pairs intact.
+
+Status
+Singapore Loom subnet verified in zone ap-southeast-1a, with 252 free private IPv4 addresses. No billable resources created. Spending and deployment are not authorized for this phase; the user selected local tests only. Provisioning and live Linux/network acceptance remain pending.
+
+Refined bounded billing profile (pending the same user cap/scale answer)
+Use PayByBandwidth at 5 Mbps for public SSH/control/result transfer. Validator protocol traffic uses private VPC addresses and is unaffected by this public limit. Live DescribePrice quote for the whole machine+200 GiB ESSD+public bandwidth is CNY 2.0833/hour. A maximum of 31 such instances for seven hours is CNY 452.0761; CNY 45 additional margin keeps the reviewed bound below CNY 500. Launch rechecks the live CNY quote before provisioning and refuses a price increase or unsafe billing profile. All instances receive the same absolute auto-release deadline; early cleanup remains required. This replaces the variable PayByTraffic option for the first phase. Public control-path delay is explicitly included in observed all-correct notification latency.
+
+User direction update: local tests only. Remote provisioning and remote execution are deferred. The user did not authorize the proposed cloud spending/scale phase; no billable resources were created. Continue the local acceptance/comparison work and clean generated build artifacts.

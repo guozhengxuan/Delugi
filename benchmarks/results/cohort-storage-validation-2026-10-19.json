@@ -1,0 +1,28 @@
+{
+  "peak_python_traced_bytes": 61283,
+  "table_rows": {
+    "requests": 3968,
+    "outputs": 123008,
+    "batches": 3968,
+    "latency": 11904
+  },
+  "sqlite_bytes": 8409088,
+  "schema": 1,
+  "created_utc": "2026-10-19T10:14:09.218046+00:00",
+  "kind": "generated offline correctness/storage fixture; not protocol capacity or multi-minute runtime benchmark",
+  "replicas": 31,
+  "requests_per_origin": 128,
+  "seconds": 1.2460513329133391,
+  "sqlite_cache_bytes": 16777216,
+  "whole_process_peak_rss_bytes": 50577408,
+  "memory_boundary": "tracemalloc covers Python allocations only; SQLite C allocations, interpreter baseline and process RSS are separate",
+  "aggregate_archive_limit": null,
+  "legacy_schema1_limit_bytes": 1073741824,
+  "aggregate_size_tested_over_1GiB": false,
+  "remaining_limits": "Raw pages and SQLite grow with evidence; replica timing maps, custody and protocol/output history remain O(N). Multi-minute n31 runtime performance is not established by this fixture.",
+  "source_sha256": {
+    "scripts/cohort_store.py": "b0b0c77d3eb123dd6df33fe2b9b37114c0315ec086a1f11057098f3a56b923c1",
+    "scripts/cohort_metrics.py": "76d9dd768580e866f19c3c9ff5af53c840ab63fe894abc2b88331ea0fcae78fa",
+    "tests/cohort_store_test.py": "f251bb6d7f12942e260b21ca61b475ec56e0d0735c3327534f7f8bb8b6fca547"
+  }
+}

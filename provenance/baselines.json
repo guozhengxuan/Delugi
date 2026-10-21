@@ -1,5 +1,5 @@
 {
-  "schema": 1,
+  "schema": 2,
   "purpose": "Pinned upstream paper artifacts for local baseline builds and benchmarks",
   "baselines": {
     "raptr": {
@@ -8,7 +8,16 @@
       "commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
       "paper": "https://arxiv.org/html/2504.18649v2",
       "checkout": "benchmarks/baselines/raptr",
-      "scope": "Raptr paper implementation; do not substitute Baby Raptr or current Aptos main"
+      "scope": "Raptr paper implementation; do not substitute Baby Raptr or current Aptos main",
+      "comparison_tier": "primary",
+      "priority_decision": {
+        "date": "2026-10-21",
+        "basis": "Explicit user instruction: prioritize Raptr over Shoal as the main counterpart",
+        "implementation": "Extend the existing pinned native raptr-public checkout and retain an auditable patch; no protocol reimplementation in the Delugi runtime",
+        "prior_tier": "supplementary"
+      },
+      "instrumentation_patch": "benchmarks/patches/raptr-local.patch",
+      "acceptance_status": "Historical native runs retained; current binaries were cleaned. Primary finite-cohort integration and fresh build/runtime acceptance are next."
     },
     "mysticeti": {
       "repository": "https://github.com/asonnino/mysticeti.git",
@@ -16,14 +25,112 @@
       "commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
       "paper": "https://arxiv.org/html/2310.14821v6",
       "checkout": "benchmarks/baselines/mysticeti",
-      "scope": "Unmaintained paper artifact; do not substitute current Sui consensus"
+      "scope": "Unmaintained paper artifact; do not substitute current Sui consensus",
+      "comparison_tier": "published_core",
+      "publication": {
+        "venue": "NDSS 2025",
+        "url": "https://www.ndss-symposium.org/ndss-paper/mysticeti-reaching-the-latency-limits-with-uncertified-dags/"
+      },
+      "instrumentation_patch": "benchmarks/patches/mysticeti-local.patch",
+      "native_omission_hook": {
+        "default": "disabled",
+        "fault_budget": "one configured sender inside fixed faulty identities; honest ingress excludes it",
+        "unit": "own authored signed block, including block repair replies; payload and consensus coupled",
+        "attacker_input": "separate declared rate, no honest useful-work credit"
+      },
+      "crypto_cpu_observation": {
+        "default": "disabled",
+        "clock": "synchronous thread CPU",
+        "ordinary_signature_operations": [
+          "sign",
+          "verify"
+        ],
+        "sampling_ms": 20,
+        "transport_authentication": "not included; distinct service",
+        "mmr_proof": "not applicable"
+      }
     },
     "vantage": {
       "repository": "https://github.com/polinikita/vantage-bft.git",
       "reference": "main",
       "commit": "199098c4978e4a97a7d3707ec9aac6de086969db",
       "checkout": "benchmarks/baselines/vantage",
-      "scope": "Pinned shared Vantage artifact containing vantage, autobahn-optimistic, autobahn-seamless, simple-it, and simple-it-bracha; native local-benchmark runs all authorities in one process"
+      "scope": "Pinned shared Vantage artifact containing vantage, autobahn-optimistic, autobahn-seamless, simple-it, and simple-it-bracha; native local-benchmark runs all authorities in one process",
+      "comparison_tier": "supplementary"
+    },
+    "autobahn": {
+      "repository": "https://github.com/neilgiri/autobahn-artifact.git",
+      "reference": "autobahn",
+      "commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+      "checkout": "benchmarks/baselines/autobahn",
+      "comparison_tier": "published_core",
+      "publication": {
+        "venue": "SOSP 2024",
+        "doi": "10.1145/3694715.3695942",
+        "url": "https://sigops.org/s/conferences/sosp/2024/schedule.html"
+      },
+      "disruption_artifact": {
+        "reference": "autobahn-blips",
+        "commit": "9e8ab2f79ab1c4509620347bcd122c878981168d",
+        "checkout": "benchmarks/baselines/autobahn-blips",
+        "instrumentation_patch": "benchmarks/patches/autobahn-blips-cohort-2026-10-19.patch"
+      },
+      "scope": "Original author artifact; branch autobahn is the normal branch, autobahn-blips contains native disruption controls. Preserve all native workers, crypto, persistence and batching. Source pin is not build/run acceptance.",
+      "dependency_lock": "benchmarks/locks/autobahn-cohort-2026-10-19.lock",
+      "build_toolchain": "1.92.0",
+      "native_dependency_lock": "benchmarks/locks/autobahn-2026-10-19.lock",
+      "instrumentation_patch": "benchmarks/patches/autobahn-cohort-2026-10-19.patch",
+      "application_linearization": {
+        "source": "https://www.cs.cornell.edu/~fsp/reports/Autobahn__SOSP24_CR.pdf",
+        "requirement": "Theorem1: increasing committed slots and common deterministic within-slot ordering of lane histories.",
+        "artifact_gap": "Unused node application upcall traverses proposals HashMap and returns lane ancestors newest-first. Native raw output order differs across replicas.",
+        "adapter": "Observe complete native slot boundaries; canonical topological zipper (height,author,full header digest) within each completed slot, verify per-lane parent continuity, then wait for locally retained verified native payloads before contiguous output. No sorting acrossslots or protocol voting/commit-set changes.",
+        "regression_fixture": "benchmarks/fixtures/autobahn-raw-output-order-2026-10-19.json"
+      },
+      "native_omission_hook": {
+        "default": "disabled",
+        "fault_budget": "one configured sender inside fixed faulty identities; honest ingress excludes it",
+        "unit": "worker payload publication and optional repair reply",
+        "attacker_input": "separate declared rate, no honest useful-work credit"
+      },
+      "crypto_cpu_observation": {
+        "default": "disabled",
+        "clock": "synchronous thread CPU",
+        "ordinary_signature_operations": [
+          "sign",
+          "verify",
+          "batch_verify"
+        ],
+        "sampling_ms": 20,
+        "transport_authentication": "not included; distinct service",
+        "mmr_proof": "not applicable"
+      }
+    },
+    "shoal": {
+      "repository": "https://github.com/aptos-labs/aptos-core.git",
+      "reference": "paper-shoal",
+      "commit": "9653e47dc6a08f4bb15e8f138ad79fb2045fccab",
+      "checkout": "benchmarks/baselines/shoal",
+      "comparison_tier": "published_core",
+      "publication": {
+        "venue": "NSDI 2025",
+        "url": "https://www.usenix.org/conference/nsdi25/presentation/arun"
+      },
+      "artifact_correspondence": "https://arxiv.org/html/2504.18649v2#S7 (Protocols under Test, footnote 8)",
+      "scope": "Shoal++ prototype; native shoal_plus_plus has three DAGs and weak votes enabled. Published variant/configuration requires runtime verification; do not substitute Raptr or current Aptos main. Source pin is not build/run acceptance.",
+      "build_toolchain": "1.75.0",
+      "instrumentation_patch": "benchmarks/patches/shoal-cohort-2026-10-19.patch",
+      "build_recipe": "benchmarks/plans/2026-10-19-shoal-linux-recipe.txt",
+      "native_mode": "consensus-only-perf-test",
+      "local_fixture": "native aptos-genesis builder with explicit DAG genesis; upstream Forge local backend ignores suite genesis callbacks",
+      "acceptance_status": "Oct21 observer source reviewed and validator compiled; fixture build and all new live observer gates deferred for Raptr priority; historical Oct19 paired artifact retained",
+      "local_runner": "scripts/baselines/shoal.py",
+      "local_collector": "scripts/baselines/shoal_cohort.py",
+      "observer_identity": "Native signed Ed25519 workload BCS independently verified by local collector; exact finite native transaction hashes bind useful credit; random per-origin keys; invalid app content preserves native ordinals without useful credit",
+      "native_build_receipt": "benchmarks/results/shoal-native-build-2026-10-19.json",
+      "acceptance": "Native Linux ARM64 validator/fixture build and five local finite-cohort functional accounting gates verified; formal comparison and observer-overhead gates remain open",
+      "native_runtime_receipt": "benchmarks/results/shoal-native-local-acceptance-2026-10-19.json",
+      "observer_contract": "shoal-native-receipt-v1"
     }
   }
 }

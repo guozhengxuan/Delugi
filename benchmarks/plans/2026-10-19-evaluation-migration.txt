@@ -1,0 +1,73 @@
+Delugi implementation and evaluation migration — 19 October 2026
+Status: reviewed. GPT-6 Astra Ultra discussed the migration in “start up”; GPT-6 Pro in “delugi context” approved with changes. The required changes below are incorporated. This turn produced a plan, not code migration or new benchmark results.
+
+Decision
+Retain Delugi's deterministic protocol core and build a common external evaluation harness around native published implementations. This supersedes the 13 October recommendation to port immediately into Vantage's runtime. Runtime replacement follows profiling and separate validation.
+
+Published baseline set
+Mysticeti-C — NDSS 2025: uncertified DAG, low-latency reference. Reuse pinned paper implementation 96fd83154bb5e168def9a81ee8f3e90e94e46a2e, repair output instrumentation, and verify mapping to the published version.
+Autobahn — SOSP 2024: certified parallel lanes and disruption recovery. Pin original neilgiri/autobahn-artifact normal and blips branches.
+Shoal++ — NSDI 2025: optimized certified DAG reference. Author paper identifies aptos-labs/aptos-core branch paper-shoal as its prototype. Audit and pin before integration. Bullshark CCS 2022 is a disclosed fallback, not a substitute for claiming comparison with Shoal++.
+Raptr (announced EuroSys 2027 acceptance) and Simple-IT (announced IEEE S&P 2027 acceptance) are forthcoming, separate from the already published core. Preserve existing Raptr code/results for supplementary comparisons. Vantage, Starfish and Multimmit remain outside this core pending verified publication.
+
+October 19 specification change
+Contribution: Prefix availability with ordinary signatures. The change revises framing and accounting, not protocol behavior. Preserve cumulative signed observation vectors, unequal-height MMR proofs, target selection after observations, streaming producer batches, retained f+1 suffix sources, immutable payload-independent Q, authenticated bases, current/empty construction, exact fork identity and FIFO materialization.
+The 2δ input-readiness result permits authenticated-base fallback. Track productive advancement separately.
+No assumed per-batch or amortized resource advantage. Protocols may choose different batch and certified-unit sizes within common useful-workload and latency requirements.
+Ordering source SHA256: c201812a71e1c233aa9ba6bb845a4947ae37c56f2342aa7b940bef91225de8c4
+Dissemination source SHA256: 35743b5e009251d4ff7243d4527a76ee93cc58304b01505b92e66af434f7d825
+Implementation baseline: b8b1d4ec7df3a09b253af25e07119e9fae2a10e2.
+Canonical immediate PROG and user-selected PROG-paced + immediate-bundling default remain separately identified.
+
+Measurement contract
+1. Useful-output performance: sustainable unique honest application goodput versus admission-to-origin-local payload-verified contiguous output latency. Origins are preassigned correct ingress replicas with balanced cohorts. Use one monotonic clock. Record intended submission, actual ingress/admission, batching, output, rejects and backpressure. Report scheduled submission-to-output as well. p50/p95/p99 must retain unfinished cohorts; undefined/above-deadline quantiles remain visible. Stable capacity requires stable backlog and repeated multi-minute trials.
+2. Robust completion: all-correct cohort completion, worst honest-origin completion by fixed deadlines, oldest outstanding request and backlog recovery. Remote completion notifications measured on the origin clock are observed completion including return delay. Exact remote event timing requires calibrated clocks. Compare output prefixes within each protocol execution; different protocols may choose different valid orders.
+3. Resource cost: total committee and hottest-replica outbound bytes, split payload, evidence/control, repair and transport overhead; signing/verifying/proof CPU and retained memory. Count each network transmission once, not both send and receive. Separate ordinary protocol signatures from transport authentication.
+Keep exact distinct emitted batch payload M_out separate from U_out, unique useful honest application bytes. Deduplicate the useful-goodput counter by authenticated request identity; preserve the protocol's actual output semantics. Report both denominators where faulty duplicate content can diverge. Do not sum replicated outputs. Declare the output replica/prefix and interval used. Charge all opportunities, including failed, empty, repeated-prefix work, delayed sends, optional source distribution, repairs, setup and carried-in evidence. Zero-output intervals retain total costs and an undefined ratio.
+Input preparation, complete-proposal broadcast-to-direct-commit, descriptor delivery and payload materialization are diagnostic stages. They do not replace useful output.
+
+Three main experiment families
+A. Healthy useful-output and resource frontier. Load from sparse to saturation; tune native batching and certified-unit size under the same tail-latency target; include small and larger committees. Expose Delugi-unfavorable sparse progress, proof CPU, cubic metadata and large competitor certified units. Compare at identical offered workload; report each system's sustainable frontier. Initial diagnostic n=4, then validated n=7 and n=31. Current code does not yet support the latter.
+B. Correct-leader responsiveness and payload disruption. At a common offered load below the smallest healthy capacity, hold actual δ and resources fixed while varying configured Δ. Include clean operation, a nonleader withholding/selectively publishing payloads, and transient loss. Keep TCP packet loss distinct from application-message omission, and data-only impairment distinct from all traffic. Preserve native validation, recovery, leader selection and reputation; do not force an unavailable reference through validation or delete honest custody to manufacture an attack. Use a fixed set of at most f faulty identities. Add a secondary matched-utilization comparison. Reverse the δ/Δ sweep at selected points. Record valid empty inputs despite pending honest data, constructor source/proof readiness, fresh useful output, repairs and ordering latency separately. Use witnessed actual delay so queueing is not mislabeled as a timeout effect.
+C. Faulty-leader continuity and recovery. Begin with one silent leader followed by honest leaders, then fault bursts within the fixed f-node fault budget, selective publication, and sustained versus withdrawn attacks. Three subsequent honest Delugi anchors are a diagnostic; retain each counterpart's native schedule. Follow every honest-origin cohort through the declared drain/deadline; measure proposal fate and transaction replay separately, output gaps, worst-origin completion and backlog recovery. Include an unfavorable case in which descriptors commit but payload recovery blocks contiguous output.
+
+Required ablation
+Immediate versus paced originating PROG crossed with bundling off/on, all using the same bounded pipelined transport, queues, authentication and validation. Bundling has no fill timer. Pacing tests establish behavior; theorem coverage needs its own argument. Historical-source reuse remains disabled in reference results; expanded historical evidence is optional work with its own cost ledger.
+
+Migration milestones — incorporating Pro's changes
+1. Freeze and select provenance. Add an explicitly selected reviewed October 19 spec snapshot, artifact manifests, publication correspondence and scheduling-mode labels. Update all hash consumers consistently; preserve checks and historical archives. Keep correctness/conformance gates separate from performance gates. Record artifacts as rebuildable from cleaned sources/recipes.
+2. Make output accounting the first implementation increment. Extend the current four-process runner with independent open-loop arrivals, authenticated request identities, scheduled/admitted/batch-ready/materialized timestamps, cohort/deadline/drain ledger, exact ordered-output hooks, M_out/U_out and common cost counters. Parameterize the 128-transaction cap and separate arrival rate, batch flush, batch size and certified-unit size. Repair Mysticeti's pre-linearization endpoint before comparison. Accept exact output-prefix agreement within each run; different protocols need not choose the same order. Include zero-output and unfinished-cohort fixtures and quantify observer overhead.
+3. Integrate native published artifacts alongside milestone 2. Pin and audit original Autobahn normal/disruption branches and the Shoal++ candidate branch early; reuse and repair Mysticeti. Preserve native crypto, batching, certification, storage, repair and reputation. Run separate validator processes and match total CPU, memory, disk and network budgets including all workers. Missing Shoal++ provenance blocks its comparison, not accounting work. Inventory persistence/fsync, storage time and transport queues. Native comparisons with Delugi's in-memory custody are implementation comparisons; isolated causal claims require component evidence or semantics-preserving controls.
+4. Generalize the bounded profile and deployment after local acceptance. Introduce explicit versioned committee/proof/message limits, component-to-aggregate compatibility, bounded allocation and queue backpressure. Validate maximum accepted witness fixtures, complete-evidence authentication before Q, malformed inputs and equivalent existing traces. First try a larger bounded complete-message profile; fragmentation is optional if practical frame limits or measured head-of-line effects justify it. No silent truncation or lost effects. This defines the experiment resource envelope rather than a new protocol-wide height cap. Add separate bind/advertised addresses for multi-host tests. Validate n=7 and n=31 before those campaign points.
+5. Run the three repeated distributed experiment families, then optimize demonstrated bottlenecks behind the existing state-machine/effect boundary. Reconcile arrivals, output prefixes, costs, deadlines and correct-node cohorts before drawing performance conclusions. Durable custody/crash-restart, runtime replacement, historical-source optimization and metadata fragmentation are optional unless a corresponding claim or measured bottleneck requires them.
+
+First implementation increment
+Provenance selection plus four-process independent-arrival and exact-materialization cohort accounting. Start with Delugi healthy and finite-disruption runs; normalize the existing Mysticeti adapter in parallel for the first matched pilot. Use common useful application bytes, explicit scheduling mode, complete deadline/drain results and reconciled resource counters. Accept an incomplete cohort and a zero-output case as accounted outcomes, not invalid experiments. Larger committees, fragmentation and new protocol implementations do not block this increment.
+
+Decision rules
+- More commits without more useful output is not a useful-throughput improvement.
+- Every protocol may tune certified units under the same latency requirement. If grouping erases a cost advantage, report that operating region directly.
+- Stable capacity requires non-growing queues; completed-only latency cannot hide backlog.
+- Descriptor speed must be followed through materialization and honest-origin completion.
+- Separate direct-commit responsiveness under stated input/alignment conditions from recovery and end-to-end output. Do not transfer the paper theorem to the paced implementation based on tests.
+- Separate native implementation results from claims about isolated protocol effects when storage or transport services differ.
+- Finite deadline misses establish observed completion failures; they do not prove permanent censorship.
+
+Current blockers
+Several runners reject the live paper because they hard-check October 13 source hashes. Sustained runner archives the old pin. Process profile permits only n=4/7 and loopback; sustained harness hardcodes four and forbids silent replicas. Generator creates requests at batch creation with a 128-transaction cap. Present throughput/latency reports use completed-in-window samples. Core custody and protocol state are in memory; native baseline durability differs. Build recipes/sources remain, but cleaned binaries require rebuild before experiments.
+
+Review and handoff
+Astra discussion: Codex thread 01a12f5a-909f-7dc3-a223-db9dee56dfa4 (“start up”), explicitly requested model gpt-6-astra, reasoning ultra.
+Pro review: https://chatgpt.com/c/6ad0826d-7048-83ec-b309-e09c2dca6590 (“delugi context”), verdict “approve with changes”.
+The first increment and native-artifact-first decision supersede benchmarks/ARCHITECTURE_COMPARISON.md's October 13 recommendation for an immediate Vantage-derived runtime port. That historical document is preserved.
+
+Primary publication and artifact references
+Mysticeti: https://www.ndss-symposium.org/ndss-paper/mysticeti-reaching-the-latency-limits-with-uncertified-dags/
+Autobahn: https://sigops.org/s/conferences/sosp/2024/schedule.html ; https://doi.org/10.1145/3694715.3695942
+Autobahn artifact: https://github.com/neilgiri/autobahn-artifact
+Shoal++: https://www.usenix.org/conference/nsdi25/presentation/arun
+Shoal++ candidate artifact: https://github.com/aptos-labs/aptos-core/tree/paper-shoal
+Artifact correspondence source: https://arxiv.org/html/2504.18649v2 (Section 7, Protocols under Test, footnote 8).
+Raptr acceptance announcement: https://telegram.me/s/aptos_official?before=1355
+Publication status is distinct from artifact buildability and fidelity; new artifact commit pins remain implementation work.
+

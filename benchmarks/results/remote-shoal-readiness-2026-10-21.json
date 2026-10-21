@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "scope": "Remote Shoal preparation/arm plus full finite observer integration. This validation performs no SSH, remote/cloud operation, native build, or native benchmark.",
+  "changes": [
+    "Adds the finite receipt helper to source-bound deployment/runtime controller bundles and tests isolated imports.",
+    "Requires the explicit shoal-native-receipt-v1 artifact capability before any connection. Historical artifacts are not relabeled.",
+    "Authenticates the finite signed BCS plans before launch; creates only this host's admission map and full observer environment.",
+    "All-host preparation requires native bootstrap, direct REST200, fresh valid TCP and identity-bound observer counters, plus crypto counters when enabled. Each host rechecks before choosing its own local epoch.",
+    "Arms receipt freeze, application ingress, and omission schedule from the same host-local epoch. Actual complete-batch frozen endpoint is retained.",
+    "Verifies native full prefix, admission publication, append-time own eligibility and materialized bytes before schema2 archival, then verifies transferred receipts again.",
+    "Reconciles native and detailed finite population per correct origin and globally. Receipt failures after reduction force failed acceptance while retaining diagnostics and cleanup.",
+    "Separates counter-validation time from complete readiness observation; partial arm failures clean waiting hosts before draining workers."
+  ],
+  "focused_tests": 61,
+  "validation": [
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "remote_native_test.py"
+      ],
+      "log": "results/local/remote-shoal-readiness-20261021/revision-3/remote_native_test.py.log",
+      "returncode": 0,
+      "sha256": "b92583ee77b939a4b4fa9cf4d26e63814f7ca48ad6a91448c378f2a16fc492e6"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "native_campaign_test.py"
+      ],
+      "log": "results/local/remote-shoal-readiness-20261021/revision-3/native_campaign_test.py.log",
+      "returncode": 0,
+      "sha256": "0d628f37216e0a286bb4dc09c3961e6b1490ff1c53d56a39af806e9c2cc5da78"
+    },
+    {
+      "argv": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "deployment_prepare_test.py"
+      ],
+      "log": "results/local/remote-shoal-readiness-20261021/revision-3/deployment_prepare_test.py.log",
+      "returncode": 0,
+      "sha256": "5000e3d0daf32d4de61a6ea7978aa065e079aee025c44a2586fc76a6f690e4ff"
+    }
+  ],
+  "remaining_limits": [
+    "No live remote SSH/netem/readiness result is claimed.",
+    "Remote native formal comparison remains explicitly ineligible.",
+    "Remote Shoal entrypoint supports full observer mode; compact parsing/native local mode is supplied by the shared helper, but remote compact trials are not enabled.",
+    "Each origin uses its own host monotonic clock; no shared cross-host epoch is asserted.",
+    "The new native artifact is under separately tracked local build/acceptance; these fixtures do not promote an unbuilt artifact."
+  ],
+  "native_source_review": {
+    "path": "results/local/shoal-observer-source-20261021/native-freeze-v1.json",
+    "result": "No blocking native notifier or finite-identity defect found in freeze-v1 source. Round-robin merge/create_block/send remain unchanged; full and compact share authentication, finite identity matching, complete batch chain and permanent first-output eligibility. This is source review, not compiled/native acceptance.",
+    "sha256": "8283057564ae189ed43126b5847559434c22a678e6927eda9c9b25fb40301986"
+  },
+  "helper_dependency_freeze": {
+    "path": "results/local/shoal-observer-source-20261021/python-freeze-v1.json",
+    "sha256": "eac932e5f04386310d84c18fb9ec398b4a506ad65737c856b0e3798373fa1338"
+  },
+  "predecessor": {
+    "path": "results/local/remote-shoal-readiness-20261021/revision-2/report.json",
+    "reason": "Adds the current native full receipt contract; preserves historical readiness-only revision2.",
+    "sha256": "cfac8c83098eb034bb8f48aca9c29c9155de0ba5609ac76d334fe4c4f06b5cf5"
+  },
+  "runtime_dependency_hashes": {
+    "provenance/baselines.json": "1a2777e0319afb499360072e8622456c7bff75d00eda2a06d74194154951386b",
+    "provenance/spec-2026-10-19.json": "297d5b767b783c80e5e7d8c338c3aec8bbdf1809bf5afe9d62c8981f15ac25a8",
+    "scripts/baselines/autobahn_cohort.py": "7b036e691163c43354525c278c5ab9e47b95870834203bf7d2739e21d79b663a",
+    "scripts/baselines/mysticeti.py": "583afd6417b4a835d11111e9376dbc20a3a599999851eef2b5e02ae082985a9e",
+    "scripts/baselines/mysticeti_receipts.py": "39b65fd609bcadfd00e1cf98e740b92d7cc055a1c25fe9d4fd3b242b853b1f23",
+    "scripts/baselines/mysticeti_wal.py": "9c1b81e0fe0bb74603b8eec21d899b43ec0d4eb5193242def9af5526772691e0",
+    "scripts/baselines/native_artifacts.py": "c00c287d80708248f733f88470cdc3b724c8b089a2b1ccf44c9896395ac116d5",
+    "scripts/baselines/native_cohort_store.py": "ab036e3cb4cc724b14fa94c5987ddd6733062bc9aa47bc750df9f58c8dfc0f1c",
+    "scripts/baselines/native_faults.py": "7e319f984d20978e3668c712c3ac9a6c8d0efceec2e2766edefbd49016c54b01",
+    "scripts/baselines/native_placement.py": "83b7ded45c68b8e1ba71fc70a2da00c047115b4aa26aab26793c0b9336b64a03",
+    "scripts/baselines/native_receipts.py": "913348fc28b690660169bbfd2255aa03859c82951173520f5b4170c10780474a",
+    "scripts/baselines/shoal_cohort.py": "4191ab203124ec693ba00202c2d1989656271b50fdd57393d5d82123fb871e21",
+    "scripts/baselines/shoal_receipts.py": "419ce59c25afaa56f92ae6c3377b404788edc97ac0fedc2e567ed20a9a857617",
+    "scripts/cohort_metrics.py": "44caccf0fee96b551e7b618875b4dd5f89a78d37e58f410466ec29fde80ab7fd",
+    "scripts/cohort_store.py": "0f8f8b2d1d9877e45077089bf1f273ecbe7942a19e1b55caca1d7d98377ef1f1",
+    "scripts/deployment_prepare.py": "d42523d163055e7fa8c60317c1acd8c7a978582c1b17ad30d793ca86afa26e14",
+    "scripts/linux_netem.py": "70dbcb4692019e8a93e27a400e26c536731038406dad5e4f4021bd001a25b277",
+    "scripts/native_network.py": "98f7f97a72ec22fbebebbef319bd294f7c154d683f199e496daa23dc53e61491",
+    "scripts/network_delay.py": "5ddb6410d54ed4a38c2b1c9ebd8a3ad9159de008818aafa3ec8106d5c27ecc63",
+    "scripts/observer_receipts.py": "4b355c395139c97d6584fc340b96d74c8581992a257dc24e51ecf987a2b1431f",
+    "scripts/remote_deployment.py": "4072dd803b0b659dece531472472f33722add9f4c49588db9b45f71d75d8c34f",
+    "scripts/remote_native.py": "8908420a0e8d7e8f1401c5363a1d68ea908231643f9e625bc6b926c6b41839bc",
+    "scripts/remote_worker.py": "7159249c02b96f44a7c27bdabe9228a510c21d704ebe24204313c8056388aa4b",
+    "scripts/run_network.py": "a0393d518871692240acb3f0282353eb8fc3adf9a117a888666a75c406976fbb",
+    "scripts/run_sustained.py": "1a3946ce66396a9f402215ac6abc246327797b53c379b732aaa71a99343cda58",
+    "scripts/runtime_evidence.py": "3ea3f5b0c4df39f75887c001946401b69dabbd61636f8c6767cfa6e0025528ce",
+    "scripts/spec_provenance.py": "e94afad3469f741b3d96af2c422fd036d82a5b3d495062595b55494238b71b51",
+    "scripts/timing_calibration.py": "77e79273a8bb74a15196ae5565959598712c80eb862471134179225973d7e0ee"
+  },
+  "status": "local_contract_checks_passed",
+  "evidence_report": "results/local/remote-shoal-readiness-20261021/revision-3/report.json",
+  "evidence_report_sha256": "7c40b3bfdc8f27c022ddf6b5b7bc5ce8f556524aa81e79bee3a7bb85c136daa6"
+}

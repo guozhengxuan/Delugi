@@ -1,0 +1,27 @@
+{
+  "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "python": "3.13.7 (v3.13.7:bcee1c32211, Aug 14 2025, 19:10:51) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "raw_directory": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/migration-observer-python-20261019",
+  "schema": 1,
+  "scope": "Python contract/lifecycle/reducer tests plus one tiny standalone native-observer Rust fixture; no new Delugi Rust build, protocol benchmark, cloud execution or added-delay measurement",
+  "source_file_count": 125,
+  "source_manifest_sha256": "268455360bd0a060186be4c6c6bcc850f011a9e9fb9be0514c94209837bef9bd",
+  "status": "passed",
+  "suites": [
+    {
+      "command": "python3 -m unittest discover -s tests -p '*_test.py' -v",
+      "log": "main.log",
+      "name": "main",
+      "passed": 326,
+      "sha256": "7ddd54cbcbadc07c3872b65532170d181168729ced7d8903fb143cd6a2cacc39"
+    },
+    {
+      "command": "python3 -m unittest discover -s scripts/baselines -p '*_test.py' -v",
+      "log": "baselines.log",
+      "name": "baselines",
+      "passed": 68,
+      "sha256": "c38ab19f1f511727f1c0e69af2d8609f951290901b58a33f32d7b7be19d83484"
+    }
+  ],
+  "tests": 394
+}

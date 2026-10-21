@@ -505,6 +505,7 @@ class RaptrTimingAndShapingTests(unittest.TestCase):
             root = Path(directory)
             (root / "scripts").mkdir()
             (root / "scripts/network_delay.py").write_text("# fixture helper\n")
+            (root / "scripts/timing_calibration.py").write_text("# fixture policy\n")
             archive = root / "archive"
             archive.mkdir()
             paths = []

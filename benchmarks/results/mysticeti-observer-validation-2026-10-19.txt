@@ -1,0 +1,26 @@
+Mysticeti full/compact observer validation — local only, 2026-10-19
+
+All 62 native core tests passed, including 3 new receipt tests and the native localhost connection test. Baseline Python 81 and shared cohort 46 checks passed.
+Same binary: 6e53416ecd9731fa499073e09cb8a1a39cd9cf6059d592dbfbe5695733c9b604. Added delay 0 ms; configured leader bound 100 ms.
+Healthy 8/8, empty 0/0 and unfinished 0/4 matched in both modes; exact full-schema2/common-receipt parity passed.
+All 6 overhead runs completed 4800/4800 finite requests at every correct replica. Each used 1200 tx/s, 1 s warmup, 3 s measurement, 2 s drain, 472 useful bytes and 10 ms ingress batching.
+
+Pair | order | CPU full/compact seconds | full-vs-compact CPU | completion full/compact tx/s
+1 | full→compact | 22.250476/22.147674 | +0.464% | 1200.0/1200.0
+2 | compact→full | 22.382803/22.178900 | +0.919% | 1201.0/1202.0
+3 | full→compact | 22.329674/22.302291 | +0.123% | 1201.0/1201.0
+
+Median full-vs-compact CPU difference: 0.464%. These short pairs do not establish a capacity difference.
+All 48 owned validators reaped; no Cargo, validator or archival process remains. Build intermediates removed: 1,395,105,601 bytes; target retains executable and stamp (277,171,001 bytes).
+Raw evidence is recoverable through evidence-recovery-map.json and restore-evidence.py.132 large raw files compressed with decompression/hash verification; derived SQL caches removed with recipes. Original run manifests unchanged.
+
+Three short local pairs do not establish a capacity difference or statistical significance.
+Compared detailed per-request observer work above common identity validation, admission eligibility, raw native prefix receipts, resource samples and upstream native metrics.
+Eligible completion uses configured local windows; CPU and TCP use their recorded actual sampling intervals, not an asserted common exact endpoint.
+Native observer freezes only after a complete block and may finish after the declared deadline. Later completion is not backdated; post-freeze traffic through final scrape remains charged, trailing scrape-to-STOP writes unobserved.
+Compact has no per-request latency or deadline estimates.
+Independent signed native WAL-tail fidelity remains incomplete; formal comparison eligibility stays false.
+Raw checkpoint/WAL storage grows with native blocks; compact bounds detailed observer state, not native protocol memory or disk.
+
+Evidence: /Users/zhengxuanguo/gitrepo/Delugi/results/local/mysticeti-observer-source-20261019
+Detailed report: /Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/mysticeti-observer-validation-2026-10-19.json

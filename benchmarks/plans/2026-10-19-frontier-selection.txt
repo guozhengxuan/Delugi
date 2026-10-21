@@ -1,0 +1,29 @@
+Native healthy-frontier selection — local implementation, 19 October 2026
+
+run_campaign.py now expands a declared native_tuning_grid independently at every healthy load, committee, added delay, bound and repetition. Entries merge with fixed native_tuning. Only batching may vary in the grid: ingress_batch_ms for all adapters, max_batch_transactions for Delugi, and batch_bytes for Autobahn/Shoal. Scheduling mode, resource profile and queue capacity remain fixed in native_tuning. Mysticeti currently exposes cadence, not an independent certified-unit size; the controller does not invent such a knob. Shoal execution still requires compiled native acceptance.
+
+Example configuration addition:
+  "frontier": {"tail_target_ms": 100, "minimum_goodput_fraction": 0.95,
+               "maximum_net_backlog_growth": 0, "maximum_backlog_excursion": 120},
+  "native_tuning_grid": {
+    "delugi": [{"ingress_batch_ms": 5, "max_batch_transactions": 64},
+               {"ingress_batch_ms": 10, "max_batch_transactions": 256}],
+    "mysticeti": [{"ingress_batch_ms": 5}, {"ingress_batch_ms": 10}],
+    "autobahn": [{"ingress_batch_ms": 5, "batch_bytes": 64000},
+                 {"ingress_batch_ms": 10, "batch_bytes": 500000}],
+    "shoal": [{"ingress_batch_ms": 5, "batch_bytes": 64000},
+              {"ingress_batch_ms": 10, "batch_bytes": 500000}]
+  }
+These are reviewable example choices, not tuned settings or benchmark results.
+
+The cohort reducers now emit ten equal relative subwindows on each honest origin's own monotonic clock. They count scheduled arrivals, admissions, rejections and exact local materializations, with admitted backlog and scheduled-but-not-output backlog at every boundary. The latter includes rejected and not-yet-admitted work, so pre-admission throttling cannot hide overload. No timestamps from different hosts are subtracted. The SQL and legacy reducers produce the same fields; streaming memory remains independent of the number of requests.
+
+Frontier acceptance verifies every subwindow's flow conservation, the correct-origin population and duration, and reconciliation with complete cohort totals. Every declared repetition of one exact load/tuning point must pass: no unfinished or rejected measured requests, observed admission and scheduled p99 within the common tail target, enough useful output during measurement, and bounded net backlog growth and maximum sampled excursion. A failure or duplicate/missing repetition prevents that point from being selected. The default permits zero net growth and an excursion of at most offered_rate * tail_target_seconds requests; both tolerances can be explicitly fixed before a campaign. These conservative finite-run criteria do not establish stationary queues mathematically or detect a spike shorter than the subwindow spacing.
+
+The selected frontier is the highest accepted offered rate among sampled settings; it is not an extrapolated maximum capacity. At equal rates a deterministic tuning-hash tie-break is used. All accepted and rejected point evidence is retained. Formal campaigns activate these gates automatically and still require >=120-second measurements and >=3 repetitions. Development campaigns opt in with frontier or native_tuning_grid; older development records remain readable.
+
+Accepted formal repetitions also require a hash-bound, verified whole-worker resource/placement contract. The reducer rejects missing proof, a changed contract hash, or different accepted resource contracts across rates, batching choices or repetitions of one native frontier. Machine metadata alone does not prove resource enforcement. The campaign controller separately binds original inventory/publication snapshots and measured effective budgets; unsupported local formal resource enforcement remains an explicit gap.
+
+Common fault loads must be strictly below every selected counterpart frontier at the same committee/delay/bound. Matched-utilization cases resolve their own rate as floor(fraction * native_frontier_rate), retain the selected tuning and exact healthy evidence, and stay separate from common-load cells. Missing frontiers and unsupported leader/disruption execution remain explicit incomplete records; rate resolution never removes an underlying unsupported scenario requirement. Live remote placement/cost acceptance remains a separate prerequisite.
+
+Local validation includes clock-offset invariance, half-open boundaries, SQL/legacy equivalence, stalls that recover before the final boundary, pre-admission throttling, censoring, malformed flow conservation, failed/missing/duplicate repetitions, and tuning-bound rate resolution. Offline re-reduction of the earlier Delugi healthy and zero-output schema-2 fixtures is archived in benchmarks/results/frontier-reduction-2026-10-19.json. The short healthy run completed its cohort but ended with twelve more pending requests than it began with; it correctly does not pass the default zero-growth frontier gate. No new performance measurement or formal capacity claim is made.

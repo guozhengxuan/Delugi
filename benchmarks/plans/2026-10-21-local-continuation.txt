@@ -1,0 +1,52 @@
+Local evaluation continuation — 21 October 2026
+
+Scope
+Continue the reviewed October 19 migration using local source, tests and the
+existing task-owned Linux VM. No cloud provisioning, external-host runs or Mac
+administrator authentication. Preserve historical results and exact tested
+binaries. A new instrumented native build must retain its previous artifact and
+use the single guarded build slot; remove intermediates after acceptance.
+
+Current implementation increments
+1. Mysticeti output fidelity: authenticate the signed native blocks in the WAL
+   and independently reconstruct the native commit-order prefix through the new
+   observer's complete-block freeze. Include empty and unknown-transaction
+   blocks, exact raw fingerprints and finite membership. Use bounded disk-backed
+   joins; do not call locally persisted commit order a signed quorum proof.
+2. Shoal observer control: implement full/compact modes at the native Rust
+   materialization hook. Both retain payload validation, exact identity/order,
+   admission eligibility and complete-batch receipts. Compact removes detailed
+   per-request timing and never supplies latency estimates. Audit source before
+   one guarded rebuild, then run functional cases and alternating pairs.
+3. Shoal campaign integration: enable only locally accepted committee/fault
+   combinations. Validate bootstrap/REST/counter readiness before the workload
+   epoch, swap disabled and all distinct owned children reaped. A small healthy
+   n4/n7 campaign will execute in the task VM after observer acceptance.
+4. Future remote Shoal startup: implement all-host prepare then nonce/plan-bound
+   arm. Each host selects its local arrival epoch only after native bootstrap,
+   initialized counters and REST readiness. Validate via local fixtures, without
+   remote execution or cross-host clock subtraction.
+
+Accepted source checkpoint
+The campaign/timing revision-2 source snapshot passes 205 focused Python
+checks. The five retained Shoal native fixtures revalidate under the new
+campaign cleanup/readiness gates. Raw Linux RTT samples now determine their
+reported medians, with exact distinct ring/role membership; setup rejects bad
+baseline evidence before applying rules, and configured-evidence failures clear
+every already applied owned rule. Local fixtures cover both paths and zero-delay
+drift. See benchmarks/results/campaign-timing-validation-2026-10-21.json.
+
+Additional timing-validation correction
+The October 19 standalone VM calibration used expected added RTT ±25%, with a
+2 ms floor (20 ±5 ms at delta=10 ms), but other paths used looser thresholds.
+A shared policy now applies the standalone rule to new Mac/Linux/campaign
+acceptance. Raw local selected/control/before/after samples are rechecked, so a
+stored passed label alone cannot promote rejected measurements. The four failed
+VM observations remain rejected. Historical records remain byte-identical; no
+new delay-shaped protocol measurement is claimed.
+
+Remaining scope after these increments
+Advanced native eligibility/leader-triggered faults, repeated bursts, witnessed
+valid descriptor commits with blocked payload output, and complete native
+resource attribution still require their own implementations and acceptance.
+No small local fixture establishes sustainable capacity or a protocol ranking.

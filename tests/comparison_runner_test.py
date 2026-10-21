@@ -59,7 +59,7 @@ class MatchedComparisonTests(unittest.TestCase):
     def test_invalid_counter_or_window_rejected(self):
         for key, value in (("measurement_seconds", 0), ("measurement_seconds", 20),
                            ("mean_latency_ms", float("nan")), ("replica_tcp_written_bytes", -1),
-                           ("replica_tcp_read_bytes", 0), ("unique_completion_tps", float("inf")),
+                           ("replica_tcp_read_bytes", -1), ("unique_completion_tps", float("inf")),
                            ("generated_count", True)):
             with self.subTest(key=key):
                 data = fixture()
@@ -73,6 +73,18 @@ class MatchedComparisonTests(unittest.TestCase):
             data["comparison"][key] *= 4
             with self.subTest(key=key), self.assertRaises(ValueError):
                 self.validate(data)
+
+    def test_zero_output_is_an_accounted_outcome(self):
+        data = fixture()
+        data["comparison"].update(unique_completion_tps=0, completion_count=0, mean_latency_ms=None)
+        row = self.validate(data)
+        self.assertEqual(row["replica_tcp_written_bytes"], 900000)
+        self.assertIsNone(row["tcp_written_bytes_per_completion"])
+        self.assertEqual(row["offered_load_completion_fraction"], 0)
+
+    def test_formal_comparison_rejects_legacy_endpoint_even_when_text_is_present(self):
+        with self.assertRaisesRegex(ValueError, "common exact materialization"):
+            RUNNER.validate_comparison(fixture(), "delugi", 1000, 512, 10, 30, require_cohorts=True)
 
     def test_failed_trial_cannot_enter_success_aggregate(self):
         data = fixture()
@@ -93,6 +105,25 @@ class MatchedComparisonTests(unittest.TestCase):
         self.assertEqual([group["successful_trials"] for group in groups], [3, 1])
         self.assertEqual(groups[0]["unique_completion_tps"]["median"], 980)
         self.assertFalse(groups[1]["all_trials_reached_95_percent_of_offered_rate"])
+
+    def test_censored_trial_is_retained_in_tail_aggregate(self):
+        from cohort_metrics import summarize_cohorts
+        from cohort_metrics_test import fixture as cohort_fixture
+        rows = []
+        for unfinished in (False, True):
+            data = cohort_fixture()
+            if unfinished:
+                data[0]["requests"][0]["materialized_us"] = None
+                for ledger in data.values():
+                    ledger["outputs"] = []
+                    ledger["batches"] = []
+            row = self.validate(fixture())
+            row["cohort"] = summarize_cohorts(data)
+            rows.append({"status": "passed", "protocol": "delugi", "rate": 1000, "comparison": row})
+        point = RUNNER.aggregate(rows)[0]["cohort_quantiles"]["admission_to_output"]["p99"]
+        self.assertFalse(point["all_trials_observed"])
+        self.assertIsNone(point["exact_ms"])
+        self.assertEqual(len(point["trials"]), 2)
 
     def test_order_rotates_without_running_multiple_protocols_together(self):
         plan = list(RUNNER.trial_plan(["delugi", "raptr", "mysticeti"], [1000, 4000], 3))

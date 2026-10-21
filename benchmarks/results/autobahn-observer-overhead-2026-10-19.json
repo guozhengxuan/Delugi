@@ -1,0 +1,213 @@
+{
+  "schema": 1,
+  "status": "completed",
+  "started_unix_ns": 1792404531845191000,
+  "scope": "Detailed cohort observer overhead; same actual payload materializer in both modes",
+  "finished_unix_ns": 1792404580998181000,
+  "pairs": [
+    {
+      "pair": 0,
+      "full_cpu_seconds": 13.761699,
+      "compact_cpu_seconds": 12.843667,
+      "full_minus_compact_percent": 7.147740594644825
+    },
+    {
+      "pair": 1,
+      "full_cpu_seconds": 13.13791,
+      "compact_cpu_seconds": 12.946187000000002,
+      "full_minus_compact_percent": 1.4809225295447925
+    },
+    {
+      "pair": 2,
+      "full_cpu_seconds": 13.018157,
+      "compact_cpu_seconds": 13.262863,
+      "full_minus_compact_percent": -1.8450465785554648
+    }
+  ],
+  "median_cpu_overhead_percent": 1.4809225295447925,
+  "limits": [
+    "Short unsaturated local diagnostic, no capacity or universal observer-overhead claim",
+    "Native payload-copy/journal/availability materializer remains on in both modes",
+    "Compact has no request timing/deadline/latency observations; all4800 finite identities verified at all replicas",
+    "Independent executions may validly choose different native orders; exact order is checked within each execution"
+  ],
+  "cases": [
+    {
+      "pair": 0,
+      "mode": "full",
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/autobahn-observer-pairs-20261019/pair-0-full",
+      "process_cpu": {
+        "scope": "Whole finite run through process shutdown; all native primary/worker and application child processes, excludes runner and prior build/genesis",
+        "user_seconds": 5.890923,
+        "system_seconds": 7.870775999999999
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "proof": "cumulative exact transaction/order digest at every complete native batch boundary",
+        "common_batch_prefix_length": 1435,
+        "sequence_lengths": [
+          4800,
+          4800,
+          4800,
+          4800
+        ]
+      },
+      "traffic_ledger": {
+        "measurement_written_bytes": 13995488,
+        "whole_run_written_bytes": 24756737,
+        "counter_boundary": "successful_replica_tcp_stream_writes",
+        "includes": "native primary and worker sockets including intra-validator traffic; external client sends excluded"
+      },
+      "reference_replica_window_unique_tx_s": 1200.6666666666667,
+      "manifest_sha256": "b93128bd29d03c75eae6d686dfea92ce0fe44b6789d45c880e003e451d2ee3a2",
+      "all_correct_completed": 4800
+    },
+    {
+      "pair": 0,
+      "mode": "compact",
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/autobahn-observer-pairs-20261019/pair-0-compact",
+      "process_cpu": {
+        "scope": "Whole finite run through process shutdown; all native primary/worker and application child processes, excludes runner and prior build/genesis",
+        "user_seconds": 5.3635779999999995,
+        "system_seconds": 7.4800889999999995
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "proof": "cumulative exact transaction/order digest at every complete native batch boundary",
+        "common_batch_prefix_length": 1434,
+        "sequence_lengths": [
+          4800,
+          4800,
+          4800,
+          4800
+        ]
+      },
+      "traffic_ledger": {
+        "measurement_written_bytes": 13926354,
+        "whole_run_written_bytes": 24576367,
+        "counter_boundary": "successful_replica_tcp_stream_writes"
+      },
+      "reference_replica_window_unique_tx_s": 1201.0,
+      "manifest_sha256": "be471bfa4f22267b8c69ab6194cafcc6751a04d30899682499d2463222038754",
+      "all_correct_completed": 4800
+    },
+    {
+      "pair": 1,
+      "mode": "compact",
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/autobahn-observer-pairs-20261019/pair-1-compact",
+      "process_cpu": {
+        "scope": "Whole finite run through process shutdown; all native primary/worker and application child processes, excludes runner and prior build/genesis",
+        "user_seconds": 5.4168140000000005,
+        "system_seconds": 7.5293730000000005
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "proof": "cumulative exact transaction/order digest at every complete native batch boundary",
+        "common_batch_prefix_length": 1438,
+        "sequence_lengths": [
+          4800,
+          4800,
+          4800,
+          4800
+        ]
+      },
+      "traffic_ledger": {
+        "measurement_written_bytes": 14083376,
+        "whole_run_written_bytes": 24820595,
+        "counter_boundary": "successful_replica_tcp_stream_writes"
+      },
+      "reference_replica_window_unique_tx_s": 1200.6666666666667,
+      "manifest_sha256": "71d8c182da4061a33e8a7fa447517de451bee24eacef72e9a25d9d7115e363ec",
+      "all_correct_completed": 4800
+    },
+    {
+      "pair": 1,
+      "mode": "full",
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/autobahn-observer-pairs-20261019/pair-1-full",
+      "process_cpu": {
+        "scope": "Whole finite run through process shutdown; all native primary/worker and application child processes, excludes runner and prior build/genesis",
+        "user_seconds": 5.64745,
+        "system_seconds": 7.49046
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "proof": "cumulative exact transaction/order digest at every complete native batch boundary",
+        "common_batch_prefix_length": 1440,
+        "sequence_lengths": [
+          4800,
+          4800,
+          4800,
+          4800
+        ]
+      },
+      "traffic_ledger": {
+        "measurement_written_bytes": 13998729,
+        "whole_run_written_bytes": 24629395,
+        "counter_boundary": "successful_replica_tcp_stream_writes",
+        "includes": "native primary and worker sockets including intra-validator traffic; external client sends excluded"
+      },
+      "reference_replica_window_unique_tx_s": 1201.3333333333333,
+      "manifest_sha256": "e44a53f893342fd85f6239a4ef26a42c78ed9b93a64a1d621484a3879099cdab",
+      "all_correct_completed": 4800
+    },
+    {
+      "pair": 2,
+      "mode": "full",
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/autobahn-observer-pairs-20261019/pair-2-full",
+      "process_cpu": {
+        "scope": "Whole finite run through process shutdown; all native primary/worker and application child processes, excludes runner and prior build/genesis",
+        "user_seconds": 5.556462000000001,
+        "system_seconds": 7.461695
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "proof": "cumulative exact transaction/order digest at every complete native batch boundary",
+        "common_batch_prefix_length": 1438,
+        "sequence_lengths": [
+          4800,
+          4800,
+          4800,
+          4800
+        ]
+      },
+      "traffic_ledger": {
+        "measurement_written_bytes": 13967081,
+        "whole_run_written_bytes": 24622013,
+        "counter_boundary": "successful_replica_tcp_stream_writes",
+        "includes": "native primary and worker sockets including intra-validator traffic; external client sends excluded"
+      },
+      "reference_replica_window_unique_tx_s": 1198.0,
+      "manifest_sha256": "4d3016ac4fdf9ac0df35535692414697008154d8df9cdbeecbeb1ca57ff033b8",
+      "all_correct_completed": 4800
+    },
+    {
+      "pair": 2,
+      "mode": "compact",
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/autobahn-observer-pairs-20261019/pair-2-compact",
+      "process_cpu": {
+        "scope": "Whole finite run through process shutdown; all native primary/worker and application child processes, excludes runner and prior build/genesis",
+        "user_seconds": 5.584697,
+        "system_seconds": 7.678166
+      },
+      "agreement": {
+        "replicas_agree_on_common_prefix": true,
+        "proof": "cumulative exact transaction/order digest at every complete native batch boundary",
+        "common_batch_prefix_length": 1433,
+        "sequence_lengths": [
+          4800,
+          4800,
+          4800,
+          4800
+        ]
+      },
+      "traffic_ledger": {
+        "measurement_written_bytes": 13960943,
+        "whole_run_written_bytes": 24671378,
+        "counter_boundary": "successful_replica_tcp_stream_writes"
+      },
+      "reference_replica_window_unique_tx_s": 1199.3333333333333,
+      "manifest_sha256": "30b4469c5b141d5319926a3373426159f1d04efed84e987275d8040b17f35711",
+      "all_correct_completed": 4800
+    }
+  ]
+}

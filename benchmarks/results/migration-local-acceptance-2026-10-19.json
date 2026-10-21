@@ -1,0 +1,2926 @@
+{
+  "schema": 1,
+  "date": "2026-10-19",
+  "classification": "local functional accounting/conformance and short implementation pilots; not sustained-capacity/WAN evaluation",
+  "network": {
+    "added_delay_ms": 0,
+    "configured_bound_ms": 100,
+    "physical_delay": "unshaped localhost TCP; no delta=10ms claim"
+  },
+  "fixtures": [
+    {
+      "fixture": "migration-acceptance-correct-overlap-gate-20261019",
+      "manifest": "results/local/migration-acceptance-correct-overlap-gate-20261019/manifest.json",
+      "sha256": "fb70603e69374216bf68b71947a6c0038d897b8987c41e3e6facfd35155bbb8d",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.573,
+            "lower_bound_ms": 10.573,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.321,
+            "lower_bound_ms": 15.321,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.711,
+            "lower_bound_ms": 16.711,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.876,
+            "lower_bound_ms": 10.876,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.626,
+            "lower_bound_ms": 15.626,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 17.068,
+            "lower_bound_ms": 17.068,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3600,
+          "unique_completion_tps": 1200.0,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1699200,
+          "useful_goodput_bytes_per_second": 566400.0,
+          "carried_in_completion_count": 11,
+          "m_out_bytes": 2053504,
+          "m_out_replica": 1,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2694312,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 1,
+          "output_prefix_count": 5056,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 3,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "replicas": [
+          1,
+          2,
+          3
+        ],
+        "common_prefix_count": 5056,
+        "common_prefix_state_hash": [
+          75,
+          218,
+          98,
+          40,
+          189,
+          114,
+          193,
+          176,
+          195,
+          0,
+          254,
+          7,
+          137,
+          193,
+          69,
+          76,
+          65,
+          88,
+          249,
+          32,
+          74,
+          28,
+          1,
+          119,
+          197,
+          151,
+          24,
+          6,
+          133,
+          13,
+          20,
+          80
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ],
+        "all_correct_overlap_prefixes_verified": true,
+        "overlap_checks": [
+          {
+            "replicas": [
+              1,
+              2,
+              3
+            ],
+            "common_prefix_count": 5056,
+            "common_prefix_state_hash": [
+              75,
+              218,
+              98,
+              40,
+              189,
+              114,
+              193,
+              176,
+              195,
+              0,
+              254,
+              7,
+              137,
+              193,
+              69,
+              76,
+              65,
+              88,
+              249,
+              32,
+              74,
+              28,
+              1,
+              119,
+              197,
+              151,
+              24,
+              6,
+              133,
+              13,
+              20,
+              80
+            ],
+            "replicas_agree_on_common_prefix": true
+          }
+        ],
+        "origin_notification_validation": "all notified prefix counts are at most the final minimum correct prefix, authenticated and compared here",
+        "all_replica_minimum_diagnostic": {
+          "common_prefix_count": 5056,
+          "common_prefix_state_hash": [
+            75,
+            218,
+            98,
+            40,
+            189,
+            114,
+            193,
+            176,
+            195,
+            0,
+            254,
+            7,
+            137,
+            193,
+            69,
+            76,
+            65,
+            88,
+            249,
+            32,
+            74,
+            28,
+            1,
+            119,
+            197,
+            151,
+            24,
+            6,
+            133,
+            13,
+            20,
+            80
+          ],
+          "replicas_agree_on_common_prefix": true
+        },
+        "executed_counts": {
+          "0": 5056,
+          "1": 5056,
+          "2": 5056,
+          "3": 5056
+        },
+        "unique_generated_transactions": 5056,
+        "executed_per_replica": 5056,
+        "state_hash": [
+          75,
+          218,
+          98,
+          40,
+          189,
+          114,
+          193,
+          176,
+          195,
+          0,
+          254,
+          7,
+          137,
+          193,
+          69,
+          76,
+          65,
+          88,
+          249,
+          32,
+          74,
+          28,
+          1,
+          119,
+          197,
+          151,
+          24,
+          6,
+          133,
+          13,
+          20,
+          80
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "semantic_outgoing_omission",
+        "omitted_messages": 10,
+        "efficacy": "effective_logical_omission",
+        "authored_transaction_count": 256
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 162605086,
+        "written_bytes_per_u_out_byte": 95.69508356873823,
+        "written_bytes_per_m_out_byte": 79.18420709187808
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 263306750,
+        "written_bytes_per_u_out_byte": 116.21943414548022,
+        "written_bytes_per_m_out_byte": 97.72689651384101
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n31-healthy-20261019",
+      "manifest": "results/local/migration-acceptance-n31-healthy-20261019/manifest.json",
+      "sha256": "8d179f175b9c0bbb6d154ba3b640d922d7d69eb7926d36bd995d8ad046cf1f86",
+      "status": "passed",
+      "error": null,
+      "nodes": 31,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "rejected": 0,
+        "completed": 3000,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3000,
+          "completed": 3000,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 871.963,
+            "lower_bound_ms": 871.963,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 1232.109,
+            "lower_bound_ms": 1232.109,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 1369.609,
+            "lower_bound_ms": 1369.609,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3000,
+          "completed": 3000,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 871.991,
+            "lower_bound_ms": 871.991,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 1232.5,
+            "lower_bound_ms": 1232.5,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 1369.794,
+            "lower_bound_ms": 1369.794,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3000,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.7213333333333334,
+        "window": {
+          "completion_count": 2870,
+          "unique_completion_tps": 956.6666666666669,
+          "admission_count": 3000,
+          "admission_tps": 1000.0000000000005,
+          "u_out_bytes": 1354640,
+          "useful_goodput_bytes_per_second": 451546.66666666657,
+          "carried_in_completion_count": 807,
+          "m_out_bytes": 1324256,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2151264,
+          "u_out_bytes": 1888000,
+          "unique_honest_completion_count": 4000,
+          "output_replica": 0,
+          "output_prefix_count": 4000,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 31,
+        "verified": true,
+        "verified_requests": 4000
+      },
+      "agreement": {
+        "common_prefix_count": 4000,
+        "common_prefix_state_hash": [
+          51,
+          85,
+          142,
+          200,
+          187,
+          223,
+          186,
+          152,
+          105,
+          82,
+          211,
+          2,
+          255,
+          191,
+          212,
+          146,
+          209,
+          188,
+          138,
+          103,
+          52,
+          213,
+          191,
+          251,
+          24,
+          90,
+          156,
+          163,
+          53,
+          110,
+          139,
+          170
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4000,
+          "1": 4000,
+          "2": 4000,
+          "3": 4000,
+          "4": 4000,
+          "5": 4000,
+          "6": 4000,
+          "7": 4000,
+          "8": 4000,
+          "9": 4000,
+          "10": 4000,
+          "11": 4000,
+          "12": 4000,
+          "13": 4000,
+          "14": 4000,
+          "15": 4000,
+          "16": 4000,
+          "17": 4000,
+          "18": 4000,
+          "19": 4000,
+          "20": 4000,
+          "21": 4000,
+          "22": 4000,
+          "23": 4000,
+          "24": 4000,
+          "25": 4000,
+          "26": 4000,
+          "27": 4000,
+          "28": 4000,
+          "29": 4000,
+          "30": 4000
+        },
+        "unique_generated_transactions": 4000,
+        "executed_per_replica": 4000,
+        "state_hash": [
+          51,
+          85,
+          142,
+          200,
+          187,
+          223,
+          186,
+          152,
+          105,
+          82,
+          211,
+          2,
+          255,
+          191,
+          212,
+          146,
+          209,
+          188,
+          138,
+          103,
+          52,
+          213,
+          191,
+          251,
+          24,
+          90,
+          156,
+          163,
+          53,
+          110,
+          139,
+          170
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 389287356,
+        "written_bytes_per_u_out_byte": 287.37329179708263,
+        "written_bytes_per_m_out_byte": 293.9668432689752
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 969238002,
+        "written_bytes_per_u_out_byte": 513.3675858050848,
+        "written_bytes_per_m_out_byte": 450.5434953590075
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-ablation-canonical-bundled-20261019",
+      "manifest": "results/local/migration-acceptance-n4-ablation-canonical-bundled-20261019/manifest.json",
+      "sha256": "c20fb8b427d05e6a7c91a35f5ebdadb841f516f6d095c8142caac73ea60b4765",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "canonical",
+        "originating_prog": "immediate",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": null,
+        "required_ablation_cell": "immediate/bundle-on",
+        "theorem_scope": "canonical schedule; measured performance still requires stated model conditions"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 1501,
+        "unfinished": 2099,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 1501,
+          "unfinished": 2099,
+          "p50": {
+            "value_ms": null,
+            "lower_bound_ms": 5769.684,
+            "status": "censored"
+          },
+          "p95": {
+            "value_ms": null,
+            "lower_bound_ms": 6660.641,
+            "status": "censored"
+          },
+          "p99": {
+            "value_ms": null,
+            "lower_bound_ms": 6739.078,
+            "status": "censored"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 1501,
+          "unfinished": 2099,
+          "p50": {
+            "value_ms": null,
+            "lower_bound_ms": 5770.026,
+            "status": "censored"
+          },
+          "p95": {
+            "value_ms": null,
+            "lower_bound_ms": 6660.839,
+            "status": "censored"
+          },
+          "p99": {
+            "value_ms": null,
+            "lower_bound_ms": 6739.141,
+            "status": "censored"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 1501,
+          "unfinished": 2099,
+          "fraction": 0.41694444444444445,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.0,
+        "window": {
+          "completion_count": 872,
+          "unique_completion_tps": 290.6666666666667,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 411584,
+          "useful_goodput_bytes_per_second": 137194.66666666666,
+          "carried_in_completion_count": 872,
+          "m_out_bytes": 467836,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 1443600,
+          "u_out_bytes": 1274400,
+          "unique_honest_completion_count": 2700,
+          "output_replica": 0,
+          "output_prefix_count": 2700,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 2700,
+        "common_prefix_state_hash": [
+          94,
+          72,
+          251,
+          168,
+          253,
+          115,
+          191,
+          101,
+          212,
+          106,
+          157,
+          99,
+          216,
+          109,
+          131,
+          189,
+          53,
+          23,
+          145,
+          203,
+          212,
+          184,
+          39,
+          209,
+          54,
+          135,
+          96,
+          168,
+          50,
+          153,
+          192,
+          230
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 2700,
+          "1": 2700,
+          "2": 2700,
+          "3": 2700
+        },
+        "unique_generated_transactions": 4800
+      },
+      "drain_complete": false,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 98887503,
+        "written_bytes_per_u_out_byte": 240.26080459881823,
+        "written_bytes_per_m_out_byte": 211.37215391718465
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 330742953,
+        "written_bytes_per_u_out_byte": 259.52836864406777,
+        "written_bytes_per_m_out_byte": 229.10983167082296
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-ablation-canonical-unbundled-20261019",
+      "manifest": "results/local/migration-acceptance-n4-ablation-canonical-unbundled-20261019/manifest.json",
+      "sha256": "053b9f59ba81d600e0a58a8ccd42d7827cd4ed3366f3f0f90b4a0275e1a52c58",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "canonical",
+        "originating_prog": "immediate",
+        "bundling": "off",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": null,
+        "required_ablation_cell": "immediate/bundle-off",
+        "theorem_scope": "canonical schedule; measured performance still requires stated model conditions"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 1389.165,
+            "lower_bound_ms": 1389.165,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 3116.389,
+            "lower_bound_ms": 3116.389,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 3254.02,
+            "lower_bound_ms": 3254.02,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 1389.405,
+            "lower_bound_ms": 1389.405,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 3116.578,
+            "lower_bound_ms": 3116.578,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 3254.069,
+            "lower_bound_ms": 3254.069,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.4086111111111111,
+        "window": {
+          "completion_count": 2248,
+          "unique_completion_tps": 749.3333333333334,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1061056,
+          "useful_goodput_bytes_per_second": 353685.3333333333,
+          "carried_in_completion_count": 396,
+          "m_out_bytes": 1201928,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2566400,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 0,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          10,
+          108,
+          173,
+          176,
+          166,
+          210,
+          160,
+          46,
+          179,
+          218,
+          251,
+          74,
+          225,
+          212,
+          33,
+          113,
+          100,
+          99,
+          208,
+          165,
+          23,
+          109,
+          111,
+          128,
+          139,
+          208,
+          127,
+          71,
+          180,
+          108,
+          103,
+          136
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          10,
+          108,
+          173,
+          176,
+          166,
+          210,
+          160,
+          46,
+          179,
+          218,
+          251,
+          74,
+          225,
+          212,
+          33,
+          113,
+          100,
+          99,
+          208,
+          165,
+          23,
+          109,
+          111,
+          128,
+          139,
+          208,
+          127,
+          71,
+          180,
+          108,
+          103,
+          136
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 140948118,
+        "written_bytes_per_u_out_byte": 132.837586329091,
+        "written_bytes_per_m_out_byte": 117.26835384482266
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 375317608,
+        "written_bytes_per_u_out_byte": 165.65925494350282,
+        "written_bytes_per_m_out_byte": 146.24283354114712
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-ablation-progress-bundled-20261019",
+      "manifest": "results/local/migration-acceptance-n4-ablation-progress-bundled-20261019/manifest.json",
+      "sha256": "0e561cae455579ab227de8da6bbe16183cd4f27593e116bccec5bb3d3084b4c6",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.684,
+            "lower_bound_ms": 10.684,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.402,
+            "lower_bound_ms": 15.402,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.669,
+            "lower_bound_ms": 16.669,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.873,
+            "lower_bound_ms": 10.873,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.623,
+            "lower_bound_ms": 15.623,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.822,
+            "lower_bound_ms": 16.822,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3599,
+          "unique_completion_tps": 1199.6666666666667,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1698728,
+          "useful_goodput_bytes_per_second": 566242.6666666666,
+          "carried_in_completion_count": 11,
+          "m_out_bytes": 1924268,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2566400,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 0,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          254,
+          247,
+          54,
+          182,
+          59,
+          166,
+          157,
+          250,
+          237,
+          191,
+          133,
+          160,
+          73,
+          204,
+          4,
+          141,
+          15,
+          47,
+          14,
+          52,
+          116,
+          15,
+          4,
+          65,
+          162,
+          166,
+          123,
+          34,
+          202,
+          46,
+          188,
+          21
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          254,
+          247,
+          54,
+          182,
+          59,
+          166,
+          157,
+          250,
+          237,
+          191,
+          133,
+          160,
+          73,
+          204,
+          4,
+          141,
+          15,
+          47,
+          14,
+          52,
+          116,
+          15,
+          4,
+          65,
+          162,
+          166,
+          123,
+          34,
+          202,
+          46,
+          188,
+          21
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 165487988,
+        "written_bytes_per_u_out_byte": 97.41876745423635,
+        "written_bytes_per_m_out_byte": 86.00048849744422
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 268096438,
+        "written_bytes_per_u_out_byte": 118.33352665960452,
+        "written_bytes_per_m_out_byte": 104.4640110660848
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-ablation-progress-unbundled-20261019",
+      "manifest": "results/local/migration-acceptance-n4-ablation-progress-unbundled-20261019/manifest.json",
+      "sha256": "16ecc42dbf74204bcc55fdbafc3e9019ac3485774ab85f8c179882577397bc17",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "off",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-off",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.945,
+            "lower_bound_ms": 10.945,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.79,
+            "lower_bound_ms": 15.79,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 17.02,
+            "lower_bound_ms": 17.02,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 11.129,
+            "lower_bound_ms": 11.129,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.992,
+            "lower_bound_ms": 15.992,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 17.186,
+            "lower_bound_ms": 17.186,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3600,
+          "unique_completion_tps": 1200.0,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1699200,
+          "useful_goodput_bytes_per_second": 566400.0,
+          "carried_in_completion_count": 11,
+          "m_out_bytes": 1924800,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2566408,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 0,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          71,
+          242,
+          105,
+          71,
+          85,
+          149,
+          183,
+          9,
+          74,
+          10,
+          109,
+          229,
+          162,
+          201,
+          224,
+          73,
+          191,
+          4,
+          23,
+          241,
+          238,
+          164,
+          83,
+          253,
+          131,
+          49,
+          169,
+          97,
+          17,
+          135,
+          184,
+          139
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          71,
+          242,
+          105,
+          71,
+          85,
+          149,
+          183,
+          9,
+          74,
+          10,
+          109,
+          229,
+          162,
+          201,
+          224,
+          73,
+          191,
+          4,
+          23,
+          241,
+          238,
+          164,
+          83,
+          253,
+          131,
+          49,
+          169,
+          97,
+          17,
+          135,
+          184,
+          139
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 172774545,
+        "written_bytes_per_u_out_byte": 101.67993467514124,
+        "written_bytes_per_m_out_byte": 89.76233634663342
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 281056552,
+        "written_bytes_per_u_out_byte": 124.05391596045197,
+        "written_bytes_per_m_out_byte": 109.51358942147935
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-all-20261019",
+      "manifest": "results/local/migration-acceptance-n4-all-20261019/manifest.json",
+      "sha256": "d45ff5d72c26d39c48c31579f9e93349b9e9ab017cfc028e781096c6e4c8c73a",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 1231.623,
+            "lower_bound_ms": 1231.623,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 1970.353,
+            "lower_bound_ms": 1970.353,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 2089.924,
+            "lower_bound_ms": 2089.924,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 1231.821,
+            "lower_bound_ms": 1231.821,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 1970.508,
+            "lower_bound_ms": 1970.508,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 2090.205,
+            "lower_bound_ms": 2090.205,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.38,
+        "window": {
+          "completion_count": 1464,
+          "unique_completion_tps": 488.0,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 691008,
+          "useful_goodput_bytes_per_second": 230336.0,
+          "carried_in_completion_count": 12,
+          "m_out_bytes": 781776,
+          "m_out_replica": 1,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2563200,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 1,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 3,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          51,
+          213,
+          202,
+          202,
+          0,
+          207,
+          149,
+          149,
+          49,
+          63,
+          109,
+          169,
+          186,
+          125,
+          236,
+          187,
+          112,
+          132,
+          175,
+          255,
+          137,
+          143,
+          159,
+          1,
+          41,
+          193,
+          216,
+          132,
+          212,
+          111,
+          43,
+          56
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          51,
+          213,
+          202,
+          202,
+          0,
+          207,
+          149,
+          149,
+          49,
+          63,
+          109,
+          169,
+          186,
+          125,
+          236,
+          187,
+          112,
+          132,
+          175,
+          255,
+          137,
+          143,
+          159,
+          1,
+          41,
+          193,
+          216,
+          132,
+          212,
+          111,
+          43,
+          56
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "semantic_outgoing_omission",
+        "omitted_messages": 151,
+        "efficacy": "effective_logical_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 34402648,
+        "written_bytes_per_u_out_byte": 49.78617903121238,
+        "written_bytes_per_m_out_byte": 44.00576124107161
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 136866862,
+        "written_bytes_per_u_out_byte": 60.410867761299436,
+        "written_bytes_per_m_out_byte": 53.39687187890137
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-authored-selective-payload-20261019",
+      "manifest": "results/local/migration-acceptance-n4-authored-selective-payload-20261019/manifest.json",
+      "sha256": "f85b8871212e8f99745c660ec871db1f5674e7bf9ea225a3e62db0d02ac49c01",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.73,
+            "lower_bound_ms": 10.73,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.451,
+            "lower_bound_ms": 15.451,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.708,
+            "lower_bound_ms": 16.708,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 11.015,
+            "lower_bound_ms": 11.015,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.78,
+            "lower_bound_ms": 15.78,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 17.065,
+            "lower_bound_ms": 17.065,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3599,
+          "unique_completion_tps": 1199.6666666666667,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1698728,
+          "useful_goodput_bytes_per_second": 566242.6666666666,
+          "carried_in_completion_count": 11,
+          "m_out_bytes": 2052972,
+          "m_out_replica": 1,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2694312,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 1,
+          "output_prefix_count": 5056,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 3,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 5056,
+        "common_prefix_state_hash": [
+          126,
+          114,
+          30,
+          31,
+          205,
+          64,
+          87,
+          209,
+          211,
+          243,
+          77,
+          60,
+          60,
+          242,
+          44,
+          67,
+          37,
+          24,
+          38,
+          90,
+          218,
+          162,
+          195,
+          38,
+          4,
+          127,
+          223,
+          152,
+          63,
+          184,
+          240,
+          31
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 5056,
+          "1": 5056,
+          "2": 5056,
+          "3": 5056
+        },
+        "unique_generated_transactions": 5056,
+        "executed_per_replica": 5056,
+        "state_hash": [
+          126,
+          114,
+          30,
+          31,
+          205,
+          64,
+          87,
+          209,
+          211,
+          243,
+          77,
+          60,
+          60,
+          242,
+          44,
+          67,
+          37,
+          24,
+          38,
+          90,
+          218,
+          162,
+          195,
+          38,
+          4,
+          127,
+          223,
+          152,
+          63,
+          184,
+          240,
+          31
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "semantic_outgoing_omission",
+        "omitted_messages": 12,
+        "efficacy": "effective_logical_omission",
+        "authored_transaction_count": 256
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 160640841,
+        "written_bytes_per_u_out_byte": 94.56536950000236,
+        "written_bytes_per_m_out_byte": 78.24794541766765
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 261947911,
+        "written_bytes_per_u_out_byte": 115.61966410663842,
+        "written_bytes_per_m_out_byte": 97.22256034193516
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-canonical-bundled-isolated-20261019",
+      "manifest": "results/local/migration-acceptance-n4-canonical-bundled-isolated-20261019/manifest.json",
+      "sha256": "45fd5f0b57c2ca0d289d16817aa5f9d79eb6af8d0b6d1ace1f9605c0666fcbf5",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "canonical",
+        "originating_prog": "immediate",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": null,
+        "required_ablation_cell": "immediate/bundle-on",
+        "theorem_scope": "canonical schedule; measured performance still requires stated model conditions"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 2145.408,
+            "lower_bound_ms": 2145.408,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 2540.483,
+            "lower_bound_ms": 2540.483,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 2599.902,
+            "lower_bound_ms": 2599.902,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 2145.442,
+            "lower_bound_ms": 2145.442,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 2540.652,
+            "lower_bound_ms": 2540.652,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 2600.105,
+            "lower_bound_ms": 2600.105,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.0,
+        "window": {
+          "completion_count": 2208,
+          "unique_completion_tps": 736.0,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1042176,
+          "useful_goodput_bytes_per_second": 347392.0,
+          "carried_in_completion_count": 1020,
+          "m_out_bytes": 1185356,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2566408,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 0,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          2,
+          140,
+          93,
+          240,
+          157,
+          22,
+          10,
+          16,
+          28,
+          166,
+          201,
+          147,
+          183,
+          170,
+          226,
+          123,
+          216,
+          39,
+          79,
+          89,
+          72,
+          246,
+          117,
+          222,
+          216,
+          148,
+          108,
+          78,
+          233,
+          21,
+          173,
+          100
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          2,
+          140,
+          93,
+          240,
+          157,
+          22,
+          10,
+          16,
+          28,
+          166,
+          201,
+          147,
+          183,
+          170,
+          226,
+          123,
+          216,
+          39,
+          79,
+          89,
+          72,
+          246,
+          117,
+          222,
+          216,
+          148,
+          108,
+          78,
+          233,
+          21,
+          173,
+          100
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 127378566,
+        "written_bytes_per_u_out_byte": 122.22366087877671,
+        "written_bytes_per_m_out_byte": 107.46017736443736
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 323220057,
+        "written_bytes_per_u_out_byte": 142.66422007415255,
+        "written_bytes_per_m_out_byte": 125.94258473321467
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-healthy-20261019",
+      "manifest": "results/local/migration-acceptance-n4-healthy-20261019/manifest.json",
+      "sha256": "d5011b5278c19c550bb5c843378925b0adbf4153f7cf259daa544b2a18902460",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.691,
+            "lower_bound_ms": 10.691,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.446,
+            "lower_bound_ms": 15.446,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.662,
+            "lower_bound_ms": 16.662,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.875,
+            "lower_bound_ms": 10.875,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.634,
+            "lower_bound_ms": 15.634,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.804,
+            "lower_bound_ms": 16.804,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3600,
+          "unique_completion_tps": 1200.0,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1699200,
+          "useful_goodput_bytes_per_second": 566400.0,
+          "carried_in_completion_count": 12,
+          "m_out_bytes": 1924800,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2566408,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 0,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          158,
+          18,
+          99,
+          26,
+          149,
+          186,
+          187,
+          139,
+          86,
+          80,
+          185,
+          76,
+          211,
+          155,
+          20,
+          80,
+          10,
+          81,
+          56,
+          143,
+          141,
+          230,
+          79,
+          217,
+          216,
+          47,
+          77,
+          202,
+          27,
+          23,
+          63,
+          135
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          158,
+          18,
+          99,
+          26,
+          149,
+          186,
+          187,
+          139,
+          86,
+          80,
+          185,
+          76,
+          211,
+          155,
+          20,
+          80,
+          10,
+          81,
+          56,
+          143,
+          141,
+          230,
+          79,
+          217,
+          216,
+          47,
+          77,
+          202,
+          27,
+          23,
+          63,
+          135
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 165062735,
+        "written_bytes_per_u_out_byte": 97.14144008945387,
+        "written_bytes_per_m_out_byte": 85.7557850166251
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 267041082,
+        "written_bytes_per_u_out_byte": 117.8677092161017,
+        "written_bytes_per_m_out_byte": 104.05246632647653
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-pause-20261019",
+      "manifest": "results/local/migration-acceptance-n4-pause-20261019/manifest.json",
+      "sha256": "e18643dc5d4d51f09fb982fbf5b24f80b5bbd5b39f740b2f21f32201680757af",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 13.446,
+            "lower_bound_ms": 13.446,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 915.751,
+            "lower_bound_ms": 915.751,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 1035.907,
+            "lower_bound_ms": 1035.907,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 13.753,
+            "lower_bound_ms": 13.753,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 916.077,
+            "lower_bound_ms": 916.077,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 1035.93,
+            "lower_bound_ms": 1035.93,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.9780555555555556,
+        "window": {
+          "completion_count": 3601,
+          "unique_completion_tps": 1200.3333333333333,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1699672,
+          "useful_goodput_bytes_per_second": 566557.3333333334,
+          "carried_in_completion_count": 12,
+          "m_out_bytes": 1922932,
+          "m_out_replica": 1,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2563208,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 1,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 3,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          204,
+          56,
+          17,
+          164,
+          107,
+          43,
+          201,
+          234,
+          209,
+          200,
+          120,
+          150,
+          92,
+          19,
+          255,
+          156,
+          98,
+          54,
+          136,
+          40,
+          214,
+          111,
+          123,
+          118,
+          17,
+          206,
+          237,
+          96,
+          161,
+          3,
+          219,
+          93
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          204,
+          56,
+          17,
+          164,
+          107,
+          43,
+          201,
+          234,
+          209,
+          200,
+          120,
+          150,
+          92,
+          19,
+          255,
+          156,
+          98,
+          54,
+          136,
+          40,
+          214,
+          111,
+          123,
+          118,
+          17,
+          206,
+          237,
+          96,
+          161,
+          3,
+          219,
+          93
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "finite_process_pause_all_traffic",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 106101396,
+        "written_bytes_per_u_out_byte": 62.424630163937515,
+        "written_bytes_per_m_out_byte": 55.17688404998201
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 208398714,
+        "written_bytes_per_u_out_byte": 91.98389565677967,
+        "written_bytes_per_m_out_byte": 81.30386375198579
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-payload-20261019",
+      "manifest": "results/local/migration-acceptance-n4-payload-20261019/manifest.json",
+      "sha256": "9d5418f63ced2f1953fb865e44babe986b2c816e373a4b782d0db507fc30f028",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3600,
+        "admitted": 3600,
+        "rejected": 0,
+        "completed": 3600,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.664,
+            "lower_bound_ms": 10.664,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.363,
+            "lower_bound_ms": 15.363,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.533,
+            "lower_bound_ms": 16.533,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3600,
+          "completed": 3600,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 10.986,
+            "lower_bound_ms": 10.986,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 15.682,
+            "lower_bound_ms": 15.682,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 16.805,
+            "lower_bound_ms": 16.805,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3600,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3601,
+          "unique_completion_tps": 1200.3333333333333,
+          "admission_count": 3600,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 1699672,
+          "useful_goodput_bytes_per_second": 566557.3333333334,
+          "carried_in_completion_count": 12,
+          "m_out_bytes": 1922932,
+          "m_out_replica": 1,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2563200,
+          "u_out_bytes": 2265600,
+          "unique_honest_completion_count": 4800,
+          "output_replica": 1,
+          "output_prefix_count": 4800,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 3,
+        "verified": true,
+        "verified_requests": 4800
+      },
+      "agreement": {
+        "common_prefix_count": 4800,
+        "common_prefix_state_hash": [
+          84,
+          119,
+          148,
+          15,
+          52,
+          164,
+          2,
+          20,
+          34,
+          244,
+          137,
+          121,
+          111,
+          170,
+          185,
+          102,
+          129,
+          103,
+          148,
+          238,
+          47,
+          47,
+          131,
+          157,
+          136,
+          33,
+          174,
+          103,
+          125,
+          161,
+          239,
+          196
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4800,
+          "1": 4800,
+          "2": 4800,
+          "3": 4800
+        },
+        "unique_generated_transactions": 4800,
+        "executed_per_replica": 4800,
+        "state_hash": [
+          84,
+          119,
+          148,
+          15,
+          52,
+          164,
+          2,
+          20,
+          34,
+          244,
+          137,
+          121,
+          111,
+          170,
+          185,
+          102,
+          129,
+          103,
+          148,
+          238,
+          47,
+          47,
+          131,
+          157,
+          136,
+          33,
+          174,
+          103,
+          125,
+          161,
+          239,
+          196
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "semantic_outgoing_omission",
+        "omitted_messages": 0,
+        "efficacy": "no_op_fault_smoke",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 159603078,
+        "written_bytes_per_u_out_byte": 93.90228114600934,
+        "written_bytes_per_m_out_byte": 82.99985542910514
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 259639620,
+        "written_bytes_per_u_out_byte": 114.60082097457627,
+        "written_bytes_per_m_out_byte": 101.29510767790262
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n4-zero-20261019",
+      "manifest": "results/local/migration-acceptance-n4-zero-20261019/manifest.json",
+      "sha256": "9fe1955c8301832f283616312ade119c8b1982d28ef298ed6e2227832982890d",
+      "status": "passed",
+      "error": null,
+      "nodes": 4,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 120,
+        "admitted": 120,
+        "rejected": 0,
+        "completed": 0,
+        "unfinished": 120,
+        "admission_to_output": {
+          "population": 120,
+          "completed": 0,
+          "unfinished": 120,
+          "p50": {
+            "value_ms": null,
+            "lower_bound_ms": 395.559,
+            "status": "censored"
+          },
+          "p95": {
+            "value_ms": null,
+            "lower_bound_ms": 439.376,
+            "status": "censored"
+          },
+          "p99": {
+            "value_ms": null,
+            "lower_bound_ms": 442.698,
+            "status": "censored"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 120,
+          "completed": 0,
+          "unfinished": 120,
+          "p50": {
+            "value_ms": null,
+            "lower_bound_ms": 395.789,
+            "status": "censored"
+          },
+          "p95": {
+            "value_ms": null,
+            "lower_bound_ms": 439.488,
+            "status": "censored"
+          },
+          "p99": {
+            "value_ms": null,
+            "lower_bound_ms": 442.953,
+            "status": "censored"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 0,
+          "unfinished": 120,
+          "fraction": 0.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 0.0,
+        "window": {
+          "completion_count": 0,
+          "unique_completion_tps": 0.0,
+          "admission_count": 120,
+          "admission_tps": 1200.0,
+          "u_out_bytes": 0,
+          "useful_goodput_bytes_per_second": 0.0,
+          "carried_in_completion_count": 0,
+          "m_out_bytes": 0,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 0,
+          "u_out_bytes": 0,
+          "unique_honest_completion_count": 0,
+          "output_replica": 0,
+          "output_prefix_count": 0,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 4,
+        "verified": true,
+        "verified_requests": 240
+      },
+      "agreement": {
+        "common_prefix_count": 0,
+        "common_prefix_state_hash": [
+          208,
+          174,
+          204,
+          206,
+          28,
+          245,
+          216,
+          145,
+          215,
+          141,
+          31,
+          137,
+          52,
+          178,
+          98,
+          57,
+          184,
+          139,
+          77,
+          174,
+          4,
+          190,
+          218,
+          68,
+          47,
+          7,
+          194,
+          170,
+          10,
+          198,
+          223,
+          4
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "unique_generated_transactions": 0
+      },
+      "drain_complete": false,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 4496797,
+        "written_bytes_per_u_out_byte": null,
+        "written_bytes_per_m_out_byte": null
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 70284900,
+        "written_bytes_per_u_out_byte": null,
+        "written_bytes_per_m_out_byte": null
+      }
+    },
+    {
+      "fixture": "migration-acceptance-n7-healthy-20261019",
+      "manifest": "results/local/migration-acceptance-n7-healthy-20261019/manifest.json",
+      "sha256": "c0abb21f6c61cc9939dbcb440448bf128ceabb6cc55165d46e47cf594ee5b5dd",
+      "status": "passed",
+      "error": null,
+      "nodes": 7,
+      "binary_sha256": "71a3f218b88f200ed890d310e90783d2875b19a76ac60cc8024672b6d93f0b73",
+      "scheduling": {
+        "ordering_mode": "progress",
+        "originating_prog": "paced",
+        "bundling": "immediate_no_fill_timer",
+        "transport": "bounded_pipelined_authenticated_tcp",
+        "release_deadline_ms": 100,
+        "required_ablation_cell": "paced/bundle-on",
+        "theorem_scope": "implementation variant; conformance tests do not establish the canonical timing theorem"
+      },
+      "cohort": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "rejected": 0,
+        "completed": 3000,
+        "unfinished": 0,
+        "admission_to_output": {
+          "population": 3000,
+          "completed": 3000,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 18.098,
+            "lower_bound_ms": 18.098,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 24.748,
+            "lower_bound_ms": 24.748,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 28.157,
+            "lower_bound_ms": 28.157,
+            "status": "observed"
+          }
+        },
+        "scheduled_to_output": {
+          "population": 3000,
+          "completed": 3000,
+          "unfinished": 0,
+          "p50": {
+            "value_ms": 18.379,
+            "lower_bound_ms": 18.379,
+            "status": "observed"
+          },
+          "p95": {
+            "value_ms": 24.905,
+            "lower_bound_ms": 24.905,
+            "status": "observed"
+          },
+          "p99": {
+            "value_ms": 28.504,
+            "lower_bound_ms": 28.504,
+            "status": "observed"
+          }
+        },
+        "all_correct_collection": {
+          "completed": 3000,
+          "unfinished": 0,
+          "fraction": 1.0,
+          "boundary": "final exact output collection; not remote event latency"
+        },
+        "deadline_completion_fraction": 1.0,
+        "window": {
+          "completion_count": 3000,
+          "unique_completion_tps": 999.9999999999999,
+          "admission_count": 3000,
+          "admission_tps": 999.9999999999999,
+          "u_out_bytes": 1416000,
+          "useful_goodput_bytes_per_second": 472000.00000000006,
+          "carried_in_completion_count": 20,
+          "m_out_bytes": 1612800,
+          "m_out_replica": 0,
+          "m_out_boundary": "distinct exact batch payloads in selected replica measurement window"
+        },
+        "finite_run": {
+          "m_out_bytes": 2150400,
+          "u_out_bytes": 1888000,
+          "unique_honest_completion_count": 4000,
+          "output_replica": 0,
+          "output_prefix_count": 4000,
+          "boundary": "selected final output prefix intersected with honest origin admission-to-output completions; setup/warmup/drain retained"
+        }
+      },
+      "authentication": {
+        "authentication": "strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence",
+        "identity_version": 2,
+        "signed_manifests": 7,
+        "verified": true,
+        "verified_requests": 4000
+      },
+      "agreement": {
+        "common_prefix_count": 4000,
+        "common_prefix_state_hash": [
+          247,
+          111,
+          87,
+          221,
+          33,
+          41,
+          119,
+          9,
+          0,
+          213,
+          233,
+          30,
+          204,
+          112,
+          59,
+          101,
+          114,
+          29,
+          174,
+          12,
+          93,
+          188,
+          156,
+          3,
+          129,
+          128,
+          255,
+          171,
+          28,
+          19,
+          197,
+          12
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "executed_counts": {
+          "0": 4000,
+          "1": 4000,
+          "2": 4000,
+          "3": 4000,
+          "4": 4000,
+          "5": 4000,
+          "6": 4000
+        },
+        "unique_generated_transactions": 4000,
+        "executed_per_replica": 4000,
+        "state_hash": [
+          247,
+          111,
+          87,
+          221,
+          33,
+          41,
+          119,
+          9,
+          0,
+          213,
+          233,
+          30,
+          204,
+          112,
+          59,
+          101,
+          114,
+          29,
+          174,
+          12,
+          93,
+          188,
+          156,
+          3,
+          129,
+          128,
+          255,
+          171,
+          28,
+          19,
+          197,
+          12
+        ],
+        "replicas_agree": true
+      },
+      "drain_complete": true,
+      "fault": {
+        "kind": "none",
+        "omitted_messages": 0,
+        "efficacy": "not_semantic_omission",
+        "authored_transaction_count": 0
+      },
+      "cost": {
+        "boundary": "window",
+        "written_bytes": 289367299,
+        "written_bytes_per_u_out_byte": 204.35543714689265,
+        "written_bytes_per_m_out_byte": 179.4192082093254
+      },
+      "finite_run_cost": {
+        "boundary": "finite_run",
+        "written_bytes": 480153232,
+        "written_bytes_per_u_out_byte": 254.31844915254237,
+        "written_bytes_per_m_out_byte": 223.2855431547619
+      }
+    }
+  ],
+  "optional_operation_meter": {
+    "raw": "results/local/migration-meter-pairs-20261019.json",
+    "sha256": "d91d968ad4fa6142b672298a3bc63a5e08b000e29f21c4b6d687be74c9217936",
+    "scope": "optional per-domain operation cost counters; all exact-output cohort instrumentation remains active in both conditions",
+    "summary": {
+      "cpu_seconds": {
+        "off": {
+          "median": 27.119211,
+          "min": 27.006455,
+          "max": 27.185396
+        },
+        "on": {
+          "median": 26.592605,
+          "min": 26.53213,
+          "max": 26.644673
+        },
+        "paired_change_percent": [
+          -1.3396130665798145,
+          -2.164815930669961,
+          -2.1805494391179847
+        ],
+        "median_paired_change_percent": -2.164815930669961
+      },
+      "tps": {
+        "off": {
+          "median": 1200.0,
+          "min": 1199.8,
+          "max": 1200.2
+        },
+        "on": {
+          "median": 1200.0,
+          "min": 1200.0,
+          "max": 1200.2
+        },
+        "paired_change_percent": [
+          0.016669444907480013,
+          0.0,
+          0.0
+        ],
+        "median_paired_change_percent": 0.0
+      },
+      "p99_ms": {
+        "off": {
+          "median": 16.604,
+          "min": 16.595,
+          "max": 16.717
+        },
+        "on": {
+          "median": 17.077,
+          "min": 17.061,
+          "max": 17.116
+        },
+        "paired_change_percent": [
+          2.848711153938832,
+          3.139499849352223,
+          2.05778548782678
+        ],
+        "median_paired_change_percent": 2.848711153938832
+      }
+    }
+  },
+  "matched_native_summary": "benchmarks/results/migration-matched-n4-final-2026-10-19.json",
+  "limitations": [
+    "Canonical+bundled initial run retained an unfinished cohort; isolated repeat completed by drain with seconds-scale latency and ordering round/delivery divergence.",
+    "Payload no-op smoke is not an attack acceptance; effective authored selective-publication fixture separately records omissions and excludes faulty-origin content from useful output.",
+    "All exact-output cohort instrumentation stays enabled during optional operation-meter pairs.",
+    "Remote execution and privileged local network shaping are deferred per user constraints."
+  ],
+  "previous_matched_native_summary": "benchmarks/results/migration-matched-n4-2026-10-19.json",
+  "report": "benchmarks/results/migration-local-report-2026-10-19.txt",
+  "verification": {
+    "runner_tests": 65,
+    "cohort_tests": 16,
+    "mocked_remote_deployment_tests": 9
+  }
+}

@@ -1,0 +1,253 @@
+Shared runtime and protocol cores — architecture proposal, 21 October 2026
+
+Status: APPROVED for the local Delugi-to-Raptr phase on 21 October 2026.
+The user replied “You are good to go” after the two consultation rounds and
+requested periodic tested commits and pushes to the existing GitHub remote.
+This supersedes the implementation pause. Scope is contract freezing, source-
+preserving Delugi extraction, real Raptr integration and local acceptance.
+Further protocol ports, protocol-semantic changes and cloud execution remain
+separate decisions. The immutable preapproval review and source snapshot remain
+in results/local/architecture-review-20261021/.
+
+Approved direction
+
+Refactor the current Delugi repository into a Rust workspace with one shared
+runtime and selectable protocol cores. Raptr is the first counterpart. Preserve
+the pinned native author artifacts as reference implementations and external
+validity checks. Keep all protocol-dependent behavior inside core/<protocol>,
+including dissemination and recovery policy, not just voting and commit rules.
+Use Sonnino's modular family as an architectural reference, not as a wholesale
+replacement or an assumption that all historical branches share infrastructure.
+
+Proposed directory boundary
+
+  core/
+    delugi/       ordering, HISTORY3, scanner, availability, MMR, composition
+    raptr/        prefix consensus, optimistic/certified paths, QS policy
+    mysticeti/    uncertified DAG, causal synchronization, linearization
+    autobahn/     lane dissemination, ordering, recovery
+  core-api/       neutral events, service handles, operation IDs, capabilities
+  shared/
+    runtime/      scheduling, bounded actors/tasks, timers, execution budgets
+    network/      connections, framing, channels, backpressure, byte counters
+    crypto/       hashing, ordinary/aggregate signatures, key handling, meters
+    mempool/      independent client admission, bounded queues, batch assembly
+    store/        blob/KV operations, custody primitives, explicit durability
+    output/       ordered-plan execution and contiguous application sink
+  node/           one CLI, config, membership, lifecycle, core registration
+  evaluation/     finite workloads, faults, receipts, reduction and provenance
+  deployment/
+    local/        local lifecycle and evidence transfer
+    alibaba/      future provider adapter; execution needs separate authorization
+  native-reference/  manifests/patches for pinned artifacts; no new copies
+
+These are responsibilities, not a requirement to create every crate immediately.
+Existing baseline checkout and evidence paths remain intact during migration.
+No Shoal port is a prerequisite. Further counterparts follow the first accepted
+Delugi/Raptr comparison and an explicit scope decision.
+
+Shared mechanism versus core policy
+
+Shared mempool owns admission and byte construction, not a universal availability
+certificate. A core requests batch cuts and decides what is disseminated, when
+it is considered available, which peers store it, and whether it may be proposed.
+Raptr's Quorum Store rules, Mysticeti's uncertified causal data, Autobahn's lanes,
+and Delugi's observations/witnesses remain different implementations in core.
+
+Shared network accepts bounded opaque bytes with protocol/version/run/domain and
+channel identity in its service context. These are initially out-of-band adapter
+metadata; mechanical extraction must not add fields to existing wire bytes or
+replace existing authenticated namespaces. A new common wire profile is a
+separate reviewed change. It owns connection reuse and fair queue service. A queued send,
+successful socket write and acknowledged receipt are distinct events; none is
+an availability certificate. No frame-by-frame application ACK gate. Reliability,
+replay, cancellation and control/data queue profiles are declared and identical
+for a matched trial; protocol retransmission policy remains in its core.
+
+Shared crypto supplies implementations, not one imposed proof format. Preserve
+each algorithm's ordinary signatures, aggregation, threshold assumptions, signer
+sets and verification rules. Core owns what is signed and certificate validity;
+the provider owns cryptographic execution and accounting. A changed proof scheme
+is a separately named variant, never an undocumented normalization.
+
+Shared store distinguishes accepted, visible, written and durable operations.
+Visible means a declared process-local read sees the value; it does not imply a
+write reached the OS. Written means the selected backend completed its specified
+write operation, potentially only to an OS buffer; no fsync is implied. Durable
+requires the manifest's declared synchronization and persistence fault model.
+Unsupported durability requests fail explicitly, never downgrade silently.
+Core decides persist-before-vote/custody, retention, garbage collection and
+recovery rules. Common backend/settings must be stated. No storage operation
+may implicitly authorize a vote. In-memory or no-crash profiles cannot support
+durability/restart claims, and replacing native durability needs explicit scope.
+
+Core determines canonical committed descriptors and within-descriptor order.
+Shared output waits for the required locally verified payloads and publishes a
+contiguous prefix. It must not sort across protocol decisions, drop an unavailable
+head, or deduplicate distinct fork batches on application identity. Exact batch
+deduplication is protocol-owned; unique useful-request counting is evaluation
+logic. Raw duplicate/unknown occurrences remain evidence.
+
+Minimal integration interface
+
+Node selects a core factory once, for example --protocol delugi|raptr. Shared
+services must not import protocol crates or branch on protocol names. Protocol
+message types/codecs, settings and semantic fault opportunities are registered
+by each core. Opaque bytes do not justify unbounded decoding or allocations.
+
+Ditto MAIN provides a concrete same-binary precedent: its node selects two-chain
+HotStuff, Ditto/AsyncHotStuff or TwoChainVABA while starting the same shared
+services. Its separate historical3-chain branch also changes infrastructure;
+branch comparisons are not evidence of shared-service equivalence. Pinned source
+references and an actual blob comparison are in the HotStuff/Ditto audit below.
+
+Inputs include admitted work/batch results, authenticated peer envelopes,
+scheduled timer firings, local storage/crypto/fetch results, and resource pressure.
+Outputs include send/fetch/persist/verify requests, timer operations, custody
+release, committed output descriptors and diagnostic events. Each asynchronous
+request has an operation ID; completion, failure and cancellation are explicit.
+Effects that require a preceding durable or verification result wait for that
+specific completion. Do not assume a returned list of effects completes in order.
+
+Local state owners process their own events serially; network, storage, crypto,
+dissemination and payload fetches may run concurrently under a common aggregate
+resource budget. Do not put every protocol and worker behind one serialized
+global event loop. Record event order, monotonic time, timer generation and random
+choices for replay. Core defines timer policy/multipliers; runtime executes it.
+
+Preserve existing actor entry points through adapters: Delugi Replica, Raptr
+Protocol::run_ctx/Context and Mysticeti CoreThread. The logical event/effect
+contract does not require rewriting every state machine into a new framework.
+For Raptr, preserve handler-plus-condition-fixed-point atomicity, native BCS/BLS
+types, and real QS policy initially. Minimal Aptos compatibility dependencies may
+remain until equivalence tests justify extraction. The sim-types backend is not
+a faithful shortcut. Native-only service calls in an intermediate facade must
+be disclosed; that intermediate stage cannot claim a fully shared runtime.
+
+Backpressure is explicit at every queue. Enqueue failure never silently drops a
+required effect or rewrites application admission. Common priority policies must
+not depend on whether a core calls a message VOTE, CER or a DAG block. Stage clocks
+and message categories expose queueing and service costs without choosing safety
+or liveness behavior.
+
+Migration sequence after user approval
+
+0. Current state is paused and archived. The checkpoint records 137 root/support
+   files and22 native Raptr changed/new files. Pre-pause Raptr checks:28 artifact
+   helper and8 ingress tests. Native observer, fixture and collector are unfinished;
+   no new Raptr native build or trial was launched. Keep unresolved reviews.
+1. Review the minimal API and dependency graph, common transport/crypto/storage
+   profiles, and per-protocol capability matrix. Produce one representative event
+   trace per protocol before fixing abstractions. Avoid designing around a HotStuff
+   block/QC schema or calling every data layer a certified mempool.
+2. Move Delugi behind the boundary with its algorithm and scheduling variants
+   preserved. Separate mechanical extraction from transport or storage changes.
+   Gate on existing conformance traces, round4, one silent leader followed by three
+   honest anchors, forks, empty fallback, materialization gaps and finite cohorts.
+   Retain immediate/paced PROG x bundling on/off; the selected default is paced+
+   immediate enabled-message bundling. No theorem is transferred by refactoring.
+3. Port Raptr first, reusing source-level protocol logic where the actual coupling
+   permits. Audit the Aptos-dependent types, QS adapter and cryptography rather than
+   substituting the simulator. Preserve certified and optimistic prefixes, leader
+   policy/reputation, timer multipliers, payload repair and retention. Validate
+   partial-prefix refinements and reordered fetch completion against pinned native
+   behavior. The application output contract is proof batches first, then original
+   subblock indices. For every legal extension require expand(P1) followed by
+   expandDelta(P2,P1) to equal expand(P2), including empty/repeated sections.
+   Apply this same added application contract to the native reference observer and
+   shared port; it is not a pre-existing VM execution guarantee. Output waiting
+   cannot add a dependency to voting or authorize custody release.
+4. Accept local n4 Delugi/Raptr healthy, empty, unfinished, silent-leader and
+   missing-payload controls with exact agreement and all child processes reaped.
+   Use matched shared-service settings and test bounded queues and late completion.
+   Begin with zero injected delay (not zero measured latency) and Delta100ms,
+   documenting native timer multipliers; use delta10ms only with calibration.
+5. Port Mysticeti, then Autobahn using the proven services and protocol-specific
+   adapters. Preserve Mysticeti's uncertified DAG/causal recovery and Autobahn's
+   lanes/recovery. Add n7 and sustained-load gates before n31 or remote campaigns.
+6. Use one protocol-neutral Alibaba inventory and deployment path only after
+   separate cloud authorization. Ship a source/binary/profile manifest, select the
+   core at launch, reconcile resources per validator including all workers, and
+   use one cleanup/evidence-transfer flow. Current authorization remains local-only.
+
+Mechanical-extraction invariant: preserve existing serialized, signed and hashed
+bytes, signing domains, configuration/resource-profile identity, transport
+envelopes, timer meaning and actor handler atomicity. Keep synchronous critical
+sections synchronous initially. Introducing async crypto results or a new shared
+envelope belongs to a separate change with its own before/after conformance and
+performance evidence; it is not hidden inside moving files. A deliberate protocol
+semantic change additionally requires the author's decision.
+
+Conformance and evaluation labels
+
+The precise label is shared-runtime, native-policy protocol ports.
+Shared-runtime measurements compare protocol implementations under controlled
+common services. Pinned native measurements retain each author artifact's stack;
+they provide fidelity and external-validity evidence, not interchangeable rows.
+Do not merge their rankings or label a port an unchanged native artifact.
+Record the common service hashes, selected provider/profile and complete per-core
+call paths. Equal settings mean equal mechanisms and resource limits; protocol
+policy may request different work and must pay its measured cost. A core that
+bypasses shared network/storage/crypto machinery does not pass this label's gate.
+Require a capability/call-path manifest and runtime service-operation/resource
+counters reconciled against actual sockets, storage operations and crypto workers.
+Undisclosed native service calls fail the shared-runtime label; source hashes and
+configuration equality alone do not demonstrate routing through common services.
+
+Within a protocol, replay equivalent semantic schedules and compare validated
+inputs, decisions, committed sets/prefix refinements, repair obligations and
+eventual output. Compare partial orders where concurrency is unconstrained.
+Do not demand identical schedules or transaction order across different protocols.
+Retain source mappings, cryptographic vectors, reference traces and adversarial
+tests; conformance tests support an implementation claim, not a new proof.
+
+Primary latency remains independent application admission to preassigned correct
+origin-local verified contiguous output on one monotonic clock. Preserve scheduled
+arrivals, rejection, backlog and unfinished cohorts. Report deadline and all-correct
+completion, worst honest origin, goodput/tail frontier and absolute resource costs.
+Keep distinct exact-batch payload M_out separate from unique useful honest U_out.
+Charge crypto, storage, metadata, payload, recovery, transport and failed/empty work.
+Do not subtract unsynchronized remote clocks. Keep actual delta independent of
+operative Delta and batching; retain each timer mapping rather than equal labels.
+
+Approval requested
+
+Before extraction, freeze two technical artifacts inside the approved phase:
+(a) the service-profile manifest, recording effective item/byte queue limits,
+full-queue behavior, fairness, worker budgets including background tasks,
+send/replay semantics, timer delivery/cancellation, completion/durability meaning,
+backend versions/features and prohibited direct-service bypasses; and (b) the
+Raptr output contract and its segmentation/duplicate/reordering fixtures.
+The first mechanical Delugi profile inherits current audited values unchanged.
+Any common-profile tuning is a separate measured change, not part of extraction.
+These are technical freeze gates within the proposed phase, not permission to
+start before the user's approval or to silently choose a new protocol variant.
+
+Approve this shared-services/core-owned-policy direction, these contracts and the
+initial Delugi extraction plus Raptr-first port, steps1-4. Routine extraction,
+tests and technical acceptance within that phase are included after approval.
+Steps5-6 are the roadmap, not automatic implementation permission: later ports
+need a new scope decision after Delugi/Raptr acceptance. Any new protocol-semantic
+variant and Alibaba provisioning also need a separate author decision. Until
+approval, only research, consultation and recording of the plan may continue.
+
+Supporting records
+
+Implementation checkpoint:
+results/local/architecture-review-20261021/implementation-checkpoint/manifest.json
+sha2569ea6f9cbdd63a643120c86b3682451c23e6ff720dba64b878920cfd285dc68a1
+Primary-source study:
+results/local/architecture-review-20261021/hotstuff-ditto-primary-source.txt
+Current-file mapping and service audit:
+results/local/architecture-review-20261021/shared-service-audit.txt
+Raptr source-preserving adaptation seam:
+results/local/architecture-review-20261021/raptr-core-reuse-seam.txt
+Consultation, existing chat title delugi context:
+https://chatgpt.com/c/6ad0826d-7048-83ec-b309-e09c2dca6590
+results/local/architecture-review-20261021/consultation-round1.json
+results/local/architecture-review-20261021/consultation-round2.json
+
+Primary source examples
+https://github.com/danielxiangzl/Ditto/blob/8d065e857305b65de51766b825a08668b85d489c/node/src/node.rs
+https://github.com/danielxiangzl/Ditto/blob/8d065e857305b65de51766b825a08668b85d489c/consensus/src/consensus.rs
+https://github.com/asonnino/hotstuff/blob/dc01ac8626a64342f6a76ae6f8914535dd090bdd/network/src/reliable_sender.rs

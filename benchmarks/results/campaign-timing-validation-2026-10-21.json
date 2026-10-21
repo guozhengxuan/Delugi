@@ -1,0 +1,346 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "source_sha256": {
+    "scripts/baselines/autobahn.py": "76c9af722c5ea389fc71ae50ccabd839c9a1aa0465c5f2f2fb9ac6745d5d4a06",
+    "scripts/baselines/raptr.py": "cba3d6791dbe84f962ddf98096538d907d2ccf1739287adaf63998f0a6d127bf",
+    "scripts/deployment_prepare.py": "64c1510a8be5518abc70060dde325aac9edcd97e5672f74014a786c986d4beec",
+    "scripts/local_netem_check.py": "e5f1c237d813bf1cff7be23cea0d85388823a5dc76e872c7d2f96a1858e5822c",
+    "scripts/native_campaign.py": "ea616baf9330125bec3ccc5898dfc1d9b034b6e1debbadca23536f4075316491",
+    "scripts/network_delay.py": "5ddb6410d54ed4a38c2b1c9ebd8a3ad9159de008818aafa3ec8106d5c27ecc63",
+    "scripts/remote_deployment.py": "4072dd803b0b659dece531472472f33722add9f4c49588db9b45f71d75d8c34f",
+    "scripts/run_campaign.py": "62e147b4132bcb3e8c75c8afa0973a3a4b92e096a97479eb06a5bbe1a6e229d9",
+    "scripts/run_sustained.py": "1a3946ce66396a9f402215ac6abc246327797b53c379b732aaa71a99343cda58",
+    "scripts/run_tcp_delay.py": "53414ba54e5b0e9047420a04d0a6efb56b2bfadbd27f117524aab89b524b8156",
+    "scripts/timing_calibration.py": "77e79273a8bb74a15196ae5565959598712c80eb862471134179225973d7e0ee",
+    "tests/campaign_runner_test.py": "3d81d327aca14d1e553976314d04478de553b973bb7ac893398c9ca422c763b6",
+    "tests/deployment_prepare_test.py": "4c52a42a62d07d6e7dd561f5dd248dad4752b0c761dc962a4b03c12d961d88d7",
+    "tests/local_netem_check_test.py": "8a0cfb8d81be9458a3cc37584c92221b6e8268dd181d3b678f1e142e0e90ff45",
+    "tests/native_campaign_test.py": "f787a7bf838c01be94f4a5f3c4a705531c608b87953c14bbca99dcc3f0339735",
+    "tests/network_delay_test.py": "678a02f1051bb0ced04987946737aa7189f81fb849f4ecd5af1435c811dab8ad",
+    "tests/raptr_baseline_test.py": "5e4cfcd54c10a664c12cfbf531c79bbdb21a00f31cc345fbb70eac46e71ac575",
+    "tests/remote_deployment_test.py": "4eed01517a91106d8fb9ce8c29fb4dd12d1fb307ee68b5225c11b0e518cdbc51",
+    "tests/tcp_delay_test.py": "9c5d353d9bcf94417ffe1fd8327c91a2422fec45607f64072c0b67158f1eab95",
+    "tests/timing_calibration_test.py": "357d48e52541150e81a8a9865c7df986103f7e3b5f640359607c027d73c52b43"
+  },
+  "timing_policy": "added-rtt-25pct-floor2ms-v1",
+  "previously_failed_vm_observations": [
+    {
+      "policy": "added-rtt-25pct-floor2ms-v1",
+      "added_median_rtt_ms": 29.374141,
+      "expected_added_rtt_ms": 20,
+      "acceptance_tolerance_ms": 5.0,
+      "addition_matches": false
+    },
+    {
+      "policy": "added-rtt-25pct-floor2ms-v1",
+      "added_median_rtt_ms": 26.709096,
+      "expected_added_rtt_ms": 20,
+      "acceptance_tolerance_ms": 5.0,
+      "addition_matches": false
+    },
+    {
+      "policy": "added-rtt-25pct-floor2ms-v1",
+      "added_median_rtt_ms": 25.7837155,
+      "expected_added_rtt_ms": 20,
+      "acceptance_tolerance_ms": 5.0,
+      "addition_matches": false
+    },
+    {
+      "policy": "added-rtt-25pct-floor2ms-v1",
+      "added_median_rtt_ms": 27.6349395,
+      "expected_added_rtt_ms": 20,
+      "acceptance_tolerance_ms": 5.0,
+      "addition_matches": false
+    }
+  ],
+  "archival_shoal_replay": [
+    {
+      "manifest": "results/local/shoal-native-healthy-n4-final-20261019/manifest.json",
+      "manifest_sha256": "371ae22bc32435fc576fb84d192ebb7396193c16d6b5c379cad7fa39a65e1258",
+      "status": "accepted_development_replay",
+      "measurement_cohort_completed": 80,
+      "finite_all_correct_completed": 120,
+      "formal_comparison_eligible": false,
+      "case": {
+        "protocol": "shoal",
+        "family": "healthy",
+        "fault": "none",
+        "nodes": 4,
+        "rate": 40,
+        "bound_ms": 100,
+        "added_delay_ms": 0,
+        "repeat": 0
+      },
+      "fault_effect": null,
+      "validation_revision": 2
+    },
+    {
+      "manifest": "results/local/shoal-native-healthy-n7-20261019/manifest.json",
+      "manifest_sha256": "8421fb898609270c1a0ba9c70e7c29dc2b1610654f3a038baf57abfc6c2ee600",
+      "status": "accepted_development_replay",
+      "measurement_cohort_completed": 140,
+      "finite_all_correct_completed": 210,
+      "formal_comparison_eligible": false,
+      "case": {
+        "protocol": "shoal",
+        "family": "healthy",
+        "fault": "none",
+        "nodes": 7,
+        "rate": 70,
+        "bound_ms": 100,
+        "added_delay_ms": 0,
+        "repeat": 0
+      },
+      "fault_effect": null,
+      "validation_revision": 2
+    },
+    {
+      "manifest": "results/local/shoal-native-pause-n4-20261019/manifest.json",
+      "manifest_sha256": "31bf541710606725bd9f8dba18eaff54a6521e68ecf6a1a88dd48da778b7a059",
+      "status": "accepted_development_replay",
+      "measurement_cohort_completed": 80,
+      "finite_all_correct_completed": 120,
+      "formal_comparison_eligible": false,
+      "case": {
+        "protocol": "shoal",
+        "family": "recovery",
+        "fault": "process_pause",
+        "nodes": 4,
+        "rate": 40,
+        "bound_ms": 100,
+        "added_delay_ms": 0,
+        "repeat": 0
+      },
+      "fault_effect": null,
+      "validation_revision": 2
+    },
+    {
+      "manifest": "results/local/shoal-native-omission-n4-20261019/manifest.json",
+      "manifest_sha256": "43d8a11ac278eee398dfc8d59e9d2e0073bc307148b1ab137f01475149fff617",
+      "status": "accepted_development_replay",
+      "measurement_cohort_completed": 80,
+      "finite_all_correct_completed": 120,
+      "formal_comparison_eligible": false,
+      "case": {
+        "protocol": "shoal",
+        "family": "recovery",
+        "fault": "payload_omission",
+        "nodes": 4,
+        "rate": 40,
+        "bound_ms": 100,
+        "added_delay_ms": 0,
+        "repeat": 0
+      },
+      "fault_effect": {
+        "observation": {
+          "messages_omitted": 6,
+          "serialized_bytes_omitted": 9240,
+          "by_native_unit": {
+            "native_node_publication": 6
+          },
+          "journals": [
+            {
+              "path": "omissions-3-validator.jsonl",
+              "events": 6,
+              "bytes": 1032,
+              "sha256": "918e4f8204fa85c0414df9a3aa679b2a74e2b6d7470878ae64f4bb13324f7c9c"
+            }
+          ],
+          "note": "Omitted bytes are attempted publications, excluded from actual network transmissions. All actual traffic and retained attacker outputs remain charged."
+        },
+        "native_unit": "own native DAG node/certified-node publication or repair unit"
+      },
+      "validation_revision": 2
+    },
+    {
+      "manifest": "results/local/shoal-native-empty-n4-final-20261019/manifest.json",
+      "manifest_sha256": "f6c8c980d905eb99df63ab302ab8b5f530504da7ede68d8d894621159fbf3b07",
+      "status": "accepted_development_replay",
+      "measurement_cohort_completed": 0,
+      "finite_all_correct_completed": 0,
+      "formal_comparison_eligible": false,
+      "case": {
+        "protocol": "shoal",
+        "family": "healthy",
+        "fault": "none",
+        "nodes": 4,
+        "rate": 1,
+        "bound_ms": 100,
+        "added_delay_ms": 0,
+        "repeat": 0
+      },
+      "fault_effect": null,
+      "validation_revision": 2
+    }
+  ],
+  "validation": [
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "timing_calibration_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 5,
+      "elapsed_seconds": 0.0413982504978776,
+      "log": "results/local/campaign-timing-20261021/revision-2/timing_calibration_test.py.log",
+      "log_sha256": "888a0c0ed615e57d32cf72be501b0c355f33b8613c81dfdaa99db33d7959487e"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "local_netem_check_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 6,
+      "elapsed_seconds": 0.08493970800191164,
+      "log": "results/local/campaign-timing-20261021/revision-2/local_netem_check_test.py.log",
+      "log_sha256": "62cfbeb2911bb226088bfb0918eb4b05008ea70b20bce854ee2ca8a564bd37a5"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "network_delay_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 9,
+      "elapsed_seconds": 0.06088870856910944,
+      "log": "results/local/campaign-timing-20261021/revision-2/network_delay_test.py.log",
+      "log_sha256": "5f1d026957285e70830c40531027fefa7561f53b15b3b1c71d195b0c4cb85a72"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "remote_deployment_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 19,
+      "elapsed_seconds": 0.36505029164254665,
+      "log": "results/local/campaign-timing-20261021/revision-2/remote_deployment_test.py.log",
+      "log_sha256": "f03ca231148d0801bc7adf4255e668c8455f6e736698f98c32aab739210240b7"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "*runner_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 88,
+      "elapsed_seconds": 0.33713624998927116,
+      "log": "results/local/campaign-timing-20261021/revision-2/allrunner_test.py.log",
+      "log_sha256": "f16e5d1cf83dbb61ffc7286c7439e6fd26ee9058b767e33cf5d7366c4bf093a1"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "raptr_baseline_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 45,
+      "elapsed_seconds": 0.09950883314013481,
+      "log": "results/local/campaign-timing-20261021/revision-2/raptr_baseline_test.py.log",
+      "log_sha256": "19c4f2204c2aaa027766f6d476040bbed33d456e5c37e743642f5edf8263da84"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "native_campaign_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 7,
+      "elapsed_seconds": 0.13937595766037703,
+      "log": "results/local/campaign-timing-20261021/revision-2/native_campaign_test.py.log",
+      "log_sha256": "5bbba979b48870fe0a4ba1dba9b137a48562c6008dd83ae30ad48d6e70bb4b10"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "tcp_delay_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 9,
+      "elapsed_seconds": 0.1191200828179717,
+      "log": "results/local/campaign-timing-20261021/revision-2/tcp_delay_test.py.log",
+      "log_sha256": "e58bf2e8d6fd3b21b513335cb2579f7ad91cc1717fb8c06364d5063ad9459cdb"
+    },
+    {
+      "command": [
+        "/usr/local/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "deployment_prepare_test.py"
+      ],
+      "exit_code": 0,
+      "tests": 17,
+      "elapsed_seconds": 0.12883574981242418,
+      "log": "results/local/campaign-timing-20261021/revision-2/deployment_prepare_test.py.log",
+      "log_sha256": "061df2c0e9c3a55addf476acdff062cb24d3b91ca68df0f7f5996a062624edbc"
+    }
+  ],
+  "live_network_changes": false,
+  "new_live_campaign": "pending separately owned VM slot",
+  "scope": "New campaign/measurement guards and existing-manifest revalidation; no new protocol timing measurement or historical result rewrite.",
+  "revision": 2,
+  "supersedes": {
+    "manifest": "results/local/campaign-timing-20261021/manifest.json",
+    "sha256": "fa5adc2ea457743482d83b8ba41f9606ab26892fc464eb6c21a9789e0030b246"
+  },
+  "raw_linux_validation": "Raw sample medians are recomputed and exact directed ring/role identity is required at configure, cleanup and campaign acceptance; applied owned rules clear after rejection.",
+  "source_unchanged_during_tests": true,
+  "read_only_review": "Independent timing review found no further concrete bypass after raw-sample/edge binding; source remains limited to calibration and campaign acceptance.",
+  "evidence_manifest": "results/local/campaign-timing-20261021/revision-2/manifest.json",
+  "evidence_manifest_sha256": "e56bf3311dd10aa313d683acbf5fcd7f22d2edee04c040dfc465ccf46145bb2b"
+}
