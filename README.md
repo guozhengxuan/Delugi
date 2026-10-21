@@ -54,9 +54,18 @@ contiguous application output. Its asynchronous descendants share one bounded
 task executor, with explicit group shutdown and joined-task evidence. The timer
 adapter preserves native deadline ordering and cancellation behavior.
 
-The first independent-process Raptr checkpoint passes six local workload and
-fault controls; its [validation receipt](benchmarks/results/raptr-shared-runner-validation-2026-10-21.json)
-identifies that executable separately from the subsequent common-build changes.
+The common executable passes six [Raptr workload and recovery controls](benchmarks/results/common-node-raptr-validation-2026-10-21.json)
+and 30 [Delugi controls](benchmarks/results/common-node-delugi-validation-2026-10-21.json)
+over independent local replica processes. Delugi covers full/compact finite
+workloads, every retained pacing/bundling combination through round 4 and a silent
+leader followed by three honest anchors, and actual omitted-payload repair, each
+with memory and disk storage. Raptr covers healthy, empty, unfinished,
+silent-leader, delayed-materialization and actual missing-payload recovery cases.
+All owned processes are reaped, and Raptr's task counters reconcile at shutdown.
+Delugi's [native-profile conformance receipt](benchmarks/results/delugi-common-profile-static-2026-10-21.json)
+also records reference-trace agreement and exact ordering/transport wire bytes.
+The [earlier Raptr-only checkpoint](benchmarks/results/raptr-shared-runner-validation-2026-10-21.json)
+retains its distinct executable and evidence.
 New builds and runs must use the source-bound build receipt, not historical
 executables or manually rewritten stamps. `scripts/build_raptr_shared.py` supports
 guarded `test` and `build` actions; only a successful build can issue an executable

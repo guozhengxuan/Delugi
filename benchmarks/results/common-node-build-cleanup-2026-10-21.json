@@ -1,0 +1,34 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "removed_allocated_bytes": 4478885888,
+  "removed_paths": [
+    "target/debug",
+    "target/tmp",
+    "target/.rustc_info.json",
+    "core/raptr/.native-deps/target/debug",
+    "core/raptr/.native-deps/target/tmp",
+    "core/raptr/.native-deps/target/.rustc_info.json",
+    "core/raptr/.native-deps/target/CACHEDIR.TAG"
+  ],
+  "preserved_binary": {
+    "path": "results/local/shared-core-20261021/common-node-build-1/artifact/raptr-shared-node",
+    "bytes": 66969984,
+    "sha256": "6763539380645b3b1275b2819928ec826f35f5ffcb7950800b8a02a7ab24141a"
+  },
+  "preserved_build_receipt": {
+    "path": "results/local/shared-core-20261021/common-node-build-1/build-receipt.json",
+    "bytes": 3675522,
+    "sha256": "2f986ca8bd81ae3cfec2e3cda784c4a00e24375f0cd03e191462e7a0a8894e75"
+  },
+  "legacy_release_files_preserved": 10,
+  "all_preserved_hashes_rechecked": true,
+  "evidence": {
+    "path": "results/local/shared-core-20261021/common-node-cleanup-20261021/manifest.json",
+    "bytes": 3570,
+    "sha256": "edef84c98eae2d8ea1f194a087dd74539ee1e7f1705e8565b0cd0cdb68ea6d6c"
+  },
+  "scope": "Remove only disposable compiler outputs after both protocols completed same-binary local acceptance. Historical raw evidence, source trees, dependency caches, preserved binaries and receipts remain.",
+  "accounting_note": "Allocated file sizes before removal, not a claim about physical APFS space reclamation. Test and live-run process cleanup is recorded in each acceptance report."
+}

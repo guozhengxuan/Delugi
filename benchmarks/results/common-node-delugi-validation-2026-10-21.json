@@ -1,0 +1,1149 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "scope": "Local functional acceptance of both Delugi storage profiles in the same executable used for Raptr. No throughput/latency ranking or remote evaluation claim.",
+  "common_executable": {
+    "path": "results/local/shared-core-20261021/common-node-build-1/artifact/raptr-shared-node",
+    "bytes": 66969984,
+    "sha256": "6763539380645b3b1275b2819928ec826f35f5ffcb7950800b8a02a7ab24141a"
+  },
+  "common_build_receipt": {
+    "path": "results/local/shared-core-20261021/common-node-build-1/build-receipt.json",
+    "bytes": 3675522,
+    "sha256": "2f986ca8bd81ae3cfec2e3cda784c4a00e24375f0cd03e191462e7a0a8894e75"
+  },
+  "canonical_build_identity": "9d333f6af5096df6bcebe5f4d2207b26cb79afea001ce472b55da15a087d34d6",
+  "protocols": [
+    "delugi",
+    "raptr"
+  ],
+  "compiled_features": {
+    "common-node": [],
+    "delugi-core": [
+      "rocksdb-records"
+    ],
+    "raptr": [],
+    "raptr-qs": [
+      "rocksdb-backend"
+    ]
+  },
+  "static_conformance": {
+    "evidence": {
+      "path": "benchmarks/results/delugi-common-profile-static-2026-10-21.json",
+      "bytes": 5188,
+      "sha256": "e9dc54a9b208196723927402a6e4e0dd82dd6240141c43a0eec57c55b5b5187f"
+    },
+    "default_root_tests_passed": 257,
+    "native_feature_ordinary_tests_passed": 240,
+    "native_feature_actual_localhost_tests_passed": 19,
+    "deterministic_scenarios": 17,
+    "repeats_per_scenario": 2,
+    "ordering_streams_exact_bytes": 8,
+    "ordering_contexts_semantic_equal": 8,
+    "transport_vectors_exact_bytes": 24,
+    "count_scope": "Different dependency/feature profiles and repeated gates, not a sum of unique tests."
+  },
+  "same_binary_live": {
+    "accepted_cases": 30,
+    "runner_invocations": 22,
+    "replica_processes": 120,
+    "nodes": 4,
+    "bound_ms": 100,
+    "added_delta_ms": 0,
+    "finite_cases": 12,
+    "network_scenario_cases": 16,
+    "actual_missing_payload_cases": 2,
+    "suites": {
+      "finite": {
+        "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/validation.json",
+        "bytes": 5131308,
+        "sha256": "b3cb76f272b2164b36ba082fca6c017e305d1d7bfd382aa091d22e2ffd673e27"
+      },
+      "network": {
+        "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-network-2/validation.json",
+        "bytes": 5115945,
+        "sha256": "8e7b534ae476a2c8f039df8fa7257a70117130db2a77b86ec0c64015ecb66fc1"
+      },
+      "missing_payload": {
+        "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-missing-payload-1/validation.json",
+        "bytes": 9473,
+        "sha256": "0233d2c7b3bb487a67db0caaa82c8e8eebee90df8f325b2098b2fce4ece18586"
+      }
+    },
+    "finite": [
+      {
+        "name": "memory-healthy-full",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/memory-healthy-full/manifest.json",
+          "bytes": 105359,
+          "sha256": "669aad035d15fa7e168d276aa7738b836becd50ccff6582b8b9281ffbee6a62a"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "healthy-full",
+          "planned": 8,
+          "completed": 8,
+          "unfinished": 0,
+          "finite_category_breakdown_available": true,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": true,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "memory-healthy-compact",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/memory-healthy-compact/manifest.json",
+          "bytes": 60545,
+          "sha256": "bf1afcf3519dfe09cbad55af58667e9c1efa733f80f47c8e13a61fb7e73723b4"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "healthy-compact",
+          "planned": 8,
+          "completed": 8,
+          "unfinished": 0,
+          "finite_category_breakdown_available": false,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": false,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "memory-empty-full",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/memory-empty-full/manifest.json",
+          "bytes": 100390,
+          "sha256": "c46beee69e3a84d85a52e7323a9ca7e2067981aba79195a04d39becdeae5cfdb"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "empty-full",
+          "planned": 0,
+          "completed": 0,
+          "unfinished": 0,
+          "finite_category_breakdown_available": true,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": true,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "memory-empty-compact",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/memory-empty-compact/manifest.json",
+          "bytes": 60157,
+          "sha256": "bbe33ecc691653b83b6b0da0aee9aa0d0c88ae9aa97e478f9552981ef37e11d4"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "empty-compact",
+          "planned": 0,
+          "completed": 0,
+          "unfinished": 0,
+          "finite_category_breakdown_available": false,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": false,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "memory-unfinished-full",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/memory-unfinished-full/manifest.json",
+          "bytes": 104072,
+          "sha256": "4c90a29f6127b7059e9e2e99de405f4b7bda942ad8b4a64413add70dae48321f"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "unfinished-full",
+          "planned": 4,
+          "completed": 0,
+          "unfinished": 4,
+          "finite_category_breakdown_available": true,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": true,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "memory-unfinished-compact",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/memory-unfinished-compact/manifest.json",
+          "bytes": 59664,
+          "sha256": "7ef1140d1c01953abb6ba8ebfc05c0b7663575cf9ec9570dad841def1108b94b"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "unfinished-compact",
+          "planned": 4,
+          "completed": 0,
+          "unfinished": 4,
+          "finite_category_breakdown_available": false,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": false,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "disk-healthy-full",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/disk-healthy-full/manifest.json",
+          "bytes": 105582,
+          "sha256": "8e9ac12356b5f83e71631acc24f2e56b1b9efe2adf980b86c8d05694e8a79ac1"
+        },
+        "storage_write_count": 32,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "healthy-full",
+          "planned": 8,
+          "completed": 8,
+          "unfinished": 0,
+          "finite_category_breakdown_available": true,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": true,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "disk-healthy-compact",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/disk-healthy-compact/manifest.json",
+          "bytes": 60775,
+          "sha256": "b5408819e01aa89a1febd70a9eb897d79e450610c091160f2ee1d72638ba4135"
+        },
+        "storage_write_count": 32,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "healthy-compact",
+          "planned": 8,
+          "completed": 8,
+          "unfinished": 0,
+          "finite_category_breakdown_available": false,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": false,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "disk-empty-full",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/disk-empty-full/manifest.json",
+          "bytes": 100624,
+          "sha256": "d63825b16e0b16a715fa26fa48d1ff1f7e149595d8c329fbcfb30c07b0f485fb"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "empty-full",
+          "planned": 0,
+          "completed": 0,
+          "unfinished": 0,
+          "finite_category_breakdown_available": true,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": true,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "disk-empty-compact",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/disk-empty-compact/manifest.json",
+          "bytes": 60367,
+          "sha256": "60b443290bbf33fda2ae6b53517e7a0f1a74eb7a8e9fd9e803332e665bfca953"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "empty-compact",
+          "planned": 0,
+          "completed": 0,
+          "unfinished": 0,
+          "finite_category_breakdown_available": false,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": false,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "disk-unfinished-full",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/disk-unfinished-full/manifest.json",
+          "bytes": 104334,
+          "sha256": "b5449c878189a24d34a7e1e14301fd90721b97b1a99a0554f161ec2e48ff2b75"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "unfinished-full",
+          "planned": 4,
+          "completed": 0,
+          "unfinished": 4,
+          "finite_category_breakdown_available": true,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": true,
+        "observer_receipt_authenticated": true
+      },
+      {
+        "name": "disk-unfinished-compact",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-finite-1/disk-unfinished-compact/manifest.json",
+          "bytes": 59893,
+          "sha256": "f7bed1ecfc4b1afd10fe99eee715e32c72b7325dedd052ed92de3c056edc40eb"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "case": "unfinished-compact",
+          "planned": 4,
+          "completed": 0,
+          "unfinished": 4,
+          "finite_category_breakdown_available": false,
+          "scope": "reported authenticated finite contract and cleanup; no cross-run order or latency equivalence claim"
+        },
+        "schema2_authenticated": false,
+        "observer_receipt_authenticated": true
+      }
+    ],
+    "scheduling_and_recovery": [
+      {
+        "name": "memory-progress-True",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/network-89d9334bef604cafa28e48561cddb395/manifest.json",
+          "bytes": 337501,
+          "sha256": "96502269cd5e1ecae35d756e5fb5f6ba59d203111ddc5f0e60fc01b627bb840d"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "progress-True",
+          "mode": "progress",
+          "bundled": true
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                1,
+                2
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "memory-progress-False",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/network-4225206c7d784931a41a0cbc70f0cac8/manifest.json",
+          "bytes": 325237,
+          "sha256": "38d2a81a5bcae2944e7b26daf0367c399e529f35d174ac775a21d3e124dfe1be"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "progress-False",
+          "mode": "progress",
+          "bundled": false
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                1,
+                2
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "memory-canonical-True",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/network-b0d3e492641b442dbe712620b7d27735/manifest.json",
+          "bytes": 548612,
+          "sha256": "348877807d31c7a53e320d06c4fe70b332574bb5af7e084c899bda74535f19aa"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "canonical-True",
+          "mode": "canonical",
+          "bundled": true
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                1,
+                3
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "memory-canonical-False",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/network-43fe19fbd0eb430db3da0120f390c764/manifest.json",
+          "bytes": 540645,
+          "sha256": "8ee5997bf19986c3892e322890766d54a72de8149c7525cd7538046411ac3bab"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "canonical-False",
+          "mode": "canonical",
+          "bundled": false
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                2,
+                3
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "disk-progress-True",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/network-bb47517ea0d3481ca739faa4e00c343d/manifest.json",
+          "bytes": 338403,
+          "sha256": "a0d86ec86a774ae26d589ac787546e1a3b1354059b8f715f445e1a56fb90862c"
+        },
+        "storage_write_count": 100,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "progress-True",
+          "mode": "progress",
+          "bundled": true
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                1,
+                2
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "disk-progress-False",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/network-01e7f108dcb74fe3815580a845fba46c/manifest.json",
+          "bytes": 325038,
+          "sha256": "59180f075b0462e9a62004331edef3bd631054599f37ef64d3c432bf939c6a18"
+        },
+        "storage_write_count": 100,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "progress-False",
+          "mode": "progress",
+          "bundled": false
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                1,
+                2
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "disk-canonical-True",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/network-df1696a78ab34355aa0d674308c57263/manifest.json",
+          "bytes": 559034,
+          "sha256": "b22b3507c0fffb3485212879dca67baf78ad55ae6e6d9b1952079251981c950a"
+        },
+        "storage_write_count": 100,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "canonical-True",
+          "mode": "canonical",
+          "bundled": true
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                1,
+                3
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      },
+      {
+        "name": "disk-canonical-False",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/network-178183740a4948dbb09e859e768df140/manifest.json",
+          "bytes": 544883,
+          "sha256": "317f174d22d2798efdaa38eb20f3bc3affef49bf5c9e7b8f390b7f8a299ba01b"
+        },
+        "storage_write_count": 100,
+        "children_reaped": 8,
+        "scheduling": {
+          "name": "canonical-False",
+          "mode": "canonical",
+          "bundled": false
+        },
+        "scenarios": [
+          {
+            "name": "honest-round-four",
+            "expected_rounds": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 32,
+            "history3": {
+              "horizon": 1,
+              "pivot": 1,
+              "reporters": [
+                0,
+                2,
+                3
+              ],
+              "has_cer_proof": true
+            }
+          },
+          {
+            "name": "silent-first-three-anchors",
+            "expected_rounds": [
+              2,
+              3,
+              4
+            ],
+            "transactions_per_correct_replica": 24,
+            "history3": {
+              "horizon": 1,
+              "pivot": 0,
+              "reporters": [
+                1,
+                2,
+                3
+              ],
+              "has_cer_proof": false
+            }
+          }
+        ]
+      }
+    ],
+    "actual_payload_repair": [
+      {
+        "name": "memory-visible-v1",
+        "profile": "memory-visible-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-missing-payload-1/memory/manifest.json",
+          "bytes": 119714,
+          "sha256": "1a3e2d07fd51e983dfc6d09b5bc69f06e4dc8ed0baa56cf529226460f56e0ee1"
+        },
+        "storage_write_count": 0,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "fault_replica": 3,
+          "missing_payload_replica": 2,
+          "faulty_batches": 2,
+          "faulty_transactions": 16,
+          "omitted": {
+            "BATCH": {
+              "messages": 2,
+              "encoded_bytes": 1704,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            },
+            "DATA": {
+              "messages": 1,
+              "encoded_bytes": 2473,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            }
+          },
+          "victim_fetch": {
+            "messages": 3,
+            "encoded_bytes": 900,
+            "x_bytes": 0,
+            "pi_bytes": 0,
+            "payload_bytes": 0
+          },
+          "honest_data_responses": {
+            "0": {
+              "messages": 1,
+              "encoded_bytes": 2473,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            },
+            "1": {
+              "messages": 1,
+              "encoded_bytes": 2473,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            }
+          },
+          "producer3_final_height": 2,
+          "authored_payload_bytes_per_batch": 624,
+          "materialized_exact_batch_ids": [
+            [
+              200,
+              84,
+              216,
+              129,
+              213,
+              231,
+              204,
+              253,
+              30,
+              35,
+              122,
+              214,
+              222,
+              68,
+              127,
+              70,
+              41,
+              185,
+              248,
+              252,
+              27,
+              123,
+              179,
+              95,
+              103,
+              103,
+              115,
+              66,
+              165,
+              141,
+              97,
+              58
+            ],
+            [
+              69,
+              43,
+              123,
+              38,
+              136,
+              24,
+              57,
+              213,
+              151,
+              109,
+              205,
+              22,
+              143,
+              37,
+              165,
+              224,
+              26,
+              119,
+              125,
+              87,
+              19,
+              191,
+              54,
+              130,
+              15,
+              118,
+              144,
+              195,
+              47,
+              116,
+              40,
+              23
+            ]
+          ],
+          "all_replica_raw_output_count": 376,
+          "pending_materialization": 0,
+          "useful_credit_scope": "faulty authored identities excluded; honest signed finite cohort separately complete",
+          "proof_scope": "actual omission and repair counters, exact agreement receipts and contiguous native materialization through producer3 height2; control timestamps do not establish one-way network latency"
+        }
+      },
+      {
+        "name": "shared-rocksdb-written-v1",
+        "profile": "shared-rocksdb-written-v1",
+        "manifest": {
+          "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-missing-payload-1/disk/manifest.json",
+          "bytes": 119906,
+          "sha256": "f0fa27371dd9d2d5340a8e17caf39578f3a9f7c558ca9d23c20c40bc9a577f8c"
+        },
+        "storage_write_count": 1448,
+        "children_reaped": 4,
+        "audit": {
+          "status": "passed",
+          "fault_replica": 3,
+          "missing_payload_replica": 2,
+          "faulty_batches": 2,
+          "faulty_transactions": 16,
+          "omitted": {
+            "BATCH": {
+              "messages": 2,
+              "encoded_bytes": 1704,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            },
+            "DATA": {
+              "messages": 1,
+              "encoded_bytes": 2473,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            }
+          },
+          "victim_fetch": {
+            "messages": 3,
+            "encoded_bytes": 900,
+            "x_bytes": 0,
+            "pi_bytes": 0,
+            "payload_bytes": 0
+          },
+          "honest_data_responses": {
+            "0": {
+              "messages": 1,
+              "encoded_bytes": 2473,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            },
+            "1": {
+              "messages": 1,
+              "encoded_bytes": 2473,
+              "x_bytes": 0,
+              "pi_bytes": 0,
+              "payload_bytes": 1248
+            }
+          },
+          "producer3_final_height": 2,
+          "authored_payload_bytes_per_batch": 624,
+          "materialized_exact_batch_ids": [
+            [
+              190,
+              94,
+              169,
+              165,
+              72,
+              188,
+              124,
+              45,
+              72,
+              36,
+              40,
+              5,
+              221,
+              78,
+              48,
+              22,
+              107,
+              28,
+              207,
+              109,
+              125,
+              178,
+              68,
+              136,
+              70,
+              46,
+              253,
+              81,
+              218,
+              241,
+              39,
+              241
+            ],
+            [
+              108,
+              250,
+              132,
+              182,
+              93,
+              26,
+              222,
+              107,
+              107,
+              15,
+              0,
+              136,
+              227,
+              225,
+              8,
+              25,
+              80,
+              181,
+              238,
+              165,
+              70,
+              14,
+              188,
+              138,
+              152,
+              247,
+              106,
+              255,
+              36,
+              236,
+              175,
+              62
+            ]
+          ],
+          "all_replica_raw_output_count": 376,
+          "pending_materialization": 0,
+          "useful_credit_scope": "faulty authored identities excluded; honest signed finite cohort separately complete",
+          "proof_scope": "actual omission and repair counters, exact agreement receipts and contiguous native materialization through producer3 height2; control timestamps do not establish one-way network latency"
+        }
+      }
+    ]
+  },
+  "attempt_accounting": {
+    "protocol_case_failures": 0,
+    "accepted_unique_cases": 30,
+    "extra_successful_scenario_repeats": 2,
+    "wrapper_failures": 1,
+    "wrapper_failure_scope": "The first evidence driver parsed only the final line of multiline JSON. Its two real scenarios passed and cleaned up. A copied driver fixed parsing; the entire16-case network matrix passed on rerun.",
+    "repair": {
+      "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-driver-parser-repair.json",
+      "bytes": 1055,
+      "sha256": "0f95d4d32ca3d4ac5e82050e8f466487e20c30abdcb4a0fe663c6e0156557c8a"
+    },
+    "failed_wrapper": {
+      "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-network-1/validation.json",
+      "bytes": 5105594,
+      "sha256": "414645eb0e66f1a764fa6681c72073433d684d64e451dba9c7788026afa4b66a"
+    },
+    "successful_child_of_failed_wrapper": {
+      "path": "results/local/network-ff4b954de57a4f6abc8a2f36ab45d49d/manifest.json",
+      "bytes": 337923,
+      "sha256": "0fd6a89b47fd0c125e55bb4ec8214215be5d37b3a9c22184a5ba568a8308d04b"
+    }
+  },
+  "source_consistency": {
+    "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/final-source-consistency.json",
+    "bytes": 18473,
+    "sha256": "71dad2cf623c7f7b3a295f261e42e24f1e376a17331b864452e1a22c267ee25c"
+  },
+  "process_cleanup": {
+    "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/live-cleanup.json",
+    "bytes": 2830,
+    "sha256": "6b4f511cf87233507ddfc3c753cb2836958261c9810bd641d4e337381992ef39"
+  },
+  "storage_scope": {
+    "default_memory_unchanged": true,
+    "optional_profile": "shared-rocksdb-written-v1",
+    "core_custody_requirement": "Visible",
+    "physical_write_completion": "Written before typed cache/custody publication; WAL enabled sync=false",
+    "fresh_database_only": true,
+    "restart_recovery_claimed": false,
+    "cache": "full typed in-memory record cache retained",
+    "write_bytes": "logical encoded key/record/WriteBatch bytes, not physical device IO"
+  },
+  "limits": [
+    "Fresh RocksDB directories only; the core still retains a full in-memory typed record cache. No restart recovery claim.",
+    "Written uses native WAL-enabled sync=false behavior; logical serialized write counters are not physical device I/O.",
+    "Compact receipts validate finite identity/prefix/counts and explicitly omit detailed latency.",
+    "Added delay is0ms; these are functional conformance controls, not a calibrated10ms network experiment."
+  ],
+  "build_cleanup": {
+    "status": "passed",
+    "removed_allocated_bytes": 4478885888,
+    "evidence": {
+      "path": "benchmarks/results/common-node-build-cleanup-2026-10-21.json",
+      "bytes": 1543,
+      "sha256": "a1d1a353071bae16db6afd124b016683a19f9a4c3ae395bdaa83d4c98255e185"
+    },
+    "preserved_artifacts": "Archived common binary and build receipt, historical root release files, source and raw conformance evidence retained; all preserved hashes rechecked.",
+    "scope": "Remove only disposable compiler outputs after both protocols completed same-binary local acceptance. Historical raw evidence, source trees, dependency caches, preserved binaries and receipts remain.",
+    "accounting_note": "Allocated file sizes before removal, not a claim about physical APFS space reclamation. Test and live-run process cleanup is recorded in each acceptance report."
+  },
+  "live_driver_sources": [
+    {
+      "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/run-live.py",
+      "bytes": 4456,
+      "sha256": "24d906f091795d5a5ef3083acbfa9cba065b586cc06e54045d8f0d90ce912aad"
+    },
+    {
+      "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/run-live-v2.py",
+      "bytes": 4719,
+      "sha256": "5a48b5edac46433a518d2bf975dde3fd3bfcef64300e166857cede82d501d9f3"
+    },
+    {
+      "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/run-missing-payload.py",
+      "bytes": 6256,
+      "sha256": "ba0491743a9a2f5104da00c05fffc571e96ce1e6e0e4c9c64a3832380a50619f"
+    }
+  ],
+  "execution_record": {
+    "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/recipe-execution.json",
+    "bytes": 1585,
+    "sha256": "a712efde0c5f3e9382ee0dd18d7cd07c46278c49a15c2b2c0af3f00face3e22a"
+  }
+}

@@ -39,9 +39,29 @@ Current shared-core checkpoint
 - The common executable now registers Delugi and Raptr. Its node/application
   suite passes18 tests; native Raptr15 and real QS/RocksDB13 also pass after service
   injection, with all654 native external dependency identities unchanged.
-  Delugi's default workspace passes257 tests. The separately named Delugi disk
-  profile and native-compatible build are being checked with exact wire vectors
-  and new live controls before acceptance of the combined executable.
+  Delugi's default workspace passes 257 tests. The native common dependency profile
+  passes 240 ordinary and 19 actual TCP/process tests, 17 semantic trace scenarios
+  repeated twice, 8 exact ordering-wire streams and 24 exact transport vectors.
+  Only the fixture's shared-network/test-support feature differs from the actual
+  common dependency union. The separately named disk profile completes Written
+  record operations before visibility/custody; it adds no restart-recovery claim.
+  efd8f5d commits the common assembly; b039297 records native-profile conformance.
+- The final common executable (SHA-256 starting 67635393)
+  passes all six new Raptr controls and all 30 Delugi controls. Raptr's 23 correct
+  signed task snapshots reconcile 34,708 async and 16,813 blocking admissions/joins,
+  with zero retained tasks at cleanup. Delugi's 12 finite full/compact cases,
+  16 round-4/silent-leader scheduling cases and 2 actual payload-repair cases
+  all pass across memory and disk profiles. All owned trial processes are reaped.
+  One Delugi wrapper failed parsing a successful runner's multiline JSON summary;
+  its evidence is retained and the corrected collector rerun passes. No production
+  source or binary changed during the acceptance campaign.
+  Reports: common-node-raptr-validation-2026-10-21.json (committed in f0027e8),
+  common-node-delugi-validation-2026-10-21.json and
+  delugi-common-profile-static-2026-10-21.json, under benchmarks/results/.
+- Disposable compiler output totaling 4,478,885,888 allocated bytes was removed.
+  The common executable/build receipt, historical release binaries, source,
+  dependency caches and raw evidence remain; preserved artifact hashes match.
+  Report: benchmarks/results/common-node-build-cleanup-2026-10-21.json.
 - Current runs use zero added network delay and Delta100ms. There is no new
   calibrated delta10ms comparison. Native-policy conformance, shared-service
   routing, and matched performance eligibility remain separate gates.
@@ -125,8 +145,10 @@ trials ran. Their recipes remain prepared. Runtime acceptance is still pending;
 the old accepted binaries and new runtime-unvalidated validator are retained.
 
 Remaining migration gates
-The larger migration remains incomplete. Families B/C need a bounded multi-event
-fault engine, native leader/nonleader opportunity identities, repeated bursts,
+The approved local Delugi extraction, real Raptr port and common-executable
+acceptance phase is complete. The larger formal evaluation remains incomplete.
+Families B/C need a bounded multi-event fault engine, native leader/nonleader
+opportunity identities, repeated bursts,
 and joined committed-descriptor/blocked-payload/recovery evidence. Native category
 conservation, proof/transport/storage attribution and retained/hottest-replica
 resources need further work. Source and acceptance distinctions are recorded in
