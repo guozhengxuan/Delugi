@@ -1,0 +1,25 @@
+[package]
+name = "shared-runtime-async"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+tokio = { version = "=1.40.0", features = ["rt", "rt-multi-thread", "sync", "macros", "time"] }
+rayon = "=1.9.0"
+serde = { version = ">=1.0.190, <1.1", features = ["derive"] }
+
+[dev-dependencies]
+tokio = { version = "=1.40.0", features = ["test-util"] }
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

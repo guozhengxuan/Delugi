@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "scope": "shared async mechanism unit and lifecycle conformance, not protocol process acceptance",
+  "native_pin": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "tests": {
+    "unit": 9,
+    "integration": 1,
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  "guard": {
+    "path": "core/raptr/build-evidence/runtime-async-test-4/guard.json",
+    "sha256": "a2450ebfdb7f27abd89892b275b332e6d8a3b1e86a03d843431d8f7b5e977f94"
+  },
+  "log": {
+    "path": "core/raptr/build-evidence/runtime-async-test-4/cargo.log",
+    "sha256": "cf1b58afe989dd88e61df2cab393da98251076be68201addf7b9627fa4160ac5"
+  },
+  "source_files": [
+    {
+      "path": "shared/runtime-async/CONTRACT.txt",
+      "sha256": "2ba82a0693b2afc3d9bb8cc70cdf8a723818635a99d37e4d2a7746b2410454a1"
+    },
+    {
+      "path": "shared/runtime-async/Cargo.lock",
+      "sha256": "3dc3ba07aa653d8954bc04ef015a0da7b0871f10d88a59be6ffb5d0ae051509a"
+    },
+    {
+      "path": "shared/runtime-async/Cargo.toml",
+      "sha256": "727472838fae7968c9eb08c03b4625093c0dff64e2e900e1bb736dedcba29497"
+    },
+    {
+      "path": "shared/runtime-async/LICENSE",
+      "sha256": "a827c2644dc4463e252b890fcf8f1516a18b9a336fa3da3555a9dd8801af6b86"
+    },
+    {
+      "path": "shared/runtime-async/NOTICE",
+      "sha256": "9054e25c1f9e631e6b2141c584654dbb6f7e660705309c92521f2bbbb759f081"
+    },
+    {
+      "path": "shared/runtime-async/src/executor.rs",
+      "sha256": "3a1a0e5a30d39ea0441ad2e5fdd5682e77e1500c358c046ab7c7d4bb7e630c39"
+    },
+    {
+      "path": "shared/runtime-async/src/lib.rs",
+      "sha256": "eb540f9e4ab39c3d2fb077aed80bbe932dd929b0529414b7cb2637b7ce991808"
+    },
+    {
+      "path": "shared/runtime-async/src/timer.rs",
+      "sha256": "9871f0b11010ea528117c5a34f49076a7de337b618aa2986ddaad9242b8c6089"
+    },
+    {
+      "path": "shared/runtime-async/tests/rayon.rs",
+      "sha256": "dc51fbb78c79a5a57176f834ec0081b7710213433f27c9216cd916076b6ac8a5"
+    }
+  ],
+  "dependencies": {
+    "exact_external_packages": 26,
+    "all_native_lock_identities_unchanged": true,
+    "tokio": "1.40.0",
+    "rayon": "1.9.0",
+    "serde": "1.0.197"
+  },
+  "retained_failed_attempt": "core/raptr/build-evidence/runtime-async-test-1/guard.json",
+  "failed_attempt_explanation": "Fixture expected cancelled queued blocking handle to be reaped before occupied sole blocking worker was free. Tokio retains the queued cancelled handle; correct ownership therefore retains and charges both handles. Fixed assertion, not runtime semantics. Initial native-seeded lock was pruned; later attempts locked and source-identical."
+}

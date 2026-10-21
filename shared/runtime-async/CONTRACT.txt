@@ -1,0 +1,37 @@
+Shared async runtime, version 1
+
+The caller supplies a Tokio handle and one global admitted-task budget, then
+creates explicitly owned groups. The node selects two Tokio worker threads and
+the blocking-thread concurrency separately. Async/blocking limits charge all
+retained handles: queued, running, and completed until joined. Finished handles
+are reaped before new admission. Capacity overflow returns an immediate error
+and invokes the terminal-failure callback once. There is no admission wait or
+fallback executor. Group closure rejects further descendants without creating
+new work. Closure and explicit abort are normal cancellation, not task failure.
+
+A dropped typed Task handle preserves the native detached task body's execution;
+the service retains its actual Tokio JoinHandle. Shutdown aborts and joins owned
+async descendants, cancels queued blocking work and waits for running blocking
+closures. Cancelling a shutdown future does not remove any unjoined handle.
+Concurrent shutdown controllers serialize JoinHandle polling to preserve wakers.
+A cancelled queued blocking handle can remain retained until a blocking worker
+is available; it continues consuming the global bound until actually joined.
+Group shutdown closes only that group's admission; other groups remain open.
+The node must eventually invoke global shutdown and verify zero retained work.
+Limits count task ownership, not task-local heap bytes or OS thread concurrency.
+
+Async poll, future destructor, blocking closure, and discarded-result destructor
+panics latch a terminal error. Unexpected JoinError panic is also propagated on
+reap/join. Failure callbacks run outside the registry mutex. Scoped calling-thread
+CPU counters cannot be summed with nested native operation counters as total CPU.
+
+Timer<E> is the pinned Aptos LocalTimerService deadline-map mechanism moved to
+this core-neutral crate (Apache-2.0, native pin a4c98047cf8aeae3571168d02fb7e343140d2948,
+raptr/src/framework/timer.rs). Exact equal Instant keys overwrite.
+An interrupted tick retains its pending event. The policy owns all event types,
+deadlines and durations. The time module reexports the exact pinned Tokio clock,
+sleep, timeout, and interval mechanisms. No policy or backoff is supplied here.
+
+The native compatibility verifier can invoke Rayon's global fallback. Processes
+must explicitly initialize it once with the selected worker count. A previously
+initialized pool is an error; a differing implicit pool is never accepted.
