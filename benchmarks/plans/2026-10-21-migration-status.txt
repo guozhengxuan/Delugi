@@ -18,8 +18,20 @@ Current shared-core checkpoint
 - 4f0cd8e ports the pinned real Raptr core and Quorum Store. Native core15tests,
   QS13tests and pure output10tests pass; signed native certificate/prefix fixtures
   and actual Written custody-before-acknowledgement are covered. Full-node and
-  independent-process acceptance are still being assembled and are not implied by
-  these component gates. All four milestones are committed and pushed to origin/main.
+  independent-process acceptance is not implied by these component gates.
+- 96dd843 assembles independent real Raptr replicas, finite signed admission/output
+  evidence, an offline verifier, and a native payload-repair fault control. Fourteen
+  node checks pass. All five milestones are committed and pushed to origin/main.
+- The guarded native build and six independent n4 controls pass for healthy,
+  empty, unfinished, silent-first-leader, delayed materialization and missing
+  original QS payloads. Runner/build validation has54 passing checks.
+  The repair control joins each of three dropped nonempty batches to a real native
+  BatchRequest response and independently verified application output. The first
+  silent-leader run passed protocol/output checks but failed the process-cleanup
+  gate; its failed evidence is retained. The corrected rerun completes48/48 requests
+  at all three honest replicas, verifies honest anchors2/3/4, and reaps all four
+  processes. Report: raptr-shared-runner-validation-2026-10-21.json.
+  These dev-build controls are functional evidence, not throughput/latency rankings.
 - Current runs use zero added network delay and Delta100ms. There is no new
   calibrated delta10ms comparison. Native-policy conformance, shared-service
   routing, and matched performance eligibility remain separate gates.

@@ -1,0 +1,509 @@
+{
+  "acceptance_evidence": {
+    "bytes": 16306,
+    "path": "results/local/shared-core-20261021/raptr-runner-acceptance-20261021/validation.json",
+    "sha256": "766309e59f1aebd2d993fbae7a8357a12f1fcc902d44377efb39383dbc0f3034"
+  },
+  "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+  "build_profile": "dev (unoptimized), debug0, incremental0, jobs1",
+  "builds": [
+    {
+      "binary_sha256": null,
+      "command_cleanup": null,
+      "command_status": null,
+      "error": "ValueError: native archived link differs: aptos-move/move-examples/cli-e2e-tests/devnet/sources",
+      "native_archive_sha256": null,
+      "peak_owned_group_rss_bytes": null,
+      "peak_target_allocated_bytes": null,
+      "receipt": {
+        "bytes": 14608,
+        "path": "results/local/shared-core-20261021/raptr-node-build-1/build-receipt.json",
+        "sha256": "43799776fb65a181ea2b147e8b36a1a1cfa2c5f557741c13fc95092ccc8d532d"
+      },
+      "source_before_after_equal": false,
+      "status": "failed"
+    },
+    {
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "command_cleanup": {
+        "group": 62088,
+        "remaining": [],
+        "signals": [],
+        "status": "completed"
+      },
+      "command_status": "completed",
+      "error": null,
+      "native_archive_sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+      "peak_owned_group_rss_bytes": 729120768,
+      "peak_target_allocated_bytes": 3250184192,
+      "receipt": {
+        "bytes": 3671690,
+        "path": "results/local/shared-core-20261021/raptr-node-build-2/build-receipt.json",
+        "sha256": "d145fac4dc70e01cdee8d2eb94b7d6e25891ba9e5ca065af8f02bb82af75305b"
+      },
+      "source_before_after_equal": true,
+      "status": "completed"
+    },
+    {
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "command_cleanup": {
+        "group": 64814,
+        "remaining": [],
+        "signals": [],
+        "status": "completed"
+      },
+      "command_status": "completed",
+      "error": null,
+      "native_archive_sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+      "peak_owned_group_rss_bytes": 3145728,
+      "peak_target_allocated_bytes": 3249180672,
+      "receipt": {
+        "bytes": 3671684,
+        "path": "results/local/shared-core-20261021/raptr-node-build-3/build-receipt.json",
+        "sha256": "e881ba79e99c45423ce356cfa0c150659de637fac80b820c16d9f265f498d4f4"
+      },
+      "source_before_after_equal": true,
+      "status": "completed"
+    },
+    {
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "command_cleanup": {
+        "group": 67356,
+        "remaining": [],
+        "signals": [],
+        "status": "completed"
+      },
+      "command_status": "completed",
+      "error": null,
+      "native_archive_sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+      "peak_owned_group_rss_bytes": 3964928,
+      "peak_target_allocated_bytes": 3249180672,
+      "receipt": {
+        "bytes": 3671685,
+        "path": "results/local/shared-core-20261021/raptr-node-build-4/build-receipt.json",
+        "sha256": "31896b7f8c1b1ae63ce576f73a7fda5f579d29d69b5ce40d85da5e8f13650130"
+      },
+      "source_before_after_equal": true,
+      "status": "completed"
+    }
+  ],
+  "cases": [
+    {
+      "all_correct_completed": 64,
+      "all_correct_unfinished": 0,
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "case": "healthy",
+      "cleanup": "all_owned_groups_confirmed_empty",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "elapsed_seconds": 8.951705999672413,
+      "manifest": {
+        "bytes": 47544,
+        "path": "results/local/shared-core-20261021/raptr-healthy-2/manifest.json",
+        "sha256": "d001f44fe361c60d03ec3ad41e8e4e57f8affd7d22409ff347aa6dff135b9e33"
+      },
+      "minimum_max_output_round": 395,
+      "offline_verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prefix_agreement": {
+        "longest_sections": 3564,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 3564,
+          "1": 3555,
+          "2": 3564,
+          "3": 3564
+        },
+        "status": "passed"
+      },
+      "status": "completed",
+      "totals": {
+        "admitted": 64,
+        "completed": 64,
+        "offered": 64,
+        "planned": 64,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      }
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_unfinished": 0,
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "case": "empty",
+      "cleanup": "all_owned_groups_confirmed_empty",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "elapsed_seconds": 8.472552709281445,
+      "manifest": {
+        "bytes": 44097,
+        "path": "results/local/shared-core-20261021/raptr-empty-1/manifest.json",
+        "sha256": "3de34ed131395b7a436984c070eeb9db3f936c5fa4810b1a99d904634c7e4087"
+      },
+      "minimum_max_output_round": 395,
+      "offline_verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prefix_agreement": {
+        "longest_sections": 3555,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 3555,
+          "1": 3555,
+          "2": 3555,
+          "3": 3555
+        },
+        "status": "passed"
+      },
+      "status": "completed",
+      "totals": {
+        "admitted": 0,
+        "completed": 0,
+        "offered": 0,
+        "planned": 0,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      }
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_unfinished": 64,
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "case": "unfinished",
+      "cleanup": "all_owned_groups_confirmed_empty",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "elapsed_seconds": 5.445012916810811,
+      "manifest": {
+        "bytes": 35262,
+        "path": "results/local/shared-core-20261021/raptr-unfinished-1/manifest.json",
+        "sha256": "41787b404b8ac306a28ea2117842a8ce7358dcd5a29caed6e0cbc62ee7b6190b"
+      },
+      "minimum_max_output_round": null,
+      "offline_verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prefix_agreement": {
+        "longest_sections": 0,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "status": "passed"
+      },
+      "status": "completed",
+      "totals": {
+        "admitted": 64,
+        "completed": 0,
+        "offered": 64,
+        "planned": 64,
+        "rejected": 0,
+        "unfinished": 64,
+        "unoffered": 0
+      }
+    },
+    {
+      "all_correct_completed": 48,
+      "all_correct_unfinished": 0,
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "case": "silent-first-leader",
+      "cleanup": "all_owned_groups_confirmed_empty",
+      "correct_replicas": [
+        0,
+        2,
+        3
+      ],
+      "elapsed_seconds": 10.3928985837847,
+      "excluded_resumed_leader_exit": "1: expired pre-start arm; owned group reaped and empty",
+      "honest_anchors": {
+        "2": 2,
+        "3": 3,
+        "4": 0
+      },
+      "manifest": {
+        "bytes": 29592,
+        "path": "results/local/shared-core-20261021/raptr-silent-first-leader-2/manifest.json",
+        "sha256": "1b400b539f3c357f348ab6815e95c0bb8528c3cba26c53fb60992dbe8e44556b"
+      },
+      "minimum_max_output_round": 52,
+      "offline_verified_signers": [
+        0,
+        2,
+        3
+      ],
+      "pause_bounds_us": {
+        "observed_paused_lower_bound_us": 6315451,
+        "observed_paused_upper_bound_us": 6366123
+      },
+      "prefix_agreement": {
+        "longest_sections": 351,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 351,
+          "2": 351,
+          "3": 351
+        },
+        "status": "passed"
+      },
+      "status": "completed",
+      "totals": {
+        "admitted": 48,
+        "completed": 48,
+        "offered": 48,
+        "planned": 48,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      }
+    },
+    {
+      "all_correct_completed": 64,
+      "all_correct_unfinished": 0,
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "case": "materializer-delay",
+      "cleanup": "all_owned_groups_confirmed_empty",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "elapsed_seconds": 9.844381208531559,
+      "manifest": {
+        "bytes": 49350,
+        "path": "results/local/shared-core-20261021/raptr-materializer-delay-1/manifest.json",
+        "sha256": "b899d2520ad5a3dc250e63773d0bb0b068d77d5eba16347075464d7aed3c25e9"
+      },
+      "minimum_max_output_round": 439,
+      "offline_verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prefix_agreement": {
+        "longest_sections": 3951,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 3951,
+          "1": 3951,
+          "2": 3951,
+          "3": 3951
+        },
+        "status": "passed"
+      },
+      "status": "completed",
+      "totals": {
+        "admitted": 64,
+        "completed": 64,
+        "offered": 64,
+        "planned": 64,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      }
+    },
+    {
+      "all_correct_completed": 48,
+      "all_correct_unfinished": 0,
+      "binary_sha256": "53fb4c55d7701198ec6bca8d3350a4155447695c1d281285bc222fd5abdc01fe",
+      "case": "missing-payload-recovery",
+      "cleanup": "all_owned_groups_confirmed_empty",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "elapsed_seconds": 11.279508832842112,
+      "manifest": {
+        "bytes": 58398,
+        "path": "results/local/shared-core-20261021/raptr-missing-payload-1/manifest.json",
+        "sha256": "1dfb9447c8d630b1346402d07a1262f8a89f73ae550c5a29df57fd7a36b71067"
+      },
+      "minimum_max_output_round": 587,
+      "native_repairs": [
+        {
+          "admitted_requests": 16,
+          "descriptor_sha256": "8984e63057181cebfa88e55569e248449987c8cb86643bd52f8ead078b800b81",
+          "digest": "9a4322891ec5d954f3c5dde6653b435df68ce633d124bd47942ca229269d72f6",
+          "dropped_us": 4400664855888,
+          "materialized_us": 4400664903330,
+          "received_us": 4400664892608,
+          "request_started_us": 4400664885193,
+          "rpc_id": 3
+        },
+        {
+          "admitted_requests": 16,
+          "descriptor_sha256": "2dcecd5166c9e54a4f581591b44a0bbc4a7869f628e59a6f8af7afd74f6e1334",
+          "digest": "7d9acb227f17200ce9098c346890f05965f4fb27f23b80fbaa1a915b06355ef8",
+          "dropped_us": 4400664869443,
+          "materialized_us": 4400664919920,
+          "received_us": 4400664907018,
+          "request_started_us": 4400664903942,
+          "rpc_id": 8
+        },
+        {
+          "admitted_requests": 16,
+          "descriptor_sha256": "bc94899ef2dc3ad66365e67218fe61d36ad75b93e68cd19a0a11fc39b0796aa6",
+          "digest": "4ffea5cdc121735b1d07e07db1a3a4231b4fc119993fa60d202ecbc74e6a5e28",
+          "dropped_us": 4400664884253,
+          "materialized_us": 4400664933668,
+          "received_us": 4400664925998,
+          "request_started_us": 4400664920818,
+          "rpc_id": 13
+        }
+      ],
+      "offline_verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "prefix_agreement": {
+        "longest_sections": 5292,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 5292,
+          "1": 5283,
+          "2": 5292,
+          "3": 5292
+        },
+        "status": "passed"
+      },
+      "status": "completed",
+      "totals": {
+        "admitted": 48,
+        "completed": 48,
+        "offered": 48,
+        "planned": 48,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      }
+    }
+  ],
+  "checks": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "raptr_shared_local_test.py"
+      ],
+      "log": {
+        "bytes": 138,
+        "path": "results/local/shared-core-20261021/raptr-runner-acceptance-20261021/raptr_shared_local_test.py.log",
+        "sha256": "82fc2f63e2c0fe52229668c48f5344740a497efcd631238497d2922e2c382895"
+      },
+      "returncode": 0,
+      "tests": 39
+    },
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "build_raptr_shared_test.py"
+      ],
+      "log": {
+        "bytes": 114,
+        "path": "results/local/shared-core-20261021/raptr-runner-acceptance-20261021/build_raptr_shared_test.py.log",
+        "sha256": "ecd7ba5b75a44f1c6152f17499e61460ce25d58c558dcfaeb286981eaddf0335"
+      },
+      "returncode": 0,
+      "tests": 15
+    }
+  ],
+  "comparison_eligible": false,
+  "compiler": "Rust1.78.0",
+  "date": "2026-10-21",
+  "native_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "not_claimed": [
+    "Performance comparison eligibility or optimized throughput/latency results",
+    "Independent native QC verification: archive verifier checks signed observer receipt, finite transaction signatures, native batch hashes/counts/bytes and canonical output order; QC bytes are absent.",
+    "Full native actor/timer/crypto shared-service parity: separate service-routing audit remains partial.",
+    "Cloud, real network delay shaping, or cross-host timing validation",
+    "Crash durability: native RocksDB profile supplies Written with WAL enabled and sync=false."
+  ],
+  "profile": "raptr-shared-consensus-only-v1",
+  "repairs": [
+    "Git archive directory symlinks verified under the original recorded tarfile.data_filter extraction semantics; no source whitelist or dependency change.",
+    "Python cross-process timestamps explicitly use CLOCK_MONOTONIC; macOS time.monotonic uses mach_absolute_time with another origin.",
+    "Reap an already exited owned leader before the remaining-group cleanup; no child/group cleanup is skipped."
+  ],
+  "retained_cache": {
+    "path": "core/raptr/.native-deps/target",
+    "reason": "Reusable native/RocksDB objects retained until the common-binary milestone; no duplicate target created."
+  },
+  "retained_failed_trials": [
+    {
+      "error": "ValueError: native ready timestamp is not before future arm epoch",
+      "manifest": {
+        "bytes": 3805,
+        "path": "results/local/shared-core-20261021/raptr-healthy-1/manifest.json",
+        "sha256": "41ee82be0bd822d16698d9ccfbcbb31e3f89dd2136574fc65ca4df8c6ff5e103"
+      },
+      "status": "failed"
+    },
+    {
+      "error": "owned-process cleanup could not be confirmed",
+      "manifest": {
+        "bytes": 29687,
+        "path": "results/local/shared-core-20261021/raptr-silent-first-leader-1/manifest.json",
+        "sha256": "143b1805b07e08401177d6a07b1c09559b7bb58ba63e72eaea0bfa0c195df24d"
+      },
+      "status": "failed"
+    }
+  ],
+  "schema": 1,
+  "source_files": {
+    "scripts/baselines/raptr_artifacts.py": "5307bf5c9b3b4e14677020b75ad8228fe9aed97aa56b4b4377d6e30198f16003",
+    "scripts/build_raptr_shared.py": "1b1213c1dbc06f055e3f8408bb6253275b69c4d6b0af4cd622cc7ceb998dc69f",
+    "scripts/run_raptr_shared_local.py": "4aee3fa0728a50a2a6a8e18cc1167bb09d74f250639e8b075c23f75cc4057e43",
+    "tests/build_raptr_shared_test.py": "c2b41f4b564af3bffa9897cd9181d974162f62d2b6c0f48444f975b10d62edf3",
+    "tests/raptr_shared_local_test.py": "c50e60426046e7930e4cd4c703f213c41fead48d199c1b7bb4ed15102d06013e"
+  },
+  "status": "six_local_independent_process_functional_gates_passed",
+  "timing": {
+    "added_delta_ms": 0,
+    "configured_Delta_ms": 100,
+    "cross_process_clock": "clock_gettime(CLOCK_MONOTONIC), same local host",
+    "timeout_clock": "Python time.monotonic (never subtracted from native event timestamps)"
+  }
+}
