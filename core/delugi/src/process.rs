@@ -1,7 +1,9 @@
 //! Independent replica driver with real clocks, authenticated replica TCP and a
 //! loopback capability-protected client/control endpoint. This local experiment
-//! retains in-memory custody and uses self-contained authenticated bases.
+//! uses self-contained authenticated bases. Custody is process-local; an optional
+//! fresh RocksDB record mirror adds a Written barrier before local visibility.
 use crate::availability::AvailabilityConfig;
+pub use crate::batch::StorageProfile;
 use crate::causal::{self, Trace as CausalTrace};
 use crate::composed::{self, Effect, Node};
 use crate::end_to_end::transactions;
@@ -53,6 +55,11 @@ pub struct Config {
     pub measure_costs: bool,
     #[serde(default)]
     pub observer_mode: workload::ObserverMode,
+    #[serde(default)]
+    pub storage_profile: StorageProfile,
+    /// Existing parent directory; each process exclusively creates replica-ID.
+    #[serde(default)]
+    pub storage_directory: Option<PathBuf>,
     pub control_addresses: Vec<SocketAddr>,
     pub control_token: String,
     pub public_keys: Vec<Vec<u8>>,
@@ -125,7 +132,7 @@ impl FaultConfig {
             && self
                 .peers
                 .as_ref()
-                .is_none_or(|peers| peers.contains(&peer))
+                .map_or(true, |peers| peers.contains(&peer))
             && (self.scope == FaultScope::All || matches!(kind, "BATCH" | "DATA"))
     }
 }
@@ -185,7 +192,7 @@ impl SustainedConfig {
     pub(crate) fn is_origin(&self, id: Id) -> bool {
         self.origins
             .as_ref()
-            .is_none_or(|origins| origins.contains(&id))
+            .map_or(true, |origins| origins.contains(&id))
     }
     fn validate(&self) -> Result<(), String> {
         if self.rate_per_replica == 0
@@ -263,6 +270,15 @@ impl Config {
 
     pub fn validate(&self, id: Id) -> Result<Committee, String> {
         self.ordering_schedule()?;
+        match (self.storage_profile, &self.storage_directory) {
+            (StorageProfile::MemoryVisible, None) => {}
+            (StorageProfile::SharedRocksdbWritten, Some(path)) if path.is_absolute() => {
+                if !cfg!(feature = "rocksdb-records") {
+                    return Err("shared RocksDB profile requires the rocksdb-records build feature".into());
+                }
+            }
+            _ => return Err("storage profile requires memory without a directory or shared RocksDB with an absolute parent directory".into()),
+        }
         if let Some(load) = &self.sustained {
             load.validate()?;
             if let Some(origins) = &load.origins {
@@ -305,7 +321,7 @@ impl Config {
                 || fault
                     .start_after_load_ms
                     .checked_add(fault.duration_ms)
-                    .is_none_or(|end| end > self.max_runtime_ms)
+                    .map_or(true, |end| end > self.max_runtime_ms)
                 || load.is_origin(fault.replica)
                 || fault.peers.as_ref().is_some_and(|peers| {
                     peers.is_empty()
@@ -539,7 +555,9 @@ struct Command {
 }
 type Control = shared_runtime::Control<Command>;
 impl shared_runtime::ControlCommand for Command {
-    fn token(&self) -> &str { &self.token }
+    fn token(&self) -> &str {
+        &self.token
+    }
 }
 
 #[derive(Clone, Default, Serialize)]
@@ -1375,7 +1393,7 @@ impl Runtime {
         let load = json!({"inserted":self.load.inserted,"completed":self.load.completed,"pending":self.load.ingress.as_ref().map_or(0,|i|i.receipt.lock().unwrap().ready_pending),
                 "scheduled":scheduled,"admitted":admitted,"batch_ready":self.load.inserted,"rejected":rejected,
                 "arrival_pending":admitted.saturating_sub(self.load.inserted),"backpressure":rejected,
-                "arrival_finished":self.load.ingress.as_ref().is_none_or(|i|i.finished.load(Ordering::Acquire)),
+                "arrival_finished":self.load.ingress.as_ref().map_or(true, |i|i.finished.load(Ordering::Acquire)),
                 "m_out_bytes":self.load.m_out_bytes,"u_out_bytes":self.load.u_out_bytes,
                 "m_out_batches":self.load.processed_batches,"useful_output_count":self.load.useful_output_count,
                 "observer_mode":self.config.observer_mode,"latency_available":self.config.observer_mode==workload::ObserverMode::Full,
@@ -1397,6 +1415,7 @@ impl Runtime {
             "load":load});
         snapshot["progress_pacing_ms"] = json!(self.config.progress_pacing_ms);
         snapshot["resource_profile"] = json!(self.config.resource_profile);
+        snapshot["storage"] = json!(self.node.store.storage_snapshot());
         snapshot["quiesced_at_us"] = json!(self.quiesced_at_us);
         snapshot["fault_omitted"] = json!(self.fault_dropped);
         snapshot["construction"] = json!(self.node.construction_metrics);
@@ -1446,6 +1465,7 @@ impl Runtime {
             "post_cutoff_frames":self.post_cutoff_frames,"post_cutoff_messages":self.post_cutoff_messages,"silent_ignored_frames":self.silent_ignored_frames,"transport":self.transport.snapshot(),"ordering_batch":self.config.ordering_batch,"round_barrier_ms":self.config.round_barrier_ms,"control":self.control.snapshot(),
             "protocol":{"by_kind":self.by_kind,"by_peer":self.by_peer,"by_index":self.by_index},
             "elapsed_us":self.origin.elapsed().as_micros() as u64,"observed_unix_us":unix_us(),"wall_origin_unix_us":self.wall_origin});
+        snapshot["storage"] = json!(self.node.store.storage_snapshot());
         snapshot["progress_pacing_ms"] = json!(self.config.progress_pacing_ms);
         snapshot["ordering_mode"] = json!(self.config.ordering_mode);
         snapshot["protocol_counter_boundary"] = json!("accepted into bounded transport including deferred FIFO; actual writer enqueues are transport layer enqueued_* counters");
@@ -1922,6 +1942,14 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
         config.chunk_capacity,
     )?;
     node.ordering.configure_ordering(schedule)?;
+    if config.storage_profile == StorageProfile::SharedRocksdbWritten {
+        let parent = config
+            .storage_directory
+            .as_ref()
+            .ok_or("missing record storage parent")?;
+        node.store
+            .enable_shared_rocksdb(&parent.join(format!("replica-{id}")))?;
+    }
     if config.sustained.is_none() {
         node.set_opportunity_limit(config.workload_rounds)?;
     }
@@ -2017,6 +2045,9 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
                     }
                 };
                 let _ = request.reply.send(reply);
+                // Storage failures are local fail-stop conditions, not rejected
+                // client requests or Byzantine protocol input.
+                rt.node.store.check_storage_health()?;
                 if stop {
                     rt.log(json!({"event":"final","snapshot":rt.snapshot()}))?;
                     break;
@@ -2108,6 +2139,7 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
                         Layer::OrderingBundle => unreachable!("bundles are expanded before dispatch"),
                     };
                     let handler_end = rt.causal.as_ref().map(CausalTrace::now_us);
+                    rt.node.store.check_storage_health()?;
                     if let Some((kind, round)) = trace_key {
                         rt.causal.as_ref().unwrap().at("handler", round, handler_end.unwrap(), dispatch_start,
                             json!({"kind":kind,"peer":received.from,"sequence":received.sequence,"member_index":member_index,"member_count":member_count,"accepted":result.is_ok()}));
@@ -2188,6 +2220,36 @@ fn unix_us() -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn storage_profile_defaults_and_feature_gate_are_explicit() {
+        let mut config:Config=serde_json::from_value(json!({
+            "instance":vec![3u8;32],
+            "addresses":["127.0.0.1:9000","127.0.0.1:9001","127.0.0.1:9002","127.0.0.1:9003"],
+            "control_addresses":["127.0.0.1:9100","127.0.0.1:9101","127.0.0.1:9102","127.0.0.1:9103"],
+            "control_token":"01234567890123456789012345678901",
+            "public_keys":(0..4).map(|id|wire::fixture_key(id).public.to_bytes().to_vec()).collect::<Vec<_>>(),
+            "key_files":["0.key","1.key","2.key","3.key"],
+            "bound_ms":100,"chunk_capacity":4,"workload_rounds":4,"silent":null,"max_runtime_ms":5000
+        })).unwrap();
+        assert_eq!(config.storage_profile, StorageProfile::MemoryVisible);
+        assert!(config.storage_directory.is_none());
+        config.validate(0).unwrap();
+        config.storage_directory = Some(PathBuf::from("/unused-parent"));
+        assert!(config.validate(0).unwrap_err().contains("storage profile"));
+        config.storage_profile = StorageProfile::SharedRocksdbWritten;
+        assert_eq!(
+            config.validate(0).is_ok(),
+            cfg!(feature = "rocksdb-records")
+        );
+        config.storage_directory = Some(PathBuf::from("relative-parent"));
+        assert!(config
+            .validate(0)
+            .unwrap_err()
+            .contains("absolute parent directory"));
+        config.storage_directory = None;
+        assert!(config.validate(0).unwrap_err().contains("storage profile"));
+    }
 
     #[test]
     fn batching_after_eligible_output_does_not_restore_pending_timestamps() {

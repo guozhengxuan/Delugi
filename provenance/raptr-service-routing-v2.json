@@ -1,0 +1,162 @@
+{
+  "schema": 2,
+  "date": "2026-10-21",
+  "profile": "raptr-shared-consensus-only-v1",
+  "native_pin": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "previous_audit": {
+    "path": "provenance/raptr-service-routing-v1.json",
+    "sha256": "11d2c236c641a226f5931e0035fc7ee860abf1d3ffca9cf6f0cc54265282e9e6"
+  },
+  "scope": "source routing closure after first six independent-process cases; new common executable tests pending",
+  "changes": {
+    "owned_execution": {
+      "status": "implemented; mechanism10 tests passed; integrated acceptance pending current common artifact",
+      "policy": "One node-wide Executor budget with groups node/network/dl/qs. Global async/blocking task limits charge queued and running handles. No enqueue wait, detached OS fallback or protocol skip on capacity: rejection latches terminal failure. Typed Task drop retains body; explicit abort/closed group is normal cancellation. Group-local close and cancellation-safe global shutdown retain handles through actual join, including running blocking work.",
+      "sources": [
+        {
+          "path": "shared/runtime-async/src/executor.rs",
+          "sha256": "3a1a0e5a30d39ea0441ad2e5fdd5682e77e1500c358c046ab7c7d4bb7e630c39",
+          "line": 147
+        },
+        {
+          "path": "core/raptr/qs/src/assembly.rs",
+          "sha256": "f9f31d6386ba7c4828d933f91da63529430409c3d19e12590f490b9d1c3831bb",
+          "line": 157
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_store.rs",
+          "sha256": "dee728ba0767f836e0181797956d409a1814fe4305cf08527d60da7a61aa276b",
+          "line": 114
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_coordinator.rs",
+          "sha256": "a0f3884b773108ca9ab58dcafb100484f8a849dc69be529a8cce59761f325a9e",
+          "line": 77
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_generator.rs",
+          "sha256": "4819c319d4dbffaa83423a1eb8dffcf38020775eb45eadfd8e4ff4e103259678",
+          "line": 483
+        },
+        {
+          "path": "core/raptr/node/src/dissemination.rs",
+          "sha256": "e40243e33f6ab70a0144c5021d1dad9923d7677e011ec058a93b89c922a0b437",
+          "line": 47
+        },
+        {
+          "path": "core/raptr/node/src/network.rs",
+          "sha256": "f882768fe4bf6dca04bd107c68625f1f1b922ae684d76693b5888195ce62732d",
+          "line": 376
+        },
+        {
+          "path": "core/raptr/node/src/factory.rs",
+          "sha256": "bf8d8cbb96a4bf26de5a36012e597e58fa8facc1b8e6d99c7fc4d4f866a049ff",
+          "line": 190
+        }
+      ],
+      "boundary": "Tokio native actor futures, nested persist/GC/fetch work, dispatcher/RPC, workload/pool and output/protocol tasks use injected groups. Existing QS FIFO/LIFO channels, counts and native shutdown coordinator acknowledgement preserved. Native Context/ModuleNetwork actual path contains no spawned tasks; unused native TcpNetwork and alternative dissemination stay retained but are not constructed.",
+      "resource_scope": "Task limits bound ownership counts, not total process heap. QS payload/storage quotas, common byte queues, observer journal bound and explicit Tokio2/blocking32/Rayon2 are separately declared. RocksDB background work belongs to native storage lifecycle; requested parallelism/cache is not observed thread count/RSS."
+    },
+    "timers": {
+      "status": "implemented with pinned oracle conformance",
+      "sources": [
+        {
+          "path": "shared/runtime-async/src/timer.rs",
+          "sha256": "9871f0b11010ea528117c5a34f49076a7de337b618aa2986ddaad9242b8c6089",
+          "line": 9
+        },
+        {
+          "path": "shared/runtime-async/src/lib.rs",
+          "sha256": "eb540f9e4ab39c3d2fb077aed80bbe932dd929b0529414b7cb2637b7ce991808",
+          "line": 10
+        },
+        {
+          "path": "core/raptr/node/src/timer.rs",
+          "sha256": "fb8abfa408bac35e7a521f53946f5aa0eecbd2f14a811d214d6f8e76c7896fca",
+          "line": 5
+        }
+      ],
+      "policy": "Copied native BTreeMap mechanism, same exact-Instant overwrite, cancellation before removal, and empty pending tick. Core supplies unchanged event durations and scheduling. Exact pinned Tokio sleep/timeout/interval/Instant API exposed via shared time and used by node/QS; missed-tick choices remain native. Native consensus Instant fields remain identical types."
+    },
+    "primitive_completion": {
+      "status": "implemented",
+      "sources": [
+        {
+          "path": "shared/crypto-aptos/src/lib.rs",
+          "sha256": "e91ba943d808b30b38d61b0ec6c9a1154cb08d8007b3559cc385634bf0eefe30",
+          "line": 98
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_generator.rs",
+          "sha256": "4819c319d4dbffaa83423a1eb8dffcf38020775eb45eadfd8e4ff4e103259678",
+          "line": 197
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/quorum_store_db.rs",
+          "sha256": "7e81fe2f8930a8d8b42ef7a2df0576160fd51e4302d5f7693f9d8a8abc564e34",
+          "line": 67
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/types.rs",
+          "sha256": "acbccb3ec67378a2b05db17822d4f3592b8edd1329907209151f5298002f7f3d",
+          "line": 364
+        },
+        {
+          "path": "core/raptr/node/src/workload.rs",
+          "sha256": "c3d636009952a18b9cd9932ddb6dc9ee64900738a9c37a05e5f05ff41e7ba6d9",
+          "line": 121
+        },
+        {
+          "path": "core/raptr/node/src/config.rs",
+          "sha256": "d80b6b285f0310d9278e53707eb26708a2dbba4e1b921c5eb47a2e5a93e7bb56",
+          "line": 342
+        }
+      ],
+      "policy": "Native Batch::new now scoped through construction provider; DB BCS and native byte-range sizes use exact shared codec. Synthetic signed transaction work uses workload sign/verify wrappers and native committed-hash closure; no change to outer Transaction hash semantics. Genesis signature verification wrapped. Native verifier still owns quorum/cache decisions, shared provider executes exact cryptography. Repair response verifies once at QS wrapper, transport only claims received_batch."
+    },
+    "rayon": {
+      "status": "explicit_process_initialization",
+      "sources": [
+        {
+          "path": "shared/runtime-async/src/lib.rs",
+          "sha256": "eb540f9e4ab39c3d2fb077aed80bbe932dd929b0529414b7cb2637b7ce991808",
+          "line": 17
+        },
+        {
+          "path": "core/raptr/node/src/factory.rs",
+          "sha256": "bf8d8cbb96a4bf26de5a36012e597e58fa8facc1b8e6d99c7fc4d4f866a049ff",
+          "line": 43
+        }
+      ],
+      "policy": "Global compatibility fallback initialized exactly once at2workers. Earlier global pool initialization or differing effective size is an error. No substituted Rayon pool policy in native verification."
+    },
+    "endpoints": {
+      "status": "root revision implemented; focused/integrated checks pending newartifact",
+      "sources": [
+        {
+          "path": "core/raptr/node/src/workload.rs",
+          "sha256": "c3d636009952a18b9cd9932ddb6dc9ee64900738a9c37a05e5f05ff41e7ba6d9",
+          "line": 43
+        },
+        {
+          "path": "core/raptr/node/src/factory.rs",
+          "sha256": "bf8d8cbb96a4bf26de5a36012e597e58fa8facc1b8e6d99c7fc4d4f866a049ff",
+          "line": 346
+        }
+      ],
+      "policy": "See root current workload publication source and tests. Admission sampled after successful bounded enqueue under eligibility lock; materialization timestamp after expensive preparation and bound checks before atomically visible state update. Freeze local clock and snapshot-copy-completion separate. Final executor snapshots signed at precleanup and cleanup; global cleanup must have zero retained work. Traffic and crypto remain sequential precleanup snapshots, not simultaneously at nominal deadline."
+    }
+  },
+  "mechanism_validation": {
+    "path": "provenance/shared-runtime-async-v1.json",
+    "sha256": "182555302b6ee924ea84ca55e36082ad6f7c764e14cac2d7b392b2f7e49755f1"
+  },
+  "fixed_profile_limits": [
+    "No Aptos VM/state sync/execution; fixed signed genesis LedgerInfo, no advancing ledger anchor.",
+    "Native QS polling, expiry, adaptive exclusion/reputation and optimistic/certified proof policy preserved.",
+    "Synthetic signed Script workload; app useful count distinct from native exact batch bytes.",
+    "Operation scopes are nested and record calling-thread CPU; not total processCPU or sum across native Rayon workers.",
+    "Common backend/compiler/transport profile conformance must pass before protocol performance comparison."
+  ],
+  "source_only_status": true
+}

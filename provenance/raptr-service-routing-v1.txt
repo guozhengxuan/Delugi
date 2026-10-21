@@ -1,0 +1,46 @@
+Raptr shared-service routing audit — 2026-10-21
+
+The current node uses real native Raptr and Quorum Store policy, the shared TCP
+service, a shared native BLS/SHA3 provider at core entry points, the shared physical
+RocksDB backend, independent shared ingress, and canonical ordered application
+materialization. Native15 + node14 tests passed. Independent-process acceptance
+is still in progress; this audit makes no performance claim.
+
+The exact source hashes and call sites are in raptr-service-routing-v1.json.
+The outer transport is explicitly raptr-native-bcs-v1, with native inner bytes.
+The output contract reserves proof-first/original-index sections before unordered
+native fetches, verifies actual payloads, and releases a complete FIFO prefix.
+Storage keeps native namespaces, BCS schema, WAL-enabled sync=false Written
+completion, options and protocol-owned expiry/cleanup.
+
+Remaining routing and resource gaps:
+- Native batch creation still hashes/serializes outside the shared construction
+  scope; typed QS DB codecs are direct native BCS. These are narrow routing fixes,
+  not a reason to replace native payload or batching policy.
+- Core timer queues remain native LocalTimerService. A shared generic copy must
+  preserve BTreeMap exact-deadline overwrite and cancelled-tick behavior before
+  replacing the node facade.
+- Tokio has two worker threads and up to32 active blocking threads. QS has30
+  default remote-batch workers and count-bounded native queues. Detached native
+  persistence/fetch tasks and the pending blocking queue are not globally bounded
+  by the outer owned-task registry. RocksDB's requested background parallelism
+  and cache sizes are separate from measured memory/thread use.
+- Actual invalid-signature fallback can enter a global Rayon pool. Merely imported
+  Rayon symbols in other QS modules are unused at this pin. The fallback pool is
+  not explicitly configured; enclosing calling-thread CPU omits its workerCPU.
+- Crypto scopes are nested and incomplete; they cannot be summed into totalCPU.
+
+Endpoint timestamps currently bracket successful publication: admission time is
+sampled just before successful try_send under the eligibility lock; output time
+is sampled after payload verification but before JSON serialization/byte-bound
+checks and atomic append. Event order is exact and a second deadline check stops
+late credit. Tighten the publication timestamp before any latency comparison.
+Traffic/crypto snapshots are pre-cleanup, taken after observer freeze; they are
+not simultaneous with each other or the nominal deadline.
+
+This profile uses signed synthetic Script transactions, a fixed quorum-signed
+genesis ledger and no AptosVM/state-sync. It does not establish advancing-ledger,
+expiry fast-forward, global memory/task bounds, or full shared-runtime parity.
+Next changes should wrap existing primitive calls, share the unchanged timer
+mechanism, declare a Rayon2 pool, and inject an owned spawn executor at existing
+native task sites. Keep native task bodies, callbacks and persistence ordering.

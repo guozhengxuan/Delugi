@@ -1,23 +1,23 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::mempool::{QuorumStoreRequest, QuorumStoreResponse};
 use crate::monitor;
 use aptos_consensus_types::{
     common::{TransactionInProgress, TransactionSummary},
     proof_of_store::{BatchId, BatchInfo},
 };
 use aptos_logger::prelude::*;
-use crate::mempool::{QuorumStoreRequest, QuorumStoreResponse};
 use aptos_types::{transaction::SignedTransaction, PeerId};
 use chrono::Utc;
 use futures::channel::{mpsc::Sender, oneshot};
+use shared_runtime_async::time::timeout;
 use std::{
     cmp::{Ordering, Reverse},
     collections::{BTreeMap, BinaryHeap, HashSet, VecDeque},
     hash::Hash,
     time::Duration,
 };
-use tokio::time::timeout;
 
 pub(crate) struct Timeouts<T> {
     timeouts: VecDeque<(i64, T)>,
@@ -201,7 +201,7 @@ impl Ord for BatchSortKey {
     fn cmp(&self, other: &Self) -> Ordering {
         // ascending
         match self.gas_bucket_start.cmp(&other.gas_bucket_start) {
-            Ordering::Equal => {},
+            Ordering::Equal => {}
             ordering => return ordering,
         }
         // descending

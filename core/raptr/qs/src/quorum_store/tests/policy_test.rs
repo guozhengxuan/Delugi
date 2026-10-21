@@ -74,10 +74,23 @@ impl QuorumStoreStorage for Storage {
         Ok(())
     }
 }
-fn store(storage: Arc<Storage>, signer: ValidatorSigner) -> Arc<BatchStore> {
-    Arc::new(BatchStore::new(
-        1, false, 0, storage, 10_000_000, 20_000_000, 1000, signer, 0,
-    ))
+fn store(
+    storage: Arc<Storage>,
+    signer: ValidatorSigner,
+) -> (Arc<BatchStore>, shared_runtime_async::Executor) {
+    let executor = shared_runtime_async::Executor::new(
+        tokio::runtime::Handle::current(),
+        Default::default(),
+        |_| {},
+    )
+    .unwrap();
+    let group = executor.group("qs-policy-fixture").unwrap();
+    (
+        Arc::new(BatchStore::new(
+            1, false, 0, storage, 10_000_000, 20_000_000, 1000, signer, 0, group,
+        )),
+        executor,
+    )
 }
 fn batch(author: PeerId, seq: u64, expiry: u64) -> Batch {
     Batch::new(
@@ -95,7 +108,7 @@ async fn custody_ack_requires_successful_written_completion() {
     let signer = ValidatorSigner::random(None);
     let storage = Arc::new(Storage::default());
     let author = signer.author();
-    let store = store(storage.clone(), signer);
+    let (store, executor) = store(storage.clone(), signer);
     let first_batch = batch(author, 1, 1000);
     let info = first_batch.batch_info().clone();
     let signed = store.persist(vec![first_batch.into()]);
@@ -120,6 +133,7 @@ async fn custody_ack_requires_successful_written_completion() {
         worker.await.unwrap_err().is_panic(),
         "native failed write must not emit a custody signature"
     );
+    executor.shutdown().await.unwrap();
 }
 
 async fn pull(
@@ -159,7 +173,7 @@ async fn proof_first_then_optimistic_exclusions_and_commit_removal() {
     let now = aptos_infallible::duration_since_epoch().as_micros() as u64;
     let expiry = now + 60_000_000;
     let author = signer.author();
-    let store = store(Arc::new(Storage::default()), signer);
+    let (store, executor) = store(Arc::new(Storage::default()), signer);
     let proof_batch = batch(author, 1, expiry);
     let opt_batch = batch(other.author(), 2, expiry);
     let proof_info = proof_batch.batch_info().clone();
@@ -202,6 +216,7 @@ async fn proof_first_then_optimistic_exclusions_and_commit_removal() {
     let p = pull(&mut manager, HashSet::new(), HashSet::new(), 10, now + 2).await;
     assert!(p.proof_with_data().is_empty());
     assert!(p.all_sub_block_batches().is_empty());
+    executor.shutdown().await.unwrap();
 }
 
 struct Available(HashSet<HashValue>);

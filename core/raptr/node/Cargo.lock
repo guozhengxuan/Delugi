@@ -2496,6 +2496,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51c4d4fbd66561c3acff86b297b024826505a715eb1b0984a78013b349d0e834"
 
 [[package]]
+name = "delugi-core"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "core-api",
+ "delugi-shared-output",
+ "ed25519-dalek",
+ "libc",
+ "serde",
+ "serde_json",
+ "sha2 0.9.9",
+ "shared-crypto",
+ "shared-mempool",
+ "shared-metrics",
+ "shared-network",
+ "shared-runtime",
+ "shared-store",
+ "shared-store-rocksdb",
+]
+
+[[package]]
 name = "delugi-raptr-core"
 version = "0.1.0"
 dependencies = [
@@ -5880,6 +5901,7 @@ dependencies = [
  "scopeguard",
  "serde",
  "shared-crypto-aptos",
+ "shared-runtime-async",
  "shared-store-rocksdb",
  "thiserror",
  "tokio",
@@ -5900,6 +5922,7 @@ dependencies = [
  "bcs 0.1.4",
  "common-node",
  "core-api",
+ "delugi-core",
  "delugi-raptr-core",
  "futures",
  "futures-channel",
@@ -5917,6 +5940,7 @@ dependencies = [
  "shared-metrics",
  "shared-network",
  "shared-runtime",
+ "shared-runtime-async",
  "tokio",
 ]
 
@@ -6613,6 +6637,22 @@ dependencies = [
  "libc",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "shared-runtime-async"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+ "serde",
+ "tokio",
+]
+
+[[package]]
+name = "shared-store"
+version = "0.1.0"
+dependencies = [
+ "core-api",
 ]
 
 [[package]]

@@ -4,6 +4,7 @@
 //! its terminal digest and peaks, but never counts older payloads as locally held.
 
 use crate::mmr::{self, Boundary, Checkpoint, Config, PrefixProof, State};
+pub use crate::record_store::{Snapshot as StorageSnapshot, StorageProfile};
 use crate::wire::{encode, hash, sign, Committee, Context, Digest, Id, Signed, SigningDomain};
 use ed25519_dalek::Keypair;
 use serde::{Deserialize, Serialize};
@@ -81,11 +82,11 @@ struct Branch {
     anchor: Checkpoint,
     state: State,
 }
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct BatchStore {
     committee: Committee,
     config: Config,
-    records: shared_store::MemoryStore<(Id, Digest), Record>,
+    records: crate::record_store::RecordStore,
     retained_payload_bytes: u64,
     /// One mutable tip per fork and independently imported base. Each State already
     /// retains every historical checkpoint and proof node; prefix copies are not
@@ -113,7 +114,7 @@ impl BatchStore {
         let mut store = Self {
             committee,
             config,
-            records: shared_store::MemoryStore::new(),
+            records: crate::record_store::RecordStore::new(),
             retained_payload_bytes: 0,
             branches: BTreeMap::new(),
             children: BTreeMap::new(),
@@ -138,6 +139,38 @@ impl BatchStore {
     }
     pub fn config(&self) -> &Config {
         &self.config
+    }
+    /// Memory snapshots support deterministic fork fixtures. A disk-owning
+    /// runtime has one namespace and cannot silently become an isolated clone.
+    pub fn try_clone_memory(&self) -> Result<Self, String> {
+        Ok(Self {
+            committee: self.committee.clone(),
+            config: self.config.clone(),
+            records: self.records.try_clone_memory()?,
+            retained_payload_bytes: self.retained_payload_bytes,
+            branches: self.branches.clone(),
+            children: self.children.clone(),
+            prefixes: self.prefixes.clone(),
+            checkpoint_branches: self.checkpoint_branches.clone(),
+            checkpoints: self.checkpoints.clone(),
+            attached: self.attached.clone(),
+            #[cfg(test)]
+            extension_attempts: self.extension_attempts,
+            produced: self.produced.clone(),
+            custody: self.custody.clone(),
+        })
+    }
+    pub fn enable_shared_rocksdb(
+        &mut self,
+        fresh_directory: &std::path::Path,
+    ) -> Result<(), String> {
+        self.records.enable_rocksdb(fresh_directory)
+    }
+    pub fn storage_snapshot(&self) -> StorageSnapshot {
+        self.records.snapshot()
+    }
+    pub fn check_storage_health(&self) -> Result<(), String> {
+        self.records.check_health()
     }
     pub fn record_count(&self) -> usize {
         self.records.len()
@@ -198,7 +231,7 @@ impl BatchStore {
         verify_record(&self.committee, &record)?;
         let digest = record_digest(&record);
         let producer = record.header.body.producer;
-        if !self.insert_record(record) {
+        if !self.insert_record(record)? {
             return Ok(false);
         }
         let mut pending = VecDeque::new();
@@ -206,21 +239,23 @@ impl BatchStore {
         self.extend_buffered(pending)?;
         Ok(true)
     }
-    fn insert_record(&mut self, record: Record) -> bool {
-        let h = &record.header.body;
+    fn insert_record(&mut self, record: Record) -> Result<bool, String> {
+        let h = record.header.body.clone();
         let digest = record_digest(&record);
         let key = (h.producer, digest);
         if self.records.contains_key(&key) {
-            return false;
+            return Ok(false);
         }
+        let payload_bytes = record.payload.len() as u64;
+        // The optional physical writer completes before any record/index is
+        // visible and before a held checkpoint or custody observation can move.
+        self.records.put(key, record)?;
         self.children
             .entry((h.producer, h.height, h.previous))
             .or_default()
             .insert(digest);
-        self.retained_payload_bytes += record.payload.len() as u64;
-        self.records.put(key, record, shared_store::Persistence::Visible)
-            .expect("the memory provider supports process-local visibility");
-        true
+        self.retained_payload_bytes += payload_bytes;
+        Ok(true)
     }
     fn add_branch(&mut self, branch: Branch) -> usize {
         let id = self.branches.len();
@@ -536,7 +571,7 @@ impl BatchStore {
         let mut changed = !already_held;
         let mut new_records = Vec::new();
         for record in &data.records {
-            if self.insert_record(record.clone()) {
+            if self.insert_record(record.clone())? {
                 new_records.push(record_digest(record));
                 changed = true;
             }
@@ -674,6 +709,133 @@ mod tests {
             .into_iter()
             .find(|p| p.height == h)
             .unwrap()
+    }
+    #[test]
+    fn failed_write_never_publishes_record_or_custody_or_producer_height() {
+        let mut receiver = store();
+        receiver.records.fail_once_after(0);
+        assert!(receiver
+            .produce(&fixture_key(0), 0, vec![7])
+            .unwrap_err()
+            .contains("injected"));
+        assert!(receiver.check_storage_health().is_err());
+        assert_eq!(receiver.record_count(), 0);
+        assert_eq!(receiver.retained_payload_bytes(), 0);
+        assert!(receiver.children.is_empty());
+        assert!(receiver.produced.is_empty());
+        assert_eq!(receiver.checkpoints(0).len(), 1);
+        assert_eq!(receiver.custody_count(), 0);
+        // Retry is still height one; the failed write cannot publish a gap.
+        let record = receiver.produce(&fixture_key(0), 0, vec![7]).unwrap();
+        assert_eq!(record.header.body.height, 1);
+        assert!(!receiver.receive(record).unwrap());
+        assert_eq!(receiver.storage_snapshot().writes.attempts, 2);
+        assert_eq!(receiver.storage_snapshot().writes.completed_writes, 1);
+        assert_eq!(receiver.storage_snapshot().writes.failures, 1);
+    }
+    #[test]
+    fn verified_data_write_failure_retains_only_written_records_without_custody() {
+        let (source, _) = populated();
+        let base = at(&source, 0);
+        let end = at(&source, 3);
+        let data = source.serve(&base, &end).unwrap();
+        let mut receiver = store();
+        receiver.records.fail_once_after(1);
+        let mut invalid = data.clone();
+        invalid.records[2].payload[0] ^= 1;
+        assert!(receiver.accept_data(&invalid).is_err());
+        assert_eq!(receiver.storage_snapshot().writes.attempts, 0);
+        assert!(receiver.accept_data(&data).is_err());
+        assert_eq!(receiver.record_count(), 1);
+        assert_eq!(receiver.retained_payload_bytes(), 10);
+        assert!(!receiver.holds(&base, &end));
+        assert!(receiver.register_custody(&base, &end).is_err());
+        assert_eq!(receiver.custody_count(), 0);
+        receiver.accept_data(&data).unwrap();
+        assert!(receiver.holds(&base, &end));
+        receiver.register_custody(&base, &end).unwrap();
+        assert_eq!(receiver.storage_snapshot().writes.completed_writes, 3);
+        assert_eq!(receiver.storage_snapshot().writes.attempts, 4);
+        assert_eq!(receiver.custody_count(), 1);
+    }
+    #[test]
+    fn memory_profile_keeps_explicit_isolated_fork_clone() {
+        let (source, _) = populated();
+        let mut fork = source.try_clone_memory().unwrap();
+        fork.produce(&fixture_key(0), 0, vec![9]).unwrap();
+        assert_eq!(source.record_count(), 12);
+        assert_eq!(fork.record_count(), 13);
+        assert_eq!(
+            source.storage_snapshot().profile,
+            StorageProfile::MemoryVisible
+        );
+        assert_eq!(source.storage_snapshot().writes.attempts, 0);
+    }
+    #[cfg(not(feature = "rocksdb-records"))]
+    #[test]
+    fn disk_profile_is_explicitly_unavailable_without_backend_feature() {
+        let path =
+            std::env::temp_dir().join(format!("delugi-disabled-store-{}", std::process::id()));
+        assert!(!path.exists());
+        assert!(store()
+            .enable_shared_rocksdb(&path)
+            .unwrap_err()
+            .contains("build feature"));
+        assert!(!path.exists());
+    }
+    #[cfg(feature = "rocksdb-records")]
+    #[test]
+    fn shared_rocksdb_writes_exact_records_once_before_custody_and_rejects_reopen() {
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!(
+            "delugi-record-store-{}-{unique}",
+            std::process::id()
+        ));
+        let (source, records) = populated();
+        let mut receiver = store();
+        receiver.enable_shared_rocksdb(&path).unwrap();
+        assert!(receiver.try_clone_memory().is_err());
+        assert!(store().enable_shared_rocksdb(&path).is_err());
+        let record = receiver.produce(&fixture_key(0), 0, vec![0; 10]).unwrap();
+        assert_eq!(record, records[0]);
+        assert!(!receiver.receive(record.clone()).unwrap());
+        let mut invalid = records[1].clone();
+        invalid.header.signature[0] ^= 1;
+        assert!(receiver.receive(invalid).is_err());
+        receiver.receive(records[1].clone()).unwrap();
+        receiver
+            .register_custody(&at(&source, 0), &at(&source, 2))
+            .unwrap();
+        let snapshot = receiver.storage_snapshot();
+        assert_eq!(snapshot.profile, StorageProfile::SharedRocksdbWritten);
+        assert_eq!(snapshot.writes.attempts, 2);
+        assert_eq!(snapshot.writes.completed_writes, 2);
+        assert_eq!(
+            snapshot.writes.record_bytes,
+            records[..2]
+                .iter()
+                .map(|r| encode(r).unwrap().len() as u64)
+                .sum::<u64>()
+        );
+        assert!(snapshot.writes.encoded_write_batch_bytes > snapshot.writes.record_bytes);
+        assert!(!snapshot.core_restart_recovery);
+        assert_eq!(receiver.custody_count(), 1);
+        drop(receiver);
+        // Independent backend oracle: core startup still refuses this directory.
+        let raw = shared_store_rocksdb::RocksStore::open(&path, &["delugi_records"]).unwrap();
+        for record in &records[..2] {
+            let key = encode(&(record.header.body.producer, record_digest(record))).unwrap();
+            assert_eq!(
+                raw.get("delugi_records", &key).unwrap(),
+                Some(encode(record).unwrap())
+            );
+        }
+        assert_eq!(raw.scan("delugi_records").unwrap().count(), 2);
+        drop(raw);
+        std::fs::remove_dir_all(&path).unwrap();
     }
     #[test]
     fn production_never_waits_for_reports_or_receipts() {
@@ -1032,7 +1194,7 @@ mod tests {
         for i in 0..3 {
             records.push(main.produce(&fixture_key(0), 0, vec![i]).unwrap());
         }
-        let mut fork = main.clone();
+        let mut fork = main.try_clone_memory().unwrap();
         for i in 3..8 {
             records.push(main.produce(&fixture_key(0), 0, vec![i]).unwrap());
         }

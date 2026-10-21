@@ -35,9 +35,9 @@ NATIVE = ROOT / f'core/raptr/.native-deps/{PIN}'
 SOURCE_GIT = ROOT / 'benchmarks/baselines/raptr'
 MANIFEST = ROOT / 'core/raptr/node/Cargo.toml'
 CONFIG = ROOT / 'core/raptr/native/.cargo/config.toml'
-SOURCE_ROOTS = ('core/raptr/node', 'core/raptr/native', 'core/raptr/qs', 'core/raptr/transport',
+SOURCE_ROOTS = ('core/delugi', 'core/raptr/node', 'core/raptr/native', 'core/raptr/qs', 'core/raptr/transport',
                 'core/raptr/src', 'core-api', 'node', 'shared')
-SOURCE_EXTRAS = ('core/raptr/Cargo.toml', 'core/raptr/Cargo.lock', 'core/raptr/native-source.json',
+SOURCE_EXTRAS = ('Cargo.toml', 'Cargo.lock', 'core/raptr/Cargo.toml', 'core/raptr/Cargo.lock', 'core/raptr/native-source.json',
                  'scripts/build_raptr_shared.py', 'scripts/run_raptr_shared_local.py',
                  'scripts/baselines/raptr_artifacts.py')
 PROFILE_FILES = ('provenance/shared-services-v1.json', 'shared/store-rocksdb/native-profile.json')
@@ -152,12 +152,12 @@ def toolchain_identity(toolchain,env):
 
 
 def recipe(action,toolchain,profile='dev',root=ROOT):
-    if action not in ('check','build') or profile not in ('dev','release'):
-        raise ValueError('fixed check/build recipe and dev/release profile required')
+    if action not in ('check','test','build') or profile not in ('dev','release'):
+        raise ValueError('fixed check/test/build recipe and dev/release profile required')
     argv=[str(Path(toolchain).resolve()/'cargo'),'--config',str(Path(root)/'core/raptr/native/.cargo/config.toml'),action,
           '--manifest-path',str(Path(root)/'core/raptr/node/Cargo.toml'),'--locked','--offline','--jobs','1']
     if profile=='release': argv.append('--release')
-    argv += ['--all-targets'] if action=='check' else ['--bin','raptr-shared-node']
+    argv += ['--bin','raptr-shared-node'] if action=='build' else ['--all-targets']
     return argv
 
 
@@ -255,6 +255,37 @@ def binary_identity(path):
             'file':GUARD.output(['file','-b',path],text=True).strip(),'dynamic_libraries':GUARD.output(command,text=True)}
 
 
+def capability_metadata(output, toolchain, env):
+    """Retain bounded offline Cargo resolution for the fixed common binary."""
+    argv=[str(Path(toolchain)/'cargo'),'--config',str(CONFIG),'metadata',
+          '--manifest-path',str(MANIFEST),'--locked','--offline','--format-version','1']
+    path=output/'cargo-metadata.json';errors=output/'cargo-metadata.stderr'
+    process=owned=None;cleanup=None
+    try:
+        with path.open('xb') as stdout,errors.open('xb') as stderr:
+            process=subprocess.Popen(argv,cwd=ROOT,env=env,stdin=subprocess.DEVNULL,
+                                     stdout=stdout,stderr=stderr,start_new_session=True)
+            owned=GUARD.OwnedGroup(process);owned.verify_start()
+            deadline=time.monotonic()+60
+            while process.poll() is None:
+                if time.monotonic()>=deadline:raise TimeoutError('Cargo metadata exceeded 60-second bound')
+                if path.stat().st_size>contract.MAX_METADATA or errors.stat().st_size>4*1024*1024:
+                    raise ValueError('Cargo metadata output exceeded bound')
+                if sum(row['rss_bytes'] for row in owned.members())>1024**3:
+                    raise ValueError('Cargo metadata exceeded 1GiB owned RSS bound')
+                time.sleep(.05)
+            if process.returncode!=0:raise RuntimeError('locked offline Cargo metadata failed; see retained stderr')
+    finally:
+        if owned is not None:
+            process.poll()
+            cleanup=owned.cleanup(2)
+    if cleanup.get('status')!='completed' or cleanup.get('remaining')!=[]:
+        raise ValueError('Cargo metadata owned cleanup is unconfirmed')
+    capabilities=contract.resolved_capabilities(contract.bounded_json(path,contract.MAX_METADATA),ROOT)
+    return {**capabilities,'cargo_metadata':{'path':path.relative_to(ROOT).as_posix(),
+            **contract.file_record(path),'argv':argv,'returncode':process.returncode,'cleanup':cleanup}}
+
+
 def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOME,profile='dev',limits=None):
     output=Path(output).resolve();target=Path(target).resolve()
     if not output.is_relative_to(ROOT): raise ValueError('build evidence must be inside the project for reproducible artifact references')
@@ -262,7 +293,7 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
     limits=GUARD.validate_limits(dict(DEFAULT_LIMITS,**(limits or {})))
     if limits['target_bytes']>20*1024**3 or limits['free_bytes']<30*1024**3 or limits['rss_bytes']>8*1024**3 or limits['seconds']>1800:
         raise ValueError('build resource guard exceeds the approved local envelope')
-    receipt={'schema':1,'format':contract.BUILD_FORMAT if action=='build' else 'raptr-shared-check-v1','status':'preparing',
+    receipt={'schema':1,'format':contract.BUILD_FORMAT if action=='build' else f'raptr-shared-{action}-v1','status':'preparing',
              'action':action,'profile':profile,'native_commit':PIN,'started_unix_ns':time.time_ns(),
              'comparison_eligible':False,'shared_target_retained':True,'source_before_after_equal':False,
              'resource_guard':{'limits':limits,'scope':'sampled owned process RSS/allocated target/free space; not kernel-enforced quotas'}}
@@ -274,6 +305,7 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
             receipt['toolchain']=toolchain_identity(toolchain,env)
             receipt['environment']=env
             receipt['cargo_configs']=GUARD.cargo_configs(ROOT,cargo_home)
+            receipt.update(capability_metadata(output,toolchain,env))
             receipt['cache_before']=cache_identity(ROOT/'core/raptr/node/Cargo.lock',cargo_home)
             receipt['command']=command
             contract.atomic_json(output/'source-before.json',receipt)
@@ -281,6 +313,7 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
                                   output/'cargo.log',output/'resources.jsonl',limits,command)
             receipt['source_before_after_equal']=(receipt['sources']==source_snapshot() and receipt['profiles']==profile_snapshot())
             if not receipt['source_before_after_equal']:raise ValueError('mutable node/shared source changed during build')
+            contract.validate_capabilities(receipt)
             contract.validate_native_dependencies(receipt['native_dependencies'])
             if toolchain_identity(toolchain,env)!=receipt['toolchain'] or GUARD.cargo_configs(ROOT,cargo_home)!=receipt['cargo_configs']:
                 raise ValueError('native compiler/formatter/Cargo configuration changed during build')
@@ -290,12 +323,12 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
                 raise ValueError('successful compiler and confirmed owned cleanup are required')
             if action=='build':
                 receipt['binary']=binary_identity(target/('release' if profile=='release' else 'debug')/'raptr-shared-node')
-            receipt['status']='completed' if action=='build' else 'checked_not_built'
+            receipt['status']={'build':'completed','check':'checked_not_built','test':'tested_not_built'}[action]
     except BaseException as error:
         receipt.update(status='failed',error=f'{type(error).__name__}: {error}')
     finally:
         receipt['finished_unix_ns']=time.time_ns()
-        for name in ('cargo.log','resources.jsonl','source-before.json'):
+        for name in ('cargo.log','resources.jsonl','source-before.json','cargo-metadata.json','cargo-metadata.stderr'):
             if (output/name).exists():receipt.setdefault('evidence',{})[name]=contract.file_record(output/name)
         contract.atomic_json(output/'build-receipt.json',receipt)
     return receipt
@@ -303,7 +336,7 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=('check','build'))
+    parser.add_argument('action',choices=('check','test','build'))
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--toolchain',type=Path,default=TOOLCHAIN)
     parser.add_argument('--target',type=Path,default=TARGET)
@@ -312,7 +345,7 @@ def main():
     args=parser.parse_args()
     result=build(args.action,args.output,toolchain=args.toolchain,target=args.target,cargo_home=args.cargo_home,profile=args.profile)
     print(json.dumps({'status':result['status'],'receipt':str(args.output/'build-receipt.json'),'error':result.get('error')},indent=2))
-    return 0 if result['status'] in ('completed','checked_not_built') else 1
+    return 0 if result['status'] in ('completed','checked_not_built','tested_not_built') else 1
 
 
 if __name__=='__main__':raise SystemExit(main())

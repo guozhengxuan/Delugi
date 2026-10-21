@@ -49,6 +49,8 @@ pub struct Limits {
     pub max_pending_payload_bytes: u64,
     pub output_capacity: usize,
     pub max_journal_bytes: u64,
+    pub max_async_tasks: usize,
+    pub max_blocking_tasks: usize,
 }
 impl Default for Limits {
     fn default() -> Self {
@@ -62,6 +64,8 @@ impl Default for Limits {
             max_pending_payload_bytes: 128 * 1024 * 1024,
             output_capacity: 4096,
             max_journal_bytes: 128 * 1024 * 1024,
+            max_async_tasks: 100_000,
+            max_blocking_tasks: 1024,
         }
     }
 }
@@ -109,7 +113,10 @@ impl Config {
             "duplicate peer address"
         );
         ensure!(
-            config.addresses.iter().all(|a| a.ip().is_loopback() && a.port() > 0),
+            config
+                .addresses
+                .iter()
+                .all(|a| a.ip().is_loopback() && a.port() > 0),
             "this accepted phase requires loopback addresses with explicit ports"
         );
         ensure!(unhex(&config.run_id)?.len() == 32, "run_id must be32 bytes");
@@ -166,6 +173,13 @@ impl Config {
             "invalid finite resource envelope"
         );
         ensure!(
+            l.max_async_tasks > 0
+                && l.max_async_tasks <= 1_000_000
+                && l.max_blocking_tasks > 0
+                && l.max_blocking_tasks <= 100_000,
+            "invalid shared task envelope"
+        );
+        ensure!(
             l.max_pending_transactions > 0
                 && l.max_pending_transactions <= 1_000_000
                 && l.max_pending_payload_bytes > 0
@@ -187,12 +201,16 @@ impl Config {
             }
         }
         if let Some(fault) = &config.payload_fault {
-            ensure!((fault.node as usize) < n
-                && fault.drop_initial_batch_messages > 0
-                && fault.drop_initial_batch_messages <= 1_000,
-                "invalid finite missing-payload control");
-            ensure!(config.finite_workload.counts[fault.node as usize] == 0,
-                "missing-payload receiver must not originate workload");
+            ensure!(
+                (fault.node as usize) < n
+                    && fault.drop_initial_batch_messages > 0
+                    && fault.drop_initial_batch_messages <= 1_000,
+                "invalid finite missing-payload control"
+            );
+            ensure!(
+                config.finite_workload.counts[fault.node as usize] == 0,
+                "missing-payload receiver must not originate workload"
+            );
         }
         Ok(config)
     }
@@ -321,7 +339,7 @@ impl Keys {
             "genesis anchor hash mismatch"
         );
         let genesis: LedgerInfoWithSignatures = shared_crypto_aptos::decode(&genesis_bytes)?;
-        genesis.verify_signatures(&verifier)?;
+        shared_crypto_aptos::native_validation(|| genesis.verify_signatures(&verifier))?;
         ensure!(
             genesis.ledger_info().epoch() == committee.epoch
                 && genesis.ledger_info().timestamp_usecs() == 0,
@@ -401,7 +419,7 @@ pub fn generate_keys(directory: &Path, n: usize) -> Result<String> {
         ledger,
         verifier.aggregate_signatures(signatures.iter().map(|(a, s)| (a, s)))?,
     );
-    anchor.verify_signatures(&verifier)?;
+    shared_crypto_aptos::native_validation(|| anchor.verify_signatures(&verifier))?;
     let bytes = shared_crypto_aptos::encode(&anchor)?;
     write_new(&directory.join("genesis-ledger.bcs"), &bytes, false)?;
     write_json_new(

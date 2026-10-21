@@ -55,7 +55,7 @@ impl UserPayloadClient for DummyClient {
             && params.max_txns.size_in_bytes() >= 1
             && nxt_txn_idx < self.txns.len()
         {
-            tokio::time::sleep(Duration::from_millis(1)).await;
+            shared_runtime_async::time::sleep(Duration::from_millis(1)).await;
             let txn = self.txns[nxt_txn_idx].clone();
             let txn_size = txn.raw_txn_bytes_len() as u64;
             if txn_size > params.max_txns.size_in_bytes() {

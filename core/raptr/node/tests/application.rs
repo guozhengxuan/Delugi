@@ -9,7 +9,16 @@ use raptr_shared_node::{
     workload::Workload,
 };
 use serde_json::{json, Value};
-use std::{fs, path::PathBuf, sync::Arc};
+use std::{
+    fs,
+    path::PathBuf,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
+};
+
+static FIXTURE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 struct Fixture {
     root: PathBuf,
@@ -25,11 +34,12 @@ impl Drop for Fixture {
 impl Fixture {
     fn new(planned: u64, output: bool, preplay: bool) -> Result<Self> {
         let root = std::env::temp_dir().join(format!(
-            "raptr-app-verify-{}-{}",
+            "raptr-app-verify-{}-{}-{}",
             std::process::id(),
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)?
-                .as_nanos()
+                .as_nanos(),
+            FIXTURE_SEQUENCE.fetch_add(1, Ordering::Relaxed)
         ));
         fs::create_dir(&root)?;
         let key_dir = root.join("keys");
@@ -238,6 +248,105 @@ fn frozen_transport_failure_cannot_claim_completed_status() -> Result<()> {
     Ok(())
 }
 
+#[test]
+fn signed_executor_evidence_requires_joined_owned_work_and_monotonic_counters() -> Result<()> {
+    let mut fixture = Fixture::new(0, false, false)?;
+    // Historical receipts without these fields stay readable.
+    fixture.verify()?;
+    let frozen = json!({
+        "limits":{"max_async_tasks":8,"max_blocking_tasks":4},
+        "admitted_async":3,"admitted_blocking":2,
+        "started_async":2,"started_blocking":1,
+        "body_finished_async":1,"body_finished_blocking":0,
+        "joined_async":1,"joined_blocking":0,
+        "cancelled_async":0,"cancelled_blocking":0,
+        "panicked":0,"rejected_capacity":0,"rejected_closed":0,
+        "retained_async":2,"retained_blocking":2,
+        "queued_async":1,"queued_blocking":1,
+        "active_async":1,"active_blocking":1,
+        "maximum_retained_async":2,"maximum_retained_blocking":2,
+        "groups":[{"id":0,"label":"native","closed":false,"retained":4}],
+        "failure":null
+    });
+    let mut cleanup = frozen.clone();
+    for (field, value) in [
+        ("joined_async", 3),
+        ("joined_blocking", 2),
+        ("cancelled_async", 2),
+        ("cancelled_blocking", 2),
+        ("retained_async", 0),
+        ("retained_blocking", 0),
+        ("queued_async", 0),
+        ("queued_blocking", 0),
+        ("active_async", 0),
+        ("active_blocking", 0),
+    ] {
+        cleanup[field] = json!(value);
+    }
+    cleanup["groups"][0]["closed"] = json!(true);
+    cleanup["groups"][0]["retained"] = json!(0);
+    fixture.body["executor_at_freeze"] = frozen;
+    fixture.body["executor_at_cleanup"] = cleanup;
+    fixture.seal()?;
+    fixture.verify()?;
+    let valid = fixture.body.clone();
+    let changes = [
+        ("/executor_at_cleanup/joined_async", json!(2)),
+        ("/executor_at_cleanup/retained_blocking", json!(1)),
+        ("/executor_at_cleanup/queued_async", json!(1)),
+        ("/executor_at_cleanup/active_blocking", json!(1)),
+        ("/executor_at_cleanup/failure", json!("owned failure")),
+        ("/executor_at_cleanup/rejected_capacity", json!(1)),
+        ("/executor_at_cleanup/groups/0/closed", json!(false)),
+        ("/executor_at_cleanup/groups/0/retained", json!(1)),
+        ("/executor_at_cleanup/groups/0/label", json!("replacement")),
+        ("/executor_at_cleanup/groups/0/id", json!(1)),
+        ("/executor_at_cleanup/body_finished_async", json!(0)),
+        ("/executor_at_cleanup/maximum_retained_async", json!(1)),
+        ("/executor_at_freeze/retained_async", json!(1)),
+    ];
+    for (path, value) in changes {
+        fixture.body = valid.clone();
+        *fixture.body.pointer_mut(path).unwrap() = value;
+        fixture.seal()?;
+        assert!(
+            fixture.verify().is_err(),
+            "accepted signed malformed evidence at {path}"
+        );
+    }
+    for field in ["executor_at_freeze", "executor_at_cleanup"] {
+        fixture.body = valid.clone();
+        fixture.body.as_object_mut().unwrap().remove(field);
+        fixture.seal()?;
+        assert!(fixture.verify().is_err(), "accepted missing {field}");
+    }
+    Ok(())
+}
+
+#[test]
+fn signed_snapshot_copy_timing_is_separate_from_freeze_and_checked() -> Result<()> {
+    let mut fixture = Fixture::new(0, false, false)?;
+    let freeze = fixture.body["freeze_us"].as_u64().unwrap();
+    fixture.body["snapshot_completed_us"] = json!(freeze + 37);
+    fixture.body["snapshot_copy_us"] = json!(37);
+    fixture.seal()?;
+    fixture.verify()?;
+    for (completed, copy) in [(freeze - 1, 0), (freeze + 37, 36)] {
+        fixture.body["snapshot_completed_us"] = json!(completed);
+        fixture.body["snapshot_copy_us"] = json!(copy);
+        fixture.seal()?;
+        assert!(fixture.verify().is_err());
+    }
+    fixture
+        .body
+        .as_object_mut()
+        .unwrap()
+        .remove("snapshot_completed_us");
+    fixture.seal()?;
+    assert!(fixture.verify().is_err());
+    Ok(())
+}
+
 #[tokio::test]
 async fn actual_publication_journal_overflow_is_atomic() -> Result<()> {
     use delugi_raptr_core::{BlockId, PublishedBatch, PublishedSection, SectionKind};
@@ -255,7 +364,13 @@ async fn actual_publication_journal_overflow_is_atomic() -> Result<()> {
     )?;
     let (mut requests, receiver) = futures_channel::mpsc::channel(4);
     let epoch = shared_runtime::monotonic_us().map_err(anyhow::Error::msg)?;
-    let (mut worker, task) = workload.start(epoch, receiver)?;
+    let executor = shared_runtime_async::Executor::new(
+        tokio::runtime::Handle::current(),
+        shared_runtime_async::Limits::default(),
+        |_| {},
+    )?;
+    let (mut worker, task) =
+        workload.start(epoch, receiver, executor.group("application-test")?)?;
     let transaction = tokio::time::timeout(std::time::Duration::from_secs(2), async {
         loop {
             let (reply, rx) = futures_channel::oneshot::channel();
@@ -288,8 +403,7 @@ async fn actual_publication_journal_overflow_is_atomic() -> Result<()> {
         0,
     );
     let info =
-        delugi_raptr_core::BatchInfo::from_native_bcs(&bcs::to_bytes(batch.batch_info())?)
-            .unwrap();
+        delugi_raptr_core::BatchInfo::from_native_bcs(&bcs::to_bytes(batch.batch_info())?).unwrap();
     let publication = workload.publish(PublishedSection {
         ordinal: 0,
         block: BlockId {
@@ -306,7 +420,7 @@ async fn actual_publication_journal_overflow_is_atomic() -> Result<()> {
         }],
     });
     assert!(publication.is_err());
-    let (rows, outputs, counts) = workload.freeze();
+    let (_freeze_us, rows, outputs, counts) = workload.freeze();
     assert!(outputs.is_empty());
     assert!(rows[0].admitted_us.is_some());
     assert!(rows[0].first_materialized_us.is_none());
@@ -315,5 +429,6 @@ async fn actual_publication_journal_overflow_is_atomic() -> Result<()> {
     assert_eq!(counts["unadmitted_first_outputs"], 0);
     task.abort();
     let _ = task.await;
+    assert_eq!(executor.shutdown().await?.retained_async, 0);
     Ok(())
 }

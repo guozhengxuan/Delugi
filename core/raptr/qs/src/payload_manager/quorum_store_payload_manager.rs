@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::{
-    payload_metadata::BlockTransactionPayload,
     counters, monitor,
     payload_manager::TPayloadManager,
+    payload_metadata::BlockTransactionPayload,
     quorum_store::{batch_store::BatchReader, quorum_store_coordinator::CoordinatorCommand},
 };
 use aptos_bitvec::BitVec;
@@ -131,7 +131,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
             .flat_map(|payload| match payload {
                 Payload::DirectMempool(_) => {
                     unreachable!("InQuorumStore should be used");
-                },
+                }
                 Payload::InQuorumStore(proof_with_status) => proof_with_status
                     .proofs
                     .iter()
@@ -154,13 +154,13 @@ impl TPayloadManager for QuorumStorePayloadManager {
                                 .map(|proof| proof.info().clone()),
                         )
                         .collect::<Vec<_>>()
-                },
+                }
                 Payload::OptQuorumStore(opt_quorum_store_payload) => {
                     opt_quorum_store_payload.into_inner().get_all_batch_infos()
-                },
+                }
                 Payload::Raptr(raikou_payload) => {
                     raikou_payload.get_all_batch_infos().cloned().collect()
-                },
+                }
             })
             .collect();
 
@@ -270,19 +270,19 @@ impl TPayloadManager for QuorumStorePayloadManager {
         match payload {
             Payload::InQuorumStore(proof_with_status) => {
                 request_txns_and_update_status(proof_with_status, self.batch_reader.clone());
-            },
+            }
             Payload::InQuorumStoreWithLimit(proof_with_data) => {
                 request_txns_and_update_status(
                     &proof_with_data.proof_with_data,
                     self.batch_reader.clone(),
                 );
-            },
+            }
             Payload::QuorumStoreInlineHybrid(_, proof_with_data, _) => {
                 request_txns_and_update_status(proof_with_data, self.batch_reader.clone());
-            },
+            }
             Payload::DirectMempool(_) => {
                 unreachable!()
-            },
+            }
             Payload::OptQuorumStore(opt_qs_payload) => {
                 prefetch_helper(
                     opt_qs_payload.opt_batches(),
@@ -298,7 +298,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     timestamp,
                     &self.ordered_authors,
                 )
-            },
+            }
             Payload::Raptr(raikou_payload) => {
                 for sub_block in raikou_payload.sub_blocks() {
                     prefetch_helper_raikou(
@@ -317,7 +317,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     timestamp,
                     &self.ordered_authors,
                 )
-            },
+            }
         };
     }
 
@@ -325,7 +325,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
         match payload {
             Payload::DirectMempool(_) => {
                 unreachable!("QuorumStore doesn't support DirectMempool payload")
-            },
+            }
             Payload::InQuorumStore(_) => Ok(()),
             Payload::InQuorumStoreWithLimit(_) => Ok(()),
             Payload::QuorumStoreInlineHybrid(inline_batches, proofs, _) => {
@@ -375,7 +375,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                 // The payload is considered available because it contains only proofs that guarantee network availabiliy
                 // or inlined transactions.
                 Ok(())
-            },
+            }
             Payload::OptQuorumStore(opt_qs_payload) => {
                 let mut missing_authors = BitVec::with_num_bits(self.ordered_authors.len() as u16);
                 for batch in opt_qs_payload.opt_batches().deref() {
@@ -392,7 +392,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                 } else {
                     Err(missing_authors)
                 }
-            },
+            }
             Payload::Raptr(raikout_payload) => {
                 let mut missing_authors = BitVec::with_num_bits(self.ordered_authors.len() as u16);
                 for batch in raikout_payload
@@ -413,7 +413,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                 } else {
                     Err(missing_authors)
                 }
-            },
+            }
         }
     }
 
@@ -448,7 +448,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
         timeout: Duration,
         wait_for_proof: bool,
     ) -> anyhow::Result<()> {
-        tokio::time::timeout(timeout, async move {
+        shared_runtime_async::time::timeout(timeout, async move {
             let Payload::Raptr(payload) = payload else {
                 unreachable!("Only Raikou payload is supported");
             };
@@ -512,7 +512,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     transactions,
                     proof_with_data.proofs.clone(),
                 )
-            },
+            }
             Payload::InQuorumStoreWithLimit(proof_with_data) => {
                 let transactions = process_qs_payload(
                     &proof_with_data.proof_with_data,
@@ -526,7 +526,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     proof_with_data.proof_with_data.proofs.clone(),
                     proof_with_data.max_txns_to_execute,
                 )
-            },
+            }
             Payload::QuorumStoreInlineHybrid(
                 inline_batches,
                 proof_with_data,
@@ -559,7 +559,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     *max_txns_to_execute,
                     inline_batches,
                 )
-            },
+            }
             Payload::OptQuorumStore(opt_qs_payload) => {
                 let opt_batch_txns = process_optqs_payload(
                     opt_qs_payload.opt_batches(),
@@ -591,7 +591,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     ]
                     .concat(),
                 )
-            },
+            }
             Payload::Raptr(raikou_payload) => {
                 let mut sub_blocks_txns = Vec::with_capacity(30_000);
 
@@ -630,7 +630,7 @@ impl TPayloadManager for QuorumStorePayloadManager {
                     raikou_payload.proof_with_data().deref().clone(),
                     raikou_payload.all_sub_block_batches(),
                 )
-            },
+            }
             _ => unreachable!(
                 "Wrong payload {} epoch {}, round {}, id {}",
                 payload,

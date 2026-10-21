@@ -25,15 +25,13 @@ use aptos_short_hex_str::AsShortHexStr;
 use aptos_types::{
     ledger_info::SignatureAggregator, validator_verifier::ValidatorVerifier, PeerId,
 };
+use shared_runtime_async::time;
 use std::{
     collections::{hash_map::Entry, HashMap},
     sync::Arc,
     time::{Duration, Instant},
 };
-use tokio::{
-    sync::{mpsc::Receiver, oneshot as TokioOneshot},
-    time,
-};
+use tokio::sync::{mpsc::Receiver, oneshot as TokioOneshot};
 
 #[derive(Debug)]
 pub(crate) enum ProofCoordinatorCommand {
@@ -96,14 +94,14 @@ impl IncrementalProofState {
                 if signed_batch_info.signer() == self.signature_aggregator.data().author() {
                     self.self_voted = true;
                 }
-            },
+            }
             None => {
                 error!(
                     "Received signature from author not in validator set: {}",
                     signed_batch_info.signer()
                 );
                 return Err(SignedBatchInfoError::InvalidAuthor);
-            },
+            }
         }
 
         Ok(())
@@ -142,11 +140,14 @@ impl IncrementalProofState {
         if self.completed {
             panic!("Cannot call take twice, unexpected issue occurred");
         }
-        match shared_crypto_aptos::native_validation(|| self.signature_aggregator.aggregate_and_verify(validator_verifier)) {
+        match shared_crypto_aptos::native_validation(|| {
+            self.signature_aggregator
+                .aggregate_and_verify(validator_verifier)
+        }) {
             Ok((batch_info, aggregated_sig)) => {
                 self.completed = true;
                 Ok(ProofOfStore::new(batch_info, aggregated_sig))
-            },
+            }
             Err(_) => Err(SignedBatchInfoError::UnableToAggregate),
         }
     }

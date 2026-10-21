@@ -16,8 +16,9 @@ use aptos_logger::prelude::*;
 use aptos_types::{transaction::SignedTransaction, validator_verifier::ValidatorVerifier, PeerId};
 use futures::{stream::FuturesUnordered, StreamExt};
 use rand::Rng;
+use shared_runtime_async::time;
 use std::{collections::BTreeSet, sync::Arc, time::Duration};
-use tokio::{sync::oneshot, time};
+use tokio::sync::oneshot;
 
 struct BatchRequesterState {
     signers: Arc<Mutex<BTreeSet<PeerId>>>,

@@ -29,6 +29,116 @@ if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
 from spec_provenance import add_spec_arguments, archive_spec, verify_spec_unchanged, scheduling_provenance
 from shared_core_conformance import source_inventory
+
+STORAGE_PROFILES = ("memory-visible-v1", "shared-rocksdb-written-v1")
+
+
+def add_shared_artifact_arguments(parser):
+    parser.add_argument("--shared-build-receipt", type=Path,
+                        help="explicit shared-node build receipt; never substitutes a root release stamp")
+    parser.add_argument("--storage-profile", choices=STORAGE_PROFILES, default=STORAGE_PROFILES[0])
+
+
+def verify_shared_delugi_build(binary, receipt_path, storage_profile=STORAGE_PROFILES[0], source_root=None):
+    """Reuse the native build guard, then require actual Delugi capability."""
+    import run_raptr_shared_local as contract
+    root = Path(source_root or ROOT).resolve()
+    stamp = contract.bounded_json(receipt_path, 16 * 1024 * 1024)
+    verified = contract.validate_build(binary, stamp, source_root=root)
+    if storage_profile not in STORAGE_PROFILES:
+        raise ValueError("unknown Delugi storage profile")
+    protocols = verified.get("protocols")
+    if (not isinstance(protocols, list) or not all(isinstance(value, str) for value in protocols)
+            or len(set(protocols)) != len(protocols) or "delugi" not in protocols
+            or protocols != stamp.get("protocols")):
+        raise ValueError("shared receipt does not bind a compiled Delugi protocol")
+    sources = stamp["sources"]
+    directory = root / "core/delugi"
+    if not directory.is_dir() or "core/delugi/Cargo.toml" not in sources:
+        raise ValueError("shared build omits Delugi source closure")
+    for current, directories, files in os.walk(directory, followlinks=False):
+        directories[:] = [name for name in directories if name not in ("target", ".git")]
+        if any((Path(current) / name).is_symlink() for name in directories):
+            raise ValueError("Delugi source closure contains a symlink directory")
+        for name in files:
+            path = Path(current) / name
+            if path.suffix in (".rs", ".toml") or name == "Cargo.lock":
+                relative = path.relative_to(root).as_posix()
+                if relative not in sources or contract.sha256(contract.safe_file(root, relative)) != sources[relative]:
+                    raise ValueError(f"shared build omits or differs from Delugi source: {relative}")
+    compiled = verified.get("compiled_features")
+    features = compiled.get("delugi-core") if isinstance(compiled, dict) else None
+    if (not isinstance(features, list) or not all(isinstance(value, str) for value in features)
+            or len(set(features)) != len(features) or compiled != stamp.get("compiled_features")):
+        raise ValueError("shared receipt omits compiled Delugi feature identity")
+    if storage_profile == STORAGE_PROFILES[1] and "rocksdb-records" not in features:
+        raise ValueError("disk profile requires compiled delugi-core/rocksdb-records")
+    return stamp, dict(verified, receipt_sha256=contract.sha256(receipt_path),
+                      protocols=stamp["protocols"], compiled_features=stamp.get("compiled_features", {}))
+
+
+def archive_shared_delugi_build(binary, receipt_path, directory, storage_profile, source_root=None):
+    """Retain mutable inputs; reuse the already retained native archive/binary."""
+    import run_raptr_shared_local as contract
+    root, directory = Path(source_root or ROOT).resolve(), Path(directory)
+    stamp, verified = verify_shared_delugi_build(binary, receipt_path, storage_profile, root)
+    directory.mkdir(parents=True, exist_ok=False)
+    contract.copy_verified(receipt_path, directory / "build-receipt.json", verified["receipt_sha256"])
+    total = 0
+    for name, expected in sorted({**stamp["sources"], **stamp["profiles"]}.items()):
+        source = contract.safe_file(root, name)
+        total += source.stat().st_size
+        if total > 64 * 1024 * 1024:
+            raise ValueError("mutable shared-node source archive exceeds 64 MiB envelope")
+        contract.copy_verified(source, directory / "source" / name, expected)
+    verified.update(retained_binary=str(Path(binary).resolve()),
+                    native_source_archive=str(root / stamp["native_dependencies"]["archive_path"]),
+                    archive=str(directory), mutable_source_bytes=total,
+                    retention="binary and immutable native archive remain in original build evidence; receipt and mutable sources copied")
+    return verified
+
+
+def storage_options(directory, profile):
+    if profile == STORAGE_PROFILES[0]:
+        return {}  # Preserve old configuration bytes/legacy binaries by default.
+    if profile != STORAGE_PROFILES[1]:
+        raise ValueError("unknown Delugi storage profile")
+    parent = Path(directory).resolve() / "record-storage"
+    parent.mkdir(exist_ok=False)
+    return {"storage_profile": profile, "storage_directory": str(parent)}
+
+
+def validate_storage_snapshots(snapshots, profile):
+    result = {}
+    for replica, snapshot in snapshots.items():
+        storage = snapshot.get("storage")
+        if storage is None and profile == STORAGE_PROFILES[0]:
+            result[replica] = {"profile": profile, "counters_available": False}
+            continue
+        if not isinstance(storage, dict) or storage.get("profile") != profile:
+            raise AssertionError("replica storage profile differs from configured profile")
+        writes = storage.get("writes", {})
+        if (any(type(writes.get(key)) is not int or writes[key] < 0
+                for key in ("attempts", "completed_writes", "failures"))
+                or writes.get("failures") != 0 or writes.get("last_error") is not None):
+            raise AssertionError("replica storage write failed")
+        if storage.get("core_restart_recovery") is not False or storage.get("core_required_completion") != "Visible":
+            raise AssertionError("unexpected Delugi custody/recovery storage contract")
+        if profile == STORAGE_PROFILES[1]:
+            records = snapshot.get("record_count", snapshot.get("retained_state", {}).get("batch_records"))
+            if (type(records) is not int or writes.get("completed_writes") != records
+                    or writes.get("attempts") != records
+                    or storage.get("actual_write_completion") != "Written (WAL enabled, sync=false)"
+                    or storage.get("native_backend_profile") != "blob-lz4-pipelined-v1"
+                    or storage.get("fresh_database_only") is not True
+                    or any(type(writes.get(key)) is not int or writes[key] < (1 if records else 0)
+                           or (not records and writes[key] != 0)
+                           for key in ("key_bytes", "record_bytes", "encoded_write_batch_bytes"))):
+                raise AssertionError("disk write receipts do not match retained exact records")
+        elif writes.get("attempts") != 0 or writes.get("completed_writes") != 0:
+            raise AssertionError("memory profile reported physical writes")
+        result[replica] = storage
+    return result
 MAX_REPLY = 16 * 1024 * 1024
 
 
@@ -644,8 +754,9 @@ def add_ordering_arguments(parser):
 
 
 def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
-              ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None, ordering_mode=None):
-    directory.mkdir(parents=True)
+              ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None, ordering_mode=None,
+              storage_profile=STORAGE_PROFILES[0]):
+    directory.mkdir(parents=True, exist_ok=False)
     result = {"label": directory.name, "scenario": scenario, "status": "incomplete", "pass": False}
     children = []
     controller = None
@@ -665,6 +776,7 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
                   "bound_ms": bound_ms, "chunk_capacity": 4, "workload_rounds": 4,
                   "silent": scenario.get("silent"), "max_runtime_ms": int((timeout + 5) * 1000),
                   **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
+        config.update(storage_options(directory, storage_profile))
         config_path = directory / "config.json"
         config_path.write_text(json.dumps(config, indent=2) + "\n")
         os.chmod(config_path, 0o600)
@@ -730,6 +842,7 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
         drift_us = abs((time.time_ns() - wall_begin) - (time.monotonic_ns() - mono_begin)) / 1000
         if drift_us > 10_000:
             raise AssertionError(f"realtime clock diverged from monotonic clock by {drift_us} us")
+        result["storage"] = validate_storage_snapshots(snapshots, storage_profile)
         result.update({"pass": True, "status": "passed", "correctness": correctness,
                        "latency": latency, "clock_drift_us": drift_us, "submitted": submitted,
                        "preload_readiness_gates": gates,
@@ -767,9 +880,15 @@ def main():
     parser.add_argument("--transaction-bytes", type=int, default=32)
     parser.add_argument("--skip-checks", action="store_true", help="development only: skip format/unit checks, still build release")
     parser.add_argument("--scenario", choices=["all", "honest", "silent"], default="all")
+    parser.add_argument("--binary", type=Path, default=ROOT / "target/release/delugi-replica")
+    add_shared_artifact_arguments(parser)
     add_ordering_arguments(parser)
     add_spec_arguments(parser)
     args = parser.parse_args()
+    if not args.shared_build_receipt and args.binary.resolve() != (ROOT / "target/release/delugi-replica").resolve():
+        parser.error("custom network binary requires an explicit shared build receipt")
+    if args.storage_profile != STORAGE_PROFILES[0] and not args.shared_build_receipt:
+        parser.error("disk profile requires an explicit shared build receipt with compiled backend")
     if args.repeats < 1 or not 10 <= args.bound_ms <= 10000 or args.timeout <= 0 or not 1 <= args.transaction_bytes <= 4096:
         parser.error("invalid bounded experiment arguments")
     run = ROOT / "results" / "local" / ("network-" + uuid.uuid4().hex)
@@ -788,8 +907,13 @@ def main():
                            "storage": "Independent in-memory replica state; no crash recovery or persistent custody",
                            "keys": "Fresh OS-random per-run private keys stored mode0600 solely as archived experiment fixtures",
                            "shutdown": "After all correct output completes, explicit quiesce freezes handlers/timers; pre-cutoff transport drains and ACKs post-cutoff discarded deliveries; pending outbound frames zero and counters stable100ms before final snapshots and graceful stop",
-                           "repeats": args.repeats, "checks_skipped": args.skip_checks},
+                           "repeats": args.repeats, "checks_skipped": args.skip_checks or bool(args.shared_build_receipt)},
                 "source_files": [], "trials": [], "commands": []}
+    manifest["storage_profile"] = args.storage_profile
+    if args.storage_profile == STORAGE_PROFILES[1]:
+        manifest["method"]["storage"] = "fresh shared RocksDB Written record mirror before process-local Visible custody; typed memory cache retained; no core crash recovery; WAL enabled sync=false"
+    if args.shared_build_receipt:
+        manifest["method"]["checks"] = "shared build receipt validation and current runtime conformance; root workspace Cargo checks are not invoked for this binary"
 
     def command(command_args, label):
         completed = subprocess.run(command_args, cwd=ROOT, capture_output=True, text=True)
@@ -800,6 +924,7 @@ def main():
             raise RuntimeError(f"{label} failed; see retained logs")
         return completed.stdout
 
+    shared_validation = None
     try:
         sources = [ROOT / item for item in ("Cargo.toml", "Cargo.lock", "README.md", "IMPLEMENTATION_PLAN.md",
                                             "scripts/run_network.py", "scripts/spec_provenance.py", "scripts/shared_core_conformance.py")]
@@ -813,16 +938,22 @@ def main():
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
         manifest["specification"] = archive_spec(args.spec_snapshot, run / "snapshot", args.paper_repository)
         manifest["paper_head"] = manifest["specification"]["paper_head"]
-        manifest["rustc"] = command(["rustc", "--version", "--verbose"], "rustc").strip()
-        manifest["cargo"] = command(["cargo", "--version"], "cargo").strip()
-        if not args.skip_checks:
-            command(["cargo", "fmt", "--check"], "format")
-            command(["cargo", "test", "--workspace", "--offline", "--locked"], "tests")
-            command(["cargo", "test", "--workspace", "--offline", "--locked", "--", "--ignored", "--test-threads=1"], "socket-tests")
-            command([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "*network*.py"], "runner-tests")
-        command(["cargo", "build", "--release", "--offline", "--locked", "--bin", "delugi-replica"], "release-build")
-        binary = ROOT / "target" / "release" / "delugi-replica"
-        manifest["binary_sha256"] = sha(binary.read_bytes())
+        binary = args.binary.resolve()
+        if args.shared_build_receipt:
+            shared_validation = archive_shared_delugi_build(binary, args.shared_build_receipt,
+                run / "shared-build", args.storage_profile)
+            manifest["shared_build"] = shared_validation
+            manifest["binary_sha256"] = shared_validation["binary"]["sha256"]
+        else:
+            manifest["rustc"] = command(["rustc", "--version", "--verbose"], "rustc").strip()
+            manifest["cargo"] = command(["cargo", "--version"], "cargo").strip()
+            if not args.skip_checks:
+                command(["cargo", "fmt", "--check"], "format")
+                command(["cargo", "test", "--workspace", "--offline", "--locked"], "tests")
+                command(["cargo", "test", "--workspace", "--offline", "--locked", "--", "--ignored", "--test-threads=1"], "socket-tests")
+                command([sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "*network*.py"], "runner-tests")
+            command(["cargo", "build", "--release", "--offline", "--locked", "--bin", "delugi-replica"], "release-build")
+            manifest["binary_sha256"] = sha(binary.read_bytes())
         scenarios = []
         if args.scenario in ("all", "honest"):
             scenarios.append({"label": "honest-round-four", "silent": None})
@@ -832,7 +963,8 @@ def main():
             for repeat in range(args.repeats):
                 label = f"{scenario['label']}-repeat-{repeat}"
                 trial = run_trial(binary, run / label, scenario, args.bound_ms, args.timeout, args.transaction_bytes,
-                                  args.ordering_batch, args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode)
+                                  args.ordering_batch, args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode,
+                                  storage_profile=args.storage_profile)
                 manifest["trials"].append(trial)
                 print(json.dumps({"trial": label, "status": trial["status"], "error": trial.get("error")}), flush=True)
                 if not trial["pass"]:
@@ -851,6 +983,14 @@ def main():
     except Exception as error:
         manifest.update({"status": "failed", "error": str(error)})
     finally:
+        if shared_validation is not None:
+            try:
+                _, checked = verify_shared_delugi_build(binary, args.shared_build_receipt, args.storage_profile)
+                if checked["receipt_sha256"] != shared_validation["receipt_sha256"]:
+                    raise ValueError("shared build receipt changed during trial")
+                manifest["shared_build_after"] = checked
+            except Exception as error:
+                manifest["status"], manifest["error"] = "failed", f"shared artifact post-run verification: {error}"
         manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
         (run / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         print(json.dumps({"status": manifest["status"], "manifest": str(run / "manifest.json"),

@@ -11,7 +11,8 @@ Assembly boundary
 - Assembly::start takes the native QuorumStoreConfig, epoch/author/validator
   context, last committed timestamp and epoch-transition state, native BLS key,
   native proof cache, explicit QuorumStoreStorage, NetworkSender, native mempool
-  request channel and timeout, and actual signed LatestLedger provider.
+  request channel and timeout, actual signed LatestLedger provider, and injected
+  shared TaskGroup.
 - Outputs: native GetPayloadCommand sender, Arc<dyn BatchReader>, native commit
   coordinator, and cloned Inbound handle. Inbound authenticates native message
   content before enqueue; node transport supplies authenticated sender identity.
@@ -22,7 +23,10 @@ Assembly boundary
   capacity10, configured remote worker count, batching interval Skip behavior,
   and fixed native proof-expiration polling. Shutdown preserves coordinator
   acknowledgement sequence. The epoch-owned retrieval worker is cancelled only
-  after pipeline shutdown; the runtime remains responsible for owned tasks.
+  after pipeline shutdown. The injected group owns all native actors and detached
+  persistence/GC/fetch descendants; cancellation-safe close joins running blocking
+  work as well as cancelled asynchronous tasks. Global provider admission failure
+  is terminal; it introduces no hidden waiting or native policy skip.
 - NetworkTransport is object safe and mirrors native QuorumStoreSender methods;
   no socket, retry policy, signing permission or acknowledgement policy lives in
   the shared byte transport. Retries/targets remain native BatchRequester policy.
@@ -78,3 +82,10 @@ Acceptance and remaining integration
 - Source extraction or a successful type-check is not a four-replica protocol run.
 - Detailed crypto wrapping distinguishes enclosing native validation from nested
   primitive counters; it must not be reported as per-nested-op measurement.
+
+Revision2 shared-service routing (2026-10-21): native policy/backend13 regressions
+pass again after TaskGroup, exact timer primitive and native-construction/codec
+provider injection. All654 external package identities unchanged; only the local
+shared-runtime-async dependency was added to this standalone lock. The native
+core15 regressions and shared runtime10 checks separately pass. Current process
+acceptance belongs to the common executable's subsequent build/run receipt.

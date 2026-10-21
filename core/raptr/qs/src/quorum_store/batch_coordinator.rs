@@ -32,6 +32,7 @@ pub enum BatchCoordinatorCommand {
 
 /// The `BatchCoordinator` is responsible for coordinating the receipt and persistence of batches.
 pub struct BatchCoordinator {
+    tasks: shared_runtime_async::TaskGroup,
     my_peer_id: PeerId,
     network_sender: Arc<NetworkSender>,
     sender_to_proof_manager: Arc<Sender<ProofManagerCommand>>,
@@ -56,8 +57,10 @@ impl BatchCoordinator {
         max_total_txns: u64,
         max_total_bytes: u64,
         batch_expiry_gap_when_init_usecs: u64,
+        tasks: shared_runtime_async::TaskGroup,
     ) -> Self {
         Self {
+            tasks,
             my_peer_id,
             network_sender: Arc::new(network_sender),
             sender_to_proof_manager: Arc::new(sender_to_proof_manager),
@@ -83,7 +86,8 @@ impl BatchCoordinator {
         let batch_store = self.batch_store.clone();
         let network_sender = self.network_sender.clone();
         let sender_to_proof_manager = self.sender_to_proof_manager.clone();
-        tokio::spawn(async move {
+        let tasks = self.tasks.clone();
+        self.tasks.spawn(async move {
             let peer_id = persist_requests[0].author();
             let batches = persist_requests
                 .iter()
@@ -94,10 +98,14 @@ impl BatchCoordinator {
                     )
                 })
                 .collect();
-            let signed_batch_infos =
-                tokio::task::spawn_blocking(move || batch_store.persist(persist_requests))
-                    .await
-                    .unwrap();
+            let Ok(signed_batch_infos) = tasks
+                .spawn_blocking(move || batch_store.persist(persist_requests))
+                .await
+            else {
+                // The provider already latches panic/capacity failures.
+                // Closed/aborted work is ordinary owner shutdown.
+                return;
+            };
             if !signed_batch_infos.is_empty() {
                 if approx_created_ts_usecs > 0 {
                     observe_batch(approx_created_ts_usecs, peer_id, BatchStage::SIGNED);
@@ -200,13 +208,13 @@ impl BatchCoordinator {
                         .send(())
                         .expect("Failed to send shutdown ack to QuorumStoreCoordinator");
                     break;
-                },
+                }
                 BatchCoordinatorCommand::NewBatches(author, batches) => {
                     monitor!(
                         "qs_handle_batches_msg",
                         self.handle_batches_msg(author, batches).await
                     );
-                },
+                }
             }
         }
     }

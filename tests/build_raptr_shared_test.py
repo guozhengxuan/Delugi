@@ -8,6 +8,7 @@ from pathlib import Path
 import sys
 import tarfile
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -101,6 +102,7 @@ checksum="{digest}"
         self.assertEqual(command[-2:],['--bin','raptr-shared-node'])
         self.assertNotIn('forge',' '.join(command));self.assertNotIn('--release',command)
         self.assertEqual(builder.recipe('check',self.root,root=self.root)[-1],'--all-targets')
+        self.assertEqual(builder.recipe('test',self.root,root=self.root)[-1],'--all-targets')
         self.assertIn('--release',builder.recipe('build',self.root,'release',self.root))
         with self.assertRaises(ValueError):builder.recipe('run',self.root)
 
@@ -119,6 +121,21 @@ checksum="{digest}"
         (self.root/'shared/target').mkdir();(self.root/'shared/target/generated.rs').write_text('build')
         result=builder.source_snapshot(self.root)
         self.assertIn('shared/new/lib.rs',result);self.assertNotIn('shared/target/generated.rs',result)
+        (self.root/'core/delugi/new.rs').write_text('Delugi service consumer')
+        self.assertIn('core/delugi/new.rs',builder.source_snapshot(self.root))
+        self.assertIn('Cargo.toml',result);self.assertIn('Cargo.lock',result)
+
+    def test_failed_metadata_cleanup_cannot_issue_capability_proof(self):
+        output=self.root/'metadata';output.mkdir()
+        process=SimpleNamespace(returncode=0,poll=lambda:0)
+        owned=SimpleNamespace(verify_start=lambda:None,cleanup=lambda _: {'status':'failed','remaining':[123]})
+        with patch.object(builder,'ROOT',self.root), \
+             patch.object(builder.subprocess,'Popen',return_value=process), \
+             patch.object(builder.GUARD,'OwnedGroup',return_value=owned), \
+             patch.object(builder.contract,'resolved_capabilities') as derive:
+            with self.assertRaisesRegex(ValueError,'cleanup is unconfirmed'):
+                builder.capability_metadata(output,self.root/'toolchain',{})
+            derive.assert_not_called()
 
     def mock_build(self,action='build',command_status='completed',cleanup='completed',source_drift=False):
         output=self.root/'evidence';target=self.root/'target'
@@ -131,6 +148,8 @@ checksum="{digest}"
             stack.enter_context(patch.object(builder,'profile_snapshot',return_value={'p':'fixed'}))
             stack.enter_context(patch.object(builder,'prepare_native_archive',return_value={'checked':True}))
             stack.enter_context(patch.object(builder,'toolchain_identity',return_value={'rustc_version':'1.78.0'}))
+            stack.enter_context(patch.object(builder,'capability_metadata',return_value={'protocols':['delugi','raptr'],'compiled_features':{'delugi-core':['rocksdb-records']}}))
+            stack.enter_context(patch.object(builder.contract,'validate_capabilities',return_value={}))
             stack.enter_context(patch.object(builder,'cache_identity',return_value={'fixed':True}))
             stack.enter_context(patch.object(builder.GUARD,'cargo_configs',return_value={}))
             stack.enter_context(patch.object(builder.GUARD,'guarded_command',side_effect=command))
@@ -143,6 +162,11 @@ checksum="{digest}"
         result,calls=self.mock_build('check')
         self.assertEqual(result['status'],'checked_not_built');self.assertNotIn('binary',result);self.assertEqual(calls,0)
         self.assertNotEqual(result['format'],builder.contract.BUILD_FORMAT)
+
+    def test_test_run_cannot_issue_an_executable_receipt(self):
+        result,calls=self.mock_build('test')
+        self.assertEqual(result['status'],'tested_not_built');self.assertNotIn('binary',result);self.assertEqual(calls,0)
+        self.assertEqual(result['format'],'raptr-shared-test-v1')
 
     def test_build_requires_compiler_success_and_confirmed_owned_cleanup(self):
         result,calls=self.mock_build(cleanup='failed')
@@ -157,6 +181,8 @@ checksum="{digest}"
         result,calls=self.mock_build()
         self.assertEqual(result['status'],'completed');self.assertEqual(calls,1)
         self.assertFalse(result['comparison_eligible']);self.assertTrue(result['shared_target_retained'])
+        self.assertEqual(result['protocols'],['delugi','raptr'])
+        self.assertEqual(result['compiled_features']['delugi-core'],['rocksdb-records'])
 
 
 if __name__=='__main__':unittest.main()

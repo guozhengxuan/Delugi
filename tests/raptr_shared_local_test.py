@@ -174,6 +174,152 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'built role'):
             runner.validate_build(binary,stamp,self.root)
 
+    def common_build_fixture(self):
+        binary,stamp=self.build_fixture()
+        root_manifest=self.root/'core/raptr/node/Cargo.toml'
+        root_manifest.write_text('''[package]
+name="raptr-shared-node"
+autobins=false
+[[bin]]
+name="raptr-shared-node"
+path="../../../node/src/shared_main.rs"
+[dependencies]
+delugi-core={path="../../delugi",features=["rocksdb-records"]}
+raptr-qs={path="../qs",features=["rocksdb-backend"]}
+raptr={path="../native"}
+common-node={path="../../../node"}
+''')
+        for name in ('Cargo.toml','Cargo.lock','core/delugi/Cargo.toml','core/delugi/src/lib.rs','node/src/shared_main.rs'):
+            path=self.root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(name)
+            stamp['sources'][name]=runner.sha256(path)
+        stamp['sources']['core/raptr/node/Cargo.toml']=runner.sha256(root_manifest)
+        packages=[{'id':'assembly','name':'raptr-shared-node','manifest_path':str(root_manifest),
+                   'targets':[{'name':'raptr-shared-node','kind':['bin'],'src_path':str(self.root/'node/src/shared_main.rs')}]}]
+        nodes=[{'id':'assembly','dependencies':['delugi-core','raptr-qs','raptr','common-node'],'features':[]}]
+        for name,directory,features in [('delugi-core','core/delugi',['rocksdb-records']),('raptr-qs','core/raptr/qs',['rocksdb-backend']),('raptr','core/raptr/native',[]),('common-node','node',[])]:
+            packages.append({'id':name,'name':name,'manifest_path':str(self.root/directory/'Cargo.toml')})
+            nodes.append({'id':name,'features':features,'dependencies':[]})
+        metadata={'version':1,'packages':packages,'resolve':{'root':'assembly','nodes':nodes}}
+        proof_path=self.root/'cargo-metadata.json';runner.atomic_json(proof_path,metadata)
+        stamp.update(runner.resolved_capabilities(metadata,self.root))
+        stamp['cargo_metadata']={'path':'cargo-metadata.json',**runner.file_record(proof_path),
+                                'argv':['/test/cargo','--config',str(self.root/'core/raptr/native/.cargo/config.toml'),'metadata',
+                                        '--manifest-path',str(root_manifest),'--locked','--offline','--format-version','1'],
+                                'returncode':0,'cleanup':{'status':'completed','remaining':[]}}
+        return binary,stamp,metadata
+
+    def test_common_capabilities_are_resolved_and_preserved_in_archive(self):
+        binary,stamp,_=self.common_build_fixture()
+        result=runner.validate_build(binary,stamp,self.root)
+        self.assertEqual(result['protocols'],['delugi','raptr'])
+        self.assertEqual(result['compiled_features']['delugi-core'],['rocksdb-records'])
+        receipt=self.root/'receipt.json';runner.atomic_json(receipt,stamp)
+        runner.archive_build(binary,receipt,self.root/'archive',self.root)
+        self.assertEqual(runner.sha256(self.root/'archive/cargo-metadata.json'),stamp['cargo_metadata']['sha256'])
+
+    def test_legacy_receipt_cannot_gain_capabilities_from_asserted_fields(self):
+        binary,stamp=self.build_fixture()
+        self.assertEqual(runner.validate_build(binary,stamp,self.root)['protocols'],['raptr'])
+        stamp.update(protocols=['delugi','raptr'],compiled_features={'delugi-core':['rocksdb-records']})
+        with self.assertRaisesRegex(ValueError,'metadata proof'):
+            runner.validate_build(binary,stamp,self.root)
+
+    def test_common_metadata_cannot_hide_missing_feature_or_changed_target(self):
+        binary,stamp,metadata=self.common_build_fixture()
+        metadata['resolve']['nodes'][1]['features']=[]
+        runner.atomic_json(self.root/'cargo-metadata.json',metadata)
+        stamp['cargo_metadata'].update(runner.file_record(self.root/'cargo-metadata.json'))
+        with self.assertRaisesRegex(ValueError,'compiled feature absent'):
+            runner.validate_build(binary,stamp,self.root)
+        metadata['resolve']['nodes'][1]['features']=['rocksdb-records']
+        metadata['packages'][0]['targets'][0]['src_path']=str(self.root/'core/raptr/node/src/main.rs')
+        with self.assertRaisesRegex(ValueError,'entry point'):
+            runner.resolved_capabilities(metadata,self.root)
+
+    def test_common_capability_metadata_and_delugi_source_are_hash_bound(self):
+        binary,stamp,_=self.common_build_fixture()
+        (self.root/'core/delugi/src/new.rs').write_text('unbound')
+        with self.assertRaisesRegex(ValueError,'unbound mutable'):
+            runner.validate_build(binary,stamp,self.root)
+        (self.root/'core/delugi/src/new.rs').unlink()
+        (self.root/'cargo-metadata.json').write_text('{}')
+        with self.assertRaisesRegex(ValueError,'metadata bytes changed'):
+            runner.validate_build(binary,stamp,self.root)
+
+    def test_resolved_dev_features_are_not_claimed_as_binary_features(self):
+        _,_,metadata=self.common_build_fixture()
+        metadata['resolve']['nodes'][1]['features'].append('test-only-feature')
+        self.assertEqual(runner.resolved_capabilities(metadata,self.root)['compiled_features']['delugi-core'],['rocksdb-records'])
+        metadata['packages'][0]['targets'][0]['src_path']=str(self.root/'core/raptr/node/../../../node/src/shared_main.rs')
+        self.assertEqual(runner.resolved_capabilities(metadata,self.root)['entry_point'],'node/src/shared_main.rs')
+
+    def executor_fixture(self):
+        before={'limits':dict(runner.EXECUTOR_LIMITS),'admitted_async':3,'admitted_blocking':1,'started_async':2,'started_blocking':1,
+                'body_finished_async':1,'body_finished_blocking':1,'joined_async':1,'joined_blocking':1,
+                'cancelled_async':0,'cancelled_blocking':0,'panicked':0,'rejected_capacity':0,'rejected_closed':0,
+                'retained_async':2,'retained_blocking':0,'queued_async':1,'queued_blocking':0,
+                'active_async':1,'active_blocking':0,'maximum_retained_async':3,'maximum_retained_blocking':1,
+                'groups':[{'id':1,'label':'native','closed':False,'retained':2}],'failure':None}
+        after=copy.deepcopy(before)
+        after.update(joined_async=3,cancelled_async=2,retained_async=0,queued_async=0,active_async=0)
+        after['groups'][0].update(closed=True,retained=0)
+        return {'executor_at_freeze':before,'executor_at_cleanup':after}
+
+    def test_executor_accepts_explicit_cancellation_with_complete_join(self):
+        result=runner.validate_executor_lifecycle(self.executor_fixture(),required=True)
+        self.assertEqual(result['status'],'passed')
+        self.assertEqual(result['at_cleanup']['cancelled_async'],2)
+
+    def test_common_executor_evidence_is_mandatory_but_legacy_is_readable(self):
+        self.assertEqual(runner.validate_executor_lifecycle({})['status'],'unavailable_historical_receipt')
+        with self.assertRaisesRegex(ValueError,'requires both'):
+            runner.validate_executor_lifecycle({},required=True)
+        config=self.result_fixture()
+        with self.assertRaisesRegex(ValueError,'requires both'):
+            runner.validate_results(config,[0,1,2,3],self.root,'a'*64,1000000,'healthy',require_executor=True)
+
+    def test_executor_rejects_leaks_failed_capacity_and_unclosed_groups(self):
+        for field,value in [('joined_async',2),('retained_async',1),('active_async',1),
+                            ('rejected_capacity',1),('panicked',1),('failure','error')]:
+            body=self.executor_fixture();body['executor_at_cleanup'][field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):
+                runner.validate_executor_lifecycle(body,required=True)
+        body=self.executor_fixture();body['executor_at_cleanup']['groups'][0]['closed']=False
+        with self.assertRaisesRegex(ValueError,'remains open'):
+            runner.validate_executor_lifecycle(body,required=True)
+
+    def test_executor_rejects_counter_reset_or_group_disappearance(self):
+        body=self.executor_fixture();body['executor_at_cleanup'].update(admitted_blocking=0,joined_blocking=0,started_blocking=0,body_finished_blocking=0)
+        with self.assertRaisesRegex(ValueError,'counters decreased'):
+            runner.validate_executor_lifecycle(body,required=True)
+        body=self.executor_fixture();body['executor_at_cleanup']['groups'][0]['id']=2
+        with self.assertRaisesRegex(ValueError,'discarded group'):
+            runner.validate_executor_lifecycle(body,required=True)
+
+    def test_executor_capacity_is_explicit_bound_and_constant(self):
+        config=self.config()
+        for key,value in runner.EXECUTOR_LIMITS.items():self.assertEqual(config['limits'][key],value)
+        body=self.executor_fixture()
+        with self.assertRaisesRegex(ValueError,'configured envelope'):
+            runner.validate_executor_lifecycle(body,required=True,expected_limits={'max_async_tasks':99,'max_blocking_tasks':1024})
+        body['executor_at_cleanup']['limits']['max_async_tasks']=4
+        with self.assertRaisesRegex(ValueError,'capacity changed'):
+            runner.validate_executor_lifecycle(body,required=True)
+        body=self.executor_fixture();body['executor_at_freeze']['maximum_retained_async']=100001
+        with self.assertRaisesRegex(ValueError,'conservation differs'):
+            runner.validate_executor_lifecycle(body,required=True)
+
+    def test_legacy_limits_profile_remains_readable_without_executor_fields(self):
+        config=self.result_fixture()
+        for key in runner.EXECUTOR_LIMITS:config['limits'].pop(key)
+        value={'schema':1,'profile':runner.PROFILE,'native_policy_commit':runner.PIN,
+               'configured_delta_ms':100,'injected_delay_ms':0,'materialization_delay_ms':0,'payload_fault':None,
+               'committee_sha256':'a'*64,'genesis_ledger_sha256':'b'*64,'limits':dict(runner.DEFAULT_LIMITS),
+               'tokio_workers':2,'maximum_blocking_threads':32,'native_timer_multipliers':{'leader':4.0,'partial_qc':0.1,'fetch':2.0,'round_sync':15.0},
+               'consensus':{},'quorum_store':{}}
+        runner.validate_effective_profile(value,config,'a'*64,'b'*64)
+        self.assertEqual(runner.validate_config(config,'healthy'),[0,1,2,3])
+
     def test_failed_or_unpinned_build_cannot_be_used(self):
         binary,stamp=self.build_fixture()
         for field,value in [('status','failed'),('native_commit','0'*40),('source_before_after_equal',False)]:
@@ -226,7 +372,7 @@ class RunnerTests(unittest.TestCase):
             runner.atomic_json(directory/'effective-profile.json',{'schema':1,'profile':runner.PROFILE,'native_policy_commit':runner.PIN,
                 'configured_delta_ms':100,'injected_delay_ms':0,'materialization_delay_ms':config['materialization_delay_ms'],
                 'committee_sha256':runner.sha256(keys/'committee.json'),'genesis_ledger_sha256':runner.sha256(keys/'genesis-ledger.bcs'),
-                'limits':dict(runner.DEFAULT_LIMITS),'tokio_workers':2,'maximum_blocking_threads':32,
+                'limits':dict(config['limits']),'tokio_workers':2,'maximum_blocking_threads':32,
                 'native_timer_multipliers':{'leader':4.0,'partial_qc':0.1,'fetch':2.0,'round_sync':15.0},'consensus':{},'quorum_store':{}})
             finite=dict(planned=1,offered=1,admitted=1,rejected=0,completed=1,unfinished=0,unoffered=0)
             body={'schema':1,'profile':runner.PROFILE,'committee_sha256':runner.sha256(keys/'committee.json'),'run_id':config['run_id'],'configuration_sha256':'a'*64,'id':replica,'epoch_us':1000000,'freeze_us':5000000,'deadline_us':5000000,

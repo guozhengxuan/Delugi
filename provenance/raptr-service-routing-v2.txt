@@ -1,0 +1,47 @@
+Raptr shared-service routing revision 2 — 2026-10-21
+
+The remaining task, timer and primitive routes are implemented. The shared
+runtime passed10 focused checks under the pinned Rust1.78/native dependencies;
+its final source and lock stayed unchanged through the guarded run. The common
+executable build and repeated process gates are the next acceptance boundary.
+The six earlier process cases apply to the retained pre-revision executable.
+
+One explicit executor now owns node, network, dissemination and QS task groups.
+The global task budgets include queued/running blocking work and all unjoined
+handles. Completed handles are reaped before admission. Capacity rejection is
+terminal; it does not silently skip native work or wait on a new admission gate.
+Dropping a caller's typed handle preserves the native detached body's execution.
+Shutdown closes a group, aborts its async descendants and joins every retained
+handle. Running blocking work remains owned if a shutdown await is cancelled.
+The final global shutdown must leave zero retained tasks. Explicit cancellation
+is separate from body/destructor panic; unexpected failure notifies the node.
+
+Native actors and persistence/fetch bodies stay in their original order. The
+existing QS shutdown coordinator still obtains its pipeline acknowledgement.
+Persistence completion still precedes custody signatures and native broadcasts.
+The original keyed FIFO/LIFO queues and capacities remain core policy. Native
+Context and ModuleNetwork execute no hidden task launches in the active path.
+
+Core timer delivery now uses the shared copy of the pinned deadline-map mechanism.
+Exact equal deadline keys overwrite and cancelled ticks retain events, checked
+against an independent copy of the pinned mechanism. Node/QS sleeps, intervals
+and timeouts route through exact Tokio1.40 primitives exported by the same
+service. Native durations, missed-tick behavior and timeout branches are retained.
+
+Batch construction, QS storage codecs and payload byte-range sizing now route
+through the shared native provider. The root's finite workload changes also
+route actual native transaction signing, verification and committed hashing;
+this preserves the outer native Transaction hash representation. Native repair
+responses are verified exactly once in the QS wrapper. Global Rayon fallback is
+initialized explicitly with two workers; a pre-existing pool is rejected.
+
+Task counts do not establish a process heap bound. QS custody quotas, shared
+network byte leases, finite observer bounds, worker counts and native RocksDB
+resource options have separate scopes. Timed operation counters are nested and
+calling-thread-only; they cannot be summed as total CPU. The source hashes,
+call-site references and exact test receipts are in the matching v2 JSON.
+
+The profile remains consensus-only, with real Raptr/QS types and proof policy,
+signed synthetic Script requests and a fixed signed genesis ledger. There is no
+Aptos VM, state-sync or advancing execution anchor. No protocol ranking follows
+from this routing audit or from the earlier functional process cases.

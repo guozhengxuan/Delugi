@@ -1838,7 +1838,7 @@ mod tests {
             );
         }
         let mut beta = node(3);
-        beta.store = alpha.store.clone();
+        beta.store = alpha.store.try_clone_memory().unwrap();
         for tag in 4..=7 {
             main_records.push(
                 alpha

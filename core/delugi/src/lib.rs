@@ -9,6 +9,7 @@ pub mod wire;
 
 pub mod availability;
 pub mod batch;
+mod record_store;
 pub mod composed;
 pub mod end_to_end;
 pub mod ledger;

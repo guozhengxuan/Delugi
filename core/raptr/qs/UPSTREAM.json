@@ -8,8 +8,11 @@
       "upstream_sha256": "7c17638a782d81e3db95e1e5c847a84b932173f070ca338fb05a13b744e7023f",
       "local": "src/quorum_store/batch_coordinator.rs",
       "substitutions": [],
-      "local_sha256": "7c17638a782d81e3db95e1e5c847a84b932173f070ca338fb05a13b744e7023f",
-      "byte_identical": true
+      "local_sha256": "a0f3884b773108ca9ab58dcafb100484f8a849dc69be529a8cce59761f325a9e",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Inject shared TaskGroup at constructor and original detached persistence/blocking launch sites. Successful persist/sign/broadcast order and native body unchanged; shared failure is latched, normal closed/cancelled work exits during owner shutdown."
+      ]
     },
     {
       "upstream": "consensus/src/quorum_store/batch_generator.rs",
@@ -21,8 +24,11 @@
           "after": "use crate::mempool::"
         }
       ],
-      "local_sha256": "5226eeaba53c035c59ab482544c9001ce5e6611d54984ed5a4f2e6175da9d367",
-      "byte_identical": false
+      "local_sha256": "4819c319d4dbffaa83423a1eb8dffcf38020775eb45eadfd8e4ff4e103259678",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Inject shared TaskGroup at original async/blocking persistence sites; wrap identical Batch::new in native construction provider. Reexport exact pinned Tokio interval type. Native adaptive pull/exclusion/batch boundaries unchanged."
+      ]
     },
     {
       "upstream": "consensus/src/quorum_store/batch_proof_queue.rs",
@@ -37,10 +43,11 @@
       "upstream_sha256": "26b74af79d1fa0708ae212094fb739ad8a282cc818ed50fc98f9585ef946468b",
       "local": "src/quorum_store/batch_requester.rs",
       "substitutions": [],
-      "local_sha256": "d0c5a16244fb7a45f07c09556d87706bde7335bc26fd4a1d4b077ff98238bc7e",
+      "local_sha256": "f23668db4ca981d4cd14e7a47ec64909950204caeaa19e4ddd69a5b9d349655b",
       "byte_identical": false,
       "reviewed_adaptations": [
-        "Wrap the identical native signed NotFound ledger verification in enclosing shared crypto accounting; no predicate or target/retry change."
+        "Wrap the identical native signed NotFound ledger verification in enclosing shared crypto accounting; no predicate or target/retry change.",
+        "Import exact pinned Tokio time primitives through shared-runtime-async; preserve retry targets, interval and signed NotFound branches."
       ]
     },
     {
@@ -48,10 +55,11 @@
       "upstream_sha256": "b3ee35a158ca51d2739b2010853a92b8420ecfe1dce092c0895735207297e00a",
       "local": "src/quorum_store/batch_store.rs",
       "substitutions": [],
-      "local_sha256": "3e37077a2fd18d7c3925960e9bf359712e925ac652773d012ba0abe3801e3dcc",
+      "local_sha256": "dee728ba0767f836e0181797956d409a1814fe4305cf08527d60da7a61aa276b",
       "byte_identical": false,
       "reviewed_adaptations": [
-        "Wrap identical native SignedBatchInfo construction in enclosing shared signing accounting; persist-before-sign unchanged."
+        "Wrap identical native SignedBatchInfo construction in enclosing shared signing accounting; persist-before-sign unchanged.",
+        "Inject shared TaskGroup for prior-epoch GC, cache bootstrap GC, certified-time GC and shared fetch future spawn. Native quotas, get/fetch, persist-before-sign, cache and epoch policies unchanged."
       ]
     },
     {
@@ -67,10 +75,11 @@
       "upstream_sha256": "6c7cd01b6acddf8e404bf12814071a511abc0a529b5a16aea8232c237b8c6786",
       "local": "src/quorum_store/proof_coordinator.rs",
       "substitutions": [],
-      "local_sha256": "dc7a8ca40141d99ffda1f07bf062b4d026f4cde1068f6607dda8f0e1f7fcd645",
+      "local_sha256": "7403c1a7bb353ab169c6c9c59ffac815eb6148164ae3cabf37d1437f1f1e8c5a",
       "byte_identical": false,
       "reviewed_adaptations": [
-        "Wrap identical native aggregate_and_verify in enclosing shared crypto accounting; native cache/quorum policy unchanged."
+        "Wrap identical native aggregate_and_verify in enclosing shared crypto accounting; native cache/quorum policy unchanged.",
+        "Import exact pinned Tokio time primitives through shared-runtime-async; proof poll period and timeout policy unchanged."
       ]
     },
     {
@@ -78,10 +87,11 @@
       "upstream_sha256": "900ebbb87f027f06cf19ea62bfe0bcdf6e19c79e28b4fb59630f3d5dd087c8aa",
       "local": "src/quorum_store/types.rs",
       "substitutions": [],
-      "local_sha256": "4b97e3688dd45875ddbe3f85b01cba5acf0d15ac20f9bdbfcf48b000b7befd22",
+      "local_sha256": "acbccb3ec67378a2b05db17822d4f3592b8edd1329907209151f5298002f7f3d",
       "byte_identical": false,
       "reviewed_adaptations": [
-        "Add typed BCS byte-range exporter without modifying native encoding or original methods; add exact field reconstruction test with different transaction/authenticator sizes."
+        "Add typed BCS byte-range exporter without modifying native encoding or original methods; add exact field reconstruction test with different transaction/authenticator sizes.",
+        "Existing exact payload byte-range helper now routes BCS encode/serialized-size through shared native provider. Native Batch/BatchInfo representation unchanged."
       ]
     },
     {
@@ -94,8 +104,11 @@
           "after": "use crate::mempool::"
         }
       ],
-      "local_sha256": "1ca36f21be480b1f91b953f9b42cc95b663dae38028defa874a84925850b64c0",
-      "byte_identical": false
+      "local_sha256": "9f52d7c3dcf0a5aab2873466801e00bff8d2fa2bb627a8f4cda29a4c8ce52370",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Import exact pinned Tokio timeout through shared-runtime-async; mempool pull policy unchanged."
+      ]
     },
     {
       "upstream": "consensus/src/quorum_store/tracing.rs",
@@ -158,16 +171,22 @@
       "upstream_sha256": "50f8bf71b5572abc135e042c0015c7cb718dc8ecf02b6592d031085ab5bee837",
       "local": "src/payload_client/user/mod.rs",
       "substitutions": [],
-      "local_sha256": "50f8bf71b5572abc135e042c0015c7cb718dc8ecf02b6592d031085ab5bee837",
-      "byte_identical": true
+      "local_sha256": "5b4407b6d7224bdf27f4fad723c1ba102ddba1c583d9543fc865f7db2fd025d8",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Route existing delayed callback sleep through shared pinned Tokio primitive; no callback/pull behavior change."
+      ]
     },
     {
       "upstream": "consensus/src/payload_client/user/quorum_store_client.rs",
       "upstream_sha256": "de98f4b90af4809d4d956df8287fe5dbb21bd261c23a08b1e3ca8d95087ef6aa",
       "local": "src/payload_client/user/quorum_store_client.rs",
       "substitutions": [],
-      "local_sha256": "de98f4b90af4809d4d956df8287fe5dbb21bd261c23a08b1e3ca8d95087ef6aa",
-      "byte_identical": true
+      "local_sha256": "0f2ec8dde5aa7343fedbfc69c8a8d1e694b3997fa1cf2728f49635b46b560dd1",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Route existing sleep/timeout through shared pinned Tokio primitives; no timeout/poll behavior change."
+      ]
     },
     {
       "upstream": "consensus/src/payload_manager/mod.rs",
@@ -219,8 +238,11 @@
           "after": ""
         }
       ],
-      "local_sha256": "714d9d36124100a5fe0fe86354485afc489f2f145f793a78b7dd8b65a2c6570a",
-      "byte_identical": false
+      "local_sha256": "4aa9eddd99b4c4e638fc118d576bac33aab218affb8dd4a9166708e5ebbd21ab",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Route existing wait timeout through shared pinned Tokio primitive; exact native prefix, fetch order and custody policy unchanged."
+      ]
     },
     {
       "upstream": "consensus/src/quorum_store/tests/types_test.rs",
@@ -294,16 +316,16 @@
   ],
   "complete_mapped_file_diff": {
     "path": "UPSTREAM.patch",
-    "sha256": "bbebdc0bbd91e6d4a3078e9835fbddbfff026b499a36834eba2c8ce3ee2a999c",
+    "sha256": "5fe6d81fe22e82108238d560cca05b63e73c6225d15d97d4a4041021338e2b98",
     "scope": "All differences in mapped whole files; support excerpts and new adapters are listed separately."
   },
   "new_adapter_sha256": {
-    "src/assembly.rs": "b4df758ac5cb14b0f51ec8720c2522376f7381c5f4a35fd803d98d8563f55429",
+    "src/assembly.rs": "f9f31d6386ba7c4828d933f91da63529430409c3d19e12590f490b9d1c3831bb",
     "src/network.rs": "357c18680075c275aa766eea43262a0a0bdaf0ff0e35f3ab49a00cf4ea5d96cc",
     "src/error.rs": "b2ac9004e1fe46745839af8e02d75453f56f2ea168df93762f947cb43e845367",
     "src/round_manager.rs": "1328da461e12b44a1de210842475e0f848c845bc8eca962cc7ebb979cdcf49e1",
-    "src/quorum_store/quorum_store_db.rs": "423e5ae626f992503d039844de5e9f2f433285552a0b85f44ba5962340c3b01a",
-    "src/quorum_store/tests/policy_test.rs": "4667aae375b4d9106ddddae822369436eb88ed9db8de36ecb361348e904c2592"
+    "src/quorum_store/quorum_store_db.rs": "7e81fe2f8930a8d8b42ef7a2df0576160fd51e4302d5f7693f9d8a8abc564e34",
+    "src/quorum_store/tests/policy_test.rs": "4792cd8a2bd54f681b9b96727b005b83ba386cbe242694fd7a61c33190a4d069"
   },
   "additional_tests": [
     {
@@ -312,6 +334,19 @@
     }
   ],
   "validation": {
+    "kind": "native-policy-and-actual-storage-regression-after-shared-runtime-routing",
+    "tests_passed": 13,
+    "ignored": 0,
+    "four_replica_run": false,
+    "evidence": "results/local/shared-core-20261021/raptr-service-regressions-3/receipt.json",
+    "evidence_sha256": "fd8a034ee7ac76b8ab11f9b74a9fbdc80384f1b6285fb134c80b21c3f2cc5586"
+  },
+  "routing_revision": 2,
+  "previous_source_map": {
+    "path": "results/local/shared-core-20261021/raptr-service-regressions-3/source-map-before/UPSTREAM.json",
+    "sha256": "c79364bf13262fff3f389c1cdbd63a8af3634e0841139fcd27d86b02de816c58"
+  },
+  "previous_validation": {
     "kind": "native-policy-and-actual-storage-unit-acceptance",
     "tests_passed": 13,
     "ignored": 0,

@@ -19,6 +19,7 @@ import stat
 import subprocess
 import sys
 import time
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts/baselines"))
@@ -32,14 +33,17 @@ MAX_JSON = 4 * 1024 * 1024
 MAX_LINE = 4 * 1024 * 1024
 MAX_FILE = 512 * 1024 * 1024
 MAX_ARCHIVE = 2 * 1024**3
+MAX_METADATA = 64 * 1024 * 1024
 MAX_LOG = 64 * 1024 * 1024
 NODES = 4
 DEFAULT_LIMITS = {"max_wire_bytes": 1048576, "inbox_frames": 4096, "inbox_bytes": 33554432,
                   "maximum_rpcs": 1024, "ingress_capacity": 4096, "max_pending_transactions": 100000,
                   "max_pending_payload_bytes": 134217728, "output_capacity": 4096, "max_journal_bytes": 134217728}
+EXECUTOR_LIMITS = {"max_async_tasks": 100_000, "max_blocking_tasks": 1024}
 LIMIT_CEILINGS = {"max_wire_bytes": 1048576, "inbox_frames": 100000, "inbox_bytes": 134217728,
                   "maximum_rpcs": 100000, "ingress_capacity": 100000, "max_pending_transactions": 1000000,
-                  "max_pending_payload_bytes": 1073741824, "output_capacity": 100000, "max_journal_bytes": 536870912}
+                  "max_pending_payload_bytes": 1073741824, "output_capacity": 100000, "max_journal_bytes": 536870912,
+                  "max_async_tasks": 1_000_000, "max_blocking_tasks": 100_000}
 CONTROLLER_FILES = ("scripts/run_raptr_shared_local.py", "scripts/baselines/raptr_artifacts.py", "scripts/build_raptr_shared.py")
 
 
@@ -171,6 +175,96 @@ def validate_native_dependencies(record, source_root=ROOT):
     return {"files": len(entries), "tree_sha256": record["tree_sha256"], "archive_sha256": record["archive_sha256"]}
 
 
+def resolved_capabilities(metadata, source_root=ROOT):
+    """Derive capabilities from the fixed target and Cargo's resolved graph.
+
+    These fields describe the compiled assembly, not completed protocol tests.
+    The executable's historical filename does not imply a selected protocol.
+    """
+    root = Path(source_root).resolve()
+    packages = metadata.get("packages")
+    resolve = metadata.get("resolve")
+    if metadata.get("version") != 1 or not isinstance(packages, list) or not isinstance(resolve, dict):
+        raise ValueError("complete Cargo metadata graph required for capabilities")
+    by_id = {package["id"]: package for package in packages}
+    if len(by_id) != len(packages):
+        raise ValueError("duplicate Cargo package identity")
+    nodes = {node["id"]: node for node in resolve.get("nodes", [])}
+    if len(nodes) != len(resolve.get("nodes", [])):
+        raise ValueError("duplicate Cargo resolution node")
+    assembly = by_id.get(resolve.get("root"), {})
+    manifest_path = root / "core/raptr/node/Cargo.toml"
+    if assembly.get("manifest_path") != str(manifest_path) or assembly.get("name") != "raptr-shared-node":
+        raise ValueError("Cargo root is not the pinned common-node assembly")
+    manifest = tomllib.loads(manifest_path.read_text())
+    targets = [target for target in assembly.get("targets", []) if target.get("name") == "raptr-shared-node" and target.get("kind") == ["bin"]]
+    bins = [target for target in manifest.get("bin", []) if target.get("name") == "raptr-shared-node"]
+    if (len(targets) != 1 or len(bins) != 1 or manifest.get("package", {}).get("autobins") is not False
+            or bins[0].get("path") != "../../../node/src/shared_main.rs"
+            or not isinstance(targets[0].get("src_path"), str)
+            or Path(targets[0]["src_path"]).resolve() != root / "node/src/shared_main.rs"):
+        raise ValueError("common executable target/entry point differs from reviewed assembly")
+    root_node = nodes.get(assembly.get("id"), {})
+    direct = set(root_node.get("dependencies", []))
+    required = {"delugi-core": ("core/delugi", "rocksdb-records"),
+                "raptr-qs": ("core/raptr/qs", "rocksdb-backend"),
+                "raptr": ("core/raptr/native", None),
+                "common-node": ("node", None)}
+    features = {}
+    for name, (directory, required_feature) in required.items():
+        matching = [package for package in packages if package.get("name") == name and package.get("manifest_path") == str(root / directory / "Cargo.toml")]
+        if len(matching) != 1 or matching[0]["id"] not in direct:
+            raise ValueError(f"common assembly is missing direct core/service dependency: {name}")
+        package = matching[0]
+        dependency = manifest.get("dependencies", {}).get(name, {})
+        if (not isinstance(dependency, dict) or dependency.get("optional", False)
+                or (manifest_path.parent / dependency.get("path", "")).resolve() != root / directory):
+            raise ValueError(f"common assembly dependency path/activation differs: {name}")
+        actual = nodes.get(package["id"], {}).get("features")
+        if (not isinstance(actual, list) or any(not isinstance(value, str) for value in actual)
+                or len(set(actual)) != len(actual)):
+            raise ValueError(f"resolved Cargo features absent or malformed: {name}")
+        if required_feature is not None and (required_feature not in actual or required_feature not in dependency.get("features", [])):
+            raise ValueError(f"required compiled feature absent: {name}/{required_feature}")
+        declared = dependency.get("features", [])
+        if (not isinstance(declared, list) or any(not isinstance(value, str) for value in declared)
+                or not set(declared).issubset(actual)):
+            raise ValueError(f"explicit binary dependency features differ from resolution: {name}")
+        # Metadata also includes features needed by test/dev targets. Only the
+        # explicit unconditional binary dependency features are asserted here.
+        features[name] = sorted(set(declared))
+    return {"protocols": ["delugi", "raptr"], "compiled_features": features,
+            "entry_point": "node/src/shared_main.rs"}
+
+
+def validate_capabilities(stamp, source_root=ROOT):
+    proof = stamp.get("cargo_metadata")
+    if proof is None:
+        if any(key in stamp for key in ("protocols", "compiled_features", "entry_point")):
+            raise ValueError("declared capabilities require resolved Cargo metadata proof")
+        # Historical Raptr-only receipts remain readable and cannot gain Delugi
+        # capability by adding a field to the archived JSON.
+        return {"protocols": ["raptr"], "compiled_features": {}, "entry_point": None,
+                "capability_evidence": "legacy_raptr_only_no_feature_promotion"}
+    root = Path(source_root).resolve()
+    path = safe_file(root, proof.get("path"))
+    if file_record(path) != {key: proof.get(key) for key in ("bytes", "sha256")} or path.stat().st_size > MAX_METADATA:
+        raise ValueError("resolved Cargo metadata bytes changed")
+    cargo = stamp.get("toolchain", {}).get("executables", {}).get("cargo", {}).get("path")
+    expected = [cargo, "--config", str(root / "core/raptr/native/.cargo/config.toml"), "metadata",
+                "--manifest-path", str(root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--format-version", "1"]
+    if (proof.get("argv") != expected or proof.get("returncode") != 0
+            or proof.get("cleanup", {}).get("status") != "completed" or proof["cleanup"].get("remaining") != []):
+        raise ValueError("Cargo capability proof used a different resolution recipe")
+    value = resolved_capabilities(bounded_json(path, MAX_METADATA), root)
+    if any(stamp.get(key) != expected for key, expected in value.items()):
+        raise ValueError("declared capabilities differ from the compiled assembly graph")
+    for required in ("node/src/shared_main.rs", "core/delugi/Cargo.toml", "Cargo.toml", "Cargo.lock"):
+        if required not in stamp.get("sources", {}):
+            raise ValueError(f"common assembly source closure omits {required}")
+    return {**value, "capability_evidence": "locked_offline_metadata_and_bound_common_entry"}
+
+
 def validate_build(binary, stamp, source_root=ROOT):
     """A successful compiler exit alone is not an artifact/source binding."""
     source_root, binary = Path(source_root).resolve(), Path(binary).resolve()
@@ -214,11 +308,14 @@ def validate_build(binary, stamp, source_root=ROOT):
             raise ValueError(f"build source closure omits {required}")
     if "shared/store-rocksdb/native-profile.json" not in profiles:
         raise ValueError("native RocksDB effective options profile is unbound")
+    capabilities = validate_capabilities(stamp, source_root)
     dependencies = validate_native_dependencies(stamp.get("native_dependencies"), source_root)
     # New source files in the mutable rehost service/core trees cannot disappear
     # merely because an older build stamp still names the files it knew about.
     roots = ("core/raptr/node", "core/raptr/native", "core/raptr/qs", "core/raptr/transport",
              "core/raptr/src", "core-api", "node", "shared")
+    if "delugi" in capabilities["protocols"]:
+        roots += ("core/delugi",)
     for name in roots:
         directory = source_root / name
         if not directory.exists():
@@ -232,7 +329,7 @@ def validate_build(binary, stamp, source_root=ROOT):
                     if relative not in sources:
                         raise ValueError(f"unbound mutable source: {relative}")
     return {"binary": role, "build_sha256": digest(stamp), "source_files": len(sources), "profile_files": len(profiles),
-            "native_dependencies": dependencies}
+            "native_dependencies": dependencies, **capabilities}
 
 
 def archive_build(binary, stamp_path, directory, source_root=ROOT):
@@ -250,6 +347,12 @@ def archive_build(binary, stamp_path, directory, source_root=ROOT):
     if total > MAX_ARCHIVE:
         raise ValueError("native source/archive exceeds declared disk envelope")
     copy_verified(archive, directory / "native-source.tar", native["archive_sha256"], MAX_ARCHIVE)
+    if "cargo_metadata" in stamp:
+        proof = stamp["cargo_metadata"]
+        total += proof["bytes"]
+        if total > MAX_ARCHIVE:
+            raise ValueError("source/artifact archive exceeds declared disk envelope")
+        copy_verified(safe_file(source_root, proof["path"]), directory / "cargo-metadata.json", proof["sha256"], MAX_METADATA)
     for name, expected in sorted({**stamp["sources"], **stamp["profiles"]}.items()):
         source = safe_file(source_root, name)
         total += source.stat().st_size
@@ -429,7 +532,7 @@ def validate_config(config, case):
     elif fault is not None:
         raise ValueError("native custody omission is enabled outside its explicit fixture")
     limits = dict(DEFAULT_LIMITS, **config.get("limits", {}))
-    if set(limits) != set(DEFAULT_LIMITS):
+    if set(limits) not in (set(DEFAULT_LIMITS), set(DEFAULT_LIMITS) | set(EXECUTOR_LIMITS)):
         raise ValueError("unknown finite resource limit")
     for name, value in limits.items():
         if not uint(value, name, LIMIT_CEILINGS[name]):
@@ -835,7 +938,73 @@ def validate_payload_recovery(snapshot, config, committee, epoch, deadline, mate
             "scope": "authenticated original QS batch omission followed by real native request/response and independently verified materialization"}
 
 
-def validate_results(config, correct, output, config_hash, epoch, case):
+def validate_executor_lifecycle(body, *, required=False, expected_limits=None):
+    before, after = body.get("executor_at_freeze"), body.get("executor_at_cleanup")
+    if before is None and after is None and not required:
+        return {"status": "unavailable_historical_receipt"}
+    counters = ("admitted_async", "admitted_blocking", "started_async", "started_blocking",
+                "body_finished_async", "body_finished_blocking", "joined_async", "joined_blocking",
+                "cancelled_async", "cancelled_blocking", "panicked", "rejected_capacity", "rejected_closed",
+                "maximum_retained_async", "maximum_retained_blocking")
+    for phase, value in (("freeze", before), ("cleanup", after)):
+        if not isinstance(value, dict):
+            raise ValueError("common build requires both signed executor lifecycle snapshots")
+        limits = value.get("limits")
+        if not isinstance(limits, dict) or set(limits) != set(EXECUTOR_LIMITS):
+            raise ValueError("shared executor capacity evidence is absent")
+        for name, capacity in limits.items():
+            if not uint(capacity, f"executor {name}", LIMIT_CEILINGS[name]):
+                raise ValueError("shared executor capacity must be positive")
+        if expected_limits is not None and limits != expected_limits:
+            raise ValueError("shared executor capacity differs from configured envelope")
+        for key in counters:
+            uint(value.get(key), f"executor {phase} {key}")
+        if value.get("failure", "missing") is not None or value["panicked"] or value["rejected_capacity"]:
+            raise ValueError("shared executor reports a failure, panic, or capacity rejection")
+        retained = 0
+        for kind in ("async", "blocking"):
+            admitted, joined = value[f"admitted_{kind}"], value[f"joined_{kind}"]
+            current = uint(value.get(f"retained_{kind}"), f"executor retained {kind}")
+            queued = uint(value.get(f"queued_{kind}"), f"executor queued {kind}")
+            active = uint(value.get(f"active_{kind}"), f"executor active {kind}")
+            if (admitted != joined + current or queued + active > current
+                    or not value[f"body_finished_{kind}"] <= value[f"started_{kind}"] <= admitted
+                    or value[f"cancelled_{kind}"] > joined
+                    or not current <= value[f"maximum_retained_{kind}"] <= limits[f"max_{kind}_tasks"]):
+                raise ValueError("shared executor task conservation differs")
+            if phase == "cleanup" and (current or queued or active or admitted != joined):
+                raise ValueError("shared executor cleanup retains unfinished tasks")
+            retained += current
+        groups = value.get("groups")
+        if not isinstance(groups, list) or not groups:
+            raise ValueError("shared executor group ownership evidence is absent")
+        identities, group_retained = set(), 0
+        for group in groups:
+            if not isinstance(group, dict):
+                raise ValueError("invalid shared executor group")
+            identity = uint(group.get("id"), "executor group id")
+            if identity in identities or not isinstance(group.get("label"), str) or type(group.get("closed")) is not bool:
+                raise ValueError("invalid or duplicate shared executor group")
+            identities.add(identity)
+            count = uint(group.get("retained"), "executor group retained")
+            group_retained += count
+            if phase == "cleanup" and (not group["closed"] or count):
+                raise ValueError("shared executor group remains open or retains work")
+        if group_retained != retained:
+            raise ValueError("shared executor per-group task counts differ")
+    if not after["admitted_async"] + after["admitted_blocking"]:
+        raise ValueError("common executable did not admit work through the shared executor")
+    if any(after[name] < before[name] for name in counters):
+        raise ValueError("shared executor cumulative counters decreased after freeze")
+    if after["limits"] != before["limits"]:
+        raise ValueError("shared executor capacity changed after freeze")
+    if not {group["id"] for group in before["groups"]}.issubset({group["id"] for group in after["groups"]}):
+        raise ValueError("shared executor discarded group ownership evidence")
+    return {"status": "passed", "at_freeze": before, "at_cleanup": after,
+            "scope": "signed shared task ownership; explicit abort cancellations are allowed"}
+
+
+def validate_results(config, correct, output, config_hash, epoch, case, *, require_executor=False):
     output = Path(output)
     committee = bounded_json(Path(config["key_directory"]) / "committee.json")
     if committee.get("schema") != 1 or committee.get("epoch") != 1:
@@ -858,6 +1027,8 @@ def validate_results(config, correct, output, config_hash, epoch, case):
             raise ValueError("signed receipt run/configuration/epoch differs")
         if body.get("failure") is not None or body.get("status", "completed") != "completed":
             raise ValueError("native replica reported a failure")
+        executor = validate_executor_lifecycle(body, required=require_executor,
+                    expected_limits={key: config.get("limits", {}).get(key, default) for key, default in EXECUTOR_LIMITS.items()})
         freeze = uint(body.get("freeze_us"), "freeze timestamp")
         if freeze < epoch or freeze > clock_us():
             raise ValueError("invalid receipt freeze timestamp")
@@ -898,6 +1069,7 @@ def validate_results(config, correct, output, config_hash, epoch, case):
             if sha256(safe_file(directory, name)) != entry["sha256"]:
                 raise ValueError("signed journal bytes changed during reduction")
         replicas[str(replica)] = {"counts": counts, "freeze_us": freeze, "transport": body.get("transport"),
+                                  "executor_lifecycle": executor,
                                   "traffic_scope": "actual shared transport counters sampled before shutdown; shutdown writes excluded",
                                   "effective_profile_sha256": descriptors["effective-profile.json"]["sha256"],
                                   "receipt": file_record(directory / "final.json")}
@@ -976,7 +1148,7 @@ def make_config(output, case, *, counts=None, useful_bytes=128, interval_us=1000
               "delta_ms": 100, "measurement_duration_ms": duration_ms, "drain_ms": drain_ms,
               "finite_workload": {"counts": counts, "useful_bytes": useful_bytes, "interval_us": interval_us,
                                   "start_delay_ms": start_delay_ms},
-              "limits": dict(DEFAULT_LIMITS), "materialization_delay_ms": materialization_delay_ms,
+              "limits": dict(DEFAULT_LIMITS, **EXECUTOR_LIMITS), "materialization_delay_ms": materialization_delay_ms,
               "payload_fault": {"node": 0, "drop_initial_batch_messages": drop_initial_batch_messages} if case == "missing-payload-recovery" else None}
     validate_config(config, case)
     return config
@@ -1041,7 +1213,8 @@ def execute(binary, stamp_path, output, case, *, counts=None, useful_bytes=128, 
             children[1].resume(pause)
         bound_evidence = evidence_snapshot(config, correct)
         record["offline_verification"] = verify_archive(executable, config_path, config, correct, output, deadline)
-        record["validation"] = validate_results(config, correct, output, config_hash, armed["epoch_us"], case)
+        record["validation"] = validate_results(config, correct, output, config_hash, armed["epoch_us"], case,
+                                               require_executor="delugi" in record["artifact"].get("protocols", []))
         if evidence_snapshot(config, correct) != bound_evidence or sha256(config_path) != config_hash:
             raise ValueError("authenticated evidence changed across verification/reduction")
         record["authenticated_files"] = bound_evidence

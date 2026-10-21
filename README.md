@@ -23,25 +23,47 @@ tests and the recommended framework for formal evaluation.
 
 ## Shared workspace
 
-Protocol policy lives in `core/delugi`: ordering, availability, dissemination,
-repair, exact batch identity, custody and output expansion. The shared crates
+Protocol policy lives in `core/delugi` and `core/raptr`: ordering, availability,
+dissemination, repair, exact batch identity, custody and output expansion. The shared crates
 provide TCP queues and connections, cryptographic execution, timed ingress,
 process-local storage, ordered output queues, control mailboxes, timers and
 operation accounting. `core-api` declares service barriers and node factories;
 `node` provides common command parsing and lifecycle dispatch. The root `delugi`
 crate preserves existing imports and executable names.
 
-`delugi-node --protocol delugi` and `delugi-replica` select the same factory.
-The memory storage profile completes at Visible, with no crash-recovery claim.
-Native policies may require stronger storage barriers; unsupported requests fail.
+The common entry point in `node/src/shared_main.rs` registers both factories and
+selects them with `--protocol delugi|raptr`. It uses the pinned native-compatible
+assembly manifest in `core/raptr/node`; its retained artifact filename is
+`raptr-shared-node`, while the protocol is selected at launch. Omitting the selector
+defaults to Delugi for existing local runners. The lightweight root build still
+provides the original `delugi-node` and `delugi-replica` Delugi-only entry points.
+
+The default Delugi memory profile completes at Visible. The common build also
+enables `shared-rocksdb-written-v1`, which completes actual WAL-enabled,
+unsynchronized writes before record visibility. Both protocols use the shared
+native-version RocksDB backend; their cache, serialization and retention policies
+remain in their cores. See [storage profiles](core/delugi/STORAGE_PROFILES.txt).
+Unsupported storage completion requests fail explicitly.
 Core actor turn ordering and timer arming remain core-owned during extraction.
 The shared resource profile records component limits and existing gaps; it is not
 an aggregate RSS or CPU enforcement claim.
 
-Raptr is the first counterpart being ported from the pinned authors' code under
-`core/raptr`. Its executable output contract and source-preserving native import
-are separate from a runnable shared-service replica. Raptr is not yet registered
-in the node CLI or accepted for shared-runtime performance comparisons. Native
+Raptr uses the pinned real consensus and Quorum Store implementations, native
+BCS/BLS types, shared TCP/crypto/storage, independent ingress, and proof-first
+contiguous application output. Its asynchronous descendants share one bounded
+task executor, with explicit group shutdown and joined-task evidence. The timer
+adapter preserves native deadline ordering and cancellation behavior.
+
+The first independent-process Raptr checkpoint passes six local workload and
+fault controls; its [validation receipt](benchmarks/results/raptr-shared-runner-validation-2026-10-21.json)
+identifies that executable separately from the subsequent common-build changes.
+New builds and runs must use the source-bound build receipt, not historical
+executables or manually rewritten stamps. `scripts/build_raptr_shared.py` supports
+guarded `test` and `build` actions; only a successful build can issue an executable
+receipt. Existing Delugi runners accept it through `--shared-build-receipt`.
+
+Current acceptance is local conformance with no added delay and Delta100ms.
+Dev-build controls do not establish protocol performance rankings. Native
 reference artifacts and historical results remain separate. See the
 [approved architecture](benchmarks/plans/2026-10-21-shared-core-architecture.txt)
 and [frozen services](benchmarks/plans/2026-10-21-shared-service-contract.txt).
@@ -66,7 +88,8 @@ and [frozen services](benchmarks/plans/2026-10-21-shared-service-contract.txt).
   lockfile, raw signed traces, build/test output and content-hash provenance.
 
 The implementation retains evidence and once-only state in memory for the full
-process lifetime. Crash recovery and persistent disk storage are not implemented.
+process lifetime. The optional disk record store does not reconstruct ordering,
+producer or custody state after restart; core crash recovery remains unsupported.
 The state machine drains enabled positive transitions before timeout negatives;
 report effects enter the outbox before their CLOSED effects. Resolution never
 requests metadata and cannot delay an enabled logical send.

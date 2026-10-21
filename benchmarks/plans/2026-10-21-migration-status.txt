@@ -32,6 +32,16 @@ Current shared-core checkpoint
   at all three honest replicas, verifies honest anchors2/3/4, and reaps all four
   processes. Report: raptr-shared-runner-validation-2026-10-21.json.
   These dev-build controls are functional evidence, not throughput/latency rankings.
+- dd7f738 commits the six-case Raptr independent-process checkpoint.
+- 9c0bc41 adds the shared bounded async task executor and native-compatible timer.
+  Ten mechanism/lifecycle tests pass, including cancellation-safe blocking-task
+  ownership, panic notification and explicit Rayon worker configuration.
+- The common executable now registers Delugi and Raptr. Its node/application
+  suite passes18 tests; native Raptr15 and real QS/RocksDB13 also pass after service
+  injection, with all654 native external dependency identities unchanged.
+  Delugi's default workspace passes257 tests. The separately named Delugi disk
+  profile and native-compatible build are being checked with exact wire vectors
+  and new live controls before acceptance of the combined executable.
 - Current runs use zero added network delay and Delta100ms. There is no new
   calibrated delta10ms comparison. Native-policy conformance, shared-service
   routing, and matched performance eligibility remain separate gates.

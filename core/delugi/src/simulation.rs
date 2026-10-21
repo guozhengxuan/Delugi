@@ -261,10 +261,10 @@ impl Run {
                 .checked_add(self.config.delta)
                 .ok_or("arrival overflow")?;
             for rule in &self.config.delays {
-                if rule.from.is_none_or(|id| id == from)
-                    && rule.to.is_none_or(|id| id == to)
-                    && rule.kind.as_deref().is_none_or(|k| k == kind)
-                    && rule.round.is_none_or(|r| r == round)
+                if rule.from.map_or(true, |id| id == from)
+                    && rule.to.map_or(true, |id| id == to)
+                    && rule.kind.as_deref().map_or(true, |k| k == kind)
+                    && rule.round.map_or(true, |r| r == round)
                 {
                     arrival = arrival.checked_add(rule.extra).ok_or("delay overflow")?;
                 }

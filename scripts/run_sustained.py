@@ -13,6 +13,8 @@ import time
 import uuid
 
 from run_network import add_ordering_arguments, Child, Controller, ROOT, machine_metadata, sha, unused_addresses, queued_frames, ordering_options, written_categories, WRITTEN_CATEGORY_KEYS
+from run_network import (add_shared_artifact_arguments, archive_shared_delugi_build,
+                         verify_shared_delugi_build, storage_options, validate_storage_snapshots, STORAGE_PROFILES)
 from network_delay import configure_from_environment, clear_from_environment
 from cohort_metrics import cost_ratios, ENDPOINT
 from cohort_store import collect_sharded, CohortDatabase, sha_file
@@ -270,9 +272,11 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
               cohort_accounting=True, nodes=4, resource_profile=None,
               fault_replica=None, fault_scope="payload", fault_after=0, fault_duration=0, fault_peers=None,
               measure_costs=False, deployment=None, fault_batches=0, fault_batch_transactions=64, fault_payload_bytes=472,
-              cohort_observer="full"):
+              cohort_observer="full", storage_profile=STORAGE_PROFILES[0]):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
+    if deployment is not None and storage_profile != STORAGE_PROFILES[0]:
+        raise ValueError("shared disk profile acceptance is currently local only")
     if nodes not in (4, 7, 31):
         raise ValueError("validated campaign committees are 4,7,31")
     if pause_replica is not None and fault_replica is not None:
@@ -314,6 +318,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
                             "measurement_ms": round(measurement_seconds * 1000)},
               **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
     config["measure_costs"] = measure_costs
+    config.update(storage_options(directory, storage_profile))
     if cohort_observer not in ("full", "compact"):
         raise ValueError("cohort observer must be full or compact")
     config["observer_mode"] = cohort_observer
@@ -462,6 +467,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
         else:
             raise TimeoutError("transport did not drain after quiescence")
         assert_healthy(snapshots)
+        result["storage"] = validate_storage_snapshots(snapshots, storage_profile)
         if pause_replica is not None:
             whole = summarize_windows(snapshots, total_rate, transaction_size, warmup_seconds, batch_ms)
             for key in ("replica_tcp_written_bytes", "replica_tcp_read_bytes", "replica_tcp_written_bytes_per_second", "written_categories"):
@@ -695,7 +701,12 @@ def main():
     parser.add_argument("--binary", type=Path, default=ROOT / "target/release/delugi-replica")
     parser.add_argument("--skip-build", action="store_true")
     parser.add_argument("--build-only", action="store_true", help="compile, stamp and archive without launching a trial")
+    add_shared_artifact_arguments(parser)
     args = parser.parse_args()
+    if args.shared_build_receipt and (not args.skip_build or args.build_only or args.inventory):
+        parser.error("shared build receipt requires --skip-build, a local trial and no --build-only")
+    if args.storage_profile != STORAGE_PROFILES[0] and not args.shared_build_receipt:
+        parser.error("disk profile requires an explicit shared build receipt with compiled backend")
     useful_bytes = args.useful_bytes if args.useful_bytes is not None else (args.transaction_size - 60 if args.transaction_size is not None else 472)
     transaction_size = useful_bytes + 60
     output = (args.output or ROOT / "results/local" / ("sustained-" + uuid.uuid4().hex)).resolve()
@@ -713,14 +724,18 @@ def main():
                            "shutdown": "stop arrivals after finite schedule, allow declared drain, quiesce, verify exact common prefix, collect frozen ledgers and stop; incomplete and zero-output trials remain accounted outcomes"},
                 "source_files": []}
     manifest["cohort_observer"] = args.cohort_observer
+    manifest["storage_profile"] = args.storage_profile
+    if args.storage_profile == STORAGE_PROFILES[1]:
+        manifest["method"]["storage"] = "fresh shared RocksDB Written record mirror before process-local Visible custody; typed memory cache retained; no core crash recovery; WAL enabled sync=false"
     if args.cohort_observer == "compact":
         manifest["comparison_eligible"] = False
         manifest["method"]["latency_quantiles"] = "unavailable: detailed request timestamps disabled; finite membership and exact output/batch receipts retained"
         manifest["method"]["trace"] = "bounded signed finite receipt headers and membership bitmap pages; no request/output timestamp ledger"
     manifest["method"]["observer_cost_boundary"] = "common receipt baseline in both modes; receipt signing and collection occur after frozen measured endpoint"
+    shared_validation = None
     try:
         manifest["specification"] = archive_spec(args.spec_snapshot, output / "snapshot", args.paper_repository)
-        sources = [ROOT / p for p in ("Cargo.toml", "Cargo.lock", "scripts/run_sustained.py", "scripts/run_network.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/spec_provenance.py", "scripts/remote_deployment.py", "scripts/remote_worker.py", "scripts/linux_netem.py", "tests/sustained_runner_test.py", "tests/cohort_metrics_test.py", "tests/cohort_store_test.py")]
+        sources = [ROOT / p for p in ("Cargo.toml", "Cargo.lock", "scripts/run_sustained.py", "scripts/run_network.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/spec_provenance.py", "scripts/remote_deployment.py", "scripts/remote_worker.py", "scripts/linux_netem.py", "tests/sustained_runner_test.py", "tests/cohort_metrics_test.py", "tests/cohort_store_test.py", "tests/shared_delugi_artifact_test.py")]
         from shared_core_conformance import source_inventory
         sources += [ROOT / "scripts/shared_core_conformance.py"]
         sources = sorted(set(sources) | {ROOT / name for name in source_inventory(ROOT)})
@@ -730,9 +745,11 @@ def main():
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": sha(data)})
-        for command, label in ((["rustc", "--version", "--verbose"], "rustc"),
-                               (["git", "rev-parse", "HEAD"], "git_head"),
-                               (["git", "status", "--porcelain"], "git_status")):
+        commands = [(["git", "rev-parse", "HEAD"], "git_head"),
+                    (["git", "status", "--porcelain"], "git_status")]
+        if not args.shared_build_receipt:
+            commands.insert(0, (["rustc", "--version", "--verbose"], "rustc"))
+        for command, label in commands:
             process = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, check=True)
             manifest[label] = process.stdout.strip()
         if not args.skip_build:
@@ -749,8 +766,14 @@ def main():
             stamp = {"inputs": inputs, "binary_sha256": sha(args.binary.read_bytes()),
                      "built_utc": datetime.now(timezone.utc).isoformat()}
             Path(str(args.binary) + ".build.json").write_text(json.dumps(stamp, indent=2) + "\n")
-        manifest["build_stamp"] = verify_build_stamp(args.binary, manifest["rustc"])
-        manifest["binary_sha256"] = sha(args.binary.read_bytes())
+        if args.shared_build_receipt:
+            shared_validation = archive_shared_delugi_build(args.binary, args.shared_build_receipt,
+                output / "shared-build", args.storage_profile)
+            manifest["shared_build"] = shared_validation
+            manifest["binary_sha256"] = shared_validation["binary"]["sha256"]
+        else:
+            manifest["build_stamp"] = verify_build_stamp(args.binary, manifest["rustc"])
+            manifest["binary_sha256"] = sha(args.binary.read_bytes())
         if args.build_only:
             manifest["status"] = "built"
         else:
@@ -770,7 +793,7 @@ def main():
                                fault_after=args.fault_after, fault_duration=args.fault_duration, fault_peers=args.fault_peers,
                                measure_costs=args.measure_costs, deployment=deployment, cohort_observer=args.cohort_observer,
                                fault_batches=args.fault_batches, fault_batch_transactions=args.fault_batch_transactions,
-                               fault_payload_bytes=args.fault_payload_bytes)
+                               fault_payload_bytes=args.fault_payload_bytes, storage_profile=args.storage_profile)
             manifest["trial"] = result
             manifest["status"] = result["status"]
             for key in ("network_shaping", "network_shaping_cleanup", "network_shaping_cleanup_error",
@@ -788,6 +811,14 @@ def main():
     except Exception as error:
         manifest["status"], manifest["error"] = "failed", f"{type(error).__name__}: {error}"
     finally:
+        if shared_validation is not None:
+            try:
+                _, checked = verify_shared_delugi_build(args.binary, args.shared_build_receipt, args.storage_profile)
+                if checked["receipt_sha256"] != shared_validation["receipt_sha256"]:
+                    raise ValueError("shared build receipt changed during trial")
+                manifest["shared_build_after"] = checked
+            except Exception as error:
+                manifest["status"], manifest["error"] = "failed", f"shared artifact post-run verification: {error}"
         manifest["finished_utc"] = datetime.now(timezone.utc).isoformat()
         (output / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(json.dumps({"manifest": str(output / "manifest.json"), "status": manifest["status"], "comparison": manifest.get("comparison"), "error": manifest.get("error")}), flush=True)

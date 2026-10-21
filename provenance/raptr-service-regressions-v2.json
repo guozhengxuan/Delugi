@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "native_pin": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "scope": "native core and QS policy/backend regressions after shared executor/timer/provider routing",
+  "tests": {
+    "native": {
+      "passed": 15,
+      "failed": 0,
+      "ignored": 0,
+      "log": "results/local/shared-core-20261021/raptr-service-regressions-3/native.log",
+      "log_sha256": "76af3d1433c4569bba2ff069c3bb2003fd223e345fed81355f17c3471922ac69",
+      "test_binary": {
+        "path": "core/raptr/.native-deps/target/debug/deps/raptr-56e0803fd4e0b607",
+        "sha256": "73d68a71e436af71fbe30d8420d835ff741658dbcf4cfa0e009abfc2467847d8",
+        "bytes": 10041784,
+        "retention": "hash recorded; reusable target may be cleaned after common acceptance"
+      }
+    },
+    "qs": {
+      "passed": 13,
+      "failed": 0,
+      "ignored": 0,
+      "log": "results/local/shared-core-20261021/raptr-service-regressions-3/qs.log",
+      "log_sha256": "80d8555b9d90112ee5d2fd18ff7c8d1c414e60bf341889ccb5f90a5997c04146",
+      "test_binary": {
+        "path": "core/raptr/.native-deps/target/debug/deps/raptr_qs-e4db325c0a89e616",
+        "sha256": "f5309a3af152319b6fc6ba9e9a58918998bc2beee28949dc3a6b4c99f601f36f",
+        "bytes": 34148904,
+        "retention": "hash recorded; reusable target may be cleaned after common acceptance"
+      }
+    }
+  },
+  "shared_runtime_receipt": {
+    "path": "provenance/shared-runtime-async-v1.json",
+    "sha256": "182555302b6ee924ea84ca55e36082ad6f7c764e14cac2d7b392b2f7e49755f1"
+  },
+  "guard": {
+    "path": "results/local/shared-core-20261021/raptr-service-regressions-3/receipt.json",
+    "sha256": "fd8a034ee7ac76b8ab11f9b74a9fbdc80384f1b6285fb134c80b21c3f2cc5586",
+    "source_before_after_equal": true,
+    "cache_before_after_equal": true,
+    "native_archive_equal": true
+  },
+  "lock_audit": {
+    "after_sha256": "b2da420f2e82891fd5742b593e1e7a84bcdb2d1189bd880c764a69523ac33a74",
+    "before_sha256": "9e0df1914ef0309c9d33c116ab9d319d2ac8db0c13a679a364da1fac24554d88",
+    "changed_sources": [
+      "core/raptr/qs/Cargo.lock"
+    ],
+    "external_packages_unchanged": 654,
+    "local_added": [
+      [
+        "shared-runtime-async",
+        "0.1.0"
+      ]
+    ]
+  },
+  "commands": [
+    {
+      "name": "qs-lock-resolution",
+      "elapsed_seconds": 2.197927249595523,
+      "peak_owned_group_rss_bytes": 3244032,
+      "peak_target_allocated_bytes": 3488317440,
+      "returncode": 0,
+      "cleanup": {
+        "group": 72443,
+        "remaining": [],
+        "signals": [],
+        "status": "completed"
+      }
+    },
+    {
+      "name": "native",
+      "elapsed_seconds": 4.256212166510522,
+      "peak_owned_group_rss_bytes": 633569280,
+      "peak_target_allocated_bytes": 3490754560,
+      "returncode": 0,
+      "cleanup": {
+        "group": 72999,
+        "remaining": [],
+        "signals": [],
+        "status": "completed"
+      }
+    },
+    {
+      "name": "qs",
+      "elapsed_seconds": 6.36713591683656,
+      "peak_owned_group_rss_bytes": 1410433024,
+      "peak_target_allocated_bytes": 3522572288,
+      "returncode": 0,
+      "cleanup": {
+        "group": 73037,
+        "remaining": [],
+        "signals": [],
+        "status": "completed"
+      }
+    }
+  ],
+  "source_map": {
+    "path": "core/raptr/qs/UPSTREAM.json",
+    "sha256": "079bc627adeeded5f96648ca0de1867244e02291ba2bc45b2e05f76e76355be5",
+    "diff_sha256": "5fe6d81fe22e82108238d560cca05b63e73c6225d15d97d4a4041021338e2b98"
+  },
+  "prior_failure": {
+    "path": "results/local/shared-core-20261021/raptr-service-regressions-2/receipt.json",
+    "reason": "Sandbox denied required process observation before spawning Cargo; retried with scoped permission, guard unchanged."
+  },
+  "process_acceptance": "Common executable test/build/live gate owned separately; these are native/QS regression checks."
+}

@@ -111,6 +111,7 @@ impl QuotaManager {
 /// Provides in memory representation of stored batches (strong cache), and allows
 /// efficient concurrent readers.
 pub struct BatchStore {
+    tasks: shared_runtime_async::TaskGroup,
     epoch: OnceCell<u64>,
     last_certified_time: AtomicU64,
     db_cache: DashMap<HashValue, PersistedValue>,
@@ -136,9 +137,11 @@ impl BatchStore {
         batch_quota: usize,
         validator_signer: ValidatorSigner,
         expiration_buffer_usecs: u64,
+        tasks: shared_runtime_async::TaskGroup,
     ) -> Self {
         let db_clone = db.clone();
         let batch_store = Self {
+            tasks,
             epoch: OnceCell::with_value(epoch),
             last_certified_time: AtomicU64::new(last_certified_time),
             db_cache: DashMap::with_capacity(50_000),
@@ -154,7 +157,7 @@ impl BatchStore {
         };
 
         if is_new_epoch {
-            tokio::task::spawn_blocking(move || {
+            batch_store.tasks.spawn_blocking(move || {
                 Self::gc_previous_epoch_batches_from_db(db_clone, epoch);
             });
         } else {
@@ -239,7 +242,7 @@ impl BatchStore {
             "QS: Batch store bootstrap expired keys len {}",
             expired_keys.len()
         );
-        tokio::task::spawn_blocking(move || {
+        batch_store.tasks.spawn_blocking(move || {
             db.delete_batches(expired_keys)
                 .expect("Deletion of expired keys should not fail");
         });
@@ -283,8 +286,8 @@ impl BatchStore {
                             digest
                         );
                         return Ok(false);
-                    },
-                    std::cmp::Ordering::Less => {},
+                    }
+                    std::cmp::Ordering::Less => {}
                 }
             };
             let value_to_be_stored = if self
@@ -308,10 +311,10 @@ impl BatchStore {
                     let (k, prev_value) = entry.replace_entry(value_to_be_stored);
                     debug_assert!(k == digest);
                     self.free_quota(prev_value);
-                },
+                }
                 Vacant(slot) => {
                     slot.insert(value_to_be_stored);
-                },
+                }
             }
         }
 
@@ -366,7 +369,7 @@ impl BatchStore {
                     } else {
                         None
                     }
-                },
+                }
                 Vacant(_) => unreachable!("Expired entry not in cache"),
             };
             // No longer holding the lock on db_cache entry.
@@ -389,7 +392,9 @@ impl BatchStore {
                 aptos_crypto::bls12381::Signature::dummy_signature(),
             ))
         });
-        shared_crypto_aptos::native_signing(|| SignedBatchInfo::new(batch_info, &self.validator_signer))
+        shared_crypto_aptos::native_signing(|| {
+            SignedBatchInfo::new(batch_info, &self.validator_signer)
+        })
     }
 
     fn persist_inner(&self, persist_request: PersistedValue) -> Option<SignedBatchInfo> {
@@ -404,12 +409,12 @@ impl BatchStore {
                         .expect("Could not write to DB");
                 }
                 self.generate_signed_batch_info(batch_info).ok()
-            },
+            }
 
             Err(e) => {
                 debug!("QS: failed to store to cache {:?}", e);
                 None
-            },
+            }
         }
     }
 
@@ -420,7 +425,7 @@ impl BatchStore {
 
         let expired_keys = self.clear_expired_payload(certified_time);
         let db = self.db.clone();
-        tokio::task::spawn_blocking(move || {
+        self.tasks.spawn_blocking(move || {
             if let Err(e) = db.delete_batches(expired_keys) {
                 debug!("Error deleting batches: {:?}", e)
             }
@@ -439,7 +444,7 @@ impl BatchStore {
             Ok(None) | Err(_) => {
                 warn!("Could not get batch from db");
                 Err(ExecutorError::CouldNotGetData)
-            },
+            }
         }
     }
 
@@ -582,7 +587,7 @@ impl<T: QuorumStoreSender + Clone + Send + Sync + 'static> BatchReaderImpl<T> {
                 .boxed()
                 .shared();
 
-                tokio::spawn(fut.clone());
+                self.batch_store.tasks.spawn(fut.clone());
 
                 BatchFetchUnit {
                     responders: responders_clone,

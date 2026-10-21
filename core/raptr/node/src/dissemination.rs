@@ -32,10 +32,9 @@ use raptr_qs::{
 use std::{
     collections::HashSet,
     future::Future,
-    sync::{Arc, Mutex},
+    sync::Arc,
     time::{Duration, SystemTime},
 };
-use tokio::task::JoinHandle;
 
 #[async_trait::async_trait]
 pub trait NativeCommitSink: Send + Sync {
@@ -46,72 +45,20 @@ pub trait NativeCommitSink: Send + Sync {
 
 #[derive(Clone)]
 pub struct OwnedTasks {
-    registry: Arc<Mutex<TaskRegistry>>,
-    maximum: usize,
-    status: NativeSender,
+    group: shared_runtime_async::TaskGroup,
 }
-
-#[derive(Default)]
-struct TaskRegistry {
-    closed: bool,
-    handles: Vec<JoinHandle<()>>,
-}
-
-impl TaskRegistry {
-    fn close(&mut self) -> Vec<JoinHandle<()>> {
-        self.closed = true;
-        std::mem::take(&mut self.handles)
-    }
-}
-
 impl OwnedTasks {
-    fn new(maximum: usize, status: NativeSender) -> Self {
-        Self {
-            registry: Arc::new(Mutex::new(TaskRegistry::default())),
-            maximum,
-            status,
-        }
+    fn new(group: shared_runtime_async::TaskGroup) -> Self {
+        Self { group }
     }
     fn spawn(&self, future: impl Future<Output = ()> + Send + 'static) {
-        let mut registry = self.registry.lock().unwrap();
-        // Shutdown closes admission under the same lock used to start tasks.
-        // A child finishing concurrently cannot escape the owned join set.
-        if registry.closed {
-            return;
-        }
-        if registry.handles.len() >= self.maximum {
-            self.status.fail("native task lifetime envelope exhausted");
-            return;
-        }
-        registry.handles.push(tokio::spawn(future));
+        // Global provider owns this native detached body even when its result is unused.
+        // Rejection latches the injected executor's terminal failure callback.
+        drop(self.group.spawn(future));
     }
-    /// Call only after the declared drain; unresolved work remains explicit in
-    /// the output snapshot. Every task is then aborted and reaped.
     pub async fn shutdown(self) -> Result<()> {
-        let handles = self.registry.lock().unwrap().close();
-        abort_and_reap(handles).await
-    }
-}
-
-async fn abort_and_reap(handles: Vec<JoinHandle<()>>) -> Result<()> {
-    for handle in &handles {
-        handle.abort();
-    }
-    let mut first_error = None;
-    for handle in handles {
-        match handle.await {
-            Ok(()) => {}
-            Err(error) if error.is_cancelled() => {}
-            Err(error) => {
-                if first_error.is_none() {
-                    first_error = Some(error);
-                }
-            }
-        }
-    }
-    match first_error {
-        Some(error) => Err(error.into()),
-        None => Ok(()),
+        self.group.shutdown().await?;
+        Ok(())
     }
 }
 
@@ -145,15 +92,15 @@ impl NativeDissemination {
         status: NativeSender,
         materializer: Materializer,
         sink: Arc<dyn NativeCommitSink>,
-        maximum_tasks: usize,
+        task_group: shared_runtime_async::TaskGroup,
         materialization_delay: Duration,
     ) -> Result<(Self, OwnedTasks)> {
         anyhow::ensure!(
-            node_id < authors.len() && maximum_tasks > 0,
+            node_id < authors.len(),
             "invalid dissemination identity/task bound"
         );
         let authors = Arc::new(authors);
-        let tasks = OwnedTasks::new(maximum_tasks, status.clone());
+        let tasks = OwnedTasks::new(task_group);
         let module_id = module_network.module_id();
         let round_initial_timeout = Duration::from_millis(config.round_initial_timeout_ms);
         let module_payload_manager = payload_manager.clone();
@@ -384,7 +331,7 @@ impl DisseminationLayer for NativeDissemination {
                         // votes and pool notifications remain unchanged.
                         if !materialization_delay.is_zero() {
                             materializer.delay_started(transactions.len())?;
-                            tokio::time::sleep(materialization_delay).await;
+                            shared_runtime_async::time::sleep(materialization_delay).await;
                             materializer.delay_finished(transactions.len())?;
                         }
                         if let Some(reservation) = reservation {
@@ -405,42 +352,4 @@ impl DisseminationLayer for NativeDissemination {
             .check_payload_availability(&payload.inner)
     }
     async fn set_first_committed_block_timestamp(&self, _: SystemTime) {}
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::sync::atomic::{AtomicUsize, Ordering};
-
-    struct Dropped(Arc<AtomicUsize>);
-    impl Drop for Dropped {
-        fn drop(&mut self) {
-            self.0.fetch_add(1, Ordering::SeqCst);
-        }
-    }
-    #[tokio::test]
-    async fn shutdown_closes_registry_and_reaps_later_tasks_after_a_panic() {
-        let dropped = Arc::new(AtomicUsize::new(0));
-        let (ready, mut starts) = tokio::sync::mpsc::channel(2);
-        let mut registry = TaskRegistry::default();
-        for panic in [true, false] {
-            let dropped = dropped.clone();
-            let ready = ready.clone();
-            registry.handles.push(tokio::spawn(async move {
-                let _drop = Dropped(dropped);
-                ready.send(()).await.unwrap();
-                if panic {
-                    panic!("owned lifecycle test panic");
-                }
-                std::future::pending::<()>().await;
-            }));
-        }
-        starts.recv().await.unwrap();
-        starts.recv().await.unwrap();
-        let handles = registry.close();
-        assert!(registry.closed && registry.handles.is_empty());
-        assert!(abort_and_reap(handles).await.is_err());
-        assert_eq!(dropped.load(Ordering::SeqCst), 2);
-        assert!(registry.close().is_empty());
-    }
 }

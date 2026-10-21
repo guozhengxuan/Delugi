@@ -92,3 +92,21 @@ pub fn hash_encoded<H: aptos_crypto::hash::CryptoHasher>(bytes: &[u8]) -> HashVa
     state.update(bytes);
     state.finish()
 }
+
+/// Native transaction hashing may include an outer Transaction enum or a cached
+/// committed hash. The caller retains that exact native policy/representation.
+pub fn native_hashing<T>(operation: impl FnOnce() -> T) -> T {
+    let _cost = measure(Operation::ContentHash);
+    operation()
+}
+pub fn workload_signing<T>(operation: impl FnOnce() -> T) -> T {
+    let _cost = measure(Operation::WorkloadManifestSign);
+    operation()
+}
+pub fn workload_validation<T>(operation: impl FnOnce() -> T) -> T {
+    let _cost = measure(Operation::WorkloadManifestVerify);
+    operation()
+}
+pub fn encoded_size<T: Serialize + ?Sized>(value: &T) -> anyhow::Result<usize> {
+    Ok(bcs::serialized_size(value)?)
+}

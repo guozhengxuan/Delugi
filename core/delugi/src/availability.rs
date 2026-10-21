@@ -1266,7 +1266,7 @@ mod tests {
                 _ => changed.authentication.push(0),
             }
             compare_rejection(&changed, &pool);
-            let mut receiver = store.clone();
+            let mut receiver = store.try_clone_memory().unwrap();
             assert!(config
                 .observe(&changed, &mut receiver, &fixture_key(0), 0)
                 .is_err());
@@ -1515,7 +1515,7 @@ mod tests {
         let (config, mut source) = fixture();
         let binding = base(&config, 1);
         source.produce(&fixture_key(0), 0, vec![1]).unwrap();
-        let leader = source.clone();
+        let leader = source.try_clone_memory().unwrap();
         source.produce(&fixture_key(0), 0, vec![2]).unwrap();
         let pool = observations(&config, &binding, &mut source);
         let (x, _) = decoded(&config, &binding, &pool, &leader);
@@ -1716,8 +1716,8 @@ mod tests {
     #[test]
     fn byzantine_producer_forks_are_independently_valid_at_equal_heights() {
         let (config, mut branch_a) = fixture();
-        let mut branch_b = branch_a.clone();
-        let mut empty = branch_a.clone();
+        let mut branch_b = branch_a.try_clone_memory().unwrap();
+        let mut empty = branch_a.try_clone_memory().unwrap();
         branch_a
             .produce(&fixture_key(0), 0, b"fork A".to_vec())
             .unwrap();

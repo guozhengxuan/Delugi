@@ -5,6 +5,7 @@ use aptos_consensus_types::{
     common::Author,
     proof_of_store::{ProofOfStore, ProofOfStoreMsg, SignedBatchInfo, SignedBatchInfoMsg},
 };
+use futures::StreamExt;
 use raptr::{
     framework::{
         network::{MessageVerifier, NetworkSender, NetworkService},
@@ -29,10 +30,7 @@ use std::{
     },
     time::Duration,
 };
-use tokio::{
-    sync::{mpsc, oneshot},
-    task::JoinHandle,
-};
+use tokio::sync::{mpsc, oneshot};
 #[path = "network_fault.rs"]
 mod fault;
 pub use fault::PayloadFaultSnapshot;
@@ -121,7 +119,7 @@ impl NativeSender {
             if let Err(error) = self.shared.check() {
                 return error;
             }
-            tokio::time::sleep(Duration::from_millis(5)).await;
+            shared_runtime_async::time::sleep(Duration::from_millis(5)).await;
         }
     }
 
@@ -292,7 +290,7 @@ impl NetworkTransport for NativeSender {
                 self.fail(&error);
                 return Err(error);
             }
-            let response = tokio::time::timeout(timeout, receive).await??;
+            let response = shared_runtime_async::time::timeout(timeout, receive).await??;
             // The extracted native QS NetworkSender verifies BatchResponse::Batch
             // exactly once; Native BatchRequester verifies a NotFound proof.
             Ok(response)
@@ -381,19 +379,21 @@ pub fn dispatch(
     verifier: Arc<Verifier>,
     qs: Inbound,
     capacity: usize,
-) -> Result<(ConsensusInbox, JoinHandle<()>)> {
+    task_group: shared_runtime_async::TaskGroup,
+) -> Result<(ConsensusInbox, shared_runtime_async::Task<()>)> {
     ensure!(capacity > 0, "zero consensus inbox capacity");
     let (tx, rx) = mpsc::channel(capacity);
     let service = ConsensusInbox {
         sender: sender.clone(),
         incoming: rx,
     };
-    let task = tokio::spawn(async move {
-        let mut requests = tokio::task::JoinSet::new();
+    let children = task_group.clone();
+    let task = task_group.spawn(async move {
+        let mut requests = futures::stream::FuturesUnordered::new();
         loop {
             let leased = tokio::select! {
                 received = incoming.recv() => match received { Ok(value) => value, Err(error) => { sender.fail(error); break; } },
-                Some(result) = requests.join_next(), if !requests.is_empty() => {
+                Some(result) = requests.next(), if !requests.is_empty() => {
                     if let Err(error) = result { sender.fail(error); break; }
                     continue;
                 }
@@ -457,7 +457,7 @@ pub fn dispatch(
                             }
                             let qs = qs.clone();
                             let sender = sender.clone();
-                            requests.spawn(async move {
+                            requests.push(children.spawn(async move {
                                 // Preserve native request validation and signed NotFound.
                                 if let Ok(response) = qs.request_batch(author, request).await {
                                     sender
@@ -465,7 +465,7 @@ pub fn dispatch(
                                         .await;
                                 }
                                 drop(leased);
-                            });
+                            }));
                         }
                         QsWire::Response { id, response } => {
                             let mut pending = sender.pending.lock().unwrap();
@@ -479,8 +479,8 @@ pub fn dispatch(
                 }
             }
         }
-        requests.abort_all();
-        while requests.join_next().await.is_some() {}
+        for request in requests.iter() { request.abort(); }
+        while requests.next().await.is_some() {}
     });
     Ok((service, task))
 }

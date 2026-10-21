@@ -62,12 +62,15 @@ impl QuorumStoreStorage for QuorumStoreDB {
             .scan(BATCH_CF_NAME)?
             .map(|row| {
                 let (key, value) = row?;
-                Ok((HashValue::from_slice(&key)?, bcs::from_bytes(&value)?))
+                Ok((
+                    HashValue::from_slice(&key)?,
+                    shared_crypto_aptos::decode(&value)?,
+                ))
             })
             .collect()
     }
     fn save_batch(&self, batch: PersistedValue) -> Result<(), DbError> {
-        let bytes = bcs::to_bytes(&batch).map_err(anyhow::Error::from)?;
+        let bytes = shared_crypto_aptos::encode(&batch).map_err(anyhow::Error::from)?;
         self.db
             .put(
                 BATCH_CF_NAME,
@@ -83,14 +86,14 @@ impl QuorumStoreStorage for QuorumStoreDB {
             .get(BATCH_CF_NAME, digest.as_ref())
             .map_err(anyhow::Error::from)?
             .map(|v| {
-                bcs::from_bytes(&v)
+                shared_crypto_aptos::decode(&v)
                     .map_err(anyhow::Error::from)
                     .map_err(Into::into)
             })
             .transpose()
     }
     fn delete_batch_id(&self, epoch: u64) -> Result<(), DbError> {
-        let key = bcs::to_bytes(&epoch).map_err(anyhow::Error::from)?;
+        let key = shared_crypto_aptos::encode(&epoch).map_err(anyhow::Error::from)?;
         self.db
             .delete(
                 BATCH_ID_CF_NAME,
@@ -109,7 +112,10 @@ impl QuorumStoreStorage for QuorumStoreDB {
             .map_err(anyhow::Error::from)?
             .map(|r| {
                 let (key, value) = r?;
-                Ok((bcs::from_bytes(&key)?, bcs::from_bytes(&value)?))
+                Ok((
+                    shared_crypto_aptos::decode(&key)?,
+                    shared_crypto_aptos::decode(&value)?,
+                ))
             })
             .collect::<Result<_>>()?;
         let mut ret = None;
@@ -124,8 +130,8 @@ impl QuorumStoreStorage for QuorumStoreDB {
         Ok(ret)
     }
     fn save_batch_id(&self, epoch: u64, batch_id: BatchId) -> Result<(), DbError> {
-        let key = bcs::to_bytes(&epoch).map_err(anyhow::Error::from)?;
-        let value = bcs::to_bytes(&batch_id).map_err(anyhow::Error::from)?;
+        let key = shared_crypto_aptos::encode(&epoch).map_err(anyhow::Error::from)?;
+        let value = shared_crypto_aptos::encode(&batch_id).map_err(anyhow::Error::from)?;
         self.db
             .put(
                 BATCH_ID_CF_NAME,

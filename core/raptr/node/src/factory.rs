@@ -3,6 +3,7 @@ use crate::{
     dissemination::NativeDissemination,
     network::{self, NativeSender},
     output::Materializer,
+    timer::NativeTimer,
     workload::Workload,
 };
 use anyhow::{anyhow, ensure, Result};
@@ -11,7 +12,7 @@ use aptos_types::ledger_info::LedgerInfoWithSignatures;
 use core_api::ProtocolFactory;
 use delugi_raptr_core::Limits as OutputLimits;
 use raptr::{
-    framework::{module_network::ModuleNetwork, timer::LocalTimerService, Protocol},
+    framework::{module_network::ModuleNetwork, Protocol},
     raptr::Metrics,
 };
 use raptr_qs::{
@@ -21,9 +22,7 @@ use raptr_qs::{
         OptQSPullParamsProvider,
     },
     payload_client::user::quorum_store_client::QuorumStoreClient,
-    payload_manager::{
-        QuorumStoreCommitNotifier, QuorumStorePayloadManager,
-    },
+    payload_manager::{QuorumStoreCommitNotifier, QuorumStorePayloadManager},
     quorum_store::quorum_store_db::QuorumStoreDB,
 };
 use raptr_shared_transport::{AsyncLimits, Auth, Context, Service};
@@ -41,6 +40,7 @@ impl ProtocolFactory for RaptrFactory {
     }
     fn run(&self, bytes: &[u8], id: u32) -> Result<(), String> {
         let config = Config::parse(bytes, id).map_err(|e| e.to_string())?;
+        shared_runtime_async::initialize_global_rayon(2)?;
         let runtime = tokio::runtime::Builder::new_multi_thread()
             .worker_threads(2)
             .max_blocking_threads(32)
@@ -69,7 +69,7 @@ fn clock() -> Result<u64> {
 }
 
 async fn wait_arm(config: &Config, configuration_sha256: &str) -> Result<Arm> {
-    let timeout = tokio::time::Instant::now() + Duration::from_secs(45);
+    let timeout = shared_runtime_async::time::Instant::now() + Duration::from_secs(45);
     loop {
         match fs::read(&config.arm_path) {
             Ok(bytes) => {
@@ -91,10 +91,10 @@ async fn wait_arm(config: &Config, configuration_sha256: &str) -> Result<Arm> {
             Err(e) => return Err(e.into()),
         }
         ensure!(
-            tokio::time::Instant::now() < timeout,
+            shared_runtime_async::time::Instant::now() < timeout,
             "all-ready arm timeout"
         );
-        tokio::time::sleep(Duration::from_millis(1)).await;
+        shared_runtime_async::time::sleep(Duration::from_millis(1)).await;
     }
 }
 async fn until(deadline_us: u64) -> Result<()> {
@@ -103,7 +103,10 @@ async fn until(deadline_us: u64) -> Result<()> {
         if now >= deadline_us {
             return Ok(());
         }
-        tokio::time::sleep(Duration::from_micros((deadline_us - now).min(1_000_000))).await;
+        shared_runtime_async::time::sleep(Duration::from_micros(
+            (deadline_us - now).min(1_000_000),
+        ))
+        .await;
     }
 }
 fn output_snapshot(s: delugi_raptr_core::Snapshot) -> Value {
@@ -183,6 +186,19 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
             sender.configure_payload_fault(fault.drop_initial_batch_messages)?;
         }
     }
+    let failure_sender = sender.clone();
+    let executor = shared_runtime_async::Executor::new(
+        tokio::runtime::Handle::current(),
+        shared_runtime_async::Limits {
+            max_async_tasks: limits.max_async_tasks,
+            max_blocking_tasks: limits.max_blocking_tasks,
+        },
+        move |error| failure_sender.fail(error),
+    )?;
+    let node_tasks = executor.group("node")?;
+    let network_tasks = executor.group("network")?;
+    let dl_group = executor.group("dissemination")?;
+    let qs_group = executor.group("quorum-store")?;
     let (pool_tx, pool_rx) = futures_channel::mpsc::channel(limits.ingress_capacity);
     let cache = ProofCache::new(10_000);
     fs::create_dir(directory.join("db"))?;
@@ -205,6 +221,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         consensus.mempool_txn_pull_timeout_ms,
         cache.clone(),
         Arc::new(FixedGenesis(keys.genesis.clone())),
+        qs_group,
     )?;
     let payload_client = Arc::new(QuorumStoreClient::new(
         qs.payload_requests.clone(),
@@ -254,13 +271,13 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         sender.clone(),
         materializer.clone(),
         Arc::new(workload.clone()),
-        100_000,
+        dl_group,
         Duration::from_millis(config.materialization_delay_ms),
     )?;
     let native_config = raptr::rehost::native_config(
         keys.authors.len(),
         Duration::from_millis(config.delta_ms),
-        tokio::time::Instant::now() + Duration::from_secs(180),
+        shared_runtime_async::time::Instant::now() + Duration::from_secs(180),
     )?;
     let core = raptr::rehost::build_core(
         native_config,
@@ -280,11 +297,12 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         core.verifier.clone(),
         qs.inbound.clone(),
         limits.inbox_frames,
+        network_tasks,
     )?;
     let snapshot = sender.shared().snapshot();
     config::write_json_new(
         &directory.join("effective-profile.json"),
-        &json!({"schema":1,"profile":PROFILE,"native_policy_commit":"a4c98047cf8aeae3571168d02fb7e343140d2948","transport":snapshot.transport,"consensus":consensus,"quorum_store":qs_config,"crypto":"nativeBCS/BLS/SHA3; ordinaryEd25519outertransport","storage":"blob-lz4-pipelined-v1 Written WAL enabled syncfalse","tokio_workers":2,"maximum_blocking_threads":32,"proof_cache_entries":10000,"native_end_guard_seconds":180,"configured_delta_ms":config.delta_ms,"injected_delay_ms":0,"native_timer_multipliers":{"leader":4.0,"partial_qc":0.1,"fetch":2.0,"round_sync":15.0},"execution":"consensus-only, signed synthetic Script payload; no Aptos VM/state-sync; fixed quorum-signed genesis ledger","genesis_ledger_sha256":keys.committee.genesis_ledger_sha256,"committee_sha256":config::hex(&keys.public_hash),"materialization_delay_ms":config.materialization_delay_ms,"payload_fault":config.payload_fault,"limits":limits}),
+        &json!({"schema":1,"profile":PROFILE,"native_policy_commit":"a4c98047cf8aeae3571168d02fb7e343140d2948","transport":snapshot.transport,"consensus":consensus,"quorum_store":qs_config,"crypto":"nativeBCS/BLS/SHA3; ordinaryEd25519outertransport","storage":"blob-lz4-pipelined-v1 Written WAL enabled syncfalse","tokio_workers":2,"maximum_blocking_threads":32,"rayon_workers":2,"task_executor":"shared global queued-plus-running budgets; group-owned shutdown","endpoint_clock":"CLOCK_MONOTONIC; admission after successful enqueue/publication; output after verification and journal construction","proof_cache_entries":10000,"native_end_guard_seconds":180,"configured_delta_ms":config.delta_ms,"injected_delay_ms":0,"native_timer_multipliers":{"leader":4.0,"partial_qc":0.1,"fetch":2.0,"round_sync":15.0},"execution":"consensus-only, signed synthetic Script payload; no Aptos VM/state-sync; fixed quorum-signed genesis ledger","genesis_ledger_sha256":keys.committee.genesis_ledger_sha256,"committee_sha256":config::hex(&keys.public_hash),"materialization_delay_ms":config.materialization_delay_ms,"payload_fault":config.payload_fault,"limits":limits}),
         false,
     )?;
     config::write_json_new(
@@ -295,11 +313,11 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let arm = wait_arm(&config, &configuration_sha256).await?;
     until(arm.epoch_us).await?;
     shared_metrics::configure(true);
-    let (mut ingress, pool_task) = workload.start(arm.epoch_us, pool_rx)?;
+    let (mut ingress, pool_task) = workload.start(arm.epoch_us, pool_rx, node_tasks.clone())?;
     let (finish_tx, mut finish_rx) = tokio::sync::oneshot::channel::<()>();
     let consumer = workload.clone();
     let consumer_status = sender.clone();
-    let output_task = tokio::spawn(async move {
+    let output_task = node_tasks.spawn(async move {
         loop {
             tokio::select! {
                 _=&mut finish_rx=>{while let Ok(section)=output.try_recv(){consumer.publish(section)?;}return Ok::<(),anyhow::Error>(());},
@@ -310,12 +328,12 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
             }
         }
     });
-    let mut protocol = tokio::spawn(Protocol::run(
+    let mut protocol = node_tasks.spawn(Protocol::run(
         core.node,
         id as usize,
         inbox,
         core_module,
-        LocalTimerService::new(),
+        NativeTimer::new(),
     ));
     let deadline_us = arm.epoch_us + (config.measurement_duration_ms + config.drain_ms) * 1000;
     let (mut result, protocol_finished) = tokio::select! {
@@ -324,8 +342,8 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         ended=&mut protocol=>(Err(anyhow!("native protocol ended before observer deadline: {ended:?}")),true),
     };
     ingress.stop();
-    let (rows, outputs, counts) = workload.freeze();
-    let freeze_us = clock()?;
+    let (freeze_us, rows, outputs, counts) = workload.freeze();
+    let snapshot_completed_us = clock()?;
     let materialized = materializer.freeze();
     let transport = sender.shared().snapshot();
     if let Some(error) = &transport.terminal_error {
@@ -333,6 +351,10 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     }
     let costs = shared_metrics::snapshot();
     let payload_fault = sender.payload_fault_snapshot();
+    let executor_at_freeze = executor.snapshot();
+    if let Err(error) = executor.check() {
+        result = Err(error.into());
+    }
     if !protocol_finished {
         protocol.abort();
         let _ = protocol.await;
@@ -341,7 +363,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         result = Err(error);
     }
     // The native QS shutdown coordinator preserves save/ack worker ordering.
-    match tokio::time::timeout(Duration::from_secs(10), qs.shutdown()).await {
+    match shared_runtime_async::time::timeout(Duration::from_secs(10), qs.shutdown()).await {
         Ok(Ok(())) => {}
         Ok(Err(error)) => result = Err(error),
         Err(_) => result = Err(anyhow!("native QS shutdown timeout")),
@@ -356,6 +378,12 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         Ok(Err(e)) => result = Err(e),
         Err(e) => result = Err(e.into()),
     }
+    match shared_runtime_async::time::timeout(Duration::from_secs(10), executor.shutdown()).await {
+        Ok(Ok(_)) => {}
+        Ok(Err(error)) => result = Err(error.into()),
+        Err(_) => result = Err(anyhow!("shared task shutdown timeout; owned work remains")),
+    }
+    let executor_at_cleanup = executor.snapshot();
     service.shutdown();
     let mut files = vec![
         journal(&directory, "requests.jsonl", &rows)?,
@@ -363,7 +391,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     ];
     files.push(file_record(&directory, "workload-manifest.json")?);
     files.push(file_record(&directory, "effective-profile.json")?);
-    let body = json!({"schema":1,"profile":PROFILE,"run_id":config.run_id,"configuration_sha256":configuration_sha256,"committee_sha256":config::hex(&keys.public_hash),"id":id,"epoch_us":arm.epoch_us,"deadline_us":deadline_us,"freeze_us":freeze_us,"deadline_lateness_us":freeze_us.saturating_sub(deadline_us),"status":if result.is_ok(){"completed"}else{"failed"},"error":result.as_ref().err().map(|e|format!("{e:#}")),"files":files,"counts":counts,"transport":transport.transport,"async_transport":{"leased_bytes":transport.leased_bytes,"maximum_leased_bytes":transport.maximum_leased_bytes,"pending_bytes":transport.pending_bytes,"maximum_pending_bytes":transport.maximum_pending_bytes,"maximum_extra_pending_bytes":transport.maximum_extra_pending_bytes,"self_frames":transport.self_frames,"inbound_frames":transport.inbound_frames,"terminal_error":transport.terminal_error},"output_snapshot":output_snapshot(materialized),"materializer":materializer.delay_telemetry(),"payload_fault":payload_fault,"metrics":costs});
+    let body = json!({"schema":1,"profile":PROFILE,"run_id":config.run_id,"configuration_sha256":configuration_sha256,"committee_sha256":config::hex(&keys.public_hash),"id":id,"epoch_us":arm.epoch_us,"deadline_us":deadline_us,"freeze_us":freeze_us,"snapshot_completed_us":snapshot_completed_us,"snapshot_copy_us":snapshot_completed_us.saturating_sub(freeze_us),"executor_at_freeze":executor_at_freeze,"executor_at_cleanup":executor_at_cleanup,"deadline_lateness_us":freeze_us.saturating_sub(deadline_us),"status":if result.is_ok(){"completed"}else{"failed"},"error":result.as_ref().err().map(|e|format!("{e:#}")),"files":files,"counts":counts,"transport":transport.transport,"async_transport":{"leased_bytes":transport.leased_bytes,"maximum_leased_bytes":transport.maximum_leased_bytes,"pending_bytes":transport.pending_bytes,"maximum_pending_bytes":transport.maximum_pending_bytes,"maximum_extra_pending_bytes":transport.maximum_extra_pending_bytes,"self_frames":transport.self_frames,"inbound_frames":transport.inbound_frames,"terminal_error":transport.terminal_error},"output_snapshot":output_snapshot(materialized),"materializer":materializer.delay_telemetry(),"payload_fault":payload_fault,"metrics":costs});
     let body_bcs = shared_crypto_aptos::encode(&serde_json::to_vec(&body)?)?;
     let mut signed = b"delugi-shared-observer-receipt-v1\0".to_vec();
     signed.extend_from_slice(&body_bcs);

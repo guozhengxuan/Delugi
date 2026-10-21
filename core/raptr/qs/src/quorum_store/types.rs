@@ -371,16 +371,16 @@ impl BatchMsg {
             }
             Ok(bytes)
         }
-        let bytes = bcs::to_bytes(self)?;
+        let bytes = shared_crypto_aptos::encode(self)?;
         let mut offset = sequence_prefix_length(self.batches.len())?;
         let mut transaction_ranges = Vec::new();
         for batch in &self.batches {
-            offset += bcs::serialized_size(&batch.batch_info)?;
-            offset += bcs::serialized_size(&batch.payload.author())?;
+            offset += shared_crypto_aptos::encoded_size(&batch.batch_info)?;
+            offset += shared_crypto_aptos::encoded_size(&batch.payload.author())?;
             offset += sequence_prefix_length(batch.payload.txns().len())?;
             for transaction in batch.payload.txns() {
                 let end = offset
-                    .checked_add(bcs::serialized_size(transaction)?)
+                    .checked_add(shared_crypto_aptos::encoded_size(transaction)?)
                     .ok_or_else(|| anyhow::anyhow!("native BCS offset overflow"))?;
                 transaction_ranges.push(offset..end);
                 offset = end;

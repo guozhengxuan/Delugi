@@ -28,7 +28,7 @@ path = "src/bin/delugi_replica.rs"
 
 [workspace]
 members = ["node", "core-api", "core/delugi", "shared/crypto", "shared/metrics", "shared/mempool", "shared/store", "shared/network", "shared/output", "shared/runtime"]
-exclude = ["core/raptr"]
+exclude = ["core/raptr", "shared/store-rocksdb"]
 resolver = "2"
 
 [profile.dev]

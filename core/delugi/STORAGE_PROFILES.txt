@@ -1,0 +1,55 @@
+Delugi storage profiles — 2026-10-21
+
+The default memory-visible-v1 profile retains the existing process-local typed
+MemoryStore. It neither serializes records for storage nor calls RocksDB. The
+root package continues to pin its existing serde/serde_json/libc versions.
+
+The optional build feature delugi-core/rocksdb-records enables the explicit
+shared-rocksdb-written-v1 process configuration. Set storage_directory to an
+absolute existing parent directory. Each process exclusively creates a fresh
+replica-ID child. Existing children, including empty directories or symlinks,
+are rejected; the runtime never silently reopens or shares a prior database.
+
+The adapter keeps Delugi's typed record key (producer, authenticated header
+digest), record encoding, validation, branch/MMR indexing, retention and custody
+rules. It stores the exact existing bincode key and Record encoding in the
+delugi_records column family. The common RocksDB service uses its documented
+blob-lz4-pipelined-v1 native profile. Each new record completes an actual Written
+operation (WAL enabled, sync=false) before entering the existing read cache or
+advancing any held checkpoint. The core still asks for Visible. No protocol
+message, signature, record identity, eviction rule or custody predicate changes.
+Duplicate records do not cause another write. Invalid complete DATA is verified
+before any write. If a write in a verified DATA suffix fails, earlier successful
+writes may remain cached, but the incomplete suffix gains no custody. Runtime
+storage errors are fatal local failures, never mislabeled as Byzantine input.
+
+This is a separately named physical storage cost profile. Delugi still retains
+its full typed record cache, MMRs and protocol state in memory. A matching native
+RocksDB backend does not make application caches, serialization, write frequency
+or total resident memory identical across protocols. Core restart/recovery is
+unsupported: producer sequence, MMR branches, custody and ordering state are not
+reconstructed from the record database. Written is not a power-loss durability
+claim. In-memory fork fixtures use try_clone_memory(); disk-owning stores reject
+cloning through Result before mutation.
+
+Every process snapshot records profile, requested Visible and actual Written
+completion, backend profile, no-core-recovery status, write attempts/completions/
+failures, exact key and record bytes, elapsed synchronous writer time and backend
+WriteBatch encoded bytes. Encoded bytes are logical RocksDB batch serialization,
+not physical WAL/SST/device traffic. Cache heap and RocksDB allocation remain
+included in process resource observations; the adapter is not constant-memory.
+
+Rust 1.78 compatibility changes are eight Option::is_none_or expressions changed
+to equivalent map_or(true, ...), plus core-only serde/json/libc compatible ranges.
+Root exact version pins remain. A unified native executable must retain its own
+existing external package identities (serde197/json114/libc155), including the
+native serde_json preserve_order/arbitrary_precision feature choices. Parsed
+diagnostic JSON equality and exact typed protocol wire equality are separate
+checks; old JSON byte hashes are immutable evidence.
+
+Acceptance pending at source handoff: focused failure/visibility/duplicate/real
+DB byte-oracle tests; complete default-memory workspace tests; native-lock
+Delugi tests and reference wire vectors; real round-4/silent-leader, scheduling
+2x2 and finite full/compact gates under the common executable. No new performance
+or recovery claim follows from source implementation alone. Retained historical
+executables and stamps must remain intact until new identities are verified.

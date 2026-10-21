@@ -15,8 +15,8 @@ use aptos_logger::info;
 use fail::fail_point;
 use futures::future::BoxFuture;
 use futures_channel::{mpsc, oneshot};
+use shared_runtime_async::time::{sleep, timeout};
 use std::time::{Duration, Instant};
-use tokio::time::{sleep, timeout};
 
 const NO_TXN_DELAY: u64 = 10;
 
@@ -80,7 +80,7 @@ impl QuorumStoreClient {
         ) {
             Err(_) => {
                 Err(anyhow::anyhow!("[consensus] did not receive GetBlockResponse on time").into())
-            },
+            }
             Ok(resp) => match resp.map_err(anyhow::Error::from)?? {
                 GetPayloadResponse::GetPayloadResponse(payload) => Ok(payload),
             },

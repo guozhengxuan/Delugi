@@ -4,8 +4,16 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 license = "Apache-2.0"
+autobins = false
+
+[[bin]]
+# Retain the artifact name used by the pinned build receipts. Both protocols are
+# selected by the common entry point; the package name does not select a core.
+name = "raptr-shared-node"
+path = "../../../node/src/shared_main.rs"
 
 [dependencies]
+delugi-core = { path = "../../delugi", features = ["rocksdb-records"] }
 raptr = { path = "../native" }
 raptr-qs = { path = "../qs", features = ["rocksdb-backend"] }
 raptr-shared-transport = { path = "../transport" }
@@ -18,6 +26,7 @@ core-api = { path = "../../../core-api" }
 common-node = { path = "../../../node" }
 shared-mempool = { path = "../../../shared/mempool" }
 shared-runtime = { path = "../../../shared/runtime" }
+shared-runtime-async = { path = "../../../shared/runtime-async" }
 anyhow = { workspace = true }
 aptos-bitvec = { workspace = true }
 aptos-config = { workspace = true }

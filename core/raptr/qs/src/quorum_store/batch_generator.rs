@@ -1,5 +1,6 @@
 // Copyright © Aptos Foundation
 // SPDX-License-Identifier: Apache-2.0
+use crate::mempool::QuorumStoreRequest;
 use crate::{
     monitor,
     network::{NetworkSender, QuorumStoreSender},
@@ -18,16 +19,15 @@ use aptos_consensus_types::{
 };
 use aptos_experimental_runtimes::thread_manager::optimal_min_len;
 use aptos_logger::prelude::*;
-use crate::mempool::QuorumStoreRequest;
 use aptos_types::{transaction::SignedTransaction, PeerId};
 use futures_channel::mpsc::Sender;
 use rayon::prelude::*;
+use shared_runtime_async::time::Interval;
 use std::{
     collections::{btree_map::Entry, BTreeMap, HashMap},
     sync::Arc,
     time::{Duration, Instant},
 };
-use tokio::time::Interval;
 
 #[derive(Debug)]
 pub enum BatchGeneratorCommand {
@@ -58,6 +58,7 @@ impl BatchInProgress {
 }
 
 pub struct BatchGenerator {
+    tasks: shared_runtime_async::TaskGroup,
     epoch: u64,
     my_peer_id: PeerId,
     batch_id: BatchId,
@@ -83,6 +84,7 @@ impl BatchGenerator {
         batch_writer: Arc<dyn BatchWriter>,
         mempool_tx: Sender<QuorumStoreRequest>,
         mempool_txn_pull_timeout_ms: u64,
+        tasks: shared_runtime_async::TaskGroup,
     ) -> Self {
         let batch_id = if let Some(mut id) = db
             .clean_and_get_batch_id(epoch)
@@ -101,6 +103,7 @@ impl BatchGenerator {
             .expect("Could not save to db");
 
         Self {
+            tasks,
             epoch,
             my_peer_id,
             batch_id,
@@ -191,14 +194,16 @@ impl BatchGenerator {
         counters::CREATED_BATCHES_COUNT.inc();
         counters::num_txn_per_batch(bucket_start.to_string().as_str(), txns.len());
 
-        Batch::new(
-            batch_id,
-            txns,
-            self.epoch,
-            expiry_time,
-            self.my_peer_id,
-            bucket_start,
-        )
+        shared_crypto_aptos::native_construction(|| {
+            Batch::new(
+                batch_id,
+                txns,
+                self.epoch,
+                expiry_time,
+                self.my_peer_id,
+                bucket_start,
+            )
+        })
     }
 
     /// Push num_txns from txns into batches. If num_txns is larger than max size, then multiple
@@ -315,7 +320,7 @@ impl BatchGenerator {
                     }
                 }
                 true
-            },
+            }
             None => false,
         }
     }
@@ -474,17 +479,18 @@ impl BatchGenerator {
                             let batch_writer = self.batch_writer.clone();
                             let mut network_sender = network_sender.clone();
 
-                            tokio::task::spawn(async move {
+                            let tasks = self.tasks.clone();
+                            self.tasks.spawn(async move {
                                 let persist_start = Instant::now();
                                 let batches_clone = batches.clone();
 
-                                tokio::task::spawn_blocking(move || {
+                                if tasks.spawn_blocking(move || {
                                     let mut persist_requests = vec![];
                                     for batch in batches_clone {
                                         persist_requests.push(batch.into());
                                     }
                                     batch_writer.persist(persist_requests);
-                                }).await.unwrap();
+                                }).await.is_err() { return; }
                                 counters::BATCH_CREATION_PERSIST_LATENCY.observe_duration(persist_start.elapsed());
 
                                 network_sender.broadcast_batch_msg(batches).await;

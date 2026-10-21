@@ -1,17 +1,190 @@
---- a/src/quorum_store/batch_generator.rs
-+++ b/src/quorum_store/batch_generator.rs
-@@ -18,7 +18,7 @@
+--- a/consensus/src/quorum_store/batch_coordinator.rs
++++ b/core/raptr/qs/src/quorum_store/batch_coordinator.rs
+@@ -32,6 +32,7 @@
+ 
+ /// The `BatchCoordinator` is responsible for coordinating the receipt and persistence of batches.
+ pub struct BatchCoordinator {
++    tasks: shared_runtime_async::TaskGroup,
+     my_peer_id: PeerId,
+     network_sender: Arc<NetworkSender>,
+     sender_to_proof_manager: Arc<Sender<ProofManagerCommand>>,
+@@ -56,8 +57,10 @@
+         max_total_txns: u64,
+         max_total_bytes: u64,
+         batch_expiry_gap_when_init_usecs: u64,
++        tasks: shared_runtime_async::TaskGroup,
+     ) -> Self {
+         Self {
++            tasks,
+             my_peer_id,
+             network_sender: Arc::new(network_sender),
+             sender_to_proof_manager: Arc::new(sender_to_proof_manager),
+@@ -83,7 +86,8 @@
+         let batch_store = self.batch_store.clone();
+         let network_sender = self.network_sender.clone();
+         let sender_to_proof_manager = self.sender_to_proof_manager.clone();
+-        tokio::spawn(async move {
++        let tasks = self.tasks.clone();
++        self.tasks.spawn(async move {
+             let peer_id = persist_requests[0].author();
+             let batches = persist_requests
+                 .iter()
+@@ -94,10 +98,14 @@
+                     )
+                 })
+                 .collect();
+-            let signed_batch_infos =
+-                tokio::task::spawn_blocking(move || batch_store.persist(persist_requests))
+-                    .await
+-                    .unwrap();
++            let Ok(signed_batch_infos) = tasks
++                .spawn_blocking(move || batch_store.persist(persist_requests))
++                .await
++            else {
++                // The provider already latches panic/capacity failures.
++                // Closed/aborted work is ordinary owner shutdown.
++                return;
++            };
+             if !signed_batch_infos.is_empty() {
+                 if approx_created_ts_usecs > 0 {
+                     observe_batch(approx_created_ts_usecs, peer_id, BatchStage::SIGNED);
+@@ -200,13 +208,13 @@
+                         .send(())
+                         .expect("Failed to send shutdown ack to QuorumStoreCoordinator");
+                     break;
+-                },
++                }
+                 BatchCoordinatorCommand::NewBatches(author, batches) => {
+                     monitor!(
+                         "qs_handle_batches_msg",
+                         self.handle_batches_msg(author, batches).await
+                     );
+-                },
++                }
+             }
+         }
+     }
+--- a/consensus/src/quorum_store/batch_generator.rs
++++ b/core/raptr/qs/src/quorum_store/batch_generator.rs
+@@ -1,5 +1,6 @@
+ // Copyright © Aptos Foundation
+ // SPDX-License-Identifier: Apache-2.0
++use crate::mempool::QuorumStoreRequest;
+ use crate::{
+     monitor,
+     network::{NetworkSender, QuorumStoreSender},
+@@ -18,16 +19,15 @@
  };
  use aptos_experimental_runtimes::thread_manager::optimal_min_len;
  use aptos_logger::prelude::*;
 -use aptos_mempool::QuorumStoreRequest;
-+use crate::mempool::QuorumStoreRequest;
  use aptos_types::{transaction::SignedTransaction, PeerId};
  use futures_channel::mpsc::Sender;
  use rayon::prelude::*;
---- a/src/quorum_store/batch_requester.rs
-+++ b/src/quorum_store/batch_requester.rs
-@@ -142,7 +142,7 @@
++use shared_runtime_async::time::Interval;
+ use std::{
+     collections::{btree_map::Entry, BTreeMap, HashMap},
+     sync::Arc,
+     time::{Duration, Instant},
+ };
+-use tokio::time::Interval;
+ 
+ #[derive(Debug)]
+ pub enum BatchGeneratorCommand {
+@@ -58,6 +58,7 @@
+ }
+ 
+ pub struct BatchGenerator {
++    tasks: shared_runtime_async::TaskGroup,
+     epoch: u64,
+     my_peer_id: PeerId,
+     batch_id: BatchId,
+@@ -83,6 +84,7 @@
+         batch_writer: Arc<dyn BatchWriter>,
+         mempool_tx: Sender<QuorumStoreRequest>,
+         mempool_txn_pull_timeout_ms: u64,
++        tasks: shared_runtime_async::TaskGroup,
+     ) -> Self {
+         let batch_id = if let Some(mut id) = db
+             .clean_and_get_batch_id(epoch)
+@@ -101,6 +103,7 @@
+             .expect("Could not save to db");
+ 
+         Self {
++            tasks,
+             epoch,
+             my_peer_id,
+             batch_id,
+@@ -191,14 +194,16 @@
+         counters::CREATED_BATCHES_COUNT.inc();
+         counters::num_txn_per_batch(bucket_start.to_string().as_str(), txns.len());
+ 
+-        Batch::new(
+-            batch_id,
+-            txns,
+-            self.epoch,
+-            expiry_time,
+-            self.my_peer_id,
+-            bucket_start,
+-        )
++        shared_crypto_aptos::native_construction(|| {
++            Batch::new(
++                batch_id,
++                txns,
++                self.epoch,
++                expiry_time,
++                self.my_peer_id,
++                bucket_start,
++            )
++        })
+     }
+ 
+     /// Push num_txns from txns into batches. If num_txns is larger than max size, then multiple
+@@ -315,7 +320,7 @@
+                     }
+                 }
+                 true
+-            },
++            }
+             None => false,
+         }
+     }
+@@ -474,17 +479,18 @@
+                             let batch_writer = self.batch_writer.clone();
+                             let mut network_sender = network_sender.clone();
+ 
+-                            tokio::task::spawn(async move {
++                            let tasks = self.tasks.clone();
++                            self.tasks.spawn(async move {
+                                 let persist_start = Instant::now();
+                                 let batches_clone = batches.clone();
+ 
+-                                tokio::task::spawn_blocking(move || {
++                                if tasks.spawn_blocking(move || {
+                                     let mut persist_requests = vec![];
+                                     for batch in batches_clone {
+                                         persist_requests.push(batch.into());
+                                     }
+                                     batch_writer.persist(persist_requests);
+-                                }).await.unwrap();
++                                }).await.is_err() { return; }
+                                 counters::BATCH_CREATION_PERSIST_LATENCY.observe_duration(persist_start.elapsed());
+ 
+                                 network_sender.broadcast_batch_msg(batches).await;
+--- a/consensus/src/quorum_store/batch_requester.rs
++++ b/core/raptr/qs/src/quorum_store/batch_requester.rs
+@@ -16,8 +16,9 @@
+ use aptos_types::{transaction::SignedTransaction, validator_verifier::ValidatorVerifier, PeerId};
+ use futures::{stream::FuturesUnordered, StreamExt};
+ use rand::Rng;
++use shared_runtime_async::time;
+ use std::{collections::BTreeSet, sync::Arc, time::Duration};
+-use tokio::{sync::oneshot, time};
++use tokio::sync::oneshot;
+ 
+ struct BatchRequesterState {
+     signers: Arc<Mutex<BTreeSet<PeerId>>>,
+@@ -142,7 +143,7 @@
                                  counters::RECEIVED_BATCH_NOT_FOUND_COUNT.inc();
                                  if ledger_info.commit_info().epoch() == epoch
                                      && ledger_info.commit_info().timestamp_usecs() > expiration
@@ -20,20 +193,170 @@
                                  {
                                      counters::RECEIVED_BATCH_EXPIRED_COUNT.inc();
                                      debug!("QS: batch request expired, digest:{}", digest);
---- a/src/quorum_store/batch_store.rs
-+++ b/src/quorum_store/batch_store.rs
-@@ -389,7 +389,7 @@
+--- a/consensus/src/quorum_store/batch_store.rs
++++ b/core/raptr/qs/src/quorum_store/batch_store.rs
+@@ -111,6 +111,7 @@
+ /// Provides in memory representation of stored batches (strong cache), and allows
+ /// efficient concurrent readers.
+ pub struct BatchStore {
++    tasks: shared_runtime_async::TaskGroup,
+     epoch: OnceCell<u64>,
+     last_certified_time: AtomicU64,
+     db_cache: DashMap<HashValue, PersistedValue>,
+@@ -136,9 +137,11 @@
+         batch_quota: usize,
+         validator_signer: ValidatorSigner,
+         expiration_buffer_usecs: u64,
++        tasks: shared_runtime_async::TaskGroup,
+     ) -> Self {
+         let db_clone = db.clone();
+         let batch_store = Self {
++            tasks,
+             epoch: OnceCell::with_value(epoch),
+             last_certified_time: AtomicU64::new(last_certified_time),
+             db_cache: DashMap::with_capacity(50_000),
+@@ -154,7 +157,7 @@
+         };
+ 
+         if is_new_epoch {
+-            tokio::task::spawn_blocking(move || {
++            batch_store.tasks.spawn_blocking(move || {
+                 Self::gc_previous_epoch_batches_from_db(db_clone, epoch);
+             });
+         } else {
+@@ -239,7 +242,7 @@
+             "QS: Batch store bootstrap expired keys len {}",
+             expired_keys.len()
+         );
+-        tokio::task::spawn_blocking(move || {
++        batch_store.tasks.spawn_blocking(move || {
+             db.delete_batches(expired_keys)
+                 .expect("Deletion of expired keys should not fail");
+         });
+@@ -283,8 +286,8 @@
+                             digest
+                         );
+                         return Ok(false);
+-                    },
+-                    std::cmp::Ordering::Less => {},
++                    }
++                    std::cmp::Ordering::Less => {}
+                 }
+             };
+             let value_to_be_stored = if self
+@@ -308,10 +311,10 @@
+                     let (k, prev_value) = entry.replace_entry(value_to_be_stored);
+                     debug_assert!(k == digest);
+                     self.free_quota(prev_value);
+-                },
++                }
+                 Vacant(slot) => {
+                     slot.insert(value_to_be_stored);
+-                },
++                }
+             }
+         }
+ 
+@@ -366,7 +369,7 @@
+                     } else {
+                         None
+                     }
+-                },
++                }
+                 Vacant(_) => unreachable!("Expired entry not in cache"),
+             };
+             // No longer holding the lock on db_cache entry.
+@@ -389,7 +392,9 @@
                  aptos_crypto::bls12381::Signature::dummy_signature(),
              ))
          });
 -        SignedBatchInfo::new(batch_info, &self.validator_signer)
-+        shared_crypto_aptos::native_signing(|| SignedBatchInfo::new(batch_info, &self.validator_signer))
++        shared_crypto_aptos::native_signing(|| {
++            SignedBatchInfo::new(batch_info, &self.validator_signer)
++        })
      }
  
      fn persist_inner(&self, persist_request: PersistedValue) -> Option<SignedBatchInfo> {
---- a/src/quorum_store/proof_coordinator.rs
-+++ b/src/quorum_store/proof_coordinator.rs
-@@ -142,10 +142,7 @@
+@@ -404,12 +409,12 @@
+                         .expect("Could not write to DB");
+                 }
+                 self.generate_signed_batch_info(batch_info).ok()
+-            },
++            }
+ 
+             Err(e) => {
+                 debug!("QS: failed to store to cache {:?}", e);
+                 None
+-            },
++            }
+         }
+     }
+ 
+@@ -420,7 +425,7 @@
+ 
+         let expired_keys = self.clear_expired_payload(certified_time);
+         let db = self.db.clone();
+-        tokio::task::spawn_blocking(move || {
++        self.tasks.spawn_blocking(move || {
+             if let Err(e) = db.delete_batches(expired_keys) {
+                 debug!("Error deleting batches: {:?}", e)
+             }
+@@ -439,7 +444,7 @@
+             Ok(None) | Err(_) => {
+                 warn!("Could not get batch from db");
+                 Err(ExecutorError::CouldNotGetData)
+-            },
++            }
+         }
+     }
+ 
+@@ -582,7 +587,7 @@
+                 .boxed()
+                 .shared();
+ 
+-                tokio::spawn(fut.clone());
++                self.batch_store.tasks.spawn(fut.clone());
+ 
+                 BatchFetchUnit {
+                     responders: responders_clone,
+--- a/consensus/src/quorum_store/proof_coordinator.rs
++++ b/core/raptr/qs/src/quorum_store/proof_coordinator.rs
+@@ -25,15 +25,13 @@
+ use aptos_types::{
+     ledger_info::SignatureAggregator, validator_verifier::ValidatorVerifier, PeerId,
+ };
++use shared_runtime_async::time;
+ use std::{
+     collections::{hash_map::Entry, HashMap},
+     sync::Arc,
+     time::{Duration, Instant},
+ };
+-use tokio::{
+-    sync::{mpsc::Receiver, oneshot as TokioOneshot},
+-    time,
+-};
++use tokio::sync::{mpsc::Receiver, oneshot as TokioOneshot};
+ 
+ #[derive(Debug)]
+ pub(crate) enum ProofCoordinatorCommand {
+@@ -96,14 +94,14 @@
+                 if signed_batch_info.signer() == self.signature_aggregator.data().author() {
+                     self.self_voted = true;
+                 }
+-            },
++            }
+             None => {
+                 error!(
+                     "Received signature from author not in validator set: {}",
+                     signed_batch_info.signer()
+                 );
+                 return Err(SignedBatchInfoError::InvalidAuthor);
+-            },
++            }
+         }
+ 
+         Ok(())
+@@ -142,14 +140,14 @@
          if self.completed {
              panic!("Cannot call take twice, unexpected issue occurred");
          }
@@ -41,12 +364,20 @@
 -            .signature_aggregator
 -            .aggregate_and_verify(validator_verifier)
 -        {
-+        match shared_crypto_aptos::native_validation(|| self.signature_aggregator.aggregate_and_verify(validator_verifier)) {
++        match shared_crypto_aptos::native_validation(|| {
++            self.signature_aggregator
++                .aggregate_and_verify(validator_verifier)
++        }) {
              Ok((batch_info, aggregated_sig)) => {
                  self.completed = true;
                  Ok(ProofOfStore::new(batch_info, aggregated_sig))
---- a/src/quorum_store/types.rs
-+++ b/src/quorum_store/types.rs
+-            },
++            }
+             Err(_) => Err(SignedBatchInfoError::UnableToAggregate),
+         }
+     }
+--- a/consensus/src/quorum_store/types.rs
++++ b/core/raptr/qs/src/quorum_store/types.rs
 @@ -118,6 +118,80 @@
              empty_batch_payload.num_bytes() + 127,
              config::BATCH_PADDING_BYTES
@@ -151,16 +482,16 @@
 +            }
 +            Ok(bytes)
 +        }
-+        let bytes = bcs::to_bytes(self)?;
++        let bytes = shared_crypto_aptos::encode(self)?;
 +        let mut offset = sequence_prefix_length(self.batches.len())?;
 +        let mut transaction_ranges = Vec::new();
 +        for batch in &self.batches {
-+            offset += bcs::serialized_size(&batch.batch_info)?;
-+            offset += bcs::serialized_size(&batch.payload.author())?;
++            offset += shared_crypto_aptos::encoded_size(&batch.batch_info)?;
++            offset += shared_crypto_aptos::encoded_size(&batch.payload.author())?;
 +            offset += sequence_prefix_length(batch.payload.txns().len())?;
 +            for transaction in batch.payload.txns() {
 +                let end = offset
-+                    .checked_add(bcs::serialized_size(transaction)?)
++                    .checked_add(shared_crypto_aptos::encoded_size(transaction)?)
 +                    .ok_or_else(|| anyhow::anyhow!("native BCS offset overflow"))?;
 +                transaction_ranges.push(offset..end);
 +                offset = end;
@@ -176,19 +507,45 @@
      pub fn new(batches: Vec<Batch>) -> Self {
          Self { batches }
      }
---- a/src/quorum_store/utils.rs
-+++ b/src/quorum_store/utils.rs
-@@ -7,7 +7,7 @@
+--- a/consensus/src/quorum_store/utils.rs
++++ b/core/raptr/qs/src/quorum_store/utils.rs
+@@ -1,23 +1,23 @@
+ // Copyright © Aptos Foundation
+ // SPDX-License-Identifier: Apache-2.0
+ 
++use crate::mempool::{QuorumStoreRequest, QuorumStoreResponse};
+ use crate::monitor;
+ use aptos_consensus_types::{
+     common::{TransactionInProgress, TransactionSummary},
      proof_of_store::{BatchId, BatchInfo},
  };
  use aptos_logger::prelude::*;
 -use aptos_mempool::{QuorumStoreRequest, QuorumStoreResponse};
-+use crate::mempool::{QuorumStoreRequest, QuorumStoreResponse};
  use aptos_types::{transaction::SignedTransaction, PeerId};
  use chrono::Utc;
  use futures::channel::{mpsc::Sender, oneshot};
---- a/src/liveness/proposal_status_tracker.rs
-+++ b/src/liveness/proposal_status_tracker.rs
++use shared_runtime_async::time::timeout;
+ use std::{
+     cmp::{Ordering, Reverse},
+     collections::{BTreeMap, BinaryHeap, HashSet, VecDeque},
+     hash::Hash,
+     time::Duration,
+ };
+-use tokio::time::timeout;
+ 
+ pub(crate) struct Timeouts<T> {
+     timeouts: VecDeque<(i64, T)>,
+@@ -201,7 +201,7 @@
+     fn cmp(&self, other: &Self) -> Ordering {
+         // ascending
+         match self.gas_bucket_start.cmp(&other.gas_bucket_start) {
+-            Ordering::Equal => {},
++            Ordering::Equal => {}
+             ordering => return ordering,
+         }
+         // descending
+--- a/consensus/src/liveness/proposal_status_tracker.rs
++++ b/core/raptr/qs/src/liveness/proposal_status_tracker.rs
 @@ -65,7 +65,7 @@
  }
  
@@ -207,8 +564,40 @@
  
      #[test]
      fn test_exponential_window_failure_tracker() {
---- a/src/payload_manager/mod.rs
-+++ b/src/payload_manager/mod.rs
+--- a/consensus/src/payload_client/user/mod.rs
++++ b/core/raptr/qs/src/payload_client/user/mod.rs
+@@ -55,7 +55,7 @@
+             && params.max_txns.size_in_bytes() >= 1
+             && nxt_txn_idx < self.txns.len()
+         {
+-            tokio::time::sleep(Duration::from_millis(1)).await;
++            shared_runtime_async::time::sleep(Duration::from_millis(1)).await;
+             let txn = self.txns[nxt_txn_idx].clone();
+             let txn_size = txn.raw_txn_bytes_len() as u64;
+             if txn_size > params.max_txns.size_in_bytes() {
+--- a/consensus/src/payload_client/user/quorum_store_client.rs
++++ b/core/raptr/qs/src/payload_client/user/quorum_store_client.rs
+@@ -15,8 +15,8 @@
+ use fail::fail_point;
+ use futures::future::BoxFuture;
+ use futures_channel::{mpsc, oneshot};
++use shared_runtime_async::time::{sleep, timeout};
+ use std::time::{Duration, Instant};
+-use tokio::time::{sleep, timeout};
+ 
+ const NO_TXN_DELAY: u64 = 10;
+ 
+@@ -80,7 +80,7 @@
+         ) {
+             Err(_) => {
+                 Err(anyhow::anyhow!("[consensus] did not receive GetBlockResponse on time").into())
+-            },
++            }
+             Ok(resp) => match resp.map_err(anyhow::Error::from)?? {
+                 GetPayloadResponse::GetPayloadResponse(payload) => Ok(payload),
+             },
+--- a/consensus/src/payload_manager/mod.rs
++++ b/core/raptr/qs/src/payload_manager/mod.rs
 @@ -12,13 +12,9 @@
  use async_trait::async_trait;
  use std::time::Duration;
@@ -224,9 +613,9 @@
  
  /// A trait that defines the interface for a payload manager. The payload manager is responsible for
  /// resolving the transactions in a block's payload.
---- a/src/payload_manager/quorum_store_payload_manager.rs
-+++ b/src/payload_manager/quorum_store_payload_manager.rs
-@@ -2,11 +2,7 @@
+--- a/consensus/src/payload_manager/quorum_store_payload_manager.rs
++++ b/core/raptr/qs/src/payload_manager/quorum_store_payload_manager.rs
+@@ -2,13 +2,9 @@
  // SPDX-License-Identifier: Apache-2.0
  
  use crate::{
@@ -235,10 +624,12 @@
 -        observer::payload_store::BlockPayloadStatus,
 -        publisher::consensus_publisher::ConsensusPublisher,
 -    },
-+    payload_metadata::BlockTransactionPayload,
      counters, monitor,
      payload_manager::TPayloadManager,
++    payload_metadata::BlockTransactionPayload,
      quorum_store::{batch_store::BatchReader, quorum_store_coordinator::CoordinatorCommand},
+ };
+ use aptos_bitvec::BitVec;
 @@ -61,7 +57,6 @@
  pub struct QuorumStorePayloadManager {
      batch_reader: Arc<dyn BatchReader>,
@@ -262,3 +653,161 @@
              ordered_authors,
              address_to_validator_index,
          }
+@@ -138,7 +131,7 @@
+             .flat_map(|payload| match payload {
+                 Payload::DirectMempool(_) => {
+                     unreachable!("InQuorumStore should be used");
+-                },
++                }
+                 Payload::InQuorumStore(proof_with_status) => proof_with_status
+                     .proofs
+                     .iter()
+@@ -161,13 +154,13 @@
+                                 .map(|proof| proof.info().clone()),
+                         )
+                         .collect::<Vec<_>>()
+-                },
++                }
+                 Payload::OptQuorumStore(opt_quorum_store_payload) => {
+                     opt_quorum_store_payload.into_inner().get_all_batch_infos()
+-                },
++                }
+                 Payload::Raptr(raikou_payload) => {
+                     raikou_payload.get_all_batch_infos().cloned().collect()
+-                },
++                }
+             })
+             .collect();
+ 
+@@ -277,19 +270,19 @@
+         match payload {
+             Payload::InQuorumStore(proof_with_status) => {
+                 request_txns_and_update_status(proof_with_status, self.batch_reader.clone());
+-            },
++            }
+             Payload::InQuorumStoreWithLimit(proof_with_data) => {
+                 request_txns_and_update_status(
+                     &proof_with_data.proof_with_data,
+                     self.batch_reader.clone(),
+                 );
+-            },
++            }
+             Payload::QuorumStoreInlineHybrid(_, proof_with_data, _) => {
+                 request_txns_and_update_status(proof_with_data, self.batch_reader.clone());
+-            },
++            }
+             Payload::DirectMempool(_) => {
+                 unreachable!()
+-            },
++            }
+             Payload::OptQuorumStore(opt_qs_payload) => {
+                 prefetch_helper(
+                     opt_qs_payload.opt_batches(),
+@@ -305,7 +298,7 @@
+                     timestamp,
+                     &self.ordered_authors,
+                 )
+-            },
++            }
+             Payload::Raptr(raikou_payload) => {
+                 for sub_block in raikou_payload.sub_blocks() {
+                     prefetch_helper_raikou(
+@@ -324,7 +317,7 @@
+                     timestamp,
+                     &self.ordered_authors,
+                 )
+-            },
++            }
+         };
+     }
+ 
+@@ -332,7 +325,7 @@
+         match payload {
+             Payload::DirectMempool(_) => {
+                 unreachable!("QuorumStore doesn't support DirectMempool payload")
+-            },
++            }
+             Payload::InQuorumStore(_) => Ok(()),
+             Payload::InQuorumStoreWithLimit(_) => Ok(()),
+             Payload::QuorumStoreInlineHybrid(inline_batches, proofs, _) => {
+@@ -382,7 +375,7 @@
+                 // The payload is considered available because it contains only proofs that guarantee network availabiliy
+                 // or inlined transactions.
+                 Ok(())
+-            },
++            }
+             Payload::OptQuorumStore(opt_qs_payload) => {
+                 let mut missing_authors = BitVec::with_num_bits(self.ordered_authors.len() as u16);
+                 for batch in opt_qs_payload.opt_batches().deref() {
+@@ -399,7 +392,7 @@
+                 } else {
+                     Err(missing_authors)
+                 }
+-            },
++            }
+             Payload::Raptr(raikout_payload) => {
+                 let mut missing_authors = BitVec::with_num_bits(self.ordered_authors.len() as u16);
+                 for batch in raikout_payload
+@@ -420,7 +413,7 @@
+                 } else {
+                     Err(missing_authors)
+                 }
+-            },
++            }
+         }
+     }
+ 
+@@ -455,7 +448,7 @@
+         timeout: Duration,
+         wait_for_proof: bool,
+     ) -> anyhow::Result<()> {
+-        tokio::time::timeout(timeout, async move {
++        shared_runtime_async::time::timeout(timeout, async move {
+             let Payload::Raptr(payload) = payload else {
+                 unreachable!("Only Raikou payload is supported");
+             };
+@@ -519,7 +512,7 @@
+                     transactions,
+                     proof_with_data.proofs.clone(),
+                 )
+-            },
++            }
+             Payload::InQuorumStoreWithLimit(proof_with_data) => {
+                 let transactions = process_qs_payload(
+                     &proof_with_data.proof_with_data,
+@@ -533,7 +526,7 @@
+                     proof_with_data.proof_with_data.proofs.clone(),
+                     proof_with_data.max_txns_to_execute,
+                 )
+-            },
++            }
+             Payload::QuorumStoreInlineHybrid(
+                 inline_batches,
+                 proof_with_data,
+@@ -566,7 +559,7 @@
+                     *max_txns_to_execute,
+                     inline_batches,
+                 )
+-            },
++            }
+             Payload::OptQuorumStore(opt_qs_payload) => {
+                 let opt_batch_txns = process_optqs_payload(
+                     opt_qs_payload.opt_batches(),
+@@ -598,7 +591,7 @@
+                     ]
+                     .concat(),
+                 )
+-            },
++            }
+             Payload::Raptr(raikou_payload) => {
+                 let mut sub_blocks_txns = Vec::with_capacity(30_000);
+ 
+@@ -637,7 +630,7 @@
+                     raikou_payload.proof_with_data().deref().clone(),
+                     raikou_payload.all_sub_block_batches(),
+                 )
+-            },
++            }
+             _ => unreachable!(
+                 "Wrong payload {} epoch {}, round {}, id {}",
+                 payload,

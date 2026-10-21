@@ -5876,6 +5876,7 @@ dependencies = [
  "scopeguard",
  "serde",
  "shared-crypto-aptos",
+ "shared-runtime-async",
  "shared-store-rocksdb",
  "thiserror",
  "tokio",
@@ -6525,6 +6526,15 @@ version = "0.1.0"
 dependencies = [
  "libc",
  "serde",
+]
+
+[[package]]
+name = "shared-runtime-async"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+ "serde",
+ "tokio",
 ]
 
 [[package]]

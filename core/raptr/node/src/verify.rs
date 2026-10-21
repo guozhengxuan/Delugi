@@ -53,6 +53,118 @@ fn fixed(text: &str) -> Result<[u8; 32]> {
         .map_err(|_| anyhow!("expected32-byte identity"))
 }
 
+/// New receipts carry owned-task evidence. Older immutable schema-1 receipts
+/// predate these fields and remain readable without inventing cleanup evidence.
+fn executor_evidence(body: &Value) -> Result<()> {
+    let before = body.get("executor_at_freeze");
+    let after = body.get("executor_at_cleanup");
+    if before.is_none() && after.is_none() {
+        return Ok(());
+    }
+    let before = before.context("missing frozen executor snapshot")?;
+    let after = after.context("missing cleanup executor snapshot")?;
+    ensure!(
+        before["limits"] == after["limits"],
+        "executor limits changed"
+    );
+    for (snapshot, clean) in [(before, false), (after, true)] {
+        ensure!(
+            snapshot.get("failure").is_some_and(Value::is_null)
+                && uint(snapshot, "panicked")? == 0
+                && uint(snapshot, "rejected_capacity")? == 0,
+            "executor failure or capacity rejection"
+        );
+        let mut retained_total = 0_u64;
+        for kind in ["async", "blocking"] {
+            let get = |prefix: &str| uint(snapshot, &format!("{prefix}_{kind}"));
+            let admitted = get("admitted")?;
+            let joined = get("joined")?;
+            let retained = get("retained")?;
+            let queued = get("queued")?;
+            let active = get("active")?;
+            let maximum = get("maximum_retained")?;
+            let limit = uint(&snapshot["limits"], &format!("max_{kind}_tasks"))?;
+            ensure!(
+                admitted.checked_sub(joined) == Some(retained)
+                    && get("started")? <= admitted
+                    && get("body_finished")? <= get("started")?
+                    && get("cancelled")? <= joined
+                    && queued.checked_add(active).is_some_and(|v| v <= retained)
+                    && retained <= maximum
+                    && maximum <= limit
+                    && limit > 0,
+                "inconsistent executor {kind} counters"
+            );
+            ensure!(
+                !clean || (admitted == joined && retained == 0 && queued == 0 && active == 0),
+                "unjoined executor work after cleanup"
+            );
+            retained_total = retained_total
+                .checked_add(retained)
+                .context("executor count overflow")?;
+        }
+        let groups = array(snapshot, "groups")?;
+        ensure!(groups.len() <= 64, "executor group bound exceeded");
+        let mut ids = BTreeSet::new();
+        let mut group_retained = 0_u64;
+        for group in groups {
+            ensure!(ids.insert(uint(group, "id")?), "duplicate executor group");
+            let label = string(group, "label")?;
+            ensure!(
+                !label.is_empty() && label.len() <= 128,
+                "invalid executor group label"
+            );
+            let retained = uint(group, "retained")?;
+            ensure!(
+                !clean || (boolean(group, "closed")? && retained == 0),
+                "executor group still open or retained"
+            );
+            boolean(group, "closed")?;
+            group_retained = group_retained
+                .checked_add(retained)
+                .context("executor group count overflow")?;
+        }
+        ensure!(
+            group_retained == retained_total,
+            "executor group population mismatch"
+        );
+    }
+    for kind in ["async", "blocking"] {
+        for prefix in [
+            "admitted",
+            "started",
+            "body_finished",
+            "joined",
+            "cancelled",
+            "maximum_retained",
+        ] {
+            let field = format!("{prefix}_{kind}");
+            ensure!(
+                uint(before, &field)? <= uint(after, &field)?,
+                "executor cumulative counter regressed: {field}"
+            );
+        }
+    }
+    for field in ["panicked", "rejected_capacity", "rejected_closed"] {
+        ensure!(
+            uint(before, field)? <= uint(after, field)?,
+            "executor cumulative counter regressed: {field}"
+        );
+    }
+    for group in array(before, "groups")? {
+        let id = uint(group, "id")?;
+        let final_group = array(after, "groups")?
+            .iter()
+            .find(|v| v["id"].as_u64() == Some(id))
+            .context("executor group disappeared before cleanup")?;
+        ensure!(
+            group["label"] == final_group["label"],
+            "executor group identity changed"
+        );
+    }
+    Ok(())
+}
+
 fn relative(root: &Path, name: &str) -> Result<PathBuf> {
     let path = Path::new(name);
     ensure!(
@@ -267,6 +379,14 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
     let epoch = uint(&body, "epoch_us")?;
     let deadline = uint(&body, "deadline_us")?;
     let freeze = uint(&body, "freeze_us")?;
+    if body.get("snapshot_completed_us").is_some() || body.get("snapshot_copy_us").is_some() {
+        let completed = uint(&body, "snapshot_completed_us")?;
+        ensure!(
+            completed.checked_sub(freeze) == Some(uint(&body, "snapshot_copy_us")?),
+            "snapshot copy timing mismatch"
+        );
+    }
+    executor_evidence(&body)?;
     ensure!(
         epoch.checked_add((config.measurement_duration_ms + config.drain_ms) * 1000)
             == Some(deadline)

@@ -19,7 +19,6 @@ use futures::StreamExt;
 use raptr_qs::mempool::{QuorumStoreRequest, QuorumStoreResponse};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use shared_metrics::Operation;
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::{Arc, Mutex},
@@ -64,6 +63,50 @@ struct State {
     next_event: u64,
     unadmitted_first_outputs: u64,
 }
+/// Admission linearizes only after the nonblocking offer succeeds and before
+/// the deadline. The caller holds the same lock as the native pool consumer.
+fn admit(
+    state: &mut State,
+    capacity: usize,
+    sequence: u64,
+    enqueue: impl FnOnce() -> Result<(), ()>,
+    mut now: impl FnMut() -> u64,
+) {
+    if state.frozen || now() >= state.deadline_us {
+        return;
+    }
+    let offered = if state.retained >= capacity {
+        Err("aggregate ingress/pool envelope exhausted")
+    } else {
+        enqueue().map_err(|_| "ingress mailbox full or closed")
+    };
+    let finished_us = now();
+    if finished_us >= state.deadline_us {
+        // The consumer discards a tentative enqueue without admission metadata.
+        // No event is consumed, so the signed journal retains a contiguous order.
+        return;
+    }
+    let event = state.next_event;
+    state.next_event += 1;
+    let row = &mut state.rows[sequence as usize];
+    match offered {
+        Ok(()) => {
+            row.admitted_us = Some(finished_us);
+            row.admission_event = Some(event);
+            state.retained += 1;
+        }
+        Err(error) => {
+            row.rejected_us = Some(finished_us);
+            row.rejection_event = Some(event);
+            row.rejection = Some(error.into());
+        }
+    }
+}
+
+fn timestamped_row_bytes(placeholder_bytes: u64, timestamp: u64) -> Option<u64> {
+    // Replace the single-digit zero with the timestamp, then append a newline.
+    placeholder_bytes.checked_add(timestamp.to_string().len() as u64)
+}
 #[derive(Clone)]
 pub struct Workload {
     config: Arc<Config>,
@@ -76,7 +119,11 @@ fn clock() -> u64 {
     shared_runtime::monotonic_us().expect("host monotonic clock")
 }
 fn summary(tx: &SignedTransaction) -> TransactionSummary {
-    TransactionSummary::new(tx.sender(), tx.sequence_number(), tx.committed_hash())
+    TransactionSummary::new(
+        tx.sender(),
+        tx.sequence_number(),
+        shared_crypto_aptos::native_hashing(|| tx.committed_hash()),
+    )
 }
 fn useful(run: &str, origin: u32, seq: u64, len: usize) -> Vec<u8> {
     let seed = shared_crypto::sha256(
@@ -133,7 +180,10 @@ pub fn identify(
         "request signer differs from assigned origin"
     );
     ensure!(
-        tx.sender() == AuthenticationKey::ed25519(&public).account_address()
+        tx.sender()
+            == shared_crypto_aptos::native_hashing(
+                || AuthenticationKey::ed25519(&public).account_address()
+            )
             && tx.sequence_number() == body.sequence
             && tx.chain_id() == ChainId::test()
             && tx.max_gas_amount() == 1_000_000
@@ -141,8 +191,7 @@ pub fn identify(
             && tx.expiration_timestamp_secs() == u64::MAX,
         "noncanonical native transaction envelope"
     );
-    let _cost = shared_metrics::measure(Operation::WorkloadManifestVerify);
-    tx.verify_signature()?;
+    shared_crypto_aptos::workload_validation(|| tx.verify_signature())?;
     Ok((
         body.origin,
         body.sequence,
@@ -159,7 +208,9 @@ impl Workload {
     ) -> Result<Self> {
         let private = Ed25519PrivateKey::try_from(key.secret.to_bytes().as_slice())?;
         let public = Ed25519PublicKey::from(&private);
-        let sender = AuthenticationKey::ed25519(&public).account_address();
+        let sender = shared_crypto_aptos::native_hashing(|| {
+            AuthenticationKey::ed25519(&public).account_address()
+        });
         let mut transactions = vec![];
         let mut rows = vec![];
         for sequence in 0..config.finite_workload.counts[id as usize] {
@@ -173,15 +224,15 @@ impl Workload {
                 u64::MAX,
                 ChainId::test(),
             );
-            let tx = {
-                let _cost = shared_metrics::measure(Operation::WorkloadManifestSign);
-                raw.sign(&private, public.clone())?.into_inner()
-            };
+            let tx = shared_crypto_aptos::workload_signing(|| raw.sign(&private, public.clone()))?
+                .into_inner();
             let (_, _, request_id) = identify(&config, &committee, &tx)?;
             rows.push(Row {
                 sequence,
                 request_id,
-                native_transaction_hash: config::hex(tx.committed_hash().as_ref()),
+                native_transaction_hash: config::hex(
+                    shared_crypto_aptos::native_hashing(|| tx.committed_hash()).as_ref(),
+                ),
                 useful_bytes: config.finite_workload.useful_bytes,
                 planned_us: 0,
                 admitted_us: None,
@@ -226,7 +277,11 @@ impl Workload {
         &self,
         epoch_us: u64,
         mut requests: futures_channel::mpsc::Receiver<QuorumStoreRequest>,
-    ) -> Result<(shared_mempool::Worker, tokio::task::JoinHandle<Result<()>>)> {
+        task_group: shared_runtime_async::TaskGroup,
+    ) -> Result<(
+        shared_mempool::Worker,
+        shared_runtime_async::Task<Result<()>>,
+    )> {
         let now = clock();
         ensure!(now >= epoch_us, "ingress armed before epoch");
         let local_epoch = Instant::now()
@@ -251,48 +306,34 @@ impl Workload {
             local_epoch,
             move |seq| start + seq * interval,
             move |seq, tx| {
+                // Preparing the independent arrival is outside the admission
+                // endpoint. The pool cannot inspect a tentative enqueue until
+                // this same lock publishes its successful admission.
+                let prepared = owner.transactions[seq as usize].clone();
                 let mut state = owner.state.lock().unwrap();
-                if state.frozen {
-                    return;
-                }
-                let now = clock();
-                if now >= state.deadline_us {
-                    return;
-                }
-                let event = state.next_event;
-                state.next_event += 1;
-                if state.retained >= capacity {
-                    let row = &mut state.rows[seq as usize];
-                    row.rejected_us = Some(now);
-                    row.rejection_event = Some(event);
-                    row.rejection = Some("aggregate ingress/pool envelope exhausted".into());
-                    return;
-                }
-                match tx.try_send((seq, owner.transactions[seq as usize].clone())) {
-                    Ok(()) => {
-                        state.rows[seq as usize].admitted_us = Some(now);
-                        state.rows[seq as usize].admission_event = Some(event);
-                        state.retained += 1;
-                    }
-                    Err(_) => {
-                        let row = &mut state.rows[seq as usize];
-                        row.rejected_us = Some(now);
-                        row.rejection_event = Some(event);
-                        row.rejection = Some("ingress mailbox full or closed".into());
-                    }
-                }
+                admit(
+                    &mut state,
+                    capacity,
+                    seq,
+                    || tx.try_send((seq, prepared)).map_err(|_| ()),
+                    clock,
+                );
             },
         );
         let owner = self.clone();
-        let task = tokio::spawn(async move {
-            let mut tick = tokio::time::interval(Duration::from_millis(1));
+        let task = task_group.spawn(async move {
+            let mut tick = shared_runtime_async::time::interval(Duration::from_millis(1));
             loop {
                 // Admission receipts are published under this same lock before
                 // the native pool can see the corresponding transaction.
                 {
                     let mut state = owner.state.lock().unwrap();
-                    while let Ok((_seq, tx)) = rx.try_recv() {
-                        state.pool.insert(summary(&tx), tx);
+                    while let Ok((seq, tx)) = rx.try_recv() {
+                        // An enqueue that crossed the observation deadline was
+                        // tentative only; it must never enter the native pool.
+                        if state.rows[seq as usize].admitted_us.is_some() {
+                            state.pool.insert(summary(&tx), tx);
+                        }
                     }
                 }
                 tokio::select! {
@@ -365,24 +406,29 @@ impl Workload {
             SectionKind::Proofs => json!({"kind":"proofs"}),
             SectionKind::SubBlock(index) => json!({"kind":"sub_block","index":index}),
         };
+        let event = state.next_event;
+        let mut output = json!({"schema":1,"ordinal":section.ordinal,"event":event,"append_us":0,"block":{"epoch":section.block.epoch,"round":section.block.round,"author":config::hex(&section.block.author),"digest":config::hex(&section.block.digest)},"section":kind,"batches":batches});
+        // Bound the cumulative serialized journal separately from unresolved
+        // materializer payloads. Failure cannot partially credit this section.
+        // Complete expensive row construction and serialization before sampling
+        // publication. Replacing the integer placeholder only changes its digits.
+        let encoded_bytes = serde_json::to_vec(&output)?.len() as u64;
         let append_us = clock();
-        // Verification may cross the declared endpoint. Do not extend the
-        // observed cohort merely because the timer task was scheduled late.
         if append_us >= state.deadline_us {
             return Ok(());
         }
-        let event = state.next_event;
-        let output = json!({"schema":1,"ordinal":section.ordinal,"event":event,"append_us":append_us,"block":{"epoch":section.block.epoch,"round":section.block.round,"author":config::hex(&section.block.author),"digest":config::hex(&section.block.digest)},"section":kind,"batches":batches});
-        // Bound the cumulative serialized journal separately from unresolved
-        // materializer payloads. Failure cannot partially credit this section.
-        let journal_bytes = state.journal_bytes
-            .checked_add(serde_json::to_vec(&output)?.len() as u64 + 1)
+        let journal_bytes = state
+            .journal_bytes
+            .checked_add(
+                timestamped_row_bytes(encoded_bytes, append_us).context("journal row overflow")?,
+            )
             .context("journal byte overflow")?;
-        ensure!(journal_bytes <= self.config.limits.max_journal_bytes,
-            "cumulative application journal byte envelope exhausted");
-        if clock() >= state.deadline_us {
-            return Ok(());
-        }
+        ensure!(
+            journal_bytes <= self.config.limits.max_journal_bytes,
+            "cumulative application journal byte envelope exhausted"
+        );
+        // The newline adds one byte and the placeholder removed one byte.
+        output["append_us"] = append_us.into();
         state.journal_bytes = journal_bytes;
         state.seen.extend(new_ids);
         state.next_event += 1;
@@ -394,9 +440,10 @@ impl Workload {
         state.output.push(output);
         Ok(())
     }
-    pub fn freeze(&self) -> (Vec<Row>, Vec<Value>, Value) {
+    pub fn freeze(&self) -> (u64, Vec<Row>, Vec<Value>, Value) {
         let mut state = self.state.lock().unwrap();
         state.frozen = true;
+        let freeze_us = clock();
         let admitted = state
             .rows
             .iter()
@@ -413,7 +460,7 @@ impl Workload {
             .filter(|r| r.first_materialized_us.is_some())
             .count();
         let counts = json!({"planned":state.rows.len(),"offered":admitted+rejected,"completed":completed,"unoffered":state.rows.len()-admitted-rejected,"scheduled":state.rows.len(),"admitted":admitted,"rejected":rejected,"scheduled_not_offered":state.rows.len()-admitted-rejected,"origin_completed":completed,"unfinished":admitted-completed,"output_sections":state.output.len(),"unique_eligible_output":state.seen.len(),"unique_recognized_output":state.seen.len(),"unadmitted_first_outputs":state.unadmitted_first_outputs,"native_commit_callbacks":state.native_commits,"native_commit_transactions":state.native_commit_transactions,"retained_admitted_transactions":state.retained});
-        (state.rows.clone(), state.output.clone(), counts)
+        (freeze_us, state.rows.clone(), state.output.clone(), counts)
     }
 }
 use anyhow::Context as _;
@@ -429,5 +476,102 @@ impl NativeCommitSink for Workload {
             }
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod endpoint_tests {
+    use super::*;
+    fn fixture_state() -> State {
+        State {
+            rows: vec![Row {
+                sequence: 0,
+                request_id: String::new(),
+                native_transaction_hash: String::new(),
+                useful_bytes: 0,
+                planned_us: 10,
+                admitted_us: None,
+                rejected_us: None,
+                rejection: None,
+                own_batch_ready_us: None,
+                first_materialized_us: None,
+                admission_event: None,
+                rejection_event: None,
+                first_materialized_event: None,
+            }],
+            pool: BTreeMap::new(),
+            retained: 0,
+            frozen: false,
+            output: vec![],
+            journal_bytes: 0,
+            seen: BTreeSet::new(),
+            native_commits: 0,
+            native_commit_transactions: 0,
+            deadline_us: 100,
+            next_event: 1,
+            unadmitted_first_outputs: 0,
+        }
+    }
+    #[test]
+    fn admission_records_success_endpoint_and_rejection_without_retroactive_credit() {
+        let mut state = fixture_state();
+        let (tx, rx) = std::sync::mpsc::sync_channel(1);
+        let mut times = [10, 11].into_iter();
+        admit(
+            &mut state,
+            1,
+            0,
+            || tx.try_send(7).map_err(|_| ()),
+            || times.next().unwrap(),
+        );
+        assert_eq!(rx.try_recv().unwrap(), 7);
+        assert_eq!(state.rows[0].admitted_us, Some(11));
+        assert_eq!(state.rows[0].admission_event, Some(1));
+        assert_eq!(state.retained, 1);
+        let mut rejected = fixture_state();
+        let mut times = [10, 13].into_iter();
+        admit(&mut rejected, 1, 0, || Err(()), || times.next().unwrap());
+        assert_eq!(rejected.rows[0].rejected_us, Some(13));
+        assert!(rejected.rows[0].admission_event.is_none());
+        assert_eq!(rejected.retained, 0);
+    }
+    #[test]
+    fn deadline_crossing_enqueue_has_no_admission_or_event_and_frozen_never_offers() {
+        let mut state = fixture_state();
+        let (tx, rx) = std::sync::mpsc::sync_channel(1);
+        let mut times = [99, 100].into_iter();
+        admit(
+            &mut state,
+            1,
+            0,
+            || tx.try_send(7).map_err(|_| ()),
+            || times.next().unwrap(),
+        );
+        assert_eq!(rx.try_recv().unwrap(), 7); // tentative bytes exist, membership does not
+        assert!(state.rows[0].admitted_us.is_none());
+        assert!(state.rows[0].rejection_event.is_none());
+        assert_eq!((state.retained, state.next_event), (0, 1));
+        state.frozen = true;
+        admit(
+            &mut state,
+            1,
+            0,
+            || panic!("frozen workload offered"),
+            || 99,
+        );
+        assert_eq!(state.next_event, 1);
+    }
+    #[test]
+    fn publication_journal_bound_matches_actual_serialized_row_at_digit_boundaries() {
+        let mut row = json!({"append_us":0,"transactions":["payload",7],"ordinal":2});
+        let placeholder = serde_json::to_vec(&row).unwrap().len() as u64;
+        for timestamp in [0, 9, 10, 99, 100, u64::MAX] {
+            row["append_us"] = timestamp.into();
+            assert_eq!(
+                timestamped_row_bytes(placeholder, timestamp),
+                Some(serde_json::to_vec(&row).unwrap().len() as u64 + 1)
+            );
+        }
+        assert_eq!(timestamped_row_bytes(u64::MAX, 1), None);
     }
 }

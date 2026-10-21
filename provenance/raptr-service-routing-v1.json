@@ -1,0 +1,470 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "profile": "raptr-shared-consensus-only-v1",
+  "native_pin": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "audit_kind": "read-only actual-call-path audit before first independent-process acceptance",
+  "overall": "Partial shared-service routing established; native/QS/output tests pass. Full common-runtime/primitive-routing and performance equivalence are not yet established.",
+  "services": {
+    "core": {
+      "status": "actual_native_policy",
+      "behavior": "Protocol::run uses the extracted original Context event loop and serialized handler/condition fixed point. Real Aptos payloads/QCs/BLS types, original native QS optimistic/certified policy and reputation tracker are used. Metadata-only commit hook adds full block digest and initial-proof flag at the two original commit pushes. Malformed signer/tag index and length checks change native panic to error; valid certificate bytes/quorum policy remain native.",
+      "sources": [
+        {
+          "path": "core/raptr/native/src/framework/context.rs",
+          "sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+          "lines": [
+            89,
+            162
+          ]
+        },
+        {
+          "path": "core/raptr/native/src/rehost.rs",
+          "sha256": "8094a02b041839d06bc5c43e6cdc6edd3755e20d31b0814139d003dfdabf3e75",
+          "lines": [
+            1,
+            196
+          ]
+        },
+        {
+          "path": "core/raptr/native/src/raptr/protocol.rs",
+          "sha256": "0f3502cc82de59d29238c38e9a6debb8cd30af019f1f295232012b56c0276ebf",
+          "lines": [
+            1,
+            41
+          ]
+        },
+        {
+          "path": "core/raptr/native/src/raptr/protocol/extraction_tests.rs",
+          "sha256": "680abafba0a6a2989e245303c2f5dce5e0b4ccff8e429477497769c4f520276c",
+          "lines": [
+            1,
+            260
+          ]
+        }
+      ]
+    },
+    "network": {
+      "status": "shared_actual_io",
+      "behavior": "ConsensusInbox/NativeSender and QS NetworkTransport both route bytes through shared/network-async and shared/network TCP. The outer profile is Ed25519-authenticated raptr-native-bcs-v1, distinct from Aptos transport; inner native BCS/proof bytes are unchanged. Receives retain raw-byte leases through native verification. Outbound completion means queue/defer acceptance, never waiting for a per-frame ACK; the common writer has a pipelined64-frame/8MiB window. Repair fetch traffic is classified on both native channels; initial QS transaction BCS spans are payload bytes. Self-delivery is bounded and has zeroTCP bytes.",
+      "sources": [
+        {
+          "path": "core/raptr/node/src/network.rs",
+          "sha256": "096a388099186787585a28693b01b5bd348e61bf87bd94f2ecc356947c940fa3",
+          "lines": [
+            65,
+            486
+          ]
+        },
+        {
+          "path": "shared/network-async/src/lib.rs",
+          "sha256": "72bbd110fa41531722c059cc9e804e30c79228b4613207de20ea875f1f448efb",
+          "lines": [
+            101,
+            190
+          ]
+        },
+        {
+          "path": "shared/network/src/lib.rs",
+          "sha256": "1222327e542cef4a0af5c9dc6b55bb9dba42eed8bd83d4cab7396383c57e6458",
+          "lines": [
+            102,
+            151
+          ]
+        },
+        {
+          "path": "core/raptr/transport/src/lib.rs",
+          "sha256": "a7031a2bc742920fcbb0ecd26b2790aef368955f8bd8165333b23a0f2b454a90",
+          "lines": [
+            1,
+            120
+          ]
+        }
+      ],
+      "limits": {
+        "max_wire_default": 1048576,
+        "outstanding_tcp_encoded_bytes": 134217728,
+        "raw_read_bytes": 33554432,
+        "decoded_async_inbox_bytes": 33554432,
+        "consensus_inbox_default_frames": 4096,
+        "default_rpc_correlations": 1024,
+        "boundary": "actual successful application TCP writes including owned auth/framing/ACK bytes; excludes kernel TCP/IP headers/retransmit bytes"
+      }
+    },
+    "crypto": {
+      "status": "shared_for_core_and_enclosing_qs_validation_with_known_gaps",
+      "behavior": "Core BLS sign/verify/aggregate, block hash and runtime materializer BatchPayload hash route shared/crypto-aptos. QS peer Batch/SignedBatchInfo/Proof verification, proof aggregation, custody signing and NotFound signature verification are enclosed in shared operation scopes; native cache/quorum/sub-verification remains native. A repaired Batch is verified exactly once by QS NetworkSender, not both transport and QS wrapper. encode/decode preserve pinnedBCS but have no operation timer. Scope timers are nested and CPU uses calling-thread CPU, not total processCPU.",
+      "sources": [
+        {
+          "path": "shared/crypto-aptos/src/lib.rs",
+          "sha256": "044ea4884eb79a105f900cc388eb012a7978b2819417873797f32f2a068e1607",
+          "lines": [
+            1,
+            94
+          ]
+        },
+        {
+          "path": "core/raptr/native/src/framework/crypto.rs",
+          "sha256": "086032c724c979c9f9143e1f1f1a25bb4433bc42db6ba8764951f12830c91c43",
+          "lines": [
+            108,
+            303
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/assembly.rs",
+          "sha256": "b4df758ac5cb14b0f51ec8720c2522376f7381c5f4a35fd803d98d8563f55429",
+          "lines": [
+            76,
+            131
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/network.rs",
+          "sha256": "357c18680075c275aa766eea43262a0a0bdaf0ff0e35f3ab49a00cf4ea5d96cc",
+          "lines": [
+            56,
+            75
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/proof_coordinator.rs",
+          "sha256": "dc7a8ca40141d99ffda1f07bf062b4d026f4cde1068f6607dda8f0e1f7fcd645",
+          "lines": [
+            138,
+            155
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_store.rs",
+          "sha256": "3e37077a2fd18d7c3925960e9bf359712e925ac652773d012ba0abe3801e3dcc",
+          "lines": [
+            385,
+            397
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/output.rs",
+          "sha256": "cb952552f8c1cfab6480c747938d999384c6f1e3254220ababa20c0b7020dc1a",
+          "lines": [
+            60,
+            81
+          ]
+        },
+        {
+          "path": "shared/metrics/src/lib.rs",
+          "sha256": "700471d3e31dde209907aab7a78011933cf37ba1ccc1ef8655c3ad89e9511274",
+          "lines": [
+            127,
+            190
+          ]
+        }
+      ],
+      "limits": {
+        "unrouted": [
+          "QS BatchGenerator::create_new_batch -> Batch::new -> native cached payload.hash()/num_bytes; native_construction wrapper currently unused there.",
+          "TypedQS DB bcs::to_bytes/from_bytes remains direct.",
+          "Native transaction committed_hash used by workload TransactionSummary; application signature authentication and compatibility internals contain native primitives, some enclosed but not every internal hash separately metered."
+        ],
+        "nonclaim": "No claim of complete primitive call counts or summable CPU components. Offline archive verification deliberately recomputes native BatchPayload hash directly as an independent oracle and is outside runtime timing."
+      }
+    },
+    "storage": {
+      "status": "shared_real_rocksdb",
+      "behavior": "The real typed QuorumStoreDB retains quorumstoreDB, batch and batch_ID, full digest keys, nativeBCS values, epoch cleanup and atomicdelete policy. All physicalget/put/delete/batch/scan calls route shared/store-rocksdb. Profile blob-lz4-pipelined-v1 preserves native options and Written sync=false with WAL enabled. No in-memory fallback and no Durable/power-loss barrier.",
+      "sources": [
+        {
+          "path": "core/raptr/qs/src/quorum_store/quorum_store_db.rs",
+          "sha256": "423e5ae626f992503d039844de5e9f2f433285552a0b85f44ba5962340c3b01a",
+          "lines": [
+            1,
+            140
+          ]
+        },
+        {
+          "path": "shared/store-rocksdb/src/backend.rs",
+          "sha256": "d83454b8a50bfc8966374eee210c1447f25f0481fb8325390b0ce42e0d930ff9",
+          "lines": [
+            20,
+            150
+          ]
+        },
+        {
+          "path": "shared/store-rocksdb/src/lib.rs",
+          "sha256": "7a6cb2dfd5f93b14698b18d43a2493172ff543444de662b34623e9699b2e272f",
+          "lines": [
+            14,
+            65
+          ]
+        }
+      ],
+      "limits": {
+        "requested_db_write_buffer_bytes": 268435456,
+        "requested_cf_shared_lru_bytes": 2147483648,
+        "requested_parallelism": 16,
+        "requested_background_jobs": 8,
+        "warning": "Requested DB-level and CF options are distinct, not a measured resident-memory/thread allocation. Native recovery loads typed maps; shared scan itself streams. Physical disk traffic/compaction costs are not measured by crypto counters."
+      }
+    },
+    "timers": {
+      "status": "native_mechanism_retained_not_yet_shared",
+      "behavior": "Core uses original LocalTimerService: BTreeMap<tokio::Instant,event>, last insertion wins exact deadline collision, no cancellation ID; tick removes earliest only after sleep completes. Original Context select keeps network/timer/module selection. QS retains native Tokio polling and retry timers. Shared runtime provides monotonic observer clock but does not yet own these timer queues.",
+      "sources": [
+        {
+          "path": "core/raptr/native/src/framework/timer.rs",
+          "sha256": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+          "lines": [
+            1,
+            47
+          ]
+        },
+        {
+          "path": "core/raptr/native/src/framework/context.rs",
+          "sha256": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+          "lines": [
+            144,
+            162
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/factory.rs",
+          "sha256": "479704cac06b095bbe6fe288faca02715b3351f1186b831a6e44770a8a4a5a1e",
+          "lines": [
+            255,
+            325
+          ]
+        }
+      ],
+      "limits": {
+        "delta_ms": 100,
+        "core_timer_multipliers": {
+          "leader": 4,
+          "partial_vote": 0.1,
+          "fetch": 2,
+          "round_sync": 15
+        },
+        "native_default_qs_poll_ms": 150,
+        "native_default_qs_min_nonempty_ms": 80,
+        "native_default_qs_request_retry_ms": 1000,
+        "native_default_qs_rpc_timeout_ms": 5000
+      }
+    },
+    "workload_and_pool": {
+      "status": "shared_independent_ingress_with_finite_native_adapter",
+      "behavior": "shared_mempool::Worker runs arrivals on a separate OS thread, bounded sync_channel and try_send. The finite adapter owns signed native Script transactions, a capacity-limited BTreeMap<TransactionSummary,SignedTransaction>, native GetBatchRequest byte/count/exclusion handling and native commit/reject removal. This is a consensus-only finite pool adapter, not full Aptos mempool/VM validation. Native QS retains batching/custody policy.",
+      "sources": [
+        {
+          "path": "shared/mempool/src/lib.rs",
+          "sha256": "0f2f9b85dede601151dd7087b44a0e00c762f90ad75da6d1a86f6b2a8d29aaa4",
+          "lines": [
+            1,
+            54
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/workload.rs",
+          "sha256": "f45ad62cd8f74367e93aed06efeb3e45f5e119b5b2b8a197135eeb316230b20a",
+          "lines": [
+            30,
+            144
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/workload.rs",
+          "sha256": "f45ad62cd8f74367e93aed06efeb3e45f5e119b5b2b8a197135eeb316230b20a",
+          "lines": [
+            229,
+            329
+          ]
+        }
+      ],
+      "limits": {
+        "ingress_count_default": 4096,
+        "known_scope": "Prepared finite transactions and rows are retained; not a constant-memory unbounded client implementation. Own batch-ready timestamp remains unavailable."
+      }
+    },
+    "output": {
+      "status": "shared_ordered_queue_with_native_policy_adapter",
+      "behavior": "Native commit order synchronously reserves proof-first/original-index sections before unordered real fetch completion. Actual returned subblock-first/proofs-last native vectors are split and fully BatchPayload-verified before FIFO release. Unknown/repeated batches and empty section markers stay in raw output; common finite application controls useful identity credit and first-output admission eligibility. Capacity errors fail evidence instead of changing consensus. Full payload/journal population is bounded for this finite test.",
+      "sources": [
+        {
+          "path": "core/raptr/src/output.rs",
+          "sha256": "38c2c1543a9eda88d66cef32208c8ff0424bb484af75174f589d5596532451d0",
+          "lines": [
+            1,
+            120
+          ]
+        },
+        {
+          "path": "shared/output/src/lib.rs",
+          "sha256": "b3c7b34001aec3770021747b2ac365021716cc1dffbde920bd5d031f054c1b2b",
+          "lines": [
+            1,
+            120
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/dissemination.rs",
+          "sha256": "8ded88f497c65b7b22f037465cf33207aa474492024f4b82d57093f6271358ed",
+          "lines": [
+            315,
+            407
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/output.rs",
+          "sha256": "cb952552f8c1cfab6480c747938d999384c6f1e3254220ababa20c0b7020dc1a",
+          "lines": [
+            83,
+            189
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/workload.rs",
+          "sha256": "f45ad62cd8f74367e93aed06efeb3e45f5e119b5b2b8a197135eeb316230b20a",
+          "lines": [
+            330,
+            418
+          ]
+        }
+      ],
+      "limits": {
+        "max_pending_payload_bytes_default": 134217728,
+        "max_pending_transactions_default": 100000,
+        "max_sections": 900000,
+        "max_batch_occurrences": 1000000,
+        "output_queue_default": 4096,
+        "max_serialized_output_journal_default": 134217728,
+        "not_heap_guarantee": "Encoded byte limits do not equal total Rust/JSON object heap usage; output metadata remains retained for the finite run."
+      }
+    },
+    "execution_and_lifetime": {
+      "status": "declared_outer_bounds_native_nested_tasks_remaining",
+      "behavior": "Node starts Tokio2worker/32blocking-thread runtime, one shared network bridge OS thread, shared network peer writer/readers and one ingress OS thread. Core/DL owns at most100000 lifetime-registered handles; shutdown closes spawn admission atomically then aborts/reaps all, including after a panic. QS actor mailboxes use native configured count bounds and keyed policies. Native nested tokio::spawn/spawn_blocking still detach persistence/fetch tasks; Tokio max_blocking_threads bounds active threads, not its pending blocking queue. These internals are not covered by outer OwnedTasks. Process exit joins runtime but exact nested task completion is not separately evidenced.",
+      "sources": [
+        {
+          "path": "core/raptr/node/src/factory.rs",
+          "sha256": "479704cac06b095bbe6fe288faca02715b3351f1186b831a6e44770a8a4a5a1e",
+          "lines": [
+            42,
+            55
+          ]
+        },
+        {
+          "path": "core/raptr/node/src/dissemination.rs",
+          "sha256": "8ded88f497c65b7b22f037465cf33207aa474492024f4b82d57093f6271358ed",
+          "lines": [
+            46,
+            118
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/assembly.rs",
+          "sha256": "b4df758ac5cb14b0f51ec8720c2522376f7381c5f4a35fd803d98d8563f55429",
+          "lines": [
+            178,
+            220
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/assembly.rs",
+          "sha256": "b4df758ac5cb14b0f51ec8720c2522376f7381c5f4a35fd803d98d8563f55429",
+          "lines": [
+            298,
+            345
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_coordinator.rs",
+          "sha256": "7c17638a782d81e3db95e1e5c847a84b932173f070ca338fb05a13b744e7023f",
+          "lines": [
+            75,
+            113
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_generator.rs",
+          "sha256": "5226eeaba53c035c59ab482544c9001ce5e6611d54984ed5a4f2e6175da9d367",
+          "lines": [
+            470,
+            493
+          ]
+        },
+        {
+          "path": "core/raptr/qs/src/quorum_store/batch_store.rs",
+          "sha256": "3e37077a2fd18d7c3925960e9bf359712e925ac652773d012ba0abe3801e3dcc",
+          "lines": [
+            550,
+            589
+          ]
+        }
+      ],
+      "limits": {
+        "native_qs_defaults": {
+          "channel_size": 5000,
+          "remote_batch_workers": 30,
+          "memory_quota": 120000000,
+          "db_quota": 300000000,
+          "batch_quota": 300000
+        },
+        "rayon": "Unused Rayon imports in several copied QS modules do not prove active parallel work. Actual ValidatorVerifier::filter_invalid_signatures uses global Rayon fallback pool; it is not explicitly configured or reported. Its worker CPU is not captured by enclosing calling-thread meter.",
+        "global_bound_status": "No global retained-byte or all-descendant-task bound is claimed for nativeQS. Store quota and per-channel counts are different bounds."
+      }
+    }
+  },
+  "clock_and_endpoint_boundaries": {
+    "timebase": "Same-host CLOCK_MONOTONIC microseconds for arm/planned/admitted/materialized/receipts; native protocol clocks and batch expiry retain native Tokio/SystemTime policies. No subtraction across remote clocks.",
+    "admission": "admitted_us sampled under state mutex immediately before successful nonblocking try_send; admission event installed after success before pool consumer can acquire state lock. This is a small pre-publication bracket, not post-enqueue clock.",
+    "materialization": "append_us sampled after native identity verification but before JSON assembly/serialization, byte-bound check and state push under lock. A second clock check disallows deadline-crossing credit. Event order is exact; timestamp brackets visibility by local JSON bookkeeping.",
+    "freeze": "Timer deadline is arm+measurement+drain; workload freezes after ingress stop, freeze_us sampled, then materializer and traffic/crypto snapshots are taken. Snapshots are pre-cleanup and not simultaneous. Deadline lateness is retained; crypto receipt signing and shutdown are after measured snapshot.",
+    "latency_claim": "Functional endpoint accounting only until the successful-publication timestamp bracket is tightened and full shared resource/compiler profiles are accepted."
+  },
+  "profile_exclusions": [
+    "No AptosVM execution/state-sync; valid signed synthetic Script envelope only.",
+    "Fixed quorum-signed genesis LedgerInfo is archived; advancing execution anchor/expiry fast-forward behavior is untested.",
+    "No performance comparison, global resource bound, complete primitive CPU total, or remote-host acceptance from these tests.",
+    "Missing-payload fault applies only at configured receiver to firstN authenticated initial Batch messages; consensus/custody/repair policy untouched. Fault mode adds native byte verification for drop receipts; received repair telemetry is not a standalone proof of validation.",
+    "Full/compact observer overhead comparison is not part of this finite shared-node acceptance."
+  ],
+  "next_bounded_patch_scope": [
+    {
+      "change": "QS primitive routing",
+      "files": [
+        "core/raptr/qs/src/quorum_store/batch_generator.rs",
+        "core/raptr/qs/src/quorum_store/quorum_store_db.rs"
+      ],
+      "method": "Wrap the unchanged Batch::new call in native_construction; replace direct DB BCS encode/decode entry points with shared provider functions preserving exact errors/bytes. Retain independent native hash/BCS oracle tests."
+    },
+    {
+      "change": "Timer mechanism",
+      "files": [
+        "shared/runtime async-timers feature",
+        "core/raptr/node timer adapter"
+      ],
+      "method": "Copy exact native BTreeMap deadline insertion/overwrite/earliest-removal/cancelled tick semantics into generic shared async timer mechanism; trait facade only in node. Keep Context select/handler atomicity and all native duration policies unchanged. Test equal deadlines and cancellation before replacing factory constructor."
+    },
+    {
+      "change": "Execution profile",
+      "files": [
+        "shared/runtime execution service",
+        "core/raptr/node factory"
+      ],
+      "method": "Initialize one explicit Rayon2 worker pool through shared service and declare actual profile; retain original fallback verification. Enumerate OS bridge/readers/writers and native RocksDB requested workers separately. Do not sum enclosing thread CPU as workerCPU."
+    },
+    {
+      "change": "Native detached task ownership",
+      "files": [
+        "core/raptr/qs/src/quorum_store/batch_coordinator.rs",
+        "core/raptr/qs/src/quorum_store/batch_generator.rs",
+        "core/raptr/qs/src/quorum_store/batch_store.rs",
+        "core/raptr/qs/src/assembly.rs",
+        "shared/runtime owned async/blocking executor"
+      ],
+      "method": "Inject cloneable shared spawn executor at existing spawn sites. Preserve detach-until-epoch-end and task bodies, native callbacks and persistence acknowledgment order. Register async/blocking descendant handles; explicit resource-envelope failure rather than silent drop; close spawn admission and join all on shutdown. A bounded registration cap is a declared rehost failure boundary, not an extra protocol vote/availability gate. Running spawn_blocking cannot be aborted; cleanup must wait or report noncompletion. No rewrite of protocol fixed point."
+    }
+  ],
+  "validation_receipts": [
+    "core/raptr/native-validation-20261021.json",
+    "core/raptr/node/validation-20261021.json"
+  ]
+}

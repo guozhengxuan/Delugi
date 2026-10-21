@@ -32,12 +32,9 @@ use aptos_types::{
 };
 use futures::{SinkExt, StreamExt};
 use futures_channel::mpsc;
+use shared_runtime_async::time::MissedTickBehavior;
 use std::{sync::Arc, time::Duration};
-use tokio::{
-    sync::{mpsc as tokio_mpsc, oneshot},
-    task::JoinHandle,
-    time::MissedTickBehavior,
-};
+use tokio::sync::{mpsc as tokio_mpsc, oneshot};
 
 pub struct AssemblyConfig {
     pub epoch: u64,
@@ -151,8 +148,9 @@ pub struct Assembly {
     pub batch_reader: Arc<dyn BatchReader>,
     pub coordinator: mpsc::Sender<CoordinatorCommand>,
     pub inbound: Inbound,
-    tasks: Vec<JoinHandle<()>>,
-    retrieval_task: JoinHandle<()>,
+    tasks: Vec<shared_runtime_async::Task<()>>,
+    task_group: shared_runtime_async::TaskGroup,
+    retrieval_task: shared_runtime_async::Task<()>,
 }
 impl Assembly {
     #[allow(clippy::too_many_arguments)]
@@ -166,6 +164,7 @@ impl Assembly {
         mempool_timeout_ms: u64,
         proof_cache: ProofCache,
         ledger: Arc<dyn LatestLedger>,
+        task_group: shared_runtime_async::TaskGroup,
     ) -> Result<Self> {
         let AssemblyConfig {
             epoch,
@@ -215,87 +214,101 @@ impl Assembly {
             config.batch_quota,
             ValidatorSigner::new(author, consensus_key),
             Duration::from_secs(60).as_micros() as u64,
+            task_group.clone(),
         ));
         let batch_reader: Arc<dyn BatchReader> =
             Arc::new(BatchReaderImpl::new(store.clone(), requester));
         let mut tasks = Vec::new();
-        tasks.push(tokio::spawn(
-            QuorumStoreCoordinator::new(
-                author,
-                generator_tx.clone(),
-                worker_txs.clone(),
-                proof_tx.clone(),
-                manager_tx.clone(),
-                messages.clone(),
-            )
-            .start(coordinator_rx),
-        ));
-        let mut interval = tokio::time::interval(Duration::from_millis(
+        tasks.push(
+            task_group.spawn(
+                QuorumStoreCoordinator::new(
+                    author,
+                    generator_tx.clone(),
+                    worker_txs.clone(),
+                    proof_tx.clone(),
+                    manager_tx.clone(),
+                    messages.clone(),
+                )
+                .start(coordinator_rx),
+            ),
+        );
+        let mut interval = shared_runtime_async::time::interval(Duration::from_millis(
             config.batch_generation_poll_interval_ms as u64,
         ));
         interval.set_missed_tick_behavior(MissedTickBehavior::Skip);
-        tasks.push(tokio::spawn(
-            BatchGenerator::new(
-                epoch,
-                author,
-                config.clone(),
-                storage,
-                store.clone(),
-                mempool,
-                mempool_timeout_ms,
-            )
-            .start(network.clone(), generator_rx, pressure_rx, interval),
-        ));
-        for rx in worker_rxs {
-            tasks.push(tokio::spawn(
-                BatchCoordinator::new(
+        tasks.push(
+            task_group.spawn(
+                BatchGenerator::new(
+                    epoch,
                     author,
-                    network.clone(),
-                    manager_tx.clone(),
-                    generator_tx.clone(),
+                    config.clone(),
+                    storage,
                     store.clone(),
-                    config.receiver_max_batch_txns as u64,
-                    config.receiver_max_batch_bytes as u64,
-                    config.receiver_max_total_txns as u64,
-                    config.receiver_max_total_bytes as u64,
+                    mempool,
+                    mempool_timeout_ms,
+                    task_group.clone(),
+                )
+                .start(network.clone(), generator_rx, pressure_rx, interval),
+            ),
+        );
+        for rx in worker_rxs {
+            tasks.push(
+                task_group.spawn(
+                    BatchCoordinator::new(
+                        author,
+                        network.clone(),
+                        manager_tx.clone(),
+                        generator_tx.clone(),
+                        store.clone(),
+                        config.receiver_max_batch_txns as u64,
+                        config.receiver_max_batch_bytes as u64,
+                        config.receiver_max_total_txns as u64,
+                        config.receiver_max_total_bytes as u64,
+                        config.batch_expiry_gap_when_init_usecs,
+                        task_group.clone(),
+                    )
+                    .start(rx),
+                ),
+            );
+        }
+        tasks.push(
+            task_group.spawn(
+                ProofCoordinator::new(
+                    config.proof_timeout_ms,
+                    author,
+                    batch_reader.clone(),
+                    generator_tx,
+                    proof_cache.clone(),
+                    broadcast_proofs,
                     config.batch_expiry_gap_when_init_usecs,
                 )
-                .start(rx),
+                .start(proof_rx, network, verifier.clone()),
+            ),
+        );
+        tasks.push(
+            task_group.spawn(
+                ProofManager::new(
+                    author,
+                    config.back_pressure.backlog_txn_limit_count,
+                    config.back_pressure.backlog_per_validator_batch_limit_count * num_validators,
+                    store.clone(),
+                    config.allow_batches_without_pos_in_proposal,
+                    config.batch_expiry_gap_when_init_usecs,
+                    config.max_batches_per_pull,
+                )
+                .start(pressure_tx, payload_rx, manager_rx),
+            ),
+        );
+        tasks
+            .push(task_group.spawn(
+                NetworkListener::new(messages_rx, proof_tx, worker_txs, manager_tx).start(),
             ));
-        }
-        tasks.push(tokio::spawn(
-            ProofCoordinator::new(
-                config.proof_timeout_ms,
-                author,
-                batch_reader.clone(),
-                generator_tx,
-                proof_cache.clone(),
-                broadcast_proofs,
-                config.batch_expiry_gap_when_init_usecs,
-            )
-            .start(proof_rx, network, verifier.clone()),
-        ));
-        tasks.push(tokio::spawn(
-            ProofManager::new(
-                author,
-                config.back_pressure.backlog_txn_limit_count,
-                config.back_pressure.backlog_per_validator_batch_limit_count * num_validators,
-                store.clone(),
-                config.allow_batches_without_pos_in_proposal,
-                config.batch_expiry_gap_when_init_usecs,
-                config.max_batches_per_pull,
-            )
-            .start(pressure_tx, payload_rx, manager_rx),
-        ));
-        tasks.push(tokio::spawn(
-            NetworkListener::new(messages_rx, proof_tx, worker_txs, manager_tx).start(),
-        ));
         let (retrieval, mut retrieval_rx) = aptos_channel::new::<Author, Retrieval>(
             QueueStyle::LIFO,
             10,
             Some(&crate::quorum_store::counters::BATCH_RETRIEVAL_TASK_MSGS),
         );
-        let retrieval_task = tokio::spawn(async move {
+        let retrieval_task = task_group.spawn(async move {
             while let Some(request) = retrieval_rx.next().await {
                 crate::quorum_store::counters::RECEIVED_BATCH_REQUEST_COUNT.inc();
                 let response = match store.get_batch_from_local(&request.request.digest()) {
@@ -322,6 +335,7 @@ impl Assembly {
             },
             tasks,
             retrieval_task,
+            task_group,
         })
     }
     pub async fn shutdown(mut self) -> Result<()> {
@@ -336,10 +350,16 @@ impl Assembly {
         // Native retrieval service is epoch-owned. External cloned handles may
         // outlive shutdown, so explicitly close this service after pipeline ACK.
         self.retrieval_task.abort();
-        match self.retrieval_task.await {
-            Ok(()) => Ok(()),
-            Err(e) if e.is_cancelled() => Ok(()),
-            Err(e) => Err(e.into()),
+        let retrieval = self.retrieval_task.await;
+        // Detached persistence/fetch descendants belong to the same group.
+        // Running blocking work is joined, not detached, before custody closes.
+        let joined = self.task_group.shutdown().await;
+        match retrieval {
+            Ok(()) => {}
+            Err(e) if e.is_cancelled() => {}
+            Err(e) => return Err(e.into()),
         }
+        joined?;
+        Ok(())
     }
 }

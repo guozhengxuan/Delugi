@@ -41,6 +41,7 @@ tokio={workspace=true}
 raptr={path="../native"}
 shared-store-rocksdb={path="../../../shared/store-rocksdb"}
 shared-crypto-aptos={path="../../../shared/crypto-aptos"}
+shared-runtime-async={path="../../../shared/runtime-async"}
 [dev-dependencies]
 claims={workspace=true}
 maplit={workspace=true}

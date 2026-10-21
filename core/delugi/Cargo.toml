@@ -4,17 +4,22 @@ version = "0.1.0"
 edition = "2021"
 publish = false
 
+[features]
+default = []
+rocksdb-records = ["dep:shared-store-rocksdb", "shared-store-rocksdb/rocksdb-backend"]
+
 [dependencies]
 bincode = "=1.3.3"
 ed25519-dalek = "=1.0.1"
-libc = "=0.2.178"
-serde = { version = "=1.0.190", features = ["derive"] }
-serde_json = "=1.0.108"
+libc = ">=0.2.155, <0.3"
+serde = { version = ">=1.0.190, <1.1", features = ["derive"] }
+serde_json = ">=1.0.108, <1.1"
 sha2 = "=0.9.9"
 shared-metrics = { path = "../../shared/metrics" }
 shared-crypto = { path = "../../shared/crypto" }
 shared-mempool = { path = "../../shared/mempool" }
 shared-store = { path = "../../shared/store" }
+shared-store-rocksdb = { path = "../../shared/store-rocksdb", optional = true }
 core-api = { path = "../../core-api" }
 shared-network = { path = "../../shared/network" }
 delugi-shared-output = { path = "../../shared/output" }
