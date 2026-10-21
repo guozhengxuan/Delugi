@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "passed",
+  "scope": "Static and localhost transport/process conformance of Delugi under the common executable native dependency profile. The same-binary finite memory/disk acceptance campaign remains a separate pending gate. No performance comparison.",
+  "common_executable": {
+    "path": "results/local/shared-core-20261021/common-node-build-1/artifact/raptr-shared-node",
+    "bytes": 66969984,
+    "sha256": "6763539380645b3b1275b2819928ec826f35f5ffcb7950800b8a02a7ab24141a"
+  },
+  "common_build_receipt": {
+    "path": "results/local/shared-core-20261021/common-node-build-1/build-receipt.json",
+    "bytes": 3675522,
+    "sha256": "2f986ca8bd81ae3cfec2e3cda784c4a00e24375f0cd03e191462e7a0a8894e75"
+  },
+  "common_binary_protocols": [
+    "delugi",
+    "raptr"
+  ],
+  "profiles": {
+    "default_root": {
+      "ordinary_passed": 257,
+      "ignored_not_run_in_this_profile": 20,
+      "storage": "memory-visible-v1",
+      "external_identity_changes": "none for existing packages;38 optional backend packages added; root exact pins retained",
+      "evidence": {
+        "path": "results/local/shared-core-20261021/delugi-default-storage-validation/manifest.json",
+        "bytes": 21593,
+        "sha256": "bb79e04f07a65126645fbbee9c0bfba102c3fe75636ede00084c4f97efe1f873"
+      }
+    },
+    "native_common": {
+      "ordinary_passed": 240,
+      "actual_localhost_passed": 19,
+      "delugi_unit_tests_in_ordinary": 219,
+      "storage_feature": "rocksdb-records enabled, including real typed-record byte and Written-before-custody storage fixture",
+      "versions": {
+        "serde": [
+          "1.0.197"
+        ],
+        "serde_json": [
+          "1.0.114"
+        ],
+        "libc": [
+          "0.2.155"
+        ],
+        "bincode": [
+          "1.3.3"
+        ],
+        "ed25519-dalek": [
+          "1.0.1"
+        ],
+        "rocksdb": [
+          "0.22.0"
+        ]
+      },
+      "external_packages": 654,
+      "external_identities_and_checksums_unchanged": true,
+      "feature_difference": {
+        "path+file:///Users/zhengxuanguo/gitrepo/Delugi/shared/network#shared-network@0.1.0": {
+          "common": [],
+          "fixture": [
+            "test-support"
+          ]
+        }
+      },
+      "evidence": {
+        "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/attempt1/validation.json",
+        "bytes": 42653,
+        "sha256": "4a36e501b03ee0cb6766059eae0e9ee7ea21949abbc4413db1caa6e522f4498c"
+      }
+    }
+  },
+  "equivalence": {
+    "deterministic_scenarios": 17,
+    "repeats_each": 2,
+    "trace_comparison": "exact parsed JSON values; both raw byte hashes retained. Native serde_json preserve_order changes JSON key order only.",
+    "raw_ordering_streams": 8,
+    "raw_ordering_bytes": 485978,
+    "context_json_files": 8,
+    "raw_transport_vectors": 24,
+    "raw_transport_bytes": 11972,
+    "transport_exporter_selected_tests": 1,
+    "transport_evidence": {
+      "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/transport-attempt1/validation.json",
+      "bytes": 19961,
+      "sha256": "9396f9bc54b4457c7f17fcf643b91db8dc675edbbd17274c1ef85161b62a394c"
+    },
+    "reference_evidence": {
+      "path": "benchmarks/results/shared-core-delugi-extraction-2026-10-21.json",
+      "bytes": 15781,
+      "sha256": "506afe3b979e2fb30caf380764cca17fd9b356a6db18eca5dea1ea4a1698cf8b"
+    }
+  },
+  "storage_contract": {
+    "default_memory_unchanged": true,
+    "optional_profile": "shared-rocksdb-written-v1",
+    "core_custody_requirement": "Visible",
+    "physical_write_completion": "Written before typed cache/custody publication; WAL enabled sync=false",
+    "fresh_database_only": true,
+    "restart_recovery_claimed": false,
+    "cache": "full typed in-memory record cache retained",
+    "write_bytes": "logical encoded key/record/WriteBatch bytes, not physical device IO"
+  },
+  "cleanup": {
+    "all_guarded_compile_processes_reaped": true,
+    "disposable_targets_retained_temporarily": "Parent coordinates final cleanup after both protocols complete same-binary live gates. Original and common executables plus receipts/oracles are already preserved."
+  },
+  "pending_live_cases": {
+    "finite_memory_disk_full_compact": 12,
+    "scheduling2x2_round4_and_silent3anchors_memory_disk": 16,
+    "actual_selective_batch_data_omission_native_repair_memory_disk": 2,
+    "added_delta_ms": 0,
+    "bound_ms": 100,
+    "driver_sources": [
+      {
+        "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/run-live.py",
+        "bytes": 4456,
+        "sha256": "24d906f091795d5a5ef3083acbfa9cba065b586cc06e54045d8f0d90ce912aad"
+      },
+      {
+        "path": "results/local/shared-core-20261021/delugi-native-profile-conformance/run-missing-payload.py",
+        "bytes": 6256,
+        "sha256": "ba0491743a9a2f5104da00c05fffc571e96ce1e6e0e4c9c64a3832380a50619f"
+      }
+    ]
+  },
+  "counting_note": "Counts are separate repeated conformance gates/profiles, not a sum of independent unique tests. Historical failed setup/compiler attempts and the source repairs are retained in their own evidence."
+}
