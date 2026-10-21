@@ -1,0 +1,1310 @@
+{
+  "acceptance_evidence": {
+    "bytes": 40130,
+    "path": "results/local/shared-core-20261021/common-node-acceptance-20261021/validation.json",
+    "sha256": "a74fba1046dfbeba66974b8335789cac37d2028a68ee5da903c1a24e3e14b120"
+  },
+  "added_delta_ms": 0,
+  "binary": {
+    "bytes": 66969984,
+    "file": "Mach-O 64-bit executable arm64",
+    "sha256": "6763539380645b3b1275b2819928ec826f35f5ffcb7950800b8a02a7ab24141a"
+  },
+  "boundaries": [
+    "All six new common-binary process attempts passed; prior Raptr-only evidence remains immutable.",
+    "Observer signatures, finite transaction signatures, native batch digest/count/bytes and exact canonical prefixes are verified offline; native QC bytes are not archived or independently reverified.",
+    "Primary latency is own-origin admission to first actual append; all-correct secondary endpoint uses same-host CLOCK_MONOTONIC only.",
+    "Added network delay is zero and the executable is unoptimized; no throughput/latency ranking, cloud or remote acceptance is claimed.",
+    "RocksDB Written uses native WAL-enabled sync=false semantics; crash durability is not claimed.",
+    "Delugi same-binary static and live acceptance are separate reports joined by this build receipt identity."
+  ],
+  "build_peak_target_bytes": 3522592768,
+  "build_profile": "dev unoptimized, debug0, incremental0, jobs1, Rust 1.78.0",
+  "build_receipt": {
+    "bytes": 3675522,
+    "path": "results/local/shared-core-20261021/common-node-build-1/build-receipt.json",
+    "sha256": "2f986ca8bd81ae3cfec2e3cda784c4a00e24375f0cd03e191462e7a0a8894e75"
+  },
+  "cache_before_after_equal": true,
+  "canonical_build_identity_sha256": "9d333f6af5096df6bcebe5f4d2207b26cb79afea001ce472b55da15a087d34d6",
+  "capability_evidence": {
+    "bytes": 3767689,
+    "path": "results/local/shared-core-20261021/common-node-build-1/cargo-metadata.json",
+    "sha256": "c3790daf5b99661556536059f679701cec1b93243a6ea344058198aee7d85c1c"
+  },
+  "cases": [
+    {
+      "all_correct_completed": 64,
+      "all_correct_unfinished": 0,
+      "case": "healthy",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "executor_reconciliation": {
+        "0": {
+          "at_cleanup": {
+            "admitted_async": 1620,
+            "admitted_blocking": 785,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1620,
+            "joined_blocking": 785,
+            "maximum_retained_async": 47,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1620,
+            "admitted_blocking": 785,
+            "joined_async": 1579,
+            "joined_blocking": 785,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "1": {
+          "at_cleanup": {
+            "admitted_async": 1620,
+            "admitted_blocking": 785,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1620,
+            "joined_blocking": 785,
+            "maximum_retained_async": 46,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1620,
+            "admitted_blocking": 785,
+            "joined_async": 1579,
+            "joined_blocking": 785,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "2": {
+          "at_cleanup": {
+            "admitted_async": 1619,
+            "admitted_blocking": 784,
+            "cancelled_async": 5,
+            "cancelled_blocking": 0,
+            "joined_async": 1619,
+            "joined_blocking": 784,
+            "maximum_retained_async": 47,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 1,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1617,
+            "admitted_blocking": 783,
+            "joined_async": 1574,
+            "joined_blocking": 783,
+            "retained_async": 43,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "3": {
+          "at_cleanup": {
+            "admitted_async": 1620,
+            "admitted_blocking": 785,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1620,
+            "joined_blocking": 785,
+            "maximum_retained_async": 47,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1619,
+            "admitted_blocking": 785,
+            "joined_async": 1577,
+            "joined_blocking": 785,
+            "retained_async": 42,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        }
+      },
+      "manifest": {
+        "bytes": 54538,
+        "path": "results/local/shared-core-20261021/common-raptr-healthy-1/manifest.json",
+        "sha256": "2cef349c8c730f3aaf330be574187c146d3230c37a3a674da9fab98b85d7725b"
+      },
+      "minimum_max_output_round": 388,
+      "owned_process_cleanup": "all_four_groups_confirmed_empty",
+      "prefix_agreement": {
+        "longest_sections": 3501,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 3501,
+          "1": 3501,
+          "2": 3492,
+          "3": 3501
+        },
+        "status": "passed"
+      },
+      "status": "passed",
+      "totals": {
+        "admitted": 64,
+        "completed": 64,
+        "offered": 64,
+        "planned": 64,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      },
+      "verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_unfinished": 0,
+      "case": "empty",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "executor_reconciliation": {
+        "0": {
+          "at_cleanup": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1621,
+            "joined_blocking": 790,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1620,
+            "admitted_blocking": 790,
+            "joined_async": 1578,
+            "joined_blocking": 790,
+            "retained_async": 42,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "1": {
+          "at_cleanup": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1621,
+            "joined_blocking": 790,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "joined_async": 1580,
+            "joined_blocking": 790,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "2": {
+          "at_cleanup": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1621,
+            "joined_blocking": 790,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "joined_async": 1579,
+            "joined_blocking": 790,
+            "retained_async": 42,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "3": {
+          "at_cleanup": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 1621,
+            "joined_blocking": 790,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 3,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 1621,
+            "admitted_blocking": 790,
+            "joined_async": 1580,
+            "joined_blocking": 790,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        }
+      },
+      "manifest": {
+        "bytes": 51283,
+        "path": "results/local/shared-core-20261021/common-raptr-empty-1/manifest.json",
+        "sha256": "a1970e4d6f430fea5e4590f36b240b7346d9f3253a73440b4c926811c961ca1f"
+      },
+      "minimum_max_output_round": 394,
+      "owned_process_cleanup": "all_four_groups_confirmed_empty",
+      "prefix_agreement": {
+        "longest_sections": 3546,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 3546,
+          "1": 3546,
+          "2": 3546,
+          "3": 3546
+        },
+        "status": "passed"
+      },
+      "status": "passed",
+      "totals": {
+        "admitted": 0,
+        "completed": 0,
+        "offered": 0,
+        "planned": 0,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      },
+      "verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 0,
+      "all_correct_unfinished": 64,
+      "case": "unfinished",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "executor_reconciliation": {
+        "0": {
+          "at_cleanup": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "cancelled_async": 200,
+            "cancelled_blocking": 0,
+            "joined_async": 839,
+            "joined_blocking": 398,
+            "maximum_retained_async": 239,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "joined_async": 602,
+            "joined_blocking": 398,
+            "retained_async": 237,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "1": {
+          "at_cleanup": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "cancelled_async": 200,
+            "cancelled_blocking": 0,
+            "joined_async": 839,
+            "joined_blocking": 398,
+            "maximum_retained_async": 238,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "joined_async": 602,
+            "joined_blocking": 398,
+            "retained_async": 237,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "2": {
+          "at_cleanup": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "cancelled_async": 200,
+            "cancelled_blocking": 0,
+            "joined_async": 839,
+            "joined_blocking": 398,
+            "maximum_retained_async": 238,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "joined_async": 602,
+            "joined_blocking": 398,
+            "retained_async": 237,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "3": {
+          "at_cleanup": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "cancelled_async": 200,
+            "cancelled_blocking": 0,
+            "joined_async": 839,
+            "joined_blocking": 398,
+            "maximum_retained_async": 238,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 839,
+            "admitted_blocking": 398,
+            "joined_async": 602,
+            "joined_blocking": 398,
+            "retained_async": 237,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        }
+      },
+      "manifest": {
+        "bytes": 42479,
+        "path": "results/local/shared-core-20261021/common-raptr-unfinished-1/manifest.json",
+        "sha256": "d9ad603d3797e56d822dec661521a652615a71cf22dbd8022ea0b06d9ac80906"
+      },
+      "materializer_observations": {
+        "0": {
+          "delay_finished_count": 0,
+          "delay_started_count": 196,
+          "delayed_transactions_finished": 0,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": null,
+          "first_delay_start_us": 4402104670848,
+          "late_resolutions_discarded": 0,
+          "late_transactions_discarded": 0
+        },
+        "1": {
+          "delay_finished_count": 0,
+          "delay_started_count": 196,
+          "delayed_transactions_finished": 0,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": null,
+          "first_delay_start_us": 4402104669580,
+          "late_resolutions_discarded": 0,
+          "late_transactions_discarded": 0
+        },
+        "2": {
+          "delay_finished_count": 0,
+          "delay_started_count": 196,
+          "delayed_transactions_finished": 0,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": null,
+          "first_delay_start_us": 4402104675645,
+          "late_resolutions_discarded": 0,
+          "late_transactions_discarded": 0
+        },
+        "3": {
+          "delay_finished_count": 0,
+          "delay_started_count": 196,
+          "delayed_transactions_finished": 0,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": null,
+          "first_delay_start_us": 4402104670309,
+          "late_resolutions_discarded": 0,
+          "late_transactions_discarded": 0
+        }
+      },
+      "minimum_max_output_round": null,
+      "owned_process_cleanup": "all_four_groups_confirmed_empty",
+      "prefix_agreement": {
+        "longest_sections": 0,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 0,
+          "1": 0,
+          "2": 0,
+          "3": 0
+        },
+        "status": "passed"
+      },
+      "status": "passed",
+      "totals": {
+        "admitted": 64,
+        "completed": 0,
+        "offered": 64,
+        "planned": 64,
+        "rejected": 0,
+        "unfinished": 64,
+        "unoffered": 0
+      },
+      "verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 48,
+      "all_correct_unfinished": 0,
+      "case": "silent-first-leader",
+      "correct_replicas": [
+        0,
+        2,
+        3
+      ],
+      "excluded_resumed_leader_exit": "expired pre-start arm; process exited and owned group confirmed empty",
+      "executor_reconciliation": {
+        "0": {
+          "at_cleanup": {
+            "admitted_async": 209,
+            "admitted_blocking": 75,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 209,
+            "joined_blocking": 75,
+            "maximum_retained_async": 48,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 209,
+            "admitted_blocking": 75,
+            "joined_async": 168,
+            "joined_blocking": 75,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "2": {
+          "at_cleanup": {
+            "admitted_async": 208,
+            "admitted_blocking": 75,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 208,
+            "joined_blocking": 75,
+            "maximum_retained_async": 46,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 208,
+            "admitted_blocking": 75,
+            "joined_async": 167,
+            "joined_blocking": 75,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "3": {
+          "at_cleanup": {
+            "admitted_async": 208,
+            "admitted_blocking": 76,
+            "cancelled_async": 4,
+            "cancelled_blocking": 0,
+            "joined_async": 208,
+            "joined_blocking": 76,
+            "maximum_retained_async": 47,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 208,
+            "admitted_blocking": 76,
+            "joined_async": 167,
+            "joined_blocking": 76,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        }
+      },
+      "honest_anchors": {
+        "2": 2,
+        "3": 3,
+        "4": 0
+      },
+      "manifest": {
+        "bytes": 35034,
+        "path": "results/local/shared-core-20261021/common-raptr-silent-first-leader-1/manifest.json",
+        "sha256": "055b53b3f6653a3a600d222f0a257dbdee9c93998b0a778a81eac8cb9a7ac50e"
+      },
+      "minimum_max_output_round": 52,
+      "owned_process_cleanup": "all_four_groups_confirmed_empty",
+      "pause_observation": {
+        "before_identity": {
+          "group": 76730,
+          "parent_pid": 76633,
+          "pid": 76730,
+          "rss_bytes": 34357248,
+          "start": "Wed Oct 21 18:49:53 2026",
+          "state": "Ss"
+        },
+        "clock": "CLOCK_MONOTONIC_us",
+        "observation_ended_us": 4402126438268,
+        "observed_paused_lower_bound_us": 6351944,
+        "observed_paused_upper_bound_us": 6403850,
+        "pid": 76730,
+        "replica": 1,
+        "resume_identity": {
+          "group": 76730,
+          "parent_pid": 76633,
+          "pid": 76730,
+          "rss_bytes": 34471936,
+          "start": "Wed Oct 21 18:49:53 2026",
+          "state": "Rs"
+        },
+        "resume_observed_us": 4402126474508,
+        "resume_sent_us": 4402126449739,
+        "status": "completed",
+        "stop_identity": {
+          "group": 76730,
+          "parent_pid": 76633,
+          "pid": 76730,
+          "rss_bytes": 34357248,
+          "start": "Wed Oct 21 18:49:53 2026",
+          "state": "Ts"
+        },
+        "stop_observed_us": 4402120097795,
+        "stop_sent_us": 4402120070658
+      },
+      "prefix_agreement": {
+        "longest_sections": 351,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 351,
+          "2": 351,
+          "3": 351
+        },
+        "status": "passed"
+      },
+      "status": "passed",
+      "totals": {
+        "admitted": 48,
+        "completed": 48,
+        "offered": 48,
+        "planned": 48,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      },
+      "verified_signers": [
+        0,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 64,
+      "all_correct_unfinished": 0,
+      "case": "materializer-delay",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "executor_reconciliation": {
+        "0": {
+          "at_cleanup": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "cancelled_async": 52,
+            "cancelled_blocking": 0,
+            "joined_async": 2010,
+            "joined_blocking": 983,
+            "maximum_retained_async": 94,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "joined_async": 1919,
+            "joined_blocking": 983,
+            "retained_async": 91,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "1": {
+          "at_cleanup": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "cancelled_async": 53,
+            "cancelled_blocking": 0,
+            "joined_async": 2010,
+            "joined_blocking": 983,
+            "maximum_retained_async": 94,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "joined_async": 1919,
+            "joined_blocking": 983,
+            "retained_async": 91,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "2": {
+          "at_cleanup": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "cancelled_async": 52,
+            "cancelled_blocking": 0,
+            "joined_async": 2010,
+            "joined_blocking": 983,
+            "maximum_retained_async": 95,
+            "maximum_retained_blocking": 3,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "joined_async": 1918,
+            "joined_blocking": 983,
+            "retained_async": 92,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "3": {
+          "at_cleanup": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "cancelled_async": 52,
+            "cancelled_blocking": 0,
+            "joined_async": 2010,
+            "joined_blocking": 983,
+            "maximum_retained_async": 94,
+            "maximum_retained_blocking": 3,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2010,
+            "admitted_blocking": 983,
+            "joined_async": 1919,
+            "joined_blocking": 983,
+            "retained_async": 91,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        }
+      },
+      "manifest": {
+        "bytes": 56579,
+        "path": "results/local/shared-core-20261021/common-raptr-materializer-delay-1/manifest.json",
+        "sha256": "70b0f37dffd211887f0f3548f5df787413d0965e3bd79a0ca7808869d4849c84"
+      },
+      "materializer_observations": {
+        "0": {
+          "delay_finished_count": 440,
+          "delay_started_count": 489,
+          "delayed_transactions_finished": 64,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": 4402139801780,
+          "first_delay_start_us": 4402139300725,
+          "late_resolutions_discarded": 1,
+          "late_transactions_discarded": 0
+        },
+        "1": {
+          "delay_finished_count": 439,
+          "delay_started_count": 489,
+          "delayed_transactions_finished": 64,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": 4402139800246,
+          "first_delay_start_us": 4402139299993,
+          "late_resolutions_discarded": 0,
+          "late_transactions_discarded": 0
+        },
+        "2": {
+          "delay_finished_count": 440,
+          "delay_started_count": 489,
+          "delayed_transactions_finished": 64,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": 4402139805961,
+          "first_delay_start_us": 4402139305030,
+          "late_resolutions_discarded": 1,
+          "late_transactions_discarded": 0
+        },
+        "3": {
+          "delay_finished_count": 440,
+          "delay_started_count": 489,
+          "delayed_transactions_finished": 64,
+          "delayed_transactions_started": 64,
+          "first_delay_finish_us": 4402139802742,
+          "first_delay_start_us": 4402139301217,
+          "late_resolutions_discarded": 1,
+          "late_transactions_discarded": 0
+        }
+      },
+      "minimum_max_output_round": 439,
+      "owned_process_cleanup": "all_four_groups_confirmed_empty",
+      "prefix_agreement": {
+        "longest_sections": 3951,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 3951,
+          "1": 3951,
+          "2": 3951,
+          "3": 3951
+        },
+        "status": "passed"
+      },
+      "status": "passed",
+      "totals": {
+        "admitted": 64,
+        "completed": 64,
+        "offered": 64,
+        "planned": 64,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      },
+      "verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "all_correct_completed": 48,
+      "all_correct_unfinished": 0,
+      "case": "missing-payload-recovery",
+      "correct_replicas": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "executor_reconciliation": {
+        "0": {
+          "at_cleanup": {
+            "admitted_async": 2422,
+            "admitted_blocking": 1188,
+            "cancelled_async": 3,
+            "cancelled_blocking": 0,
+            "joined_async": 2422,
+            "joined_blocking": 1188,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 3,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2422,
+            "admitted_blocking": 1188,
+            "joined_async": 2381,
+            "joined_blocking": 1188,
+            "retained_async": 41,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "1": {
+          "at_cleanup": {
+            "admitted_async": 2435,
+            "admitted_blocking": 1192,
+            "cancelled_async": 3,
+            "cancelled_blocking": 0,
+            "joined_async": 2435,
+            "joined_blocking": 1192,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 3,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2435,
+            "admitted_blocking": 1192,
+            "joined_async": 2393,
+            "joined_blocking": 1192,
+            "retained_async": 42,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "2": {
+          "at_cleanup": {
+            "admitted_async": 2434,
+            "admitted_blocking": 1192,
+            "cancelled_async": 3,
+            "cancelled_blocking": 0,
+            "joined_async": 2434,
+            "joined_blocking": 1192,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2434,
+            "admitted_blocking": 1192,
+            "joined_async": 2392,
+            "joined_blocking": 1192,
+            "retained_async": 42,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        },
+        "3": {
+          "at_cleanup": {
+            "admitted_async": 2433,
+            "admitted_blocking": 1192,
+            "cancelled_async": 3,
+            "cancelled_blocking": 0,
+            "joined_async": 2433,
+            "joined_blocking": 1192,
+            "maximum_retained_async": 45,
+            "maximum_retained_blocking": 2,
+            "rejected_closed": 0,
+            "retained_async": 0,
+            "retained_blocking": 0
+          },
+          "at_freeze": {
+            "admitted_async": 2433,
+            "admitted_blocking": 1192,
+            "joined_async": 2391,
+            "joined_blocking": 1192,
+            "retained_async": 42,
+            "retained_blocking": 0
+          },
+          "closed_groups": [
+            "node",
+            "network",
+            "dissemination",
+            "quorum-store"
+          ]
+        }
+      },
+      "manifest": {
+        "bytes": 65821,
+        "path": "results/local/shared-core-20261021/common-raptr-missing-payload-1/manifest.json",
+        "sha256": "62dcfc84eda1d13730753ec75660a05b48bd28bbf5497c0729d79c62ee84653c"
+      },
+      "minimum_max_output_round": 593,
+      "owned_process_cleanup": "all_four_groups_confirmed_empty",
+      "payload_recovery": {
+        "admitted_requests_per_batch": [
+          16,
+          16,
+          16
+        ],
+        "nonempty_repaired_batches": 3,
+        "scope": "authenticated original QS batch drop to real native request/response to independently payload-verified materialization",
+        "witnesses": [
+          {
+            "descriptor_sha256": "818d14446441f7afb0ca0414259ad7f11de61205d3d60130cf510e847f875b9e",
+            "digest": "08bb37a06e45c3d3e9e7d778ea155d39ffc9d9609759050fc713a4ef3cf2be25",
+            "dropped_us": 4402157137295,
+            "materialized_us": 4402157189022,
+            "output_ordinal": 135,
+            "received_us": 4402157176295,
+            "request_started_us": 4402157166600,
+            "rpc_id": 2
+          },
+          {
+            "descriptor_sha256": "b926a8f9b6198b3c2b0ad108a1e38de27e5b592f9ff1a128ef1ce2ddafe24405",
+            "digest": "8eb20a0e91049475a24bb14506e0e373e6f50377d480ea4edaa1e16179091b2d",
+            "dropped_us": 4402157150471,
+            "materialized_us": 4402157199378,
+            "output_ordinal": 144,
+            "received_us": 4402157191640,
+            "request_started_us": 4402157186744,
+            "rpc_id": 9
+          },
+          {
+            "descriptor_sha256": "7df52110aa311ca0845fb15178ce263b8c7996cbf64282cef224e00bff6f66c9",
+            "digest": "8d549cd17547247d6f9bdd42f75fada55a58d9e6fea5e2d6332014896e887490",
+            "dropped_us": 4402157173637,
+            "materialized_us": 4402157229422,
+            "output_ordinal": 153,
+            "received_us": 4402157221511,
+            "request_started_us": 4402157212536,
+            "rpc_id": 13
+          }
+        ]
+      },
+      "prefix_agreement": {
+        "longest_sections": 5337,
+        "scope": "exact canonical native section and batch/transaction order",
+        "sections": {
+          "0": 5337,
+          "1": 5337,
+          "2": 5337,
+          "3": 5337
+        },
+        "status": "passed"
+      },
+      "status": "passed",
+      "totals": {
+        "admitted": 48,
+        "completed": 48,
+        "offered": 48,
+        "planned": 48,
+        "rejected": 0,
+        "unfinished": 0,
+        "unoffered": 0
+      },
+      "verified_signers": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "evidence": {
+        "bytes": 3674460,
+        "path": "results/local/shared-core-20261021/common-node-test-2/build-receipt.json",
+        "sha256": "db7f676d8c7bd33e3d6f77fc6bf8bd47b52700ce3e8355f6ab5d1b332117d1ee"
+      },
+      "log": {
+        "bytes": 22957,
+        "path": "results/local/shared-core-20261021/common-node-test-2/cargo.log",
+        "sha256": "68a1f00f474e82c91b239f724b47f1bef33e4e7c31068c3772d4e1d8dcbb7fb9"
+      },
+      "suite": "common node",
+      "tests": 18
+    },
+    {
+      "composition": "9 unit +1 Rayon integration; child invocation not counted twice",
+      "evidence": {
+        "bytes": 1238,
+        "path": "core/raptr/build-evidence/runtime-async-test-4/guard.json",
+        "sha256": "a2450ebfdb7f27abd89892b275b332e6d8a3b1e86a03d843431d8f7b5e977f94"
+      },
+      "log": {
+        "bytes": 1611,
+        "path": "core/raptr/build-evidence/runtime-async-test-4/cargo.log",
+        "sha256": "cf1b58afe989dd88e61df2cab393da98251076be68201addf7b9627fa4160ac5"
+      },
+      "suite": "shared async runtime",
+      "tests": 10
+    },
+    {
+      "composition": "15 native +13 QS",
+      "evidence": {
+        "bytes": 5466,
+        "path": "results/local/shared-core-20261021/raptr-service-regressions-3/receipt.json",
+        "sha256": "fd8a034ee7ac76b8ab11f9b74a9fbdc80384f1b6285fb134c80b21c3f2cc5586"
+      },
+      "logs": [
+        {
+          "bytes": 9355,
+          "path": "results/local/shared-core-20261021/raptr-service-regressions-3/native.log",
+          "sha256": "76af3d1433c4569bba2ff069c3bb2003fd223e345fed81355f17c3471922ac69"
+        },
+        {
+          "bytes": 21088,
+          "path": "results/local/shared-core-20261021/raptr-service-regressions-3/qs.log",
+          "sha256": "80d8555b9d90112ee5d2fd18ff7c8d1c414e60bf341889ccb5f90a5997c04146"
+        }
+      ],
+      "suite": "native policy and real QS/RocksDB",
+      "tests": 28
+    },
+    {
+      "composition": "50 +17 +10",
+      "evidence": {
+        "bytes": 2489,
+        "path": "results/local/shared-core-20261021/common-node-acceptance-20261021/python-tests.json",
+        "sha256": "4b846f7b1f43cd21c4fcb21bb2074388680c04f8f089de41f18f26f0f9b9c276"
+      },
+      "suite": "Python runner/build/capability gates",
+      "tests": 77
+    }
+  ],
+  "comparison_eligible": false,
+  "compiled_features": {
+    "common-node": [],
+    "delugi-core": [
+      "rocksdb-records"
+    ],
+    "raptr": [],
+    "raptr-qs": [
+      "rocksdb-backend"
+    ]
+  },
+  "configured_Delta_ms": 100,
+  "date": "2026-10-21",
+  "entry_point": "node/src/shared_main.rs",
+  "executor": {
+    "admitted_async": 34708,
+    "admitted_blocking": 16813,
+    "all_groups_closed": true,
+    "capacity_rejections": 0,
+    "cleanup_retained_queued_active": 0,
+    "failure": null,
+    "joined_async": 34708,
+    "joined_blocking": 16813,
+    "limits_per_process": {
+      "max_async_tasks": 100000,
+      "max_blocking_tasks": 1024
+    },
+    "maximum_observed_retained_async": 239,
+    "maximum_observed_retained_blocking": 3,
+    "panics": 0,
+    "replica_receipts": 23,
+    "scope": "signed freeze and cleanup snapshots; explicit abort cancellations and rejection after close are allowed"
+  },
+  "native_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "native_dependency_identity": {
+    "archive_sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+    "files": 16710,
+    "tree_sha256": "b69f6671d0c3e60013b50dbf7915e4698071a67dfadde50a4edb2dce03b2d0d0"
+  },
+  "node_lock_audit": {
+    "bytes": 228238,
+    "path": "results/local/shared-core-20261021/common-node-lock-resolution-2/receipt.json",
+    "sha256": "d2a6a25dd25d2c2b2c94b112aede7e9badea356374da077932653b08ae7419cd"
+  },
+  "preserved_executable": "results/local/shared-core-20261021/common-node-build-1/artifact/raptr-shared-node",
+  "previous_raptr_only_acceptance": {
+    "bytes": 16538,
+    "path": "benchmarks/results/raptr-shared-runner-validation-2026-10-21.json",
+    "sha256": "b61e7f1b1ce5e9e0506829ba2c09eec307c1b837caaaa3c5dc2a9d906407cdf9"
+  },
+  "profile_files": 2,
+  "protocols": [
+    "delugi",
+    "raptr"
+  ],
+  "resource_guard": {
+    "disk_bytes": 4294967296,
+    "rss_bytes": 8589934592,
+    "scope": "sampled aggregate owned-process limits, not kernel-enforced performance isolation",
+    "wall_seconds": 120
+  },
+  "retained_failed_predecessors": [
+    {
+      "evidence": {
+        "bytes": 3537563,
+        "path": "results/local/shared-core-20261021/common-node-test-1/build-receipt.json",
+        "sha256": "c003af2b9348036f88fa74eb0371fe4ae3dbb1873e25ca9bf5ab59c788d756ca"
+      },
+      "reason": "two test fixture temporary-directory collisions; AtomicU64 test-only uniqueness fix then 18/18 pass"
+    },
+    {
+      "evidence": {
+        "bytes": 3291,
+        "path": "results/local/shared-core-20261021/raptr-service-regressions-2/receipt.json",
+        "sha256": "c252b945a42a2db4febb4a79ee45b946efbc4e7ceaf6853af359e7ec555c690b"
+      },
+      "reason": "sandbox ps denied before Cargo/lock writes; scoped retry3 passed"
+    }
+  ],
+  "schema": 1,
+  "scope": "same common executable: local four-process Raptr functional and lifecycle conformance",
+  "source_before_after_equal": true,
+  "source_files": 159,
+  "status": "passed",
+  "summary_generator": {
+    "bytes": 11071,
+    "path": "results/local/shared-core-20261021/common-node-acceptance-20261021/summarize.py",
+    "sha256": "4af38ee879ed6ca589d735676776256774c83865bb2fa322e5ce1371cdb22ffc"
+  },
+  "test_to_build_source_changes": {
+    "explanation": "Audited QS local runtime lock edge and tested Python executor-limit configuration; no Rust implementation or test bytes changed.",
+    "paths": [
+      "core/raptr/qs/Cargo.lock",
+      "scripts/run_raptr_shared_local.py"
+    ]
+  }
+}
