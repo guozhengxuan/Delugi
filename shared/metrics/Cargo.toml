@@ -5,5 +5,5 @@ edition = "2021"
 publish = false
 
 [dependencies]
-libc = "=0.2.178"
-serde = { version = "=1.0.190", features = ["derive"] }
+libc = ">=0.2.155, <0.3"
+serde = { version = ">=1.0.190, <1.1", features = ["derive"] }

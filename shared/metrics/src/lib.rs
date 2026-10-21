@@ -100,8 +100,22 @@ impl Counters {
     }
 }
 
-static COUNTERS: [Counters; Operation::ALL.len()] =
-    [const { Counters::new() }; Operation::ALL.len()];
+static COUNTERS: [Counters; Operation::ALL.len()] = [
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+    Counters::new(),
+];
 
 pub fn configure(enabled: bool) {
     ENABLED.store(enabled, Ordering::Release);

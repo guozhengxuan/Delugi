@@ -1,0 +1,195 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "local_backend_conformance_passed",
+  "scope": "Generic byte/CF storage service; no shared protocol performance acceptance",
+  "sources": [
+    {
+      "path": "core-api/Cargo.toml",
+      "bytes": 79,
+      "sha256": "bb709c2320d457667e5cae585f05865d0ec41009306f489efcdd840c985c7471"
+    },
+    {
+      "path": "core-api/src/lib.rs",
+      "bytes": 1774,
+      "sha256": "cfcb409507bcec60bd6b0c0907f212a67a62d0d809ba1c61e947b8d6ec0c277f"
+    },
+    {
+      "path": "shared/store-rocksdb/CONTRACT.txt",
+      "bytes": 4429,
+      "sha256": "6f32ae2c13ac35ac42b23d7cdfce4f1e15ac266da3425f7d3eed2ddb90dcedaa"
+    },
+    {
+      "path": "shared/store-rocksdb/Cargo.lock",
+      "bytes": 10159,
+      "sha256": "bad76ddfd53b8c9581ff20001755cb86bcd536fc666735f8bd34efa79c7e93f7"
+    },
+    {
+      "path": "shared/store-rocksdb/Cargo.toml",
+      "bytes": 737,
+      "sha256": "613608fb675407052f809f4b54c5b302e493ad7823a27dd024a34bcf50906bf7"
+    },
+    {
+      "path": "shared/store-rocksdb/native-profile.json",
+      "bytes": 12268,
+      "sha256": "855f3814a714469d8cdb7c0cfd4cd9f2b061d2d8b66ab68dab16eb01b21bbb87"
+    },
+    {
+      "path": "shared/store-rocksdb/src/backend.rs",
+      "bytes": 8061,
+      "sha256": "d83454b8a50bfc8966374eee210c1447f25f0481fb8325390b0ce42e0d930ff9"
+    },
+    {
+      "path": "shared/store-rocksdb/src/lib.rs",
+      "bytes": 7247,
+      "sha256": "7a6cb2dfd5f93b14698b18d43a2493172ff543444de662b34623e9699b2e272f"
+    },
+    {
+      "path": "shared/store-rocksdb/tests/backend.rs",
+      "bytes": 6401,
+      "sha256": "d17e48ff23c0478d6f051cd9c7f8eb4c0161455a0816ab9152091272a92d0441"
+    }
+  ],
+  "native_profile": {
+    "path": "shared/store-rocksdb/native-profile.json",
+    "bytes": 12268,
+    "sha256": "855f3814a714469d8cdb7c0cfd4cd9f2b061d2d8b66ab68dab16eb01b21bbb87"
+  },
+  "toolchain": {
+    "cargo": {
+      "path": "benchmarks/toolchains/mysticeti/toolchains/1.78-aarch64-apple-darwin/bin/cargo",
+      "bytes": 27934099,
+      "sha256": "53e1eb55e8eebd384021b5ca8464635fd25550ef1f2fd80fb2ae7824f655975c",
+      "version": "cargo 1.78.0 (54d8815d0 2024-03-26)"
+    },
+    "rustc": {
+      "path": "benchmarks/toolchains/mysticeti/toolchains/1.78-aarch64-apple-darwin/bin/rustc",
+      "bytes": 640712,
+      "sha256": "18e9f552a4e3f789844195499f3c814a3676de94829ecb7ad98812c285e221fc",
+      "version": "rustc 1.78.0 (9b00956e5 2024-04-29)"
+    },
+    "rustfmt": {
+      "path": "benchmarks/toolchains/mysticeti/toolchains/1.78-aarch64-apple-darwin/bin/rustfmt",
+      "bytes": 6536517,
+      "sha256": "0719c61f565919dcdf1bf790248f394ef5f1deb96ed4be91332b4001c0b8bbac",
+      "version": "rustfmt 1.7.0-stable (9b00956e 2024-04-29)"
+    }
+  },
+  "build": {
+    "native_config": {
+      "path": "core/raptr/native/.cargo/config.toml",
+      "bytes": 1144,
+      "sha256": "604f49dc24b306d9b0905b6d548811157b2e0ee32b0bc4f0c8cf55673d7814bc"
+    },
+    "jobs": 2,
+    "debug": 0,
+    "incremental": false,
+    "offline": true,
+    "locked": true,
+    "cflags": "-Dfdopen=fdopen"
+  },
+  "requested_runtime_options": {
+    "profile": "blob-lz4-pipelined-v1",
+    "create_if_missing": true,
+    "create_missing_column_families": true,
+    "db_blob_files": true,
+    "db_min_blob_bytes": 16384,
+    "db_blob_file_bytes": 268435456,
+    "db_write_buffer_bytes": 268435456,
+    "parallelism": 16,
+    "max_background_jobs": 8,
+    "adaptive_write_thread_yield": true,
+    "concurrent_memtable_write": true,
+    "pipelined_write": true,
+    "requested_cf_compression": "lz4",
+    "requested_cf_block_bytes": 32768,
+    "requested_cf_shared_cache_capacity_bytes": 2147483648,
+    "existing_extra_cf_options": "native default Options plus LZ4",
+    "sync": false,
+    "wal_disabled": false,
+    "maximum_completion": "Written",
+    "scan": "native raw iterator; seek first, advance on next call",
+    "scope": "Explicit requested options; not effective CF defaults, allocation or actual native worker counts"
+  },
+  "validation": {
+    "unit_passed": 3,
+    "actual_backend_passed": 5,
+    "actual_backend_ignored": 0,
+    "cases": [
+      "raw bytes and nonce reopen",
+      "atomic unknown-family failure and Durable rejection",
+      "extra/default CF preservation",
+      "byte-ordered scan and repeated-key batch operations",
+      "native error source and no fallback"
+    ],
+    "source_before_after_equal": true,
+    "registry_before_after_equal": true,
+    "registry_packages": 44,
+    "registry_source_files": 5419
+  },
+  "binaries": [
+    {
+      "path": "core/raptr/.native-deps/target/debug/deps/shared_store_rocksdb-dd65766e29fee886",
+      "bytes": 14075656,
+      "sha256": "be415ce64b768c4dc866c59425eb7c2a7a35c02691c6c9ed7b65dcd04907c0e5"
+    },
+    {
+      "path": "core/raptr/.native-deps/target/debug/deps/backend-f8078e308ec0c54c",
+      "bytes": 25016184,
+      "sha256": "30ef76122ff856188c59116a56531cc1bf3e5e7200181782cc3406fbf7994321"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-backend-1/result.json",
+      "bytes": 34337,
+      "sha256": "a9870dd4396901d0a700609bf1a0d422b3b8561440043e013b69567d866a95b9"
+    },
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-backend-1/build-test.log",
+      "bytes": 2238,
+      "sha256": "71cd15f9e7f6a0acdd9e39e6e4385a7191277a06d44d872e78688d9b484df951"
+    },
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-backend-1/resources.jsonl",
+      "bytes": 10712,
+      "sha256": "6ac31e9d5d47d3664dee1c428349d6efc967b4a588658860fc3c76326fc40510"
+    },
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-backend-2/result.json",
+      "bytes": 34334,
+      "sha256": "24508e4a887951f94d7f7871fa4ea8b894c72133123eec82931920bd8d2a87a9"
+    },
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-backend-2/build-test.log",
+      "bytes": 1315,
+      "sha256": "7347e1ad31cb81dfa31603ad2fd16d371412e3b3f0cbedd76b6a3cb9f1ad3f28"
+    },
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-backend-2/resources.jsonl",
+      "bytes": 336,
+      "sha256": "23767ed192fbea70245bd5848e3bee450863fe1914b86fa415508d342e278d31"
+    },
+    {
+      "path": "results/local/shared-core-20261021/store-rocksdb-source-audit.json",
+      "bytes": 3035,
+      "sha256": "d3e7eadbd41edbc14e2f9b5bf79bc2926d294a4b3fe6a8d70f0cf8a09241b87c"
+    }
+  ],
+  "resource_guard": {
+    "maximum_target_bytes": 21474836480,
+    "minimum_free_bytes": 32212254720,
+    "maximum_owned_rss_bytes": 8589934592,
+    "first_build_peak_owned_rss_bytes": 687046656,
+    "retained_reusable_target": "core/raptr/.native-deps/target",
+    "cleanup_status": "completed",
+    "remaining_owned_processes": []
+  },
+  "limits": [
+    "Written is not a power-loss durability barrier.",
+    "No abrupt-process-crash or device-failure test performed.",
+    "WriteBatch encoding bytes are not physical WAL/SST/device traffic.",
+    "Native typed BCS/nonce/retention/save-before-sign adapter acceptance is separate.",
+    "Background worker/cache/compaction resource attribution remains a whole-worker acceptance gate."
+  ]
+}

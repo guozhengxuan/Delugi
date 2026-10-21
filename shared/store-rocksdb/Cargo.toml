@@ -1,0 +1,29 @@
+[package]
+name = "shared-store-rocksdb"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.78"
+publish = false
+description = "Byte-keyed RocksDB service with an explicit Written completion contract"
+
+# Deliberately isolated until the native backend passes conformance. Enabling
+# this crate must not change Delugi's current memory-store dependency graph.
+[workspace]
+resolver = "2"
+
+[features]
+default = []
+rocksdb-backend = ["dep:rocksdb"]
+
+[dependencies]
+core-api = { path = "../../core-api" }
+# Preserve the upstream defaults (snappy/lz4/zstd/zlib/bzip2), not just LZ4.
+rocksdb = { version = "=0.22.0", features = ["lz4"], optional = true }
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false

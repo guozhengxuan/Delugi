@@ -1,0 +1,43 @@
+Raptr rehost transport profile: raptr-native-bcs-v1
+
+The shared TCP service carries opaque native BCS messages. The core still verifies
+native validator signatures, quorum proofs and message predicates. This explicit
+rehost profile replaces Aptos Noise transport with ordinary Ed25519 frame and ACK
+authentication; it does not change the native BLS keys, hashes or inner BCS bytes.
+Transport keys are separate from native validator keys. It is not wire compatible
+with the original Aptos full node.
+
+The outer format is a little-endian u32 body length, a u32 signed-auth length,
+fixed-integer little-endian bincode 1.3.3 signed authentication, then native bytes.
+The signature binds this profile, data/ack role, signer, instance/configuration,
+sender/recipient, sequence, channel, payload length and domain-separated SHA256.
+ACKs bind the original recipient, sender, sequence and payload digest. Unknown or
+duplicate keys, zero sequences, oversized frames, trailing bytes, wrong context,
+wrong destination and malformed/invalid signatures are rejected. Native-message
+verification must run separately before delivery to the native protocol actor.
+
+Channel::Consensus and Channel::QuorumStore identify the native dispatch path.
+ByteAccounting declares exact ordered disjoint payload/repair offsets in the
+serialized native envelope. Payload ranges require the QS channel; repair ranges
+also cover native consensus FetchReq/FetchResp. Remaining protocol bytes are evidence/control; outer
+framing/authentication/ACKs are transport overhead. This counts every successful
+write, including short writes and replays, without fractional allocation. It is
+not useful-work credit or TCP/IP/device-level traffic. The QS encoder must supply
+actual serialized field boundaries before payload-category acceptance is claimed.
+
+The shared async facade supplies a bounded, cancellation-safe receive mailbox,
+with byte leases held through verification. One additional decoded frame can be
+pending outside the facade's byte envelope and is reported explicitly. Native
+decoding allocations are separate. Local self-delivery has an ordered bounded
+mailbox, no TCP traffic, and an explicit error on exhaustion; the actor must fail
+the run or retain the effect. It never waits on its own receive queue. Remote
+sends return on shared enqueue/defer, without waiting for a write or ACK. The
+native adapter must propagate every send failure to node termination and preserve
+handler-plus-condition atomicity. Polling defaults to 1 ms and is an explicit
+facade cost. Intervals greater than 100 ms are rejected, and shutdown interrupts
+the facade poll wait. Component bounds do not establish an aggregate process RSS bound.
+
+Focused tests use the native Rust 1.78 toolchain and seeded native Cargo.lock.
+All registry dependencies in the isolated transport lock retain the native
+version/source/checksum identities. Delugi currently retains its own older serde
+lock, so this stage is conformance only, not a matched performance comparison.

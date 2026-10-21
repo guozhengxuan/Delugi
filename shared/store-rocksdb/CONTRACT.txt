@@ -1,0 +1,75 @@
+Shared RocksDB service: blob-lz4-pipelined-v1
+==========================================
+
+Scope
+-----
+This isolated crate provides byte-keyed get, put, delete, atomic write batches,
+and fallible forward scans. It has no protocol, Aptos, schema, BCS, batch,
+committee, signature, or retention dependency. The core chooses the directory,
+column-family names, and exact stored bytes. In Raptr's adapter these remain
+quorumstoreDB, batch/raw HashValue/BCS PersistedValue, and batch_ID/BCS epoch/BCS
+BatchId. Native save-before-sign and epoch cleanup remain core policy.
+
+The rocksdb-backend feature is off by default. Without it there is no RocksStore
+implementation, and no memory fallback. The crate is isolated from the root
+workspace and does not change Delugi's current MemoryStore or its build.
+
+Persistence
+-----------
+A successful put/delete/write_batch returns a WriteReceipt with Written
+completion, only after one RocksDB write_opt completes successfully. It uses
+WriteOptions::default(), matching native sync=false and WAL enabled. Requests
+for Accepted or Visible receive the stronger Written completion. Durable is
+rejected before mutation. Reopening uses native WAL/SST recovery; Written is
+not a power-loss durability guarantee. Drop adds no flush, sync, or cancellation
+step. Backend failures retain the native Error through std::error::Error::source.
+
+A batch uses the supplied operation order, without sorting/deduplication. The
+core must supply its native per-key operation order. Unknown family errors are
+returned before write_opt, so no prefix of a failed batch is published. Reads
+and scans use native default read options. Scans own one result row at a time;
+typed whole-CF collection, nonce recovery, and expiry are core decisions.
+
+The synchronous caller owns operation correlation. No correlation identifier
+or scoped experiment namespace is encoded into a key, value, or RocksDB file.
+The core must not interpret a storage receipt as authorization to vote/sign.
+
+Native options and versions
+---------------------------
+native-profile.json binds the reviewed native sources, native lock, and the
+isolated lock's complete registry package identity set. Cargo.lock was seeded
+from the pinned native lock and pruned offline: all 44 retained registry package
+versions, sources, and checksums match that native lock. Cargo.toml pins
+rocksdb=0.22.0 and retains its default snappy/lz4/zstd/zlib/bzip2 features plus the
+explicit native lz4 feature. librocksdb-sys remains 0.16.0+8.10.0.
+
+The fixed requested profile mirrors QuorumStoreDB's constructor and schemadb
+open/write path. Existing extra CFs are opened with default options plus LZ4,
+matching schemadb; they are not dropped. The native comments saying 4KB block,
+1GB cache and synchronous writes disagree with executable source. Actual
+requested values are 32KiB blocks, shared 2GiB LRU capacity and sync=false.
+DB-level write-buffer configuration is not a claim that the separately created
+CF descriptors inherit the same buffer size. REQUESTED_OPTIONS describes
+requests, not effective worker counts, allocation, or every native default.
+
+Resources and acceptance
+------------------------
+WriteReceipt.encoded_write_batch_bytes is WriteBatch::size_in_bytes(): a logical
+encoding size, not actual WAL/SST/filesystem/device bytes. The backend creates
+no extra telemetry worker; property_int_value is an explicit diagnostic call.
+Native RocksDB background threads, caches, buffers, file IO, compactions and
+WAL must be included in whole-process/host budgets during later acceptance.
+This crate by itself is not a matched storage/resource/performance claim.
+
+Small capability tests can run without C++:
+  cargo test --manifest-path shared/store-rocksdb/Cargo.toml --locked --offline --no-default-features -j1
+
+Backend conformance (coordinate the native build slot first):
+  cargo test --manifest-path shared/store-rocksdb/Cargo.toml --locked --offline --features rocksdb-backend -j1 -- --test-threads=1
+
+The backend fixtures cover exact byte preservation and reopen, nonce bytes,
+atomic mutation failure, unsupported Durable requests, existing extra/default
+families, ordered scans, repeated-key batch ordering and preserved native error
+sources. They do not replace abrupt-process-crash or power-failure testing.
+Backend compilation/runtime acceptance and Raptr typed-facade integration must
+be recorded separately; a no-feature test pass proves neither.

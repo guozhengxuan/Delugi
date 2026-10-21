@@ -1,0 +1,326 @@
+{
+  "schema": 1,
+  "profile": "blob-lz4-pipelined-v1",
+  "native_repository": "https://github.com/aptos-labs/aptos-core.git",
+  "native_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "source_basis": "executable native options and write path; misleading adjacent comments are not the contract",
+  "native_sources": [
+    {
+      "path": "core/raptr/.native-deps/a4c98047cf8aeae3571168d02fb7e343140d2948/Cargo.toml",
+      "bytes": 37750,
+      "sha256": "0a71ecd9961b10e5db3a66c3d13d0f927bbac1fcf92b7bbbe4a11da22220cb3f"
+    },
+    {
+      "path": "core/raptr/.native-deps/a4c98047cf8aeae3571168d02fb7e343140d2948/Cargo.lock",
+      "bytes": 413792,
+      "sha256": "d922e9b5de71b16f333bbcff28d8339e183ff1b6f86760bd867e440e2bb64236"
+    },
+    {
+      "path": "core/raptr/.native-deps/a4c98047cf8aeae3571168d02fb7e343140d2948/consensus/src/quorum_store/quorum_store_db.rs",
+      "bytes": 10889,
+      "sha256": "8e03586b7b43a29fdad616f4910051381f01bffacc9bb804e762265e251299e9"
+    },
+    {
+      "path": "core/raptr/.native-deps/a4c98047cf8aeae3571168d02fb7e343140d2948/consensus/src/quorum_store/schema.rs",
+      "bytes": 1781,
+      "sha256": "ad2c2619743057e1c1b5f4bc58d16bf66a9343e650ea1401c76ebea189c0d040"
+    },
+    {
+      "path": "core/raptr/.native-deps/a4c98047cf8aeae3571168d02fb7e343140d2948/storage/schemadb/src/lib.rs",
+      "bytes": 16053,
+      "sha256": "af969221e0245b92ee7764db7527fe76334b0a93c5a9672c53be40e07b939283"
+    }
+  ],
+  "isolated_lock": {
+    "path": "shared/store-rocksdb/Cargo.lock",
+    "bytes": 10159,
+    "sha256": "bad76ddfd53b8c9581ff20001755cb86bcd536fc666735f8bd34efa79c7e93f7"
+  },
+  "registry_packages": [
+    {
+      "name": "aho-corasick",
+      "version": "1.1.2",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "b2969dcb958b36655471fc61f7e416fa76033bdd4bfed0678d8fee1e2d07a1f0"
+    },
+    {
+      "name": "bindgen",
+      "version": "0.69.4",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a00dc851838a2120612785d195287475a3ac45514741da670b735818822129a0"
+    },
+    {
+      "name": "bitflags",
+      "version": "2.6.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
+    },
+    {
+      "name": "bzip2-sys",
+      "version": "0.1.11+1.0.8",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "736a955f3fa7875102d57c82b8cac37ec45224a07fd32d58f9f7a186b6cd4cdc"
+    },
+    {
+      "name": "cc",
+      "version": "1.0.83",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "f1174fb0b6ec23863f8b971027804a42614e347eafb0a95bf0b12cdae21fc4d0"
+    },
+    {
+      "name": "cexpr",
+      "version": "0.6.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "6fac387a98bb7c37292057cffc56d62ecb629900026402633ae9160df93a8766"
+    },
+    {
+      "name": "cfg-if",
+      "version": "1.0.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+    },
+    {
+      "name": "clang-sys",
+      "version": "1.7.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "67523a3b4be3ce1989d607a828d036249522dd9c1c8de7f4dd2dae43a37369d1"
+    },
+    {
+      "name": "either",
+      "version": "1.9.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a26ae43d7bcc3b814de94796a5e736d4029efb0ee900c12e2d54c993ad1a1e07"
+    },
+    {
+      "name": "glob",
+      "version": "0.3.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
+    },
+    {
+      "name": "itertools",
+      "version": "0.12.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+    },
+    {
+      "name": "jobserver",
+      "version": "0.1.27",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "8c37f63953c4c63420ed5fd3d6d398c719489b9f872b9fa683262f8edd363c7d"
+    },
+    {
+      "name": "lazy_static",
+      "version": "1.4.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
+    },
+    {
+      "name": "lazycell",
+      "version": "1.3.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
+    },
+    {
+      "name": "libc",
+      "version": "0.2.155",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
+    },
+    {
+      "name": "libloading",
+      "version": "0.8.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "c571b676ddfc9a8c12f1f3d3085a7b163966a8fd8098a90640953ce5f6170161"
+    },
+    {
+      "name": "librocksdb-sys",
+      "version": "0.16.0+8.10.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "ce3d60bc059831dc1c83903fb45c103f75db65c5a7bf22272764d9cc683e348c"
+    },
+    {
+      "name": "libz-sys",
+      "version": "1.1.13",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "5f526fdd09d99e19742883e43de41e1aa9e36db0c7ab7f935165d611c5cccc66"
+    },
+    {
+      "name": "lz4-sys",
+      "version": "1.9.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "e9764018d143cc854c9f17f0b907de70f14393b1f502da6375dce70f00514eb3"
+    },
+    {
+      "name": "memchr",
+      "version": "2.7.4",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
+    },
+    {
+      "name": "minimal-lexical",
+      "version": "0.2.1",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
+    },
+    {
+      "name": "nom",
+      "version": "7.1.3",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "d273983c5a657a70a3e8f2a01329822f3b8c8172b73826411a55751e404a0a4a"
+    },
+    {
+      "name": "pkg-config",
+      "version": "0.3.28",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "69d3587f8a9e599cc7ec2c00e331f71c4e69a5f9a4b8a6efd5b07466b9736f9a"
+    },
+    {
+      "name": "proc-macro2",
+      "version": "1.0.89",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "f139b0662de085916d1fb67d2b4169d1addddda1919e696f3252b740b629986e"
+    },
+    {
+      "name": "quote",
+      "version": "1.0.35",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "291ec9ab5efd934aaf503a6466c5d5251535d108ee747472c3977cc5acc868ef"
+    },
+    {
+      "name": "regex",
+      "version": "1.10.4",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "c117dbdfde9c8308975b6a18d71f3f385c89461f7b3fb054288ecf2a2058ba4c"
+    },
+    {
+      "name": "regex-automata",
+      "version": "0.4.6",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "86b83b8b9847f9bf95ef68afb0b8e6cdb80f498442f5179a29fad448fcc1eaea"
+    },
+    {
+      "name": "regex-syntax",
+      "version": "0.8.2",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
+    },
+    {
+      "name": "rocksdb",
+      "version": "0.22.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "6bd13e55d6d7b8cd0ea569161127567cd587676c99f4472f779a0279aa60a7a7"
+    },
+    {
+      "name": "rustc-hash",
+      "version": "1.1.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
+    },
+    {
+      "name": "shlex",
+      "version": "1.3.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "0fda2ff0d084019ba4d7c6f371c95d8fd75ce3524c3cb8fb653a3023f6323e64"
+    },
+    {
+      "name": "syn",
+      "version": "2.0.87",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "25aa4ce346d03a6dcd68dd8b4010bcb74e54e62c90c573f394c46eae99aba32d"
+    },
+    {
+      "name": "unicode-ident",
+      "version": "1.0.12",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
+    },
+    {
+      "name": "vcpkg",
+      "version": "0.2.15",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
+    },
+    {
+      "name": "windows-sys",
+      "version": "0.48.0",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "677d2418bec65e3338edb076e806bc1ec15693c5d0104683f2efe857f61056a9"
+    },
+    {
+      "name": "windows-targets",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9a2fa6e2155d7247be68c096456083145c183cbbbc2764150dda45a87197940c"
+    },
+    {
+      "name": "windows_aarch64_gnullvm",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "2b38e32f0abccf9987a4e3079dfb67dcd799fb61361e53e2882c3cbaf0d905d8"
+    },
+    {
+      "name": "windows_aarch64_msvc",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "dc35310971f3b2dbbf3f0690a219f40e2d9afcf64f9ab7cc1be722937c26b4bc"
+    },
+    {
+      "name": "windows_i686_gnu",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "a75915e7def60c94dcef72200b9a8e58e5091744960da64ec734a6c6e9b3743e"
+    },
+    {
+      "name": "windows_i686_msvc",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "8f55c233f70c4b27f66c523580f78f1004e8b5a8b659e05a4eb49d4166cca406"
+    },
+    {
+      "name": "windows_x86_64_gnu",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "53d40abd2583d23e4718fddf1ebec84dbff8381c07cae67ff7768bbf19c6718e"
+    },
+    {
+      "name": "windows_x86_64_gnullvm",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "0b7b52767868a23d5bab768e390dc5f5c55825b6d30b86c844ff2dc7414044cc"
+    },
+    {
+      "name": "windows_x86_64_msvc",
+      "version": "0.48.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "ed94fce61571a4006852b7389a063ab983c02eb1bb37b47f8272ce92d06d9538"
+    },
+    {
+      "name": "zstd-sys",
+      "version": "2.0.9+zstd.1.5.5",
+      "source": "registry+https://github.com/rust-lang/crates.io-index",
+      "checksum": "9e16efa8a874a0481a574084d34cc26fdb3b99627480f785888deb6386506656"
+    }
+  ],
+  "lock_relation": "all retained registry package identities match native lock; unrelated packages and feature-unified optional edges pruned offline",
+  "rocksdb_features": {
+    "default_features": true,
+    "default": [
+      "snappy",
+      "lz4",
+      "zstd",
+      "zlib",
+      "bzip2"
+    ],
+    "explicit": [
+      "lz4"
+    ]
+  },
+  "completion": "Written",
+  "sync": false,
+  "wal_disabled": false,
+  "durable_supported": false,
+  "physical_io_accounting": "not provided by encoded write batch length",
+  "build_and_runtime_acceptance": "separately recorded; this profile is not an acceptance receipt",
+  "native_reference": "raptr-public"
+}

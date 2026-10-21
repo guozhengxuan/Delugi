@@ -346,6 +346,10 @@ pub struct Transport<P: Authentication> {
 }
 
 impl<P: Authentication> Transport<P> {
+    /// Read-only facade identity; does not alter transport scheduling or wire data.
+    pub fn local_id(&self) -> Id { self.id }
+    pub fn max_wire_bytes(&self) -> usize { self.policy.max_wire_bytes() }
+
     pub fn bind(
         id: Id,
         policy: P,

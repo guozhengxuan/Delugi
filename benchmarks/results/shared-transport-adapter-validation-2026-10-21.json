@@ -1,0 +1,149 @@
+{
+  "schema": 1,
+  "date": "2026-10-21",
+  "status": "local_service_conformance_passed",
+  "profile": "raptr-native-bcs-v1",
+  "scope": "Opaque native BCS transport adapter and async facade; not native Raptr node or matched performance acceptance",
+  "source_before_after_equal": true,
+  "sources": [
+    {
+      "path": "core/raptr/transport/Cargo.toml",
+      "bytes": 626,
+      "sha256": "08fbbba618457c0482687aef7ffc03b88b178f15f9d12a050cff70a7dae78bbe"
+    },
+    {
+      "path": "core/raptr/transport/Cargo.lock",
+      "bytes": 10608,
+      "sha256": "8873975a3f8dd5658a3823f99fd81a6fa7a04a11e5e31841e371c1535b4b987f"
+    },
+    {
+      "path": "core/raptr/transport/src/lib.rs",
+      "bytes": 19416,
+      "sha256": "a7031a2bc742920fcbb0ecd26b2790aef368955f8bd8165333b23a0f2b454a90"
+    },
+    {
+      "path": "core/raptr/transport/tests/tcp.rs",
+      "bytes": 7081,
+      "sha256": "86a0d2e6a99dbfee4d84f29f454b440144074bf8947de39ea051c23cb8d73835"
+    },
+    {
+      "path": "core/raptr/transport/CONTRACT.txt",
+      "bytes": 3009,
+      "sha256": "a82308a0717789412627dc7cd1185b1285acf729a175b1dd356e82fb1a4e77ba"
+    },
+    {
+      "path": "shared/network-async/Cargo.toml",
+      "bytes": 344,
+      "sha256": "b9ede73b5035cf69901e9bd2e63160e9f419f14e1ddce8c00617864166af7779"
+    },
+    {
+      "path": "shared/network-async/src/lib.rs",
+      "bytes": 13385,
+      "sha256": "72bbd110fa41531722c059cc9e804e30c79228b4613207de20ea875f1f448efb"
+    },
+    {
+      "path": "shared/network/Cargo.toml",
+      "bytes": 194,
+      "sha256": "34782053858f2b9c46007503edc8f4c9740a13dbc52bb99009d61e780660755d"
+    },
+    {
+      "path": "shared/network/src/lib.rs",
+      "bytes": 55949,
+      "sha256": "1222327e542cef4a0af5c9dc6b55bb9dba42eed8bd83d4cab7396383c57e6458"
+    },
+    {
+      "path": "shared/crypto/Cargo.toml",
+      "bytes": 182,
+      "sha256": "e119b365a54d6429b7bbdea7a7515ea1f974fe9e90ad8bb62cd594ee4420b456"
+    },
+    {
+      "path": "shared/crypto/src/lib.rs",
+      "bytes": 1145,
+      "sha256": "b92c27b945f5e670f5dc6af1e4168ca5709005a71bf913e9d39abac26c55f289"
+    },
+    {
+      "path": "shared/metrics/Cargo.toml",
+      "bytes": 189,
+      "sha256": "d00a855e3ce02ab1d70143ce2891ed9bb99bcb116c5d406df672311fe66b4ffe"
+    },
+    {
+      "path": "shared/metrics/src/lib.rs",
+      "bytes": 9610,
+      "sha256": "700471d3e31dde209907aab7a78011933cf37ba1ccc1ef8655c3ad89e9511274"
+    }
+  ],
+  "toolchain": {
+    "rustc": "1.78.0 (9b00956e5 2024-04-29)",
+    "cargo": "1.78.0 (54d8815d0 2024-03-26)",
+    "jobs": 2,
+    "debug": 0,
+    "incremental": false,
+    "offline": true,
+    "locked": true,
+    "flags": "standalone transport default flags; native-config assembly acceptance is separate"
+  },
+  "dependency_identity": {
+    "registry_packages": 44,
+    "all_in_native_lock": true,
+    "native_pin": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+    "delugi_root_lock_unchanged": true
+  },
+  "validation": {
+    "codec_accounting_tests_passed": 4,
+    "real_loopback_tests_passed": 5,
+    "common_regression_tests_passed": 11,
+    "common_socket_test_ignored": 1,
+    "cases": [
+      "four frames delivered before any peer ACK",
+      "opaque native bytes retained; auth/ACK byte tampering rejected",
+      "sender/recipient/context/domain/sequence/wire bounds",
+      "all split writes and replay category conservation",
+      "consensus and QS repair accounting",
+      "FIFO and byte lease held until consumer releases",
+      "self delivery with explicit exhaustion and zero TCP bytes",
+      "cancelled receive retains following message",
+      "shutdown and excessive poll-interval rejection"
+    ]
+  },
+  "binaries": [
+    {
+      "path": "core/raptr/transport/target/debug/deps/raptr_shared_transport-58aa329f96476da2",
+      "bytes": 1652776,
+      "sha256": "b859467af0a06290906a2bdcdfde6ef6a8524226fac82798af2a44c3c87e515b"
+    },
+    {
+      "path": "core/raptr/transport/target/debug/deps/tcp-9b34113ebe890ac5",
+      "bytes": 3669816,
+      "sha256": "203d9c21a6793df54464e743313339758359f1e77c56602f90b90deaf9e2f6f5"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "results/local/shared-core-20261021/transport-adapter/source-before.json",
+      "bytes": 1334,
+      "sha256": "667e1ee307ea45e78488cb4f7b8a3b8f9d28664f2656af07209bdb3ab2d5d570"
+    },
+    {
+      "path": "results/local/shared-core-20261021/transport-adapter/source-after.json",
+      "bytes": 1334,
+      "sha256": "667e1ee307ea45e78488cb4f7b8a3b8f9d28664f2656af07209bdb3ab2d5d570"
+    },
+    {
+      "path": "results/local/shared-core-20261021/transport-adapter/tests.log",
+      "bytes": 1309,
+      "sha256": "0e4ed3079f83ac9d115a1689847640089acd5bc25c1e547b1b69a255923a8f32"
+    },
+    {
+      "path": "results/local/shared-core-20261021/transport-adapter/common-tests.log",
+      "bytes": 2588,
+      "sha256": "64b70ca2d7710dbdd5bd5db0571e29c6e4dc4bf1728bc3430aedc2d04d2a4777"
+    }
+  ],
+  "limits": [
+    "Native BCS verification is a separate required adapter call.",
+    "Shared inbox bytes, facade bytes, one pending frame, decoded object memory and process RSS are separate bounds.",
+    "Actual QS field offsets must be supplied before payload traffic categories are accepted.",
+    "Outer Ed25519 transport is a named rehost profile, not Aptos Noise interoperability.",
+    "Native and Delugi effective dependency/toolchain profiles are not yet identical."
+  ]
+}

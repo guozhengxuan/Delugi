@@ -1,0 +1,20 @@
+[package]
+name = "shared-network-async"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+resolver = "2"
+
+[dependencies]
+shared-network = { path = "../network" }
+tokio = { version = "=1.40.0", features = ["sync", "macros", "rt", "time"] }
+
+[profile.dev]
+debug = 0
+incremental = false
+
+[profile.test]
+debug = 0
+incremental = false
