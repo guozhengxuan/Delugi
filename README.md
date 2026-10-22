@@ -23,6 +23,13 @@ tests and the recommended framework for formal evaluation.
 
 ## Shared workspace
 
+The [code structure and consensus interface diagrams](output/pdf/delugi-code-structure-2026-10-22.pdf)
+map the current Delugi/Raptr implementation and distinguish CLI parameters,
+node configuration, fixed limits and work needed for cloud evaluation.
+[Source notes and parameter references](docs/architecture/delugi-code-structure-2026-10-22.txt)
+and [editable vector overview](output/figures/delugi-code-structure-2026-10-22.svg)
+accompany the diagrams.
+
 Protocol policy lives in `core/delugi` and `core/raptr`: ordering, availability,
 dissemination, repair, exact batch identity, custody and output expansion. The shared crates
 provide TCP queues and connections, cryptographic execution, timed ingress,

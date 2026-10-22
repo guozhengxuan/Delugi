@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840">
+<rect width="1200" height="840" fill="white"/>
+<text x="48" y="42" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#346BAE">DELUGI / IMPLEMENTATION MAP</text>
+<text x="48" y="82" font-family="Arial,sans-serif" font-size="29" font-weight="bold" fill="#1C2F44">Workload, batch, payload and delay controls</text>
+<text x="48" y="107" font-family="Arial,sans-serif" font-size="12" font-weight="normal" fill="#536678">Defaults below belong to the current runner or native configuration, not a proposed matched experiment. CLI = runner flag; JSON = node config; FIXED = source/profile.</text>
+<polyline points="48,785 1152,785" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="48" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="normal" fill="#536678">SOURCE SNAPSHOT 57e078e  |  22 OCT 2026  |  Current implementation; no runtime changes</text>
+<text x="1100" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="#536678">4 / 5</text>
+<rect x="48" y="148" width="153" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="58" y="168" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">PARAMETER</text>
+<rect x="201" y="148" width="342" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="211" y="168" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">DELUGI TODAY</text>
+<rect x="543" y="148" width="361" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="553" y="168" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">RAPTR TODAY</text>
+<rect x="904" y="148" width="248" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="914" y="168" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">EXPOSURE / EVALUATION MEANING</text>
+<rect x="48" y="178" width="153" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="195.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Transaction size</text>
+<rect x="201" y="178" width="342" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="195.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --useful-bytes=472. Canonical encoded request = useful +</text>
+<text x="211" y="209.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">60 bytes (532 at default).</text>
+<rect x="543" y="178" width="361" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="195.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --useful-bytes=128. Native signed BCS size is measured;</text>
+<text x="553" y="209.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">accepted 128-byte payload produced 409-byte transactions.</text>
+<rect x="904" y="178" width="248" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="195.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Match useful bytes; also record actual</text>
+<text x="914" y="209.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">serialized sizes. Equal useful size does not</text>
+<text x="914" y="223.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">mean equal wire size.</text>
+<rect x="48" y="233" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="250.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Input rate / horizon</text>
+<rect x="201" y="233" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="250.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --rate=1000 total tx/s; warmup 10 s, measure 30 s, drain 30</text>
+<text x="211" y="264.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">s. Independent open-loop ingress.</text>
+<rect x="543" y="233" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="250.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --interval-us=1000; --counts=16/origin. Four origins imply</text>
+<text x="553" y="264.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">nominal 4000 tx/s, but only 64 finite requests.</text>
+<rect x="904" y="233" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="250.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Raptr runner is finite conformance, not a</text>
+<text x="914" y="264.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">sustained-load adapter yet. Preserve</text>
+<text x="914" y="278.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">rejection and unfinished counts.</text>
+<rect x="48" y="302" width="153" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="319.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Batch tx count</text>
+<rect x="201" y="302" width="342" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="319.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --max-batch-transactions=128; also constrained by encoded</text>
+<text x="211" y="333.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">byte capacity.</text>
+<rect x="543" y="302" width="361" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="319.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON quorum_store.sender_max_batch_txns=500;</text>
+<text x="553" y="333.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">sender_max_total_txns=500; sender_max_num_batches=1 per pool</text>
+<text x="553" y="347.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">pull.</text>
+<rect x="904" y="302" width="248" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="319.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Count limits are available. Batch cutting</text>
+<text x="914" y="333.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">remains core policy; settings alone do not</text>
+<text x="914" y="347.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">match batch fill.</text>
+<rect x="48" y="357" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="374.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Batch byte cap</text>
+<rect x="201" y="357" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="374.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">FIXED MAX_BATCH_PAYLOAD=256 KiB. Count &lt;=</text>
+<text x="211" y="388.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">floor((262144 - 8)/(useful + 60)).</text>
+<rect x="543" y="357" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="374.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON sender_max_batch_bytes=1,048,416 is not enforced by the</text>
+<text x="553" y="388.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">native splitter. Total pool-pull bytes=4,194,144 is enforced.</text>
+<rect x="904" y="357" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="374.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Pre-cloud gap: expose an enforced Delugi</text>
+<text x="914" y="388.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">byte cap; review native Raptr byte-splitting</text>
+<text x="914" y="402.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">behavior before sweeping it.</text>
+<rect x="48" y="426" width="153" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="443.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Batch cadence</text>
+<rect x="201" y="426" width="342" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="443.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --batch-ms=10 (1..1000 ms). Flush on capacity or elapsed</text>
+<text x="211" y="457.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">cadence.</text>
+<rect x="543" y="426" width="361" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="443.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON QS poll=150 ms; min nonempty=80 ms; max=300 ms; native</text>
+<text x="553" y="457.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">dynamic backpressure also applies.</text>
+<rect x="904" y="426" width="248" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="443.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Different native batching policies. Record</text>
+<text x="914" y="457.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">effective cut times and fill, not just a common</text>
+<text x="914" y="471.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">label.</text>
+<rect x="48" y="481" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="498.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Proposal bytes / tx</text>
+<rect x="201" y="481" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="498.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Resource profile: 1 MiB or 32 MiB ordering wire budget.</text>
+<text x="211" y="512.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Value+witness allowance reserves mandatory HISTORY3</text>
+<text x="211" y="526.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">overhead.</text>
+<rect x="543" y="481" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="498.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON consensus.max_sending_block_txns=50,000;</text>
+<text x="553" y="512.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">max_sending_block_bytes=30 MiB; inline=100 tx / 200 KiB.</text>
+<rect x="904" y="481" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="498.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Separate proposal budget from transport</text>
+<text x="914" y="512.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">frame limit. Raptr message limit is separately</text>
+<text x="914" y="526.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">1 MiB by default.</text>
+<rect x="48" y="550" width="153" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="567.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Max payload batches</text>
+<rect x="201" y="550" width="342" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="567.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">No independent max_payloads switch. A frontier checkpoint can</text>
+<text x="211" y="581.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">cover many batches; MMR chunk capacity is not a batch-count</text>
+<text x="211" y="595.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">cap.</text>
+<rect x="543" y="550" width="361" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="567.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON max_batches_per_pull=200; current native &gt; checks can</text>
+<text x="553" y="581.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">select 201. Native subblock count is fixed at 8.</text>
+<rect x="904" y="550" width="248" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="567.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Use explicit names: batch bytes, tx per batch,</text>
+<text x="914" y="581.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">batches per proposal, proposal bytes, frame</text>
+<text x="914" y="595.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">bytes.</text>
+<rect x="48" y="619" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="636.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Protocol bound Δ</text>
+<rect x="201" y="619" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="636.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --bound-ms=250 default; acceptance used 100. PROG</text>
+<text x="211" y="650.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">pacing defaults to Δ; native 7Δ / 3Δ catch-up rules remain.</text>
+<rect x="543" y="619" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="636.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON delta_ms; accepted runner fixes 100. Leader 4Δ; partial-QC</text>
+<text x="553" y="650.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">wait 0.1Δ; fetch 2Δ; sync 15Δ; status 10Δ.</text>
+<rect x="904" y="619" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="636.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Δ is protocol configuration. It is not added</text>
+<text x="914" y="650.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">network delay, nor a latency scoring deadline.</text>
+<rect x="48" y="688" width="153" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="705.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Network delay δ</text>
+<rect x="201" y="688" width="342" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="705.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">External calibrated shaper. macOS helper 1..100 ms; Linux</text>
+<text x="211" y="719.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">ingress netem delay 0..1000 ms and loss 0..100%.</text>
+<rect x="543" y="688" width="361" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="705.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">No node delay knob. Current runner records 0 ms added delay;</text>
+<text x="553" y="719.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">future deployment can reuse the external shaper.</text>
+<rect x="904" y="688" width="248" height="55" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="705.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Keep δ, Δ, batching and application hold</text>
+<text x="914" y="719.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">distinct. Current helper schema has no</text>
+<text x="914" y="733.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">bandwidth/jitter knobs.</text>
+<text x="48" y="760" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Source index: D1-D7 and R1-R7 in docs/architecture/delugi-code-structure-2026-10-22.txt. All limits shown are current source facts.</text>
+<text x="48" y="773" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">The two Raptr cap qualifications are inherited native behavior, documented here without changing protocol implementation.</text>
+</svg>

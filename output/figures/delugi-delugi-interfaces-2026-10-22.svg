@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840">
+<rect width="1200" height="840" fill="white"/>
+<text x="48" y="42" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#346BAE">DELUGI / IMPLEMENTATION MAP</text>
+<text x="48" y="82" font-family="Arial,sans-serif" font-size="29" font-weight="bold" fill="#1C2F44">Delugi: composition drives an event/effect core</text>
+<text x="48" y="107" font-family="Arial,sans-serif" font-size="12" font-weight="normal" fill="#536678">Public entry signatures are shortened only by omitting &amp;mut self and common Result wrappers. Clock values are the core logical millisecond time.</text>
+<polyline points="48,785 1152,785" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="48" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="normal" fill="#536678">SOURCE SNAPSHOT 57e078e  |  22 OCT 2026  |  Current implementation; no runtime changes</text>
+<text x="1100" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="#536678">2 / 5</text>
+<rect x="190" y="153" width="425" height="324" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="190" y="153" width="425" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="204" y="179" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">composed::Node</text>
+<text x="204" y="210" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">core/delugi/src/composed.rs:144,210,242,385</text>
+<polyline points="191,220 614,220" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="204" y="235.0" font-family="Courier New,monospace" font-size="11.5" font-weight="normal" fill="#536678">state: ordering: Replica; store: BatchStore</text>
+<text x="204" y="255.18" font-family="Courier New,monospace" font-size="11.5" font-weight="normal" fill="#536678">pending_ordered; batch_ids; transaction_ids</text>
+<text x="204" y="275.36" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#BD424B">produce(now, payload: Vec&lt;u8&gt;)</text>
+<text x="204" y="295.54" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">receive(now, from: Id, Message)</text>
+<text x="204" y="315.72" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">receive_ordering(now, wire::Message)</text>
+<text x="204" y="335.90000000000003" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#8054A3">start(now); tick(now)</text>
+<text x="204" y="356.08000000000004" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">REPORT/OBS -&gt; all-current (value x, witness pi). All entry calls return</text>
+<text x="204" y="371.26000000000005" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">Result&lt;Vec&lt;composed::Effect&gt;, String&gt;.</text>
+<rect x="710" y="153" width="442" height="324" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="710" y="153" width="442" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="724" y="179" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">replica::Replica</text>
+<text x="724" y="210" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">core/delugi/src/replica.rs:2177,2384-2430</text>
+<polyline points="711,220 1151,220" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="724" y="235.0" font-family="Courier New,monospace" font-size="11.5" font-weight="normal" fill="#536678">Inputs = BTreeMap&lt;round, (value, witness)&gt;</text>
+<text x="724" y="255.18" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">Q: Fn(round, &amp;[u8], &amp;[u8]) -&gt; bool</text>
+<text x="724" y="275.36" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">start(now); receive(now, Message)</text>
+<text x="724" y="295.54" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#8054A3">tick(now)</text>
+<text x="724" y="315.72" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#BD424B">supply_input(now, round, value, witness)</text>
+<text x="724" y="335.90000000000003" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#1C2F44">-&gt; Result&lt;Vec&lt;replica::Effect&gt;, String&gt;</text>
+<text x="724" y="356.08000000000004" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">slot / history / scanner keep voting, catch-up and delivery policy inside the core.</text>
+<rect x="48" y="272" width="101" height="33" rx="5" fill="#F4F7FA" stroke="#BD424B"/>
+<text x="61" y="294" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#BD424B">produce</text>
+<polyline points="149,290 190,290" fill="none" stroke="#BD424B" stroke-width="1.6"/>
+<polygon points="190,290 182.69528847750152,293.2620836244766 182.69528847750152,286.7379163755234" fill="#BD424B"/>
+<rect x="48" y="337" width="101" height="33" rx="5" fill="#F4F7FA" stroke="#346BAE"/>
+<text x="61" y="359" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#346BAE">receive</text>
+<polyline points="149,355 190,355" fill="none" stroke="#346BAE" stroke-width="1.6"/>
+<polygon points="190,355 182.69528847750152,358.2620836244766 182.69528847750152,351.7379163755234" fill="#346BAE"/>
+<rect x="48" y="402" width="101" height="33" rx="5" fill="#F4F7FA" stroke="#8054A3"/>
+<text x="61" y="424" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#8054A3">time</text>
+<polyline points="149,420 190,420" fill="none" stroke="#8054A3" stroke-width="1.6"/>
+<polygon points="190,420 182.69528847750152,423.2620836244766 182.69528847750152,416.7379163755234" fill="#8054A3"/>
+<polyline points="615,285 710,285" fill="none" stroke="#BD424B" stroke-width="1.6"/>
+<polygon points="710,285 702.6952884775015,288.2620836244766 702.6952884775015,281.7379163755234" fill="#BD424B"/>
+<text x="631" y="273" font-family="Courier New,monospace" font-size="11" font-weight="bold" fill="#BD424B">(x, pi)</text>
+<polyline points="710,355 615,355" fill="none" stroke="#346BAE" stroke-width="1.6"/>
+<polygon points="615,355 622.3047115224985,351.7379163755234 622.3047115224985,358.26208362447653" fill="#346BAE"/>
+<text x="619" y="343" font-family="Courier New,monospace" font-size="9.5" font-weight="bold" fill="#346BAE">Q(r,x,pi)</text>
+<polyline points="710,422 615,422" fill="none" stroke="#BA7023" stroke-width="1.6"/>
+<polygon points="615,422 622.3047115224985,418.7379163755234 622.3047115224985,425.26208362447653" fill="#BA7023"/>
+<text x="629" y="409" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#BA7023">effects</text>
+<rect x="710" y="534" width="442" height="180" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="710" y="534" width="442" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="724" y="560" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">process::Runtime::effects</text>
+<text x="724" y="591" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">core/delugi/src/process.rs:959; input Vec&lt;composed::Effect&gt;</text>
+<polyline points="711,601 1151,601" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="724" y="616.0" font-family="Courier New,monospace" font-size="11.3" font-weight="bold" fill="#346BAE">Send {to,message} -&gt; encode / bundle / TCP</text>
+<text x="724" y="635.916" font-family="Courier New,monospace" font-size="11.3" font-weight="bold" fill="#8054A3">Wake {at} -&gt; shared TimerQueue</text>
+<text x="724" y="655.8320000000001" font-family="Courier New,monospace" font-size="11.3" font-weight="bold" fill="#BA7023">DirectCommit / Deliver -&gt; observation log</text>
+<text x="724" y="675.7480000000002" font-family="Courier New,monospace" font-size="11.3" font-weight="bold" fill="#BA7023">Notice -&gt; diagnostic events</text>
+<polyline points="555,477 555,505 931,505 931,534" fill="none" stroke="#346BAE" stroke-width="1.6"/>
+<polygon points="931,534 927.7379163755235,526.6952884775015 934.2620836244765,526.6952884775015" fill="#346BAE"/>
+<text x="668" y="494" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#346BAE">composed effects</text>
+<rect x="190" y="534" width="425" height="180" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="190" y="534" width="425" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="204" y="560" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#BA7023">Node materialization (same state owner)</text>
+<text x="204" y="591" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">core/delugi/src/composed.rs:532-671</text>
+<polyline points="191,601 614,601" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="204" y="616.0" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">1 Decode descriptor; enqueue in pending_ordered.</text>
+<text x="204" y="636.18" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">2 Missing exact suffix -&gt; FETCH; hold FIFO head.</text>
+<text x="204" y="656.3599999999999" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">3 After verified DATA: expand suffix; exact-batch dedup.</text>
+<text x="204" y="676.5399999999998" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">4 Decode requests; append contiguous application output.</text>
+<polyline points="402,477 402,534" fill="none" stroke="#BA7023" stroke-width="1.6"/>
+<polygon points="402,534 398.7379163755234,526.6952884775015 405.2620836244766,526.6952884775015" fill="#BA7023"/>
+<text x="280" y="508" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#BA7023">accept_ordering</text>
+<text x="48" y="748" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Key separation: DirectCommit != ordered descriptor delivery != payload-verified application output.</text>
+<text x="48" y="761" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Q checks immutable availability evidence; ordering does not wait for application materialization. TCP ACKs retire bounded in-flight frames, not each next send.</text>
+</svg>

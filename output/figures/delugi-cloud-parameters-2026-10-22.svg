@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840">
+<rect width="1200" height="840" fill="white"/>
+<text x="48" y="42" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#346BAE">DELUGI / IMPLEMENTATION MAP</text>
+<text x="48" y="82" font-family="Arial,sans-serif" font-size="29" font-weight="bold" fill="#1C2F44">Faults, resources and the cloud boundary</text>
+<text x="48" y="107" font-family="Arial,sans-serif" font-size="12" font-weight="normal" fill="#536678">n is committee size, f=(n-1)/3 is tolerated faults, and b is the number actually faulty. For the stated fault model require b &lt;= f; n=4,7,31 gives f=1,2,10.</text>
+<polyline points="48,785 1152,785" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="48" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="normal" fill="#536678">SOURCE SNAPSHOT 57e078e  |  22 OCT 2026  |  Current implementation; no runtime changes</text>
+<text x="1100" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="#536678">5 / 5</text>
+<rect x="48" y="163" width="153" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="58" y="183" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">PARAMETER</text>
+<rect x="201" y="163" width="342" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="211" y="183" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">DELUGI TODAY</text>
+<rect x="543" y="163" width="361" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="553" y="183" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">RAPTR TODAY</text>
+<rect x="904" y="163" width="248" height="30" rx="0" fill="#1C2F44" stroke="#1C2F44"/>
+<text x="914" y="183" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#FFFFFF">EXPOSURE / EVALUATION MEANING</text>
+<rect x="48" y="193" width="153" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="210.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Committee n / f</text>
+<rect x="201" y="193" width="342" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="210.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI --nodes={4,7,31}; process validates 4..31 with n=3f+1. f is</text>
+<text x="211" y="224.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">derived, not set independently.</text>
+<rect x="543" y="193" width="361" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="210.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON/keygen supports 4..31, n=3f+1. Accepted runner fixes n=4;</text>
+<text x="553" y="224.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">node currently requires loopback addresses.</text>
+<rect x="904" y="193" width="248" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="210.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">An n/f setting is not evidence that all n/f</text>
+<text x="914" y="224.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">campaigns have passed. Current</text>
+<text x="914" y="238.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">common-binary acceptance is n=4.</text>
+<rect x="48" y="262" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="279.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Actual faults b</text>
+<rect x="201" y="262" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="279.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Sustained runner: one paused replica OR one omission replica.</text>
+<text x="211" y="293.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Finite silent-first-leader fixture also exists.</text>
+<rect x="543" y="262" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="279.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Case presets: healthy (0); silent first leader (replica 1);</text>
+<text x="553" y="293.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">missing-payload receiver 0 with first 3 QS messages dropped.</text>
+<rect x="904" y="262" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="279.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">No general arbitrary-b Byzantine campaign in</text>
+<text x="914" y="293.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">the common runners. Keep faulty IDs explicit</text>
+<text x="914" y="307.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">and separate from f.</text>
+<rect x="48" y="331" width="153" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="348.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Fault timing / scope</text>
+<rect x="201" y="331" width="342" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="348.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI start/duration/peers; payload drops BATCH+DATA, all drops</text>
+<text x="211" y="362.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">outgoing application protocol messages.</text>
+<rect x="543" y="331" width="361" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="348.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Preset pause, original-payload omission and application</text>
+<text x="553" y="362.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">materialization hold; no general event schedule CLI.</text>
+<rect x="904" y="331" width="248" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="348.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Future schedule needs mode, IDs, targets,</text>
+<text x="914" y="362.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">activation/withdrawal, opportunity witness and</text>
+<text x="914" y="376.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">positive effect checks.</text>
+<rect x="48" y="400" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="417.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Storage completion</text>
+<rect x="201" y="400" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="417.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">memory-visible-v1 default; optional shared-rocksdb-written-v1,</text>
+<text x="211" y="431.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">fresh per-replica directory and typed cache.</text>
+<rect x="543" y="400" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="417.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Native QS uses shared RocksDB: WAL enabled, sync=false;</text>
+<text x="553" y="431.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">completes at Written. Native quotas remain core-owned.</text>
+<rect x="904" y="400" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="417.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Match declared completion profile. Written is</text>
+<text x="914" y="431.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">not fsync durability; Delugi core restart</text>
+<text x="914" y="445.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">recovery is absent.</text>
+<rect x="48" y="469" width="153" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="486.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Queues / workers</text>
+<rect x="201" y="469" width="342" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="486.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">CLI arrival-queue-capacity=65,536. Sync actor loop; TCP</text>
+<text x="211" y="500.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">workers. Most transport limits are source/profile fixed.</text>
+<rect x="543" y="469" width="361" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="486.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">JSON Limits exposes inbox/RPC/ingress/payload/task caps.</text>
+<text x="553" y="500.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Runtime fixed: Tokio 2, max blocking 32, Rayon 2.</text>
+<rect x="904" y="469" width="248" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="486.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Shared TCP default: 64 in-flight frames / 8</text>
+<text x="914" y="500.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">MiB per peer. Reused services do not imply</text>
+<text x="914" y="514.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">equal worker budgets.</text>
+<rect x="48" y="538" width="153" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="58" y="555.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Observation / bounds</text>
+<rect x="201" y="538" width="342" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="211" y="555.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Full/compact receipts; compact omits detailed latency.</text>
+<text x="211" y="569.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">--deadline-ms=1000 is scoring, not a protocol timeout.</text>
+<rect x="543" y="538" width="361" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="553" y="555.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Finite measurement=2000 ms + drain=2000 ms. JSON task</text>
+<text x="553" y="569.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">limits=100k async / 1024 blocking; these are not RSS limits.</text>
+<rect x="904" y="538" width="248" height="69" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="914" y="555.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Primary latency: successful admission to</text>
+<text x="914" y="569.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">verified contiguous output at the assigned</text>
+<text x="914" y="583.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">correct origin, one monotonic clock.</text>
+<rect x="48" y="607" width="153" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="58" y="624.0" font-family="Arial,sans-serif" font-size="11.4" font-weight="bold" fill="#1C2F44">Cloud launch</text>
+<rect x="201" y="607" width="342" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="211" y="624.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Legacy --inventory SSH/netem path exists. --shared-build-receipt</text>
+<text x="211" y="638.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">currently rejects --inventory; disk acceptance local-only.</text>
+<rect x="543" y="607" width="361" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="553" y="624.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Common Raptr runner is localhost-only. Existing remote-native</text>
+<text x="553" y="638.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">adapter covers other artifacts, not this Raptr port.</text>
+<rect x="904" y="607" width="248" height="69" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<text x="914" y="624.0" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">Common executable deployment still needs</text>
+<text x="914" y="638.2" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">build/config/host-local start, full receipts,</text>
+<text x="914" y="652.4" font-family="Arial,sans-serif" font-size="11.2" font-weight="normal" fill="#1C2F44">cleanup and resource reconciliation.</text>
+<rect x="48" y="692" width="1104" height="43" rx="6" fill="#FFF1D8" stroke="#B5C1CF"/>
+<text x="61" y="714" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#1C2F44">Before cloud parameter sweeps</text>
+<text x="62" y="725" font-family="Arial,sans-serif" font-size="11.4" font-weight="normal" fill="#1C2F44">Wire the common-node remote adapter; expose and verify the intended caps; add sustained Raptr ingress and bounded multi-fault schedules.</text>
+<text x="48" y="748" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Source index: D8-D12, R8-R12, S1-S3. Proposed sweep schema must bind workload, batch, proposal, transport, timing, faults, storage and resources separately.</text>
+<text x="48" y="761" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">This document records current behavior and extension points. No cloud resources were provisioned and no protocol source was changed.</text>
+</svg>

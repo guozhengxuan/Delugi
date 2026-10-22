@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840">
+<rect width="1200" height="840" fill="white"/>
+<text x="48" y="42" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#346BAE">DELUGI / IMPLEMENTATION MAP</text>
+<text x="48" y="82" font-family="Arial,sans-serif" font-size="29" font-weight="bold" fill="#1C2F44">One node entry point, two protocol cores</text>
+<text x="48" y="107" font-family="Arial,sans-serif" font-size="12" font-weight="normal" fill="#536678">Class-and-call-flow layout inspired by the supplied Wahoo++ figure. Solid arrows show ownership/calls; dashed arrows show shared service use.</text>
+<polyline points="48,785 1152,785" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="48" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="normal" fill="#536678">SOURCE SNAPSHOT 57e078e  |  22 OCT 2026  |  Current implementation; no runtime changes</text>
+<text x="1100" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="#536678">1 / 5</text>
+<rect x="48" y="143" width="1104" height="117" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="48" y="143" width="1104" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="62" y="169" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">node/  +  core-api::ProtocolFactory</text>
+<text x="62" y="200" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">node/src/shared_main.rs -&gt; node/src/lib.rs -&gt; core-api/src/lib.rs:44</text>
+<polyline points="49,210 1151,210" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="62" y="225.0" font-family="Courier New,monospace" font-size="12" font-weight="bold" fill="#1C2F44">--protocol delugi | raptr + opaque protocol JSON configuration</text>
+<text x="62" y="245.84" font-family="Courier New,monospace" font-size="12" font-weight="bold" fill="#1C2F44">name() | run(configuration: &amp;[u8], id: u32) | generate_keys() | verify_archive() | verify_ledger()</text>
+<polyline points="600,260 600,282 317,282 317,312" fill="none" stroke="#1C2F44" stroke-width="1.6"/>
+<polygon points="317,312 313.7379163755234,304.69528847750155 320.2620836244766,304.69528847750155" fill="#1C2F44"/>
+<polyline points="600,282 883,282 883,312" fill="none" stroke="#1C2F44" stroke-width="1.6"/>
+<polygon points="883,312 879.7379163755235,304.69528847750155 886.2620836244765,304.69528847750155" fill="#1C2F44"/>
+<rect x="48" y="312" width="538" height="272" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="48" y="312" width="538" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="62" y="338" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">core/delugi/</text>
+<text x="62" y="369" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">factory.rs -&gt; process.rs -&gt; composed::Node</text>
+<polyline points="49,379 585,379" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="62" y="394.0" font-family="Courier New,monospace" font-size="12.4" font-weight="bold" fill="#346BAE">ORDERING replica / slot / history / scanner</text>
+<text x="62" y="415.368" font-family="Arial,sans-serif" font-size="12.4" font-weight="normal" fill="#1C2F44">HISTORY3, CLOSED, catch-up, direct commit and ordered delivery</text>
+<text x="62" y="436.736" font-family="Courier New,monospace" font-size="12.4" font-weight="bold" fill="#247468">AVAILABILITY availability / batch / mmr</text>
+<text x="62" y="458.104" font-family="Arial,sans-serif" font-size="12.4" font-weight="normal" fill="#1C2F44">REPORT/OBS, authenticated bases, batch custody, FETCH/DATA</text>
+<text x="62" y="479.472" font-family="Courier New,monospace" font-size="12.4" font-weight="bold" fill="#BA7023">STORAGE + OUTPUT record_store / composed / workload</text>
+<text x="62" y="500.84" font-family="Arial,sans-serif" font-size="12.4" font-weight="normal" fill="#1C2F44">One synchronous actor loop; exact batch expansion and FIFO output</text>
+<rect x="614" y="312" width="538" height="272" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="614" y="312" width="538" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="628" y="338" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">core/raptr/</text>
+<text x="628" y="369" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">node/factory.rs + native/ + qs/ + transport/</text>
+<polyline points="615,379 1151,379" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="628" y="394.0" font-family="Courier New,monospace" font-size="12.4" font-weight="bold" fill="#346BAE">ORDERING native/src/raptr + framework</text>
+<text x="628" y="415.368" font-family="Arial,sans-serif" font-size="12.4" font-weight="normal" fill="#1C2F44">Pinned Raptr state machine, certificates and native timer policy</text>
+<text x="628" y="436.736" font-family="Courier New,monospace" font-size="12.4" font-weight="bold" fill="#247468">AVAILABILITY qs/ + node/dissemination.rs</text>
+<text x="628" y="458.104" font-family="Arial,sans-serif" font-size="12.4" font-weight="normal" fill="#1C2F44">Native Quorum Store batching, custody, proofs and payload repair</text>
+<text x="628" y="479.472" font-family="Courier New,monospace" font-size="12.4" font-weight="bold" fill="#BA7023">OUTPUT src/output.rs + node/output.rs</text>
+<text x="628" y="500.84" font-family="Arial,sans-serif" font-size="12.4" font-weight="normal" fill="#1C2F44">Tokio actors; reserve commit order before asynchronous retrieval</text>
+<polyline points="317,584 317,615" fill="none" stroke="#1C2F44" stroke-width="1.6" stroke-dasharray="5 4"/>
+<polygon points="317,615 313.7379163755234,607.6952884775015 320.2620836244766,607.6952884775015" fill="#1C2F44"/>
+<polyline points="883,584 883,615" fill="none" stroke="#1C2F44" stroke-width="1.6" stroke-dasharray="5 4"/>
+<polygon points="883,615 879.7379163755235,607.6952884775015 886.2620836244765,607.6952884775015" fill="#1C2F44"/>
+<rect x="48" y="615" width="1104" height="107" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="62" y="639" font-family="Arial,sans-serif" font-size="14" font-weight="bold" fill="#1C2F44">shared/ mechanisms used by the cores</text>
+<text x="62" y="663" font-family="Courier New,monospace" font-size="10.3" font-weight="bold" fill="#1C2F44">network + network-async</text>
+<text x="62" y="696" font-family="Arial,sans-serif" font-size="10.5" font-weight="normal" fill="#536678">Bounded TCP; async facade</text>
+<text x="243" y="663" font-family="Courier New,monospace" font-size="10.3" font-weight="bold" fill="#1C2F44">mempool + output</text>
+<text x="243" y="696" font-family="Arial,sans-serif" font-size="10.5" font-weight="normal" fill="#536678">Timed ingress; FIFO queues</text>
+<text x="424" y="663" font-family="Courier New,monospace" font-size="10.3" font-weight="bold" fill="#1C2F44">crypto + crypto-aptos</text>
+<text x="424" y="696" font-family="Arial,sans-serif" font-size="10.5" font-weight="normal" fill="#536678">Core-specific proof formats</text>
+<text x="605" y="663" font-family="Courier New,monospace" font-size="10.3" font-weight="bold" fill="#1C2F44">store + store-rocksdb</text>
+<text x="605" y="696" font-family="Arial,sans-serif" font-size="10.5" font-weight="normal" fill="#536678">Visible / Written barriers</text>
+<text x="786" y="663" font-family="Courier New,monospace" font-size="10.3" font-weight="bold" fill="#1C2F44">runtime + runtime-async</text>
+<text x="786" y="696" font-family="Arial,sans-serif" font-size="10.5" font-weight="normal" fill="#536678">Distinct execution profiles</text>
+<text x="967" y="663" font-family="Courier New,monospace" font-size="10.3" font-weight="bold" fill="#1C2F44">metrics</text>
+<text x="967" y="696" font-family="Arial,sans-serif" font-size="10.5" font-weight="normal" fill="#536678">Traffic + operation counters</text>
+<text x="48" y="748" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Code boundary: core-api/src/lib.rs:44; node/src/shared_main.rs:4; core/delugi/src/process.rs:1983; core/raptr/node/src/factory.rs:128.</text>
+<text x="48" y="761" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">No universal consensus-transition trait exists today. OperationId is declared but is not wired into runtime calls. Detailed source index accompanies this PDF.</text>
+</svg>

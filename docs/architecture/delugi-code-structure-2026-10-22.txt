@@ -1,0 +1,338 @@
+Delugi / Raptr code structure and evaluation parameter map
+Source snapshot: 57e078e88d5247ce01b886e6702b43addfeb5ff5
+Audit date: 22 October 2026 (Asia/Taipei)
+
+Deliverables
+  output/pdf/delugi-code-structure-2026-10-22.pdf
+  output/figures/delugi-*-2026-10-22.svg
+  docs/architecture/draw_code_structure.py (editable figure generator)
+
+The supplied wahoo++_core.pdf is used as a visual reference for class boxes,
+method lists and colored call paths. Its application classes are not imported
+into this design. All implementation claims below refer to the current Delugi
+checkout. This task changes documentation only.
+
+1. The implemented boundary
+
+node/src/shared_main.rs registers DelugiFactory and RaptrFactory. The retained
+common artifact filename is raptr-shared-node; --protocol selects the core and
+omission defaults to Delugi. The root lightweight delugi-node/delugi-replica
+build remains Delugi-only. The common assembly manifest is core/raptr/node.
+
+core-api contains a lifecycle facade, storage capability/completion types and
+OperationId. It does not implement a universal consensus, availability,
+transaction or output-sink interface. OperationId is declared but currently
+unused by the runtime. The common factory reads opaque per-core JSON bytes:
+
+  trait ProtocolFactory {
+    fn name(&self) -> &'static str;
+    fn run(&self, configuration: &[u8], id: u32) -> Result<(), String>;
+    fn generate_keys(&self, directory: &Path, nodes: usize)
+        -> Result<String, String>;
+    fn verify_archive(&self, configuration: &[u8], path: &Path)
+        -> Result<String, String>;
+    fn verify_ledger(&self, configuration: &[u8], path: &Path)
+        -> Result<String, String>;
+  }
+
+Source: core-api/src/lib.rs:44; node/src/lib.rs:6; node/src/shared_main.rs:4.
+
+The cores reuse shared/network, shared/mempool and shared/output mechanisms.
+shared/network-async is Raptr's async facade over the shared TCP implementation.
+shared/crypto and shared/crypto-aptos retain protocol-specific cryptography.
+Storage uses shared/store and shared/store-rocksdb. Scheduling still differs:
+Delugi has a synchronous actor/control/timer loop; Raptr uses Tokio actors,
+shared-runtime-async task ownership and native-compatible timers. Shared service
+reuse is not a claim of equal executor topology or CPU/memory budgets.
+
+2. Delugi consensus and composition interfaces
+
+replica::Replica::try_new receives a callback:
+  q: impl Fn(u64, &[u8], &[u8]) -> bool + Send + Sync + 'static
+It is bound to AvailabilityConfig::q(round, value, witness) by composed::Node.
+Inputs is BTreeMap<u64, (Vec<u8>, Vec<u8>)>, an immutable round-to-(x,pi) map.
+
+  start(&mut self, now: u64) -> Result<Vec<replica::Effect>, String>
+  receive(&mut self, now: u64, message: wire::Message)
+      -> Result<Vec<replica::Effect>, String>
+  tick(&mut self, now: u64) -> Result<Vec<replica::Effect>, String>
+  supply_input(&mut self, now: u64, round: u64,
+               value: Vec<u8>, witness: Vec<u8>)
+      -> Result<Vec<replica::Effect>, String>
+
+  replica::Effect = Send {to, message} | Wake {at}
+      | DirectCommit {round, digest} | Deliver(Delivery)
+      | Notice {kind, round}
+  Delivery = {round: u64, digest: Digest, value: Vec<u8>}
+
+Source: core/delugi/src/replica.rs:735,748,2177,2384-2430;
+        core/delugi/src/scanner.rs:21.
+
+process::Runtime drives composed::Node. Its public start/tick, produce(payload),
+receive(from, Message), receive_ordering(wire::Message) entries produce composed
+effects. REPORT/OBS construction supplies (x,pi) to Replica. Returned ordering
+effects pass through Node::accept_ordering, which enqueues delivered descriptors
+and attempts materialization, before Runtime::effects dispatches outgoing bytes,
+timer wakes and diagnostics. Runtime does not implement scanner resolution.
+
+Incoming DATA is authenticated by BatchStore::accept_requested_data or
+accept_requested_part during Node::receive; retry then materializes held verified
+records. A missing exact suffix emits FETCH and blocks the ordered FIFO head.
+Exact batch identity is (producer,height,unsigned-header digest). Application
+transaction-ID deduplication is separate from protocol exact-batch deduplication.
+
+Source: core/delugi/src/composed.rs:144,210,242,385,419-441,491,532-671;
+        core/delugi/src/process.rs:959,1983.
+
+DirectCommit, ordered descriptor delivery and verified application output are
+three different observation points. Neither missing application payload nor
+application output completion becomes a prerequisite for the consensus vote.
+
+3. Raptr consensus and dissemination interfaces
+
+native/src/framework/mod.rs:36 defines the native Protocol trait. It has
+associated Message and TimerEvent types and async handlers for startup, peer
+messages, module events, timers and conditions. run_ctx retains native state
+ownership across handler and condition evaluation.
+
+Context (native/src/framework/context.rs:19) supplies node_id, n_nodes, sender,
+send/unicast/multicast, module notify, set_timer, next_event and halt state.
+The native raptr::dissemination::DisseminationLayer trait has:
+
+  prepare_block(round, exclude: HashSet<BatchInfo>,
+                exclude_authors: Option<BitVec>) -> Future<Payload>
+  available_prefix(&Payload, cached: Prefix) -> Future<(Prefix, BitVec)>
+  check_payload(&Payload) -> Result<(), BitVec>
+  notify_commit_identified(Vec<CommittedPayload>, timestamp, voters)
+      -> Future<()>
+
+CommittedPayload binds block_digest, payload and include_proofs. The trait also
+retains notify_commit and set_first_committed_block_timestamp. The figure shows
+the interfaces relevant to the active common-node adapter.
+
+Source: core/raptr/native/src/raptr/dissemination/mod.rs:69-124.
+
+The shared timed ingress worker supplies signed native transactions to the pool.
+Real native QS actors pull, cut, disperse, certify, store and repair batches.
+NativeDissemination translates consensus payload requests and native exclusions.
+When consensus identifies a commit, the adapter reserves application output
+positions before spawning asynchronous payload retrieval. Materializer::resolve
+releases only the contiguous ready prefix. Expansion is proof batches first,
+then original subblock order. Raw duplicate/unknown occurrences remain evidence;
+finite useful-request credit is separately deduplicated.
+
+Source: core/raptr/node/src/workload.rs:280-349;
+        core/raptr/node/src/factory.rs:202-328;
+        core/raptr/node/src/dissemination.rs:208-338;
+        core/raptr/node/src/output.rs:116-147;
+        core/raptr/src/output.rs:398,460.
+
+4. Parameter status and source index for PDF pages 4-5
+
+CLI means exposed by the named runner today. JSON means an accepted configuration
+field used by the node; it is not necessarily surfaced by that runner. FIXED
+means source/profile-bound. A declared native field with inactive enforcement
+is explicitly identified below. No single generic max_payloads field exists.
+
+D1  Delugi transaction size / arrivals:
+    scripts/run_sustained.py:671-685,710-716; core/delugi/src/process.rs:198-217.
+    CLI useful default472 plus60 bytes of canonical metadata =532 encoded bytes.
+    --transaction-size is a legacy encoded-size input. The Python run_trial
+    function separately defaults to512 encoded bytes; that is not the CLI default.
+    --rate is total committee tx/s, distributed over honest ingress origins.
+    Limits: <=25000 tx/s per origin, <=775000 total and <=25000*origins.
+D2  Delugi batches:
+    core/delugi/src/batch.rs:14; process.rs:102,205,209,1498-1507.
+    MAX_BATCH_PAYLOAD=262144 bytes; encoding includes an8-byte count and each
+    encoded request. max_batch_transactions accepts1..65536 and is reduced by
+    byte capacity. Cadence accepts1..1000ms. No batch-byte-cap CLI exists.
+D3  Proposal/wire profiles:
+    core/delugi/src/wire.rs:23-56,491-508,615-638,657-668;
+    scripts/run_sustained.py:325.
+    --resource-profile=legacy-1mib-v1 or complete-32mib-n31-v1 (automatic for n31).
+    Value/witness budgets reserve mandatory history/message overhead. Resource
+    profile is bound to committee configuration; changing it is not invisible.
+D4  Frontier expansion / max payload batches:
+    core/delugi/src/availability.rs:77-82,291; composed.rs:603-620;
+    core/delugi/src/mmr.rs:9-18.
+    A descriptor has a base plus n frontier and n target checkpoints. A suffix
+    may cover many batches. No independent maximum expanded batches is exposed.
+    chunk_capacity is MMR geometry, JSON-configurable power-of-two1..2^20;
+    runners currently choose64 sustained or4 finite. It is not a batch-count cap.
+D5  Protocol delay and pacing:
+    core/delugi/src/process.rs:233,348; scripts/run_network.py:721-753;
+    scripts/run_sustained.py:682.
+    bound_ms accepts1..60000ms; sustained default250, acceptance override100.
+    Ordering modes: canonical/progress/barrier. Selected default is progress
+    pacing with immediate enabled-message bundling; pacing deadline <=Delta.
+    Bundling combines enabled ordering messages, not transactions into batches.
+D6  Network delay:
+    scripts/network_delay.py:39; dummynet_helper.py:31,134;
+    scripts/linux_netem.py:52,95; remote_deployment.py:249.
+    Delay is external, not a core sleep. Local DELUGI_NETWORK_DELAY_MS must be
+    backed by a scoped helper/calibration. Mac helper1..100ms; Linux delay0..1000ms,
+    loss0..100%. Neither current helper schema exposes bandwidth or jitter.
+D7  Workload and observation horizons:
+    scripts/run_sustained.py:345,544,572,679-686;
+    core/delugi/src/process.rs:217,306,359.
+    warmup+measurement <=3600s; <=5000000 scheduled requests per origin;
+    process runtime <=3700s. Drain adds no arrivals. --deadline-ms is scoring.
+D8  Membership and tolerated faults:
+    scripts/run_sustained.py:672; core/delugi/src/process.rs:336,365;
+    core/delugi/src/wire.rs:601; composed.rs:372.
+    CLI choices4/7/31; process n=3f+1,4<=n<=31; quorum n-f. f is derived.
+D9  Actual faults:
+    scripts/run_sustained.py:282-298,328,687-697;
+    core/delugi/src/process.rs:115-137,365.
+    Runner permits one pause OR one omission identity. The process schema can
+    name one silent ID plus one omission ID, with distinct faulty union <=f.
+    That schema is not a tested generic multi-fault schedule. Fault timings in
+    CLI are seconds from measurement start, translated to load-start milliseconds.
+    Optional faulty-authored workload: 0..4 batches, 1..128 tx/batch, 0..4096 raw
+    transaction payload bytes. Its encoding is 8+count*(40+payload_bytes), bounded
+    by the 256KiB batch cap. It receives no honest useful-output credit.
+D10 Storage:
+    core/delugi/src/record_store.rs:11; process.rs:271;
+    core/delugi/STORAGE_PROFILES.txt; scripts/run_sustained.py:728.
+    Memory Visible default; optional RocksDB Written mirror before visibility
+    and custody. Fresh exclusive replica directory; WAL on, sync=false. Typed
+    in-memory cache remains. No ordering/producer/custody restart recovery.
+D11 Queue and observer:
+    core/delugi/src/process.rs:211-216,688; transport.rs:161-172;
+    scripts/run_sustained.py:675-676,684.
+    Arrival queue1..1000000 entries, encoded budget <=64MiB; default65536.
+    Ordering bundles max32 members, additionally byte-bounded. Large wire profile
+    raises byte budgets and ACK/read deadlines to30s. Compact omits request timing.
+D12 Cloud path:
+    scripts/run_sustained.py:278,706; scripts/remote_deployment.py:29-58.
+    Common build receipt currently requires a local trial. Inventory and shared
+    receipt cannot be combined. Existing remote inventory requires one dedicated
+    IPv4 host per validator, an interface when network shaping is configured,
+    and explicit binary path/hash.
+
+Native Raptr default references below use the extracted tree pinned at
+a4c98047cf8aeae3571168d02fb7e343140d2948, under core/raptr/.native-deps/<pin>/.
+
+R1  Workload configuration and runner:
+    core/raptr/node/src/config.rs:26,42,74,98,149,361;
+    scripts/run_raptr_shared_local.py:38,481,1135,1245.
+    CLI useful bytes1..65536, default128; counts16 per origin; interval1000us.
+    Runtime finite workload is polled at1ms. Accepted runner fixes NODES=4.
+R2  Encoded transaction size:
+    core/raptr/node/src/workload.rs:28,140,217,343-349.
+    Actual BCS SignedTransaction bytes are accounted. The healthy accepted
+    node-0 workload-manifest records128 useful bytes ->409 signed bytes.
+    Evidence: results/local/shared-core-20261021/common-raptr-healthy-1/
+              replicas/node-0/workload-manifest.json.
+R3  QS default batch and input settings:
+    <pin>/config/src/config/quorum_store_config.rs:104.
+    Top-level quorum_store.sender_max_batch_txns=500;
+    sender_max_batch_bytes=1048416; sender_max_total_txns=500;
+    sender_max_total_bytes=4194144; sender_max_num_batches=1.
+    batch generation poll150ms; minimum nonempty80ms; maximum300ms.
+R4  Enforced versus inactive batching caps:
+    core/raptr/qs/src/quorum_store/batch_generator.rs:225-250,338;
+    core/raptr/node/src/workload.rs:347.
+    The native splitter's per-batch byte-filter loop is commented out. It uses
+    sender_max_batch_txns. The overall pool pull still enforces its total bytes.
+    Do not claim that setting sender_max_batch_bytes enforces that per-batch cap.
+R5  Proposal/QS pull:
+    <pin>/config/src/config/consensus_config.rs:159;
+    core/raptr/node/src/dissemination.rs:224.
+    max_sending_block_txns=50000; max_sending_block_bytes=31457280 (30MiB).
+    Inline pull limit100tx/200KiB. Native source comment saying3MB is stale.
+    This is not the same limit as node Limits.max_wire_bytes (1MiB default).
+R6  Number of batches and subblocks:
+    core/raptr/qs/src/quorum_store/batch_proof_queue.rs:678-707;
+    <pin>/consensus/consensus-types/src/payload.rs:299.
+    max_batches_per_pull default200. Before/after insertion tests use > and
+    allow201 on that selection path. Native subblock count is fixed8.
+R7  Operative timers:
+    core/raptr/native/src/rehost.rs:72-94.
+    JSON delta_ms is Delta: leader4Delta, partial-QC wait0.1Delta,
+    fetch2Delta, round sync15Delta, status10Delta. Runner fixes100ms.
+    consensus.round_initial_timeout_ms is not the operative Raptr delay bound.
+R8  Committee/fault fixtures:
+    core/raptr/node/src/config.rs:98,118,361;
+    scripts/run_raptr_shared_local.py:38,481.
+    Config/keygen supports 4..31 with n=3f+1; the node accepts IPv4 or IPv6
+    loopback. The accepted Python runner uses IPv4 127.0.0.1.
+    Derived native availability quorum2f+1; storage requirementf+1.
+    Silent leader preset pauses replica1; missing payload preset drops first3
+    original QS payload messages at receiver0. This is a controlled omission,
+    not arbitrary Byzantine computation or a generic number-of-faults switch.
+R9  Timing window/application hold:
+    scripts/run_raptr_shared_local.py:1135;
+    core/raptr/node/src/config.rs:149.
+    Defaults measurement2000ms plus drain2000ms. Node each <=60s, runner drain
+    <=30s and combined finite horizon <=90s. Materialization delay is a named
+    application hold; it is neither network latency nor consensus timeout.
+R10 Resource profile:
+    core/raptr/node/src/config.rs:98,158-187; factory.rs:41,164,190,203,249,277.
+    JSON Limits:1MiB message;4096 inbox frames/32MiB;1024RPCs;4096 ingress/output
+    slots;100k pending tx;128MiB pending payload;128MiB journal;
+    100k async/1024 blocking retained tasks.
+    Factory constants:Tokio2/max blocking threads32/Rayon2; proof cache10000;
+    output maxima100k slices/900k sections/1m batch occurrences;180s end guard.
+    These are scoped logical/worker limits, not a whole-process heap/CPU cap.
+R11 Authoritative JSON scope:
+    core/raptr/node/src/factory.rs:144-145.
+    The adapter reads top-level quorum_store separately from consensus.
+    consensus.quorum_store is not the authoritative settings location here.
+    Serializing a native field does not prove the rehost uses that field.
+R12 Cloud adapter:
+    scripts/deployment_prepare.py:31,66-87; scripts/remote_native.py:30;
+    core/raptr/node/src/config.rs:118.
+    Existing deployment builds delugi-replica; remote_native supports other
+    artifacts, not this common Raptr port. Common-node non-loopback launch,
+    workload timing and evidence collection still need a deployment adapter.
+
+S1  Shared network:
+    shared/network/src/lib.rs:48,101-145,632;
+    shared/network-async/src/lib.rs:1,98.
+    Defaults:4096 inbox/outbox/deferred entries;64 in-flight frames/8MiB per peer;
+    128MiB aggregate outstanding;32MiB read buffers; ACK timeout2s;
+    connect100ms/I/O250ms/reconnect20ms. Async send reports enqueue/defer, not ACK.
+    Transport backpressure may wait when bounded capacity is exhausted. The old
+    unconditional per-frame ACK gate is not the current transport design.
+S2  Shared ingress/output:
+    shared/mempool/src/lib.rs:17; shared/output/src/lib.rs:8,52.
+    Worker::start schedules arrivals independently; core owns batch cutting.
+    OrderedQueue and ResolutionQueue enforce FIFO mechanics; core maps decisions.
+S3  Shared storage/runtime:
+    core-api/src/lib.rs:5; shared/store-rocksdb/src/lib.rs:18-64;
+    shared/store-rocksdb/src/backend.rs:119-130;
+    shared/runtime/src/lib.rs:129; shared/runtime-async/src/lib.rs:1.
+    Completion states Accepted/Visible/Written/Durable are distinct; storage
+    completion does not itself authorize a vote. Native RocksDB requested options
+    include256MiB DB write buffer,2GiB shared CF cache,parallelism16/background8;
+    these are configured options, not measurements of allocated memory or CPUs.
+
+5. Recommended future experiment manifest (schema proposal only)
+
+The following conceptual groups should be translated into each core's verified
+effective configuration. They are not current accepted CLI/JSON aliases:
+
+  identity: protocol, source/binary/profile hashes, committee IDs and host map
+  workload: useful_tx_bytes, total_rate, origins, schedule, warmup/measure/drain
+  batching: tx_per_batch, enforced_payload_bytes, cut_cadence, native policy
+  proposal: tx/batch/reference limits, encoded bytes, witness/history budget
+  transport: frame bytes, queue/window item+byte caps, retry/ACK/backpressure
+  timing: injected_one_way_delay_ms, calibrated RTT evidence, protocol_Delta_ms,
+          native timer mapping, optional materialization hold
+  faults: tolerated_f (derived), actual faulty ID set, mode, target peers,
+          bounded event schedule, activation/withdrawal and efficacy witnesses
+  resources: CPU placement, runtime workers, memory/storage/network limits
+  storage: backend/options, visibility/write/sync completion, restart semantics
+  observation: full/compact, admission/output endpoints, unfinished accounting
+
+Before cloud sweeps: wire common-node inventory/remote lifecycle; add sustained
+Raptr workload support; expose intended limits and verify actual enforcement;
+decide how to treat the inherited Raptr cap behavior; add multi-event faults.
+Do not silently change native batching/consensus policy while adding controls.
+
+Source traceability
+The artifact manifest hashes the PDF/SVGs and input reference. The source-audit
+manifest binds cited implementation/config files to this source snapshot.
+Historical acceptance reports remain authoritative for the tested n4 cases;
+configurability beyond those cases is not a claim of completed evaluation.

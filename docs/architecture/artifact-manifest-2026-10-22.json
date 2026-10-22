@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-22",
+  "source_commit": "57e078e88d5247ce01b886e6702b43addfeb5ff5",
+  "scope": "Source audit and diagram only. No builds, protocol modifications or cloud execution.",
+  "reference": {
+    "path": "/Users/zhengxuanguo/Downloads/wahoo++_core.pdf",
+    "sha256": "e178d4af9c0501fbf2d8ffba09b0c218fd1c233dfabf7e3110a9f4aa04eea9a1"
+  },
+  "artifacts": [
+    {
+      "path": "output/pdf/delugi-code-structure-2026-10-22.pdf",
+      "sha256": "b7adccd14a10903859db57b150ca46450ee9dd7376d20852d2e4b674e51837f0",
+      "bytes": 155836
+    },
+    {
+      "path": "output/figures/delugi-code-structure-2026-10-22.svg",
+      "sha256": "9af6885a2fb15d0a18521f91658606b2d32d467674969cf01b3f26d513939672",
+      "bytes": 8479
+    },
+    {
+      "path": "output/figures/delugi-delugi-interfaces-2026-10-22.svg",
+      "sha256": "c22aa331d07258f313343f933e072c40c30b6b9fb781ff77362d7eb12b06a7cd",
+      "bytes": 10506
+    },
+    {
+      "path": "output/figures/delugi-raptr-interfaces-2026-10-22.svg",
+      "sha256": "b8456e903717cb891536127d1afc3acca6b63e7a29b5f2965d10b6bd03685bb9",
+      "bytes": 9308
+    },
+    {
+      "path": "output/figures/delugi-workload-parameters-2026-10-22.svg",
+      "sha256": "8a4b27c724e6c638a34227f0df778f7e0fa5f2fe62482961396ebf6ee4012f0c",
+      "bytes": 17012
+    },
+    {
+      "path": "output/figures/delugi-cloud-parameters-2026-10-22.svg",
+      "sha256": "0e8fd8d4499d12600f7f3c9dc1ddca876cdb1e765f3c424a6af3010635fad3a2",
+      "bytes": 14249
+    }
+  ]
+}

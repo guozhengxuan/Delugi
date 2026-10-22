@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840">
+<rect width="1200" height="840" fill="white"/>
+<text x="48" y="42" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#346BAE">DELUGI / IMPLEMENTATION MAP</text>
+<text x="48" y="82" font-family="Arial,sans-serif" font-size="29" font-weight="bold" fill="#1C2F44">Raptr: native handlers plus a dissemination contract</text>
+<text x="48" y="107" font-family="Arial,sans-serif" font-size="12" font-weight="normal" fill="#536678">The native Protocol and DisseminationLayer APIs stay in core/raptr; Context connects them to injected service adapters. Handler calls are async.</text>
+<polyline points="48,785 1152,785" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="48" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="normal" fill="#536678">SOURCE SNAPSHOT 57e078e  |  22 OCT 2026  |  Current implementation; no runtime changes</text>
+<text x="1100" y="809" font-family="Arial,sans-serif" font-size="10" font-weight="bold" fill="#536678">3 / 5</text>
+<rect x="48" y="150" width="521" height="286" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="48" y="150" width="521" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="62" y="176" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">native::framework::Protocol</text>
+<text x="62" y="207" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">core/raptr/native/src/framework/mod.rs:36-134</text>
+<polyline points="49,217 568,217" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="62" y="232.0" font-family="Courier New,monospace" font-size="11.5" font-weight="normal" fill="#536678">associated Message; TimerEvent</text>
+<text x="62" y="252.18" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#BD424B">start_handler(ctx)</text>
+<text x="62" y="272.36" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">message_handler(ctx, from, message)</text>
+<text x="62" y="292.54" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">module_event_handler(ctx, module, event)</text>
+<text x="62" y="312.72" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#8054A3">timer_event_handler(ctx, event)</text>
+<text x="62" y="332.90000000000003" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#8054A3">condition_handler(ctx)</text>
+<text x="62" y="353.08000000000004" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">run_ctx holds native state ownership for handler plus condition evaluation.</text>
+<rect x="640" y="150" width="512" height="286" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="640" y="150" width="512" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="654" y="176" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">Native DisseminationLayer</text>
+<text x="654" y="207" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">native/src/raptr/dissemination/mod.rs:81; node/dissemination.rs:204</text>
+<polyline points="641,217 1151,217" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="654" y="232.0" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#BD424B">prepare_block(round, excludes, authors)</text>
+<text x="654" y="252.18" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#BD424B">-&gt; Future&lt;Payload&gt;</text>
+<text x="654" y="272.36" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">available_prefix(payload, cached)</text>
+<text x="654" y="292.54" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">-&gt; Future&lt;(Prefix, BitVec)&gt;</text>
+<text x="654" y="312.72" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#346BAE">check_payload(payload) -&gt; Result&lt;(), BitVec&gt;</text>
+<text x="654" y="332.90000000000003" font-family="Courier New,monospace" font-size="11.5" font-weight="bold" fill="#BA7023">notify_commit_identified(payloads, ts, voters)</text>
+<text x="654" y="353.08000000000004" font-family="Arial,sans-serif" font-size="11.5" font-weight="normal" fill="#1C2F44">CommittedPayload binds block_digest, payload and include_proofs.</text>
+<polyline points="569,278 640,278" fill="none" stroke="#BD424B" stroke-width="1.6"/>
+<polygon points="640,278 632.6952884775015,281.2620836244766 632.6952884775015,274.7379163755234" fill="#BD424B"/>
+<text x="584" y="264" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#BD424B">pull</text>
+<polyline points="640,365 569,365" fill="none" stroke="#346BAE" stroke-width="1.6"/>
+<polygon points="569,365 576.3047115224985,361.7379163755234 576.3047115224985,368.26208362447653" fill="#346BAE"/>
+<text x="578" y="352" font-family="Arial,sans-serif" font-size="10.5" font-weight="bold" fill="#346BAE">prefix</text>
+<rect x="48" y="484" width="521" height="228" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="48" y="484" width="521" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="62" y="510" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#346BAE">Context + shared service adapters</text>
+<text x="62" y="541" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">framework/context.rs:19; node/factory.rs:128</text>
+<polyline points="49,551 568,551" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="62" y="566.0" font-family="Courier New,monospace" font-size="11.7" font-weight="bold" fill="#346BAE">send / unicast / multicast; notify(module,event)</text>
+<text x="62" y="586.444" font-family="Courier New,monospace" font-size="11.7" font-weight="bold" fill="#8054A3">set_timer(duration,event); next_event(); halt()</text>
+<text x="62" y="606.8879999999999" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">NativeDissemination uses real QS actors for pool pulls, certified batches, storage and RPC</text>
+<text x="62" y="622.3319999999999" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">repair.</text>
+<text x="62" y="642.776" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">Executor: Tokio 2 workers / max 32 blocking threads; Rayon 2. Native timing semantics are</text>
+<text x="62" y="658.2199999999999" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">retained.</text>
+<polyline points="308,436 308,484" fill="none" stroke="#8054A3" stroke-width="1.6"/>
+<polygon points="308,484 304.7379163755234,476.69528847750155 311.2620836244766,476.69528847750155" fill="#8054A3"/>
+<rect x="640" y="484" width="512" height="228" rx="0" fill="#FFFFFF" stroke="#B5C1CF"/>
+<rect x="640" y="484" width="512" height="39" rx="0" fill="#F4F7FA" stroke="#B5C1CF"/>
+<text x="654" y="510" font-family="Arial,sans-serif" font-size="15" font-weight="bold" fill="#BA7023">Commit reservation -&gt; Materializer -&gt; output</text>
+<text x="654" y="541" font-family="Courier New,monospace" font-size="9.8" font-weight="normal" fill="#536678">node/dissemination.rs:262; node/output.rs:116</text>
+<polyline points="641,551 1151,551" fill="none" stroke="#B5C1CF" stroke-width="0.8"/>
+<text x="654" y="566.0" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">1 reserve exact commit order before asynchronous fetch.</text>
+<text x="654" y="586.444" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">2 Native QS retrieval + actual payload verification.</text>
+<text x="654" y="606.8879999999999" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">3 resolve completed sections; pop_ready only at FIFO head.</text>
+<text x="654" y="627.3319999999999" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">4 Workload publisher appends verified contiguous output.</text>
+<text x="654" y="647.7759999999998" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">Expansion: proof batches first, then original subblock order. Raw duplicates remain; useful</text>
+<text x="654" y="663.2199999999998" font-family="Arial,sans-serif" font-size="11.7" font-weight="normal" fill="#1C2F44">credit is deduplicated.</text>
+<polyline points="895,436 895,484" fill="none" stroke="#BA7023" stroke-width="1.6"/>
+<polygon points="895,484 891.7379163755235,476.69528847750155 898.2620836244765,476.69528847750155" fill="#BA7023"/>
+<text x="48" y="748" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Common mechanics: shared_mempool::Worker::start; shared_output::ResolutionQueue::{reserve,resolve,pop_ready}; shared_network::Transport.</text>
+<text x="48" y="761" font-family="Arial,sans-serif" font-size="9.5" font-weight="normal" fill="#536678">Protocol messages, certificate validity, native batch cutting and output expansion remain core-owned. Raptr uses BCS/BLS/SHA3; Delugi uses its own signed wire format.</text>
+</svg>
