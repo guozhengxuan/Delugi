@@ -66,6 +66,23 @@ Current shared-core checkpoint
   calibrated delta10ms comparison. Native-policy conformance, shared-service
   routing, and matched performance eligibility remain separate gates.
 
+23 October qualification continuation
+The checkout and live origin/main initially matched a0d277d with a clean working
+tree. The retained executable/build receipt, all 159 source files, both profiles,
+16,710 native dependency entries and 59 directly referenced acceptance evidence
+files revalidate. The broader Python audit found a missing staged-runtime module;
+the packaging closure is repaired and Python>=3.11 is required before upload or
+launch. All 226 focused checks now pass without skips. The initial failed audit
+is retained. These controller changes preserve every accepted binary input.
+Report: benchmarks/results/checkpoint-audit-2026-10-23.json.
+Next sequence: portable Linux build/profile evidence; common placement with
+host-local lifecycle; sustained Raptr/evidence/cohort support; final Linux
+functional and local sustained qualification; separately authorized four-host
+pilot. Details: benchmarks/plans/2026-10-23-linux-distributed-qualification.txt.
+No protocol build, protocol benchmark, VM launch or cloud execution occurred.
+Linux/distributed acceptance and shared-framework performance eligibility remain
+pending. The current authorization is local implementation and qualification.
+
 Historical pause record (superseded by approval above)
 The user now requests protocol differences confined to core subtrees with shared
 network/crypto/node/mempool infrastructure, informed by Sonnino HotStuff/Ditto.

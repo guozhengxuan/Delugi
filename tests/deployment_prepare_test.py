@@ -69,6 +69,8 @@ class DeploymentPreparation(unittest.TestCase):
         self.assertEqual(manifest["controller_sources"]["scripts/deployment_prepare.py"], prepare.sha(prepare.__file__))
         self.assertEqual(manifest["controller_sources"]["scripts/observer_receipts.py"],
                          prepare.sha(prepare.ROOT / "scripts/observer_receipts.py"))
+        self.assertEqual(manifest["controller_sources"]["scripts/shared_core_conformance.py"],
+                         prepare.sha(unpacked / "controller/scripts/shared_core_conformance.py"))
         self.assertNotIn("private-key.json", str(manifest))
         self.assertEqual((unpacked / "source/src/main.rs").read_text(), 'fn main() {}\n')
 

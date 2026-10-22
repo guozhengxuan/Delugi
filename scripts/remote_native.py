@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fixed native protocols on explicit existing hosts; default is a local plan.
 
-Python>=3.10 is an explicit remote prerequisite. No generic remote shell recipe,
+Python>=3.11 is an explicit remote prerequisite. No generic remote shell recipe,
 cloud creation, or cross-host timestamp subtraction is exposed by this command.
 """
 from __future__ import annotations
@@ -36,7 +36,7 @@ RUNTIME_FILES=tuple(dict.fromkeys((*prep.CONTROLLER_COMMON,*prep.CONTROLLER_NATI
 def interpreter(host):
     selected=host.get("python_executable")
     if not isinstance(selected,str) or not selected.startswith("/") or ".." in Path(selected).parts:
-        raise ValueError("native host requires an explicit absolute Python>=3.10 executable")
+        raise ValueError("native host requires an explicit absolute Python>=3.11 executable")
     return selected
 
 
@@ -207,7 +207,7 @@ def prepare_and_arm_shoal(root, request, processes, events, result, started_ns, 
 
 def check_artifacts(request):
     host=request["host"];version=list(sys.version_info[:3])
-    if version[:2]<[3,10] or Path(sys.executable).resolve()!=Path(interpreter(host)).resolve():raise ValueError("selected Python>=3.10 interpreter was not used")
+    if version[:2]<[3,11] or Path(sys.executable).resolve()!=Path(interpreter(host)).resolve():raise ValueError("selected Python>=3.11 interpreter was not used")
     if request["protocol"]=="shoal" and request["pin"].get("observer_contract")!=native.SHOAL_OBSERVER_CONTRACT:
         raise ValueError("Shoal artifact finite observer contract is unsupported")
     build_recipe=request["build_recipe"]
@@ -496,10 +496,10 @@ def execute(selected, output, connection_factory=Connection):
             "pin":selected["pin"],"build_recipe":build_recipe,"source_bundle_sha256":selected["source_bundle_sha256"],"settings":selected["settings"],
             "endpoint":selected["endpoints"][host["replica"]],"ips":[row["peer"][0]["ip"] for row in selected["endpoints"]]}
     # Bootstrap source uses Python3.8 syntax; the explicit selected interpreter is
-    # checked before executing any native or Python3.10 controller module.
+    # checked before executing the controller modules that require tomllib.
     bootstrap="""import json,os,sys
 from pathlib import Path
-if sys.version_info<(3,10):raise ValueError('native placement requires Python>=3.10; Ubuntu20.04 python3.8 is unsupported')
+if sys.version_info<(3,11):raise ValueError('native placement requires Python>=3.11 for the packaged controller tomllib dependency')
 p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
 (p/'owner.json').write_text(json.dumps({'nonce':sys.argv[2],'plan_sha256':sys.argv[3]}))
 """

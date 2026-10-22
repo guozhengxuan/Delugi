@@ -36,6 +36,7 @@ CONTROLLER_COMMON = ("scripts/deployment_prepare.py", "scripts/remote_deployment
                      "scripts/linux_netem.py", "scripts/run_network.py", "scripts/run_sustained.py",
                      "scripts/network_delay.py", "scripts/timing_calibration.py",
                      "scripts/spec_provenance.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py",
+                     "scripts/shared_core_conformance.py",
                      "provenance/spec-2026-10-19.json", "provenance/baselines.json")
 CONTROLLER_NATIVE = ("scripts/baselines/native_artifacts.py", "scripts/baselines/native_faults.py",
                      "scripts/baselines/native_receipts.py", "scripts/baselines/mysticeti_wal.py",
@@ -739,7 +740,7 @@ def main():
     hosts.add_argument("--cpus", default="0,1,2,3")
     hosts.add_argument("--memory-bytes", type=int, required=True)
     hosts.add_argument("--network-interface")
-    hosts.add_argument("--python-executable", help="declared preinstalled Python>=3.10 for native placement; Ubuntu20.04 system3.8 is insufficient")
+    hosts.add_argument("--python-executable", help="declared preinstalled Python>=3.11 for native placement; packaged controllers require tomllib")
     hosts.add_argument("--output", type=Path, required=True)
     plan = commands.add_parser("plan")
     plan.add_argument("--hosts", type=Path, required=True)

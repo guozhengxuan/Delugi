@@ -85,9 +85,30 @@ class NativePlacement(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"Python"):
             remote.plan(publication,{})
         request={"host":{"python_executable":sys.executable}}
-        with patch.object(remote.sys,"version_info",(3,8,10)):
-            with self.assertRaisesRegex(ValueError,"Python"):
-                remote.check_artifacts(request)
+        for version in ((3,8,10),(3,10,14)):
+            with self.subTest(version=version),patch.object(remote.sys,"version_info",version):
+                with self.assertRaisesRegex(ValueError,"Python>=3.11"):
+                    remote.check_artifacts(request)
+
+    def test_python310_bootstrap_rejects_before_runtime_upload_or_launch(self):
+        selected=self.selected();calls=[];remote_root=self.root/"remote"
+        class OldPythonConnection:
+            def __init__(self,host):self.host=host
+            def command(self,argv,**kwargs):
+                calls.append("bootstrap")
+                return subprocess.run([sys.executable,"-c","import sys; sys.version_info=(3,10,14)\n"+argv[2],*argv[3:]],
+                    check=True,capture_output=True,text=True,timeout=10)
+            def upload(self,*args):raise AssertionError("unsupported interpreter reached runtime upload")
+            def rpc_native(self,root,request):
+                calls.append(request["action"])
+                if request["action"]!="cleanup":raise AssertionError("unsupported interpreter reached native control")
+                return {"state":"not_started"}
+        with patch.object(remote,"root_for",return_value=remote_root):
+            result=remote.execute(selected,self.root/"result",connection_factory=OldPythonConnection)
+        self.assertEqual(result["status"],"failed")
+        self.assertIn("CalledProcessError",result["error"])
+        self.assertEqual(calls,["bootstrap","cleanup"])
+        self.assertFalse(remote_root.exists())
 
     def test_shoal_old_or_unknown_observer_contract_is_rejected_before_connection(self):
         pin=remote.pin_for("shoal")

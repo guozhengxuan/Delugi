@@ -1,0 +1,245 @@
+Linux release, sustained workload and distributed qualification
+23 October 2026
+
+Starting point
+
+The checkout and live origin/main both resolve to
+a0d277dfadb9c75ad634550ae280758d811f54e1. The initial working tree was clean.
+The checkpoint audit is recorded in
+benchmarks/results/checkpoint-audit-2026-10-23.json.
+
+The accepted macOS ARM64 dev executable remains
+6763539380645b3b1275b2819928ec826f35f5ffcb7950800b8a02a7ab24141a.
+Its 30 Delugi and six Raptr n4 process cases establish local functional
+acceptance at Delta100ms with zero injected delay. Linux release acceptance,
+four-host deployment acceptance and performance eligibility are pending.
+Keep the existing acceptance receipts and archived sources immutable.
+
+Scope is local implementation and qualification. Alibaba provisioning and
+remote execution require explicit authorization. Repository commits/pushes
+are authorized. Use the existing task-owned Linux VM for local preparation
+when its prerequisites are verified; no Mac administrator helper is required.
+Mysticeti/Autobahn ports and restart recovery are outside this milestone.
+
+Smallest dependency sequence
+
+1. Portable common-build contract and explicit release profile.
+2. Common placement/lifecycle contract with host-local epochs.
+3. Sustained Raptr workload, streamed evidence and cohort adapter.
+4. One final Linux release artifact and local functional/lifecycle/sustained checks.
+5. Authorized four-host unshaped pilot, then timing and load qualification.
+
+Steps 2 and 3 can proceed in parallel once their shared run/evidence schema is
+fixed. Keep intermediate builds bounded; perform final artifact acceptance
+after both are integrated. A compilation smoke test can precede integration,
+but its executable does not replace acceptance of the final hash.
+
+1. Portable common-build contract
+
+Reuse scripts/build_raptr_shared.py: source_snapshot/profile_snapshot,
+archive_manifest, cache_identity, guarded build, resolved capability graph and
+binary archiving. The helper already accepts --profile release and has an ELF
+readelf path. Extend this code rather than the legacy delugi-replica recipe.
+
+Pin the common assembly's effective release profile first. The standalone
+core/raptr/node/Cargo.toml currently defines only dev/test overrides. The pinned
+native workspace Cargo.toml:892 sets release overflow-checks=true, which is
+absent from the common assembly. Preserve that setting, explicitly retain the
+chosen debug-info suppression, and bind optimization, panic, LTO and codegen
+settings. Do not silently adopt the native performance profile.
+
+Version the receipt to distinguish original build-root paths from portable
+archive paths. Current validate_build/validate_capabilities in
+scripts/run_raptr_shared_local.py:240-332 expect the verifier's source root to
+equal the producer's absolute path. Validate original command/metadata records
+against their bound build root, then resolve source evidence through a declared
+archive-root mapping. Preserve the original receipt bytes; never rewrite paths
+inside a historical receipt to make verification pass.
+
+Bind Rust host/target and actual target flags, native C/C++ compiler/linker/
+archiver/libclang identities, ELF machine/interpreter, libc and resolved dynamic
+libraries, effective profiles, source/native archive, lockfiles, cache contents
+and relevant Cargo configurations. Validate the complete relocated bundle on
+the controller and receiving host before launch. Reject target/ABI/CPU mismatch.
+
+Tests: relocated source/archive verification; changed metadata/profile/native
+tool; missing dependency; wrong target; check/test action with stale executable;
+failed compiler cleanup. Existing source/cache corruption tests remain gates.
+
+Local Linux preflight: verify Python supports tomllib, hashlib.file_digest and
+tarfile.data_filter, Rust/Cargo1.78, native build tools and all locked offline
+dependencies. Existing Ubuntu Python3.10 bootstrap is insufficient. Separate
+dependency acquisition from the locked offline build. The configured AppleHV
+VM is ARM64, 4 CPUs/16GiB/80GiB with /workspace mounted; its live readiness was
+not tested by this audit. An ARM64 artifact cannot qualify x86_64 cloud hosts.
+The native x86_64 Linux flags also require lld and SSE4.2.
+
+2. Common placement and host-local lifecycle
+
+Add a common-artifact recipe/publication route to deployment_prepare.py and a
+common-node supervisor with per-core lifecycle adapters. Existing recipes and
+remote_deployment.py still bind root src/*.rs and launch delugi-replica. Bind
+the complete common closure, one executable hash and explicit --protocol.
+
+Reuse strict SSH inventory, saved inventory import, resource enforcement and
+PID/start/session ownership. For the first deployment profile require four
+distinct hosts and validated private peer addresses. Keep controls on loopback
+through pinned SSH tunnels; distribute each host's own secret key plus public
+committee material. Allocate fresh, owned database directories.
+
+Generalize mechanisms already exercised by remote_native.py's Shoal path:
+immutable run nonce + plan/config/artifact hashes; all-host preparation before
+arm; readiness revalidation; host-local epochs; abort tombstones for late
+workers; concurrent cleanup before joining blocked workers. Keep core readiness,
+start and freeze behavior in their respective adapters, without a universal
+consensus API. Shared mechanism code must not branch on consensus message types.
+
+Each host establishes its monotonic workload epoch after the barrier. Retain
+requested/actual phase transitions and dispatch/skew evidence separately.
+Delugi currently converts controller start_unix_us via its local wall clock
+(run_sustained.py:383-386, process.rs:1578); replace this dependency with a local
+relative arm/start path. Raptr's local controller currently supplies one shared
+monotonic epoch (run_raptr_shared_local.py:570); the remote path needs one per
+host. All workload and fault offsets are relative to the appropriate host epoch.
+
+Keep current launch guards until the new path validates the full contract:
+Raptr config.rs:115 requires loopback; run_sustained.py:706 rejects remote common
+receipts; :278 separately rejects remote shared RocksDB. Replace those guards
+with explicit validated deployment capability, not unconditional permission.
+
+Reuse runtime_evidence.py's bounded, hashed transfer. Extend its allowlist for
+common-node ready/arm/freeze/final/profile/request/output evidence, excluding
+keys and databases. Every start, status, freeze, export and cleanup operation
+needs a finite timeout. Failed transfer retains partial local evidence and
+remote evidence, fails acceptance and triggers independent cleanup attempts
+on every contacted host. Only confirmed empty owned groups count as cleanup.
+
+Tests: partial upload/startup, readiness loss, stale/replayed arm, lost arm reply,
+timeout, controller interruption, abort before process creation, late worker,
+paused descendant, reused PID, hanging/truncated/tampered export and cleanup
+failure. Arbitrary host monotonic offsets must preserve primary metrics.
+
+3. Sustained Raptr and matched evidence
+
+Keep the finite schema and its accepted fixtures replayable. Add a versioned
+sustained experiment schema: total rate/origin schedule, useful bytes, actual
+serialized bytes, warmup/measurement/drain, bounded preparation/storage,
+host-local epochs, explicit offer outcomes and boundary receipts. Extract only
+generic rate arithmetic and evidence mechanisms into shared code. Native BCS
+transactions, identity validation, batch cutting, proofs and repair remain
+inside core/raptr.
+
+The current Python runner permits only 5,000 requests per origin; the node caps
+the committee at 100,000 prepared requests/128MiB and measurement/drain at 60s
+each. workload.rs:203-267 precomputes transactions; :399-463 retains and clones
+rows/output at freeze. factory.rs:115 buffers serialized output, and :277 sets
+a fixed 180s end guard before arming. Raising those constants alone does not
+provide multi-minute sustained qualification.
+
+Use bounded preparation chunks or a pre-generated sharded spool, independent
+shared_mempool::Worker arrivals, nonblocking admission and streamed authenticated
+evidence. Derive the harness end guard from the declared lifecycle envelope;
+preserve native protocol timer multipliers. Record preparation lag as scheduled
+arrival delay and unoffered work, rather than adapting offered load to service.
+
+Record intended, offered, admitted, rejected, completed and unfinished work
+independently. The current cutoff-crossing enqueue attempt returns without an
+outcome (workload.rs:75-87), while offered is inferred from admitted+rejected.
+Preserve rejection of late admission; record the attempt and its late/cancelled
+outcome explicitly. Reconcile every intended identity, including unoffered and
+unfinished work. Never grant useful credit to output predating admission.
+
+Normalize verified native evidence into cohort_store.py/CohortDatabase and
+cohort_metrics.py. Preserve exact native batch identities and raw output order;
+count unique useful goodput separately. Use half-open origin-local measurement
+cohorts, warmup carry-in, late drain completions, censored tails and backlog
+subwindows. Validate identity/prefix agreement across replicas without subtracting
+their clocks. Disable remote all-correct latency; retain final all-correct
+completion membership. Raptr's current reducer assumes one epoch and compares
+freeze with controller time (:1024-1035), as well as subtracting replica clocks
+for all-correct latency (:1083-1093); both assumptions need replacing.
+
+Add explicit stage availability and local batch/proposal/certification/
+materialization observations, keyed by native identities. own_batch_ready_us
+currently remains null. Do not infer it from commit/output or require own batch
+readiness before legitimate inline output. Primary latency remains successful
+origin-local admission to payload-verified contiguous application output.
+
+Add signed counter snapshots at matching measurement boundaries. Raptr currently
+freezes TCP counters before shutdown; Delugi quiesces and drains before final
+counters. Report measurement-window, drain and shutdown traffic separately;
+validate the same selected boundary before comparing. Scope remains successful
+authenticated TCP-stream writes including framing/authentication/ACK overhead,
+excluding TCP/IP headers and kernel retransmission.
+
+Tests: exact rate allocation/fractional intervals/overflow; queue saturation and
+cutoff crossings; empty/zero-output/unfinished cohorts; warmup carry-in; large
+streamed journals with bounded memory; missing/duplicate shards; disk exhaustion;
+tampering; duplicate/unknown output; per-host clock-offset invariance; traffic
+boundary parity. Add sustained-stage tests without changing native policy.
+
+4. Final Linux artifact and local acceptance
+
+Build the integrated common assembly with bounded CPU/RSS/disk/wall supervision.
+Archive executable, receipt, source/dependency/profile closure and raw logs;
+verify preservation before removing disposable compiler output. Requalify the
+exact final hash for both protocols: healthy round4, silent first leader plus
+three honest anchors, actual missing-payload repair, empty and unfinished work,
+task/process cleanup, and each claimed storage/observer/scheduling profile.
+Retain Delugi deterministic/wire conformance and native Raptr/QS regressions.
+Keep repeat failures and unaccepted attempts in the evidence ledger.
+
+Run lifecycle fault injection locally before any external-host execution. A
+local Linux VM establishes Linux compatibility/functional evidence; genuine
+four-host deployment acceptance is a separate gate.
+
+On that final artifact, exercise unshaped local Linux sustained workloads at
+4k tx/s and rates below, near and above observed saturation, with repeats and
+a multi-minute soak. Verify open-loop accounting, unfinished tails, backlog,
+stage observations, traffic and memory growth. Treat throughput and resource
+observations as properties of this local host/placement. Run unshaped controls
+before attempting calibrated delta10ms/Delta100ms locally; a failed calibration
+retains diagnostic evidence and cannot qualify shaped protocol measurements.
+These local checks qualify the harness before the distributed pilot.
+
+5. Four-host pilot and performance qualification
+
+After remote wiring/local Linux checks pass and the user authorizes execution,
+run the four-host engineering pilot on the exact target artifact and profiles.
+Start unshaped, require complete startup/output/freeze/transfer/cleanup evidence,
+then run 4k tx/s and below/near/above-saturation schedules with repeats and a
+multi-minute soak. Determine saturation empirically and preserve rising backlog,
+rejections, unfinished tails, stage timings, traffic and memory growth.
+
+Enforce and record aggregate whole-replica CPU/memory/swap/storage budgets,
+including Tokio/Rayon/network/RocksDB workers; equal executables do not imply
+equal executor topology. Use compatible declared storage completion for matched
+runs: fresh WAL-enabled sync=false Written databases, with retained in-memory
+state. Delugi memory acceptance remains a separate profile. Record all actual
+queue/frame/window limits and native worker/cache/background settings.
+
+Calibrate added delta10ms independently of protocol Delta100ms and native
+multipliers. Require unshaped baseline, directed edge/role identity, raw active
+RTT evidence and cleanup verification before accepting shaped protocol results.
+The previous VM's rejected 25.78-29.37ms added RTT remains rejected against
+20+/-5ms; it predicts neither acceptance nor failure on Alibaba.
+
+Keep fixed Delugi 256KiB batch payload separate from proposal/frame profiles.
+Raptr's per-batch byte setting is unenforced; its nominal 200-batch pull can
+admit 201. Retain these native behaviors and report effective limits. Any
+byte-splitter/cap policy change needs an explicit named variant and separate
+conformance decision. It is not required to make the first pilot deployable.
+
+After n4 qualification, requalify n7 then n31 on the common artifact before
+publishing scale results. Multiple faulty identities and repeated failures
+require their own campaign evidence. Restart recovery becomes relevant only
+when crash/restart experiments enter the claims.
+
+Acceptance state transitions
+
+Functional: exact artifact/profile passes protocol, output and cleanup controls.
+Deployment: all hosts verify placement/readiness/epochs, complete evidence
+transfer and confirmed cleanup, including tested lifecycle failures.
+Performance: matched workload/cohorts, effective resources/storage, traffic
+boundaries, timing controls and repeated stable-load/overload evidence pass.
+Advance each status independently; publication or build success advances none.

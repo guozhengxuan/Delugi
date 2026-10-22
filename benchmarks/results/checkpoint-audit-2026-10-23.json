@@ -1,0 +1,242 @@
+{
+  "acceptance": {
+    "four_host_deployment": "pending",
+    "functional": "Existing 30 Delugi and six Raptr n4 macOS ARM64 dev cases retained and integrity-checked.",
+    "linux_release": "pending",
+    "performance_eligible": false
+  },
+  "acceptance_reports": [
+    {
+      "bytes": 36785,
+      "path": "benchmarks/results/common-node-delugi-validation-2026-10-21.json",
+      "sha256": "68ccec6dc9023f3a7215e22ac9c3c1f551c6f1635638d634d43fd1ac8154a120"
+    },
+    {
+      "bytes": 40587,
+      "path": "benchmarks/results/common-node-raptr-validation-2026-10-21.json",
+      "sha256": "b2aef016f4cf76dd6abffa5e55cea894250952d6db5593c8295b6d9637e9b4fe"
+    }
+  ],
+  "activity": {
+    "cloud_provisioning": 0,
+    "git_network": "Read origin/main; normal repository push is separately recorded in Git history.",
+    "protocol_builds": 0,
+    "protocol_runs": 0,
+    "remote_host_execution": 0,
+    "vm_launches": 0
+  },
+  "additional_gaps_confirmed": [
+    "Native release overflow checks are absent from the standalone common assembly release profile.",
+    "Current common receipt verification assumes producer and verifier absolute source roots are identical.",
+    "Native compiler/linker/ELF ABI/runtime-library provenance needs Linux target qualification.",
+    "Raptr runner caps requests at 5000 per origin; node caps committee population at 100000, keeps precomputed workload and output in memory, and uses a 180-second end guard.",
+    "Raptr own_batch_ready_us remains unavailable; cutoff-crossing offer attempts need explicit outcome accounting.",
+    "Delugi controller wall-time startup and Raptr single-host epoch/all-correct latency assumptions need host-local replacements.",
+    "Raptr pre-shutdown and Delugi drained final traffic counters have different collection boundaries."
+  ],
+  "binary": {
+    "bytes": 66969984,
+    "path": "results/local/shared-core-20261021/common-node-build-1/artifact/raptr-shared-node",
+    "sha256": "6763539380645b3b1275b2819928ec826f35f5ffcb7950800b8a02a7ab24141a"
+  },
+  "bound_profiles_verified": 2,
+  "bound_sources_verified": 159,
+  "build_receipt": {
+    "bytes": 3675522,
+    "path": "results/local/shared-core-20261021/common-node-build-1/build-receipt.json",
+    "sha256": "2f986ca8bd81ae3cfec2e3cda784c4a00e24375f0cd03e191462e7a0a8894e75"
+  },
+  "canonical_build_identity": "9d333f6af5096df6bcebe5f4d2207b26cb79afea001ce472b55da15a087d34d6",
+  "changes": {
+    "accepted_build_inputs_changed": false,
+    "behavior": "Include shared_core_conformance in the staged controller closure and reject Python<3.11 before upload/native launch because the runtime imports tomllib.",
+    "files": [
+      {
+        "bytes": 46576,
+        "path": "scripts/deployment_prepare.py",
+        "sha256": "4cc2c94c5c86dbd8dd2cb7109647164a8eff34542d4adc2176e1bf1c9beb04a5"
+      },
+      {
+        "bytes": 45262,
+        "path": "scripts/remote_native.py",
+        "sha256": "214c7bf0f514bc001bfdf16e37079c427543805d6135cb9aedc57ccf76f7f628"
+      },
+      {
+        "bytes": 20482,
+        "path": "tests/deployment_prepare_test.py",
+        "sha256": "cd18a82ff854333fe9cd2680878c2d10518f1a2eeb8ecaec39ee02522d901a51"
+      },
+      {
+        "bytes": 50114,
+        "path": "tests/remote_native_test.py",
+        "sha256": "f35d134c62e71bd0008bcce9dbdce390c327926327d8a10f58754d75c3c4f9b3"
+      }
+    ]
+  },
+  "date": "2026-10-23",
+  "direct_acceptance_reference_files_verified": 59,
+  "driver_log": {
+    "bytes": 7035,
+    "path": "results/local/checkpoint-audit-20261023-r2/driver.log",
+    "sha256": "e12c89f14490872da8832fb113f4682358beb10789f470f006c1d0fb09c849c3"
+  },
+  "final_audit": {
+    "bytes": 25494,
+    "path": "results/local/checkpoint-audit-20261023-r2/audit.json",
+    "sha256": "42fff93231d6c8eaf31c93625470ab2199f2a948acdf96796467f58a7318a96f"
+  },
+  "final_script": {
+    "bytes": 5154,
+    "path": "results/local/checkpoint-audit-20261023-r2/audit.py",
+    "sha256": "009d978e0bf3149ff78f80110679279a2e40afe9d0bb4f63e79bf9e0cda9fd32"
+  },
+  "initial_checkout": {
+    "branch": "main",
+    "head": "a0d277dfadb9c75ad634550ae280758d811f54e1",
+    "origin_main": "a0d277dfadb9c75ad634550ae280758d811f54e1",
+    "remote_check": "git ls-remote origin refs/heads/main",
+    "working_tree_clean": true
+  },
+  "native_dependencies": {
+    "archive_sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+    "files": 16710,
+    "tree_sha256": "b69f6671d0c3e60013b50dbf7915e4698071a67dfadde50a4edb2dce03b2d0d0"
+  },
+  "plan": {
+    "bytes": 14828,
+    "path": "benchmarks/plans/2026-10-23-linux-distributed-qualification.txt",
+    "sha256": "9bd9137ea1c5769494499a8a6c66b43d4fa17a425bc36345cdd3e77f3be93b07"
+  },
+  "python_tests": {
+    "errors": 0,
+    "expected_failures": 0,
+    "failures": 0,
+    "log": {
+      "bytes": 38659,
+      "path": "results/local/checkpoint-audit-20261023-r2/python-tests.log",
+      "sha256": "24db4f72f90abaf31bebb5a5c300962fc98ee3d385fbaf4377ac9547bf673158"
+    },
+    "passed": true,
+    "run": 226,
+    "skipped": 0,
+    "suites": [
+      {
+        "module": "build_raptr_shared_test",
+        "source": {
+          "bytes": 12352,
+          "path": "tests/build_raptr_shared_test.py",
+          "sha256": "bbcc016d0d10965fd06ed6c3f2cafafe34fb79496d0b148f6ae0290ff7fc1172"
+        },
+        "tests": 17
+      },
+      {
+        "module": "raptr_shared_local_test",
+        "source": {
+          "bytes": 44358,
+          "path": "tests/raptr_shared_local_test.py",
+          "sha256": "e459a3b88a8e4224dcd0609e55338874a0d5afb2a6bffeebdd6b0c3e7688babf"
+        },
+        "tests": 50
+      },
+      {
+        "module": "shared_delugi_artifact_test",
+        "source": {
+          "bytes": 12619,
+          "path": "tests/shared_delugi_artifact_test.py",
+          "sha256": "e895eecd65bbca410069485b495a05a998bafa7ea83f6e383d97d4b8cab627bf"
+        },
+        "tests": 10
+      },
+      {
+        "module": "sustained_runner_test",
+        "source": {
+          "bytes": 20967,
+          "path": "tests/sustained_runner_test.py",
+          "sha256": "91183f8a84bbb918e0d613b7acf79c19be845fd1946dfea59c2f8970f122f4b3"
+        },
+        "tests": 24
+      },
+      {
+        "module": "network_runner_test",
+        "source": {
+          "bytes": 19567,
+          "path": "tests/network_runner_test.py",
+          "sha256": "aab579cd743903dc5a5a130d648e745b0af96673c3e976facf776d5728eeec88"
+        },
+        "tests": 29
+      },
+      {
+        "module": "deployment_prepare_test",
+        "source": {
+          "bytes": 20482,
+          "path": "tests/deployment_prepare_test.py",
+          "sha256": "cd18a82ff854333fe9cd2680878c2d10518f1a2eeb8ecaec39ee02522d901a51"
+        },
+        "tests": 17
+      },
+      {
+        "module": "remote_deployment_test",
+        "source": {
+          "bytes": 20735,
+          "path": "tests/remote_deployment_test.py",
+          "sha256": "4eed01517a91106d8fb9ce8c29fb4dd12d1fb307ee68b5225c11b0e518cdbc51"
+        },
+        "tests": 19
+      },
+      {
+        "module": "remote_native_test",
+        "source": {
+          "bytes": 50114,
+          "path": "tests/remote_native_test.py",
+          "sha256": "f35d134c62e71bd0008bcce9dbdce390c327926327d8a10f58754d75c3c4f9b3"
+        },
+        "tests": 38
+      },
+      {
+        "module": "cohort_metrics_test",
+        "source": {
+          "bytes": 10722,
+          "path": "tests/cohort_metrics_test.py",
+          "sha256": "2d9083c37614ad6d6b0c29a187c51c457141cd0fb0e53166b07530f47f7e7eff"
+        },
+        "tests": 17
+      },
+      {
+        "module": "timing_calibration_test",
+        "source": {
+          "bytes": 3415,
+          "path": "tests/timing_calibration_test.py",
+          "sha256": "357d48e52541150e81a8a9865c7df986103f7e3b5f640359607c027d73c52b43"
+        },
+        "tests": 5
+      }
+    ],
+    "unexpected_successes": 0
+  },
+  "reference_scope": "Every explicit path/bytes/sha256 file record directly nested in the two reports; no new protocol replay or recursive reinterpretation of their evidence.",
+  "retained_failed_attempt": {
+    "audit": {
+      "bytes": 25163,
+      "path": "results/local/checkpoint-audit-20261023/audit.json",
+      "sha256": "c2e0bb39726eb21027c66f1e8c39f1d2ee9a6281d708ea8d2348dfef3437c083"
+    },
+    "errors": 0,
+    "failure": "Packaged remote runtime could not import shared_core_conformance, required by run_network.",
+    "failures": 1,
+    "script": {
+      "bytes": 5154,
+      "path": "results/local/checkpoint-audit-20261023/audit.py",
+      "sha256": "009d978e0bf3149ff78f80110679279a2e40afe9d0bb4f63e79bf9e0cda9fd32"
+    },
+    "skipped": 0,
+    "test_log": {
+      "bytes": 40049,
+      "path": "results/local/checkpoint-audit-20261023/python-tests.log",
+      "sha256": "248bc61782e4d24cf23f9ebf65afd83908cf7e3089f392fdf383ccd0a4da0c5c"
+    },
+    "tests_run": 225
+  },
+  "schema": 1,
+  "scope": "Checkpoint integrity, local Python harness audit and deployment packaging repair; no new protocol execution acceptance.",
+  "status": "passed"
+}

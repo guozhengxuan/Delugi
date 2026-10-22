@@ -84,6 +84,12 @@ reference artifacts and historical results remain separate. See the
 [approved architecture](benchmarks/plans/2026-10-21-shared-core-architecture.txt)
 and [frozen services](benchmarks/plans/2026-10-21-shared-service-contract.txt).
 
+The [23 October qualification plan](benchmarks/plans/2026-10-23-linux-distributed-qualification.txt)
+orders the remaining Linux artifact, host-local deployment lifecycle and sustained
+Raptr work. Its [checkpoint audit](benchmarks/results/checkpoint-audit-2026-10-23.json)
+rechecks the retained artifact and harness contracts. Functional acceptance,
+distributed deployment acceptance and performance eligibility remain separate gates.
+
 ## Implemented ordering
 
 - `core/delugi/src/wire.rs`: canonical, bounded Ed25519/SHA-256 messages; instance,
@@ -399,7 +405,7 @@ cleanup commands default to a local preview. The
 [deployment workflow](benchmarks/plans/2026-10-19-deployment-workflow.txt) gives the
 full sequence. Local mocked contracts are tested; live remote deployment has not
 been tested. Native artifacts use the separate fixed-protocol placement entry point
-[`scripts/remote_native.py`](scripts/remote_native.py), with a declared Python3.10+
+[`scripts/remote_native.py`](scripts/remote_native.py), with a declared Python3.11+
 interpreter and an ingress/materialization observer on each validator host.
 Its local mocked lifecycle tests do not establish remote benchmark acceptance.
 
