@@ -291,8 +291,41 @@ class OwnedGroup:
 
 
 def disk_sample(target):
-    allocated = output(["du", "-sk", target], text=True).split()[0]
-    return {"target_allocated_bytes": int(allocated) * 1024,
+    # Native configure scripts create and unlink probes while this sample runs.
+    # Count allocated POSIX blocks without treating ENOENT as a build failure.
+    # Other read failures propagate. Directory descriptors prevent symlink
+    # traversal, and inode identities avoid counting hard links twice.
+    seen = set()
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+    def charge(info):
+        identity = (info.st_dev, info.st_ino)
+        if identity in seen:
+            return 0
+        seen.add(identity)
+        return info.st_blocks * 512
+    def scan(descriptor):
+        allocated = charge(os.fstat(descriptor))
+        with os.scandir(descriptor) as entries:
+            for entry in entries:
+                try:
+                    info = entry.stat(follow_symlinks=False)
+                    if stat.S_ISDIR(info.st_mode):
+                        child = os.open(entry.name, flags, dir_fd=descriptor)
+                        try:
+                            allocated += scan(child)
+                        finally:
+                            os.close(child)
+                    else:
+                        allocated += charge(info)
+                except FileNotFoundError:
+                    continue
+        return allocated
+    descriptor = os.open(target, flags)
+    try:
+        allocated = scan(descriptor)
+    finally:
+        os.close(descriptor)
+    return {"target_allocated_bytes": allocated,
             "filesystem_free_bytes": shutil.disk_usage(target).free}
 
 

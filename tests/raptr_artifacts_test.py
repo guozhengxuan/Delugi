@@ -1,9 +1,11 @@
 """Raptr artifact provenance and owned build guards; no native compilation."""
 import copy
+import contextlib
 import importlib.util
 import json
 import os
 from pathlib import Path
+from types import SimpleNamespace
 import signal
 import tempfile
 import unittest
@@ -15,6 +17,36 @@ ART = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(ART)
 LIMITS = {"target_bytes": 10000, "free_bytes": 100, "rss_bytes": 20000,
           "seconds": 60, "poll_seconds": .05, "cleanup_seconds": .05}
+
+
+class DiskSamplingTests(unittest.TestCase):
+    def setUp(self):
+        temporary=tempfile.TemporaryDirectory();self.addCleanup(temporary.cleanup)
+        self.root=Path(temporary.name);self.target=self.root/'target';self.target.mkdir()
+
+    def test_allocated_blocks_count_hard_links_once_and_never_follow_symlinks(self):
+        payload=self.target/'object';payload.write_bytes(b'x'*8192)
+        (self.target/'hardlink').hardlink_to(payload)
+        outside=self.root/'outside';outside.mkdir();(outside/'large').write_bytes(b'x'*65536)
+        alias=self.target/'alias';alias.symlink_to(outside,target_is_directory=True)
+        expected=sum(p.lstat().st_blocks*512 for p in (self.target,payload,alias))
+        result=ART.disk_sample(self.target)
+        self.assertEqual(result['target_allocated_bytes'],expected)
+        self.assertGreater(result['filesystem_free_bytes'],0)
+
+    def test_disappearing_configure_file_does_not_abort_sample(self):
+        payload=self.target/'kept';payload.write_bytes(b'x'*4096)
+        gone=SimpleNamespace(stat=mock.Mock(side_effect=FileNotFoundError('conftest vanished')))
+        kept=SimpleNamespace(stat=mock.Mock(return_value=payload.lstat()))
+        with mock.patch.object(ART.os,'scandir',return_value=contextlib.nullcontext([gone,kept])):
+            result=ART.disk_sample(self.target)
+        self.assertEqual(result['target_allocated_bytes'],sum(p.lstat().st_blocks*512 for p in (self.target,payload)))
+
+    def test_real_read_errors_still_fail_the_resource_guard(self):
+        for error in (PermissionError('denied'),OSError('I/O error')):
+            entry=SimpleNamespace(stat=mock.Mock(side_effect=error))
+            with self.subTest(error=type(error).__name__),mock.patch.object(ART.os,'scandir',return_value=contextlib.nullcontext([entry])):
+                with self.assertRaises(type(error)):ART.disk_sample(self.target)
 
 
 class ArtifactFixture(unittest.TestCase):
