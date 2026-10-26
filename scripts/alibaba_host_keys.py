@@ -66,7 +66,7 @@ def inspect_keys(state_path, output):
                 keep_command=False,timeout=30,username='root',working_dir='/tmp'))
             probe['invoke_id']=result['InvokeId']; save(lease.path,lease.state)
         result = lease.call('describe_invocation_results',lease.models.DescribeInvocationResultsRequest(
-            region_id=lease.plan['region'],invoke_id=probe['invoke_id'],content_encoding='PlainText',max_results=100))
+            region_id=lease.plan['region'],invoke_id=probe['invoke_id'],content_encoding='PlainText',max_results=50))
         save(output/'cloud-assistant-results.json',result)
         rows = result.get('Invocation',{}).get('InvocationResults',{}).get('InvocationResult',[])
         if result.get('Invocation',{}).get('NextToken'):
