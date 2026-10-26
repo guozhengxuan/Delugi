@@ -57,6 +57,7 @@ only for inventory/instance actions, not configure or benchmark SSH actions.
 Install controller packages in a virtual environment using:
   python3 -m venv benchmarks/.cache/aliyun-python
   benchmarks/.cache/aliyun-python/bin/pip install -r benchmarks/aliyun-requirements.txt
+  source benchmarks/.cache/aliyun-python/bin/activate
 
 All commands below run from the Delugi checkout. Choose an output directory under
 results/local; generated keys, tokens, identities and raw logs must not be added

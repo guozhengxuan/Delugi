@@ -1,0 +1,221 @@
+{
+  "schema": 1,
+  "date": "2026-10-26",
+  "status": "passed",
+  "implementation_commit": "3a9f072e82918e1762e146b193217d84f658aab8",
+  "scope": "Aliyun pilot tooling, macOS common-node dev regressions, and Linux supervisor fixtures; no cloud benchmark acceptance",
+  "comparison_eligible": false,
+  "cloud_instances_created": 0,
+  "linux_common_release_build_executed": false,
+  "cloud_four_host_campaign_executed": false,
+  "python_suites": [
+    {
+      "evidence": {
+        "path": "results/local/aliyun-pilot-20261026/raptr-tests.log",
+        "sha256": "660a6a4930fd083c33cdb6b3b5b2efe798f6499f3832f1c85e90e4dc542a18b6",
+        "bytes": 240
+      },
+      "passed": 140
+    },
+    {
+      "evidence": {
+        "path": "results/local/aliyun-pilot-20261026/deployment-tests.log",
+        "sha256": "2aee8cb24f16e6ca721f4eff630867b090d94275e3968b6f1f2166c689f7e86e",
+        "bytes": 145
+      },
+      "passed": 46
+    },
+    {
+      "evidence": {
+        "path": "results/local/aliyun-pilot-20261026/evidence-tests.log",
+        "sha256": "c1de396add63b60b7739446ae754c9af4d1c4c8af85083ffc8071726ef9e4e98",
+        "bytes": 104
+      },
+      "passed": 6
+    },
+    {
+      "evidence": {
+        "path": "results/local/aliyun-pilot-20261026/network-tests.log",
+        "sha256": "1d67f3b3dd32cb18fa9af36ab5dfc28b05e89a5390c469bf8d0d9c929f28b7ef",
+        "bytes": 128
+      },
+      "passed": 29
+    },
+    {
+      "evidence": {
+        "path": "results/local/aliyun-pilot-20261026/aliyun-contract-tests.log",
+        "sha256": "01a63e8ac5c682c7d050fb012c7b3d54062e1a4d067e3aded76ec21f4f6700f4",
+        "bytes": 115
+      },
+      "passed": 16
+    }
+  ],
+  "python_tests_total": 237,
+  "common_native_tests": {
+    "passed": 19,
+    "evidence": {
+      "path": "results/local/aliyun-pilot-20261026/native-test-observable/cargo.log",
+      "sha256": "2ca3686ceeb32622b51839050c798055da9d8401ad304ea73fa13ca36ecc28cf",
+      "bytes": 58318
+    },
+    "receipt": {
+      "path": "results/local/aliyun-pilot-20261026/native-test-observable/build-receipt.json",
+      "sha256": "703a0990b043c87762d1b2ae78da05b7dadb328c7f47f5d0f4e2376351f99864",
+      "bytes": 3674525
+    }
+  },
+  "linux_supervisor": {
+    "passed": 3,
+    "fake_node_fixture": true,
+    "vm_stopped_afterward": true,
+    "evidence": {
+      "path": "results/local/aliyun-pilot-20261026/linux-supervisor-final.log",
+      "sha256": "a6b4b015950b39e67c180dea76b059b19e60c949056b3169a467c191ba9a9fff",
+      "bytes": 1176
+    }
+  },
+  "common_binary": {
+    "path": "results/local/aliyun-pilot-20261026/native-build/artifact/raptr-shared-node",
+    "sha256": "c438a92f2110fba4d75c6bd296fdc196c495ce6c43d0f13d26f85e97d994d792",
+    "bytes": 67044512
+  },
+  "build_receipt": {
+    "path": "results/local/aliyun-pilot-20261026/native-build/build-receipt.json",
+    "sha256": "b5ca92a5972c4a0eed9eaa3b5b48dcd4b018ed98dd78a22ecec6b42e435da6c5",
+    "bytes": 3675561
+  },
+  "four_process_regressions": {
+    "evidence": {
+      "path": "results/local/aliyun-pilot-20261026/local-regression.json",
+      "sha256": "fe770777d2fea7ef7f728a4fff14414e99a86a1276cc404841b1fcfd7842aa47",
+      "bytes": 2541
+    },
+    "nodes": 4,
+    "configured_Delta_ms": 100,
+    "added_delta_ms": 0,
+    "storage_profile": "shared-rocksdb-written-v1",
+    "trials": [
+      {
+        "case": "healthy",
+        "evidence": {
+          "path": "results/local/aliyun-pilot-20261026/delugi-healthy/result.json",
+          "sha256": "927c4aa48d61e5cf4fb246dc914cfdde4bd79c3ecdb386b95ea854c7b67f694b",
+          "bytes": 157597
+        },
+        "pass": true,
+        "protocol": "delugi",
+        "status": "passed"
+      },
+      {
+        "case": "silent-first-leader",
+        "evidence": {
+          "path": "results/local/aliyun-pilot-20261026/delugi-silent-first-leader/result.json",
+          "sha256": "78ae7e6e1b043055713bd53b494724fb44fa85b4bd517929f5770b591b1eea04",
+          "bytes": 123512
+        },
+        "pass": true,
+        "protocol": "delugi",
+        "status": "passed"
+      },
+      {
+        "case": "healthy",
+        "evidence": {
+          "path": "results/local/aliyun-pilot-20261026/raptr-healthy/manifest.json",
+          "sha256": "5c6cdbb025e0b2261172dfa31c0ff6bf9b15f976a6fe767dc0ac1079564e48dc",
+          "bytes": 54418
+        },
+        "pass": true,
+        "protocol": "raptr",
+        "status": "completed"
+      },
+      {
+        "case": "silent-first-leader",
+        "evidence": {
+          "path": "results/local/aliyun-pilot-20261026/raptr-silent-first-leader/manifest.json",
+          "sha256": "3ce859bea3b857b9a9d6175377395801304ace5c70bdd80e7919d2a35e473979",
+          "bytes": 34586
+        },
+        "pass": true,
+        "protocol": "raptr",
+        "status": "completed"
+      }
+    ]
+  },
+  "cleanup": {
+    "evidence": {
+      "path": "results/local/aliyun-pilot-20261026/build-cleanup.json",
+      "sha256": "ead8f0f97545ca48c73bd4a607cf5c50ab811c9115551fba220bae0b2df467fd",
+      "bytes": 454
+    },
+    "allocated_target_bytes_removed": 2297581568,
+    "retained_binary_revalidated": true
+  },
+  "source_files": [
+    {
+      "path": "scripts/aliyun_bench.py",
+      "sha256": "31f0df292e9d28307971ff97109b7060fec3afaddead1a0fb7ba3b67481b1399",
+      "bytes": 30444
+    },
+    {
+      "path": "scripts/common_cloud_worker.py",
+      "sha256": "7f003d3efc7cd08b32a7ae49a1486fe3fa4a31fd9fd289e19e2c78f9ba2ef803",
+      "bytes": 21286
+    },
+    {
+      "path": "scripts/common_cloud_build.py",
+      "sha256": "2bbb7e95386c0ae2ef4f33def02869c161a4df9b894d73069a072471c4130a8f",
+      "bytes": 11720
+    },
+    {
+      "path": "scripts/common_cloud_controller.py",
+      "sha256": "1f184e450cd0b6f638ae4c2457eaaa6524a1810433536f2e285b5ba89730974f",
+      "bytes": 7778
+    },
+    {
+      "path": "scripts/common_artifact.py",
+      "sha256": "f5d68cdc84eb13a6adf744be89f53012c714a256654e2bff9086884ed542baa7",
+      "bytes": 9426
+    },
+    {
+      "path": "scripts/alibaba_deployment.py",
+      "sha256": "340c5893fa3616c153da630f7afea04d99a5eec2a3f6e0e1a52a198ddb12d67c",
+      "bytes": 18672
+    },
+    {
+      "path": "scripts/build_raptr_shared.py",
+      "sha256": "8cd0487e824252cc30acc4fbfb97bfa5629f8e689c441fcac5486e2186f22e69",
+      "bytes": 22235
+    },
+    {
+      "path": "scripts/run_raptr_shared_local.py",
+      "sha256": "7e229a005be88a5acaca563b21b18f8e500da606ed255946d39cf0a30e6a9855",
+      "bytes": 79593
+    },
+    {
+      "path": "tests/aliyun_bench_test.py",
+      "sha256": "e33c6c68bc8f3bcac9752302e9ab79237fd4f41c062a463a60e7ae9ce87ce434",
+      "bytes": 14258
+    },
+    {
+      "path": "tests/common_cloud_worker_linux_test.py",
+      "sha256": "ba3b6ccbfe224a4219e1159b70a657db2a401d6aa2ac98e7490acdd016f0859d",
+      "bytes": 5139
+    },
+    {
+      "path": "core/raptr/node/Cargo.toml",
+      "sha256": "08a9d9d4ec64362f09e85959d1b010450fb4c588247828c301df1c818d311fa3",
+      "bytes": 41315
+    },
+    {
+      "path": "core/raptr/node/src/config.rs",
+      "sha256": "b2fbfe8895f30074ab29f36eeac0c24370cb5f13e5b77567263932bc303d278a",
+      "bytes": 17570
+    }
+  ],
+  "pending": [
+    "live regional quote and human spending cap",
+    "Linux release build using the pinned commit",
+    "four-host private-network campaign",
+    "sustained Raptr cohort integration and calibrated delta10ms comparison"
+  ]
+}
