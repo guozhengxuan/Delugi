@@ -67,6 +67,51 @@ class PilotTests(unittest.TestCase):
         values, errors=bench.parallel(self.inventory['hosts'],act)
         self.assertEqual(set(seen),{0,1,2,3}); self.assertEqual(set(values),{0,2,3}); self.assertEqual(set(errors),{1})
 
+    def test_campaign_ssh_reuses_only_matching_authentication_and_keeps_pinning(self):
+        with bench.campaign_connections() as factory:
+            first = factory(self.inventory['hosts'][0])
+            again = factory(copy.deepcopy(self.inventory['hosts'][0]))
+            other = factory(self.inventory['hosts'][1])
+            changed = factory(dict(self.inventory['hosts'][0], known_hosts_file=str(self.root/'different')))
+            self.assertEqual(first.control_path, again.control_path)
+            self.assertNotEqual(first.control_path, other.control_path)
+            self.assertNotEqual(first.control_path, changed.control_path)
+            self.assertEqual(first.control_path.parent.stat().st_mode & 0o777, 0o700)
+            with patch.object(bench.subprocess, 'run', return_value=SimpleNamespace(returncode=0)) as run:
+                first.command(['printf', '%s', 'one argument; no shell expansion'], capture_output=True)
+            argv = run.call_args.args[0]
+            self.assertIn('StrictHostKeyChecking=yes', argv)
+            self.assertIn('UserKnownHostsFile='+self.inventory['hosts'][0]['known_hosts_file'], argv)
+            self.assertIn('ControlMaster=auto', argv)
+            self.assertIn('ControlPersist=60', argv)
+            self.assertEqual(argv[-1], "printf %s 'one argument; no shell expansion'")
+            self.assertTrue(run.call_args.kwargs['check'])
+        self.assertFalse(first.control_path.parent.exists())
+
+    def test_campaign_ssh_closes_every_owned_master_on_failure(self):
+        calls = []
+        def close(argv, **kwargs):
+            calls.append(argv)
+            Path(argv[argv.index('-S')+1]).unlink()
+            return SimpleNamespace(returncode=0)
+        with patch.object(bench.subprocess, 'run', side_effect=close):
+            with self.assertRaisesRegex(ValueError, 'fixture interruption'):
+                with bench.campaign_connections() as factory:
+                    connections = [factory(h) for h in self.inventory['hosts']]
+                    for c in connections: c.control_path.touch()
+                    raise ValueError('fixture interruption')
+        self.assertEqual(len(calls), 4)
+        self.assertTrue(all('-O' in a and a[a.index('-O')+1]=='exit' for a in calls))
+        self.assertFalse(connections[0].control_path.parent.exists())
+
+    def test_campaign_ssh_does_not_replay_failed_mutating_commands(self):
+        with bench.campaign_connections() as factory:
+            connection = factory(self.inventory['hosts'][0])
+            with patch.object(bench.subprocess, 'run', side_effect=subprocess.CalledProcessError(255, ['ssh'])) as run:
+                with self.assertRaises(subprocess.CalledProcessError):
+                    connection.command(['worker', 'start'])
+                self.assertEqual(run.call_count, 1)
+
     def test_failed_prepare_or_start_closes_and_collects_every_host(self):
         for failure in ('prepare','start'):
             calls=[]

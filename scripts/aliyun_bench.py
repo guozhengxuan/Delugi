@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 import copy
 import hashlib
 import ipaddress
@@ -16,9 +17,12 @@ import json
 import os
 from pathlib import Path
 import secrets
+import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
+import threading
 import time
 import uuid
 
@@ -29,6 +33,7 @@ import deployment_prepare as placement
 import run_network as delugi
 import run_raptr_shared_local as raptr
 import runtime_evidence
+from remote_deployment import ssh_arguments
 
 ROOT = Path(__file__).resolve().parents[1]
 KIND = 'delugi-raptr-aliyun-pilot-v1'
@@ -137,8 +142,17 @@ def validate_plan(plan):
 
 
 class Connection(placement.Connection):
+    def __init__(self, host, control_path=None):
+        super().__init__(host)
+        self.control_path = control_path
+
     def command(self, arguments, **kwargs):
         kwargs.setdefault('timeout', 60)
+        if self.control_path is not None:
+            options = ['-o', 'ControlMaster=auto', '-o', 'ControlPersist=60',
+                       '-o', 'ControlPath='+str(self.control_path)]
+            return subprocess.run(ssh_arguments(self.host)+options+[self.host['ssh'], shlex.join(arguments)],
+                                  check=True, **kwargs)
         return super().command(arguments, **kwargs)
 
     def rpc(self, request):
@@ -338,7 +352,48 @@ def run_trial(plan, protocol, case, directory, connection_factory=Connection):
     return result
 
 
+@contextmanager
+def campaign_connections():
+    """Reuse authenticated SSH sessions in a private, campaign-owned directory.
+
+    A fresh authentication for every polling/control action can exhaust a local
+    signing agent or trigger connection throttling. No mutating RPC is retried:
+    only its transport is reused. The strict host-key and identity options stay
+    in force. Masters are closed on success and failure, with a bounded idle
+    lifetime if the controller itself is killed.
+    """
+    with tempfile.TemporaryDirectory(prefix='delugi-ssh-', dir='/tmp') as temporary:
+        root = Path(temporary)
+        hosts = {}; lock = threading.Lock()
+        def factory(host):
+            identity = {key: host[key] for key in ('ssh', 'identity_file', 'known_hosts_file')}
+            key = hash_json(identity)[:24]
+            path = root/key
+            with lock:
+                hosts[key] = (copy.deepcopy(host), path)
+            return Connection(host, path)
+        try:
+            yield factory
+        finally:
+            errors = []
+            for host, path in hosts.values():
+                if not path.exists():
+                    continue
+                try:
+                    closed = subprocess.run(ssh_arguments(host)+['-S', str(path), '-O', 'exit', host['ssh']],
+                                            capture_output=True, text=True, timeout=10)
+                    if closed.returncode and path.exists():
+                        errors.append(host['replica'])
+                except Exception:
+                    errors.append(host['replica'])
+            if errors:
+                raise RuntimeError(f'owned SSH session cleanup failed for replicas {errors}')
+
+
 def campaign(plan, output, connection_factory=Connection):
+    if connection_factory is Connection:
+        with campaign_connections() as factory:
+            return campaign(plan, output, factory)
     validate_plan(plan)
     output=Path(output).resolve();output.mkdir(mode=0o700,parents=True,exist_ok=False)
     save(output/'plan.json',plan)
