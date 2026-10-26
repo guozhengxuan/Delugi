@@ -21,7 +21,7 @@ Initial matrix:
   Delta             100ms; native timer multipliers remain unchanged
   injected delta    0; no shaping is installed by this pilot
   storage           shared RocksDB Written, WAL enabled, sync=false
-  executable        common Linux release, Rust1.78.0, one build job
+  executable        common Linux release, Rust1.78.0, two build jobs
   CPUs/memory       explicit inventory affinity and whole-machine RAM; swap0
 
 Delugi preloads two transactions per correct origin for each of four payload
@@ -123,6 +123,9 @@ dependencies, then runs guarded OFFLINE release tests and the binary build.
 on the selected root builder. Omit it when those packages are already installed.
 The builder needs60GiB free initially. Each Cargo command has the existing
 20GiB target, 8GiB sampled RSS, 30GiB minimum free space and30minute guards.
+The cloud builder uses two Cargo jobs on the four-vCPU build host. The local
+builder defaults to one and accepts --jobs 1 through --jobs 4. The job count is bound
+in the command, environment and build receipt; optimization flags are unchanged.
 
   python3 scripts/aliyun_bench.py build-plan \
     --inventory results/local/aliyun/hosts.json --replica 0 \

@@ -113,6 +113,15 @@ checksum="{digest}"
         self.assertEqual(env['CFLAGS'],'-Dfdopen=fdopen');self.assertEqual(env['CARGO_INCREMENTAL'],'0')
         self.assertEqual(env['CARGO_BUILD_JOBS'],'1');self.assertNotIn('untrusted',env['PATH'])
 
+    def test_parallel_jobs_are_bounded_and_bound_to_command_and_environment(self):
+        command=builder.recipe('build',self.root/'toolchain',jobs=2)
+        self.assertEqual(command[command.index('--jobs')+1],'2')
+        self.assertEqual(builder.environment(self.root,self.root/'target',self.root/'cargo',jobs=2)['CARGO_BUILD_JOBS'],'2')
+        for value in (0,5,True,'2',2.5):
+            with self.subTest(jobs=value):
+                with self.assertRaises(ValueError):builder.recipe('build',self.root,jobs=value)
+                with self.assertRaises(ValueError):builder.environment(self.root,self.root/'target',self.root/'cargo',jobs=value)
+
     def test_source_inventory_binds_new_shared_inputs_but_skips_build_targets(self):
         for name in builder.SOURCE_ROOTS:(self.root/name).mkdir(parents=True,exist_ok=True)
         for name in builder.SOURCE_EXTRAS:
@@ -137,7 +146,7 @@ checksum="{digest}"
                 builder.capability_metadata(output,self.root/'toolchain',{})
             derive.assert_not_called()
 
-    def mock_build(self,action='build',command_status='completed',cleanup='completed',source_drift=False):
+    def mock_build(self,action='build',command_status='completed',cleanup='completed',source_drift=False,jobs=1):
         output=self.root/'evidence';target=self.root/'target'
         def command(argv,cwd,env,target,log,resources,limits,receipt):
             log.write_text('compiler fixture\n');resources.write_text('{}\n')
@@ -155,8 +164,16 @@ checksum="{digest}"
             stack.enter_context(patch.object(builder.GUARD,'guarded_command',side_effect=command))
             stack.enter_context(patch.object(builder.contract,'validate_native_dependencies',return_value={}))
             binary=stack.enter_context(patch.object(builder,'binary_identity',return_value={'role':'raptr-shared-node'}))
-            result=builder.build(action,output,toolchain=self.root/'toolchain',target=target,cargo_home=self.root/'cargo')
+            result=builder.build(action,output,toolchain=self.root/'toolchain',target=target,cargo_home=self.root/'cargo',jobs=jobs)
             return result,binary.call_count
+
+    def test_selected_parallelism_survives_into_the_build_receipt(self):
+        result,_=self.mock_build(jobs=2)
+        self.assertEqual(result['status'],'completed')
+        self.assertEqual(result['build_jobs'],2)
+        self.assertEqual(result['environment']['CARGO_BUILD_JOBS'],'2')
+        argv=result['command']['argv']
+        self.assertEqual(argv[argv.index('--jobs')+1],'2')
 
     def test_check_cannot_issue_stale_executable_receipt(self):
         result,calls=self.mock_build('check')

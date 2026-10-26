@@ -275,6 +275,12 @@ def receipt_build_root(stamp, source_root):
     return Path(value)
 
 
+def validate_build_jobs(value):
+    if type(value) is not int or not 1 <= value <= 4:
+        raise ValueError("explicit build parallelism must be an integer from1 through4")
+    return value
+
+
 def validate_build(binary, stamp, source_root=ROOT):
     """A successful compiler exit alone is not an artifact/source binding."""
     source_root, binary = Path(source_root).resolve(), Path(binary).resolve()
@@ -289,8 +295,11 @@ def validate_build(binary, stamp, source_root=ROOT):
             or command.get("cleanup", {}).get("status") != "completed" or command["cleanup"].get("remaining") != []):
         raise ValueError("successful explicit binary build and owned cleanup receipt required")
     cargo = stamp.get("toolchain", {}).get("executables", {}).get("cargo", {}).get("path")
+    jobs = validate_build_jobs(stamp.get("build_jobs", 1))
+    if "build_jobs" in stamp and stamp.get("environment", {}).get("CARGO_BUILD_JOBS") != str(jobs):
+        raise ValueError("build parallelism differs between receipt and environment")
     expected_command = [cargo, "--config", str(build_root / "core/raptr/native/.cargo/config.toml"), "build",
-                        "--manifest-path", str(build_root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--jobs", "1"]
+                        "--manifest-path", str(build_root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--jobs", str(jobs)]
     if stamp["profile"] == "release":
         expected_command.append("--release")
     expected_command += ["--bin", "raptr-shared-node"]

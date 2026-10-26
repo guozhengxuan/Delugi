@@ -30,6 +30,7 @@ PACKAGES = ['build-essential', 'clang', 'libclang-dev', 'llvm', 'lld', 'cmake', 
             'libssl-dev', 'libudev-dev', 'libdw-dev', 'protobuf-compiler', 'git', 'ca-certificates', 'xz-utils']
 PREFIX = '/tmp/delugi-linux-build-'
 MAX_EXPORT = 2*1024**3
+BUILD_JOBS = 2
 
 
 def root_for(nonce):
@@ -74,7 +75,7 @@ def run_build(nonce, commit, install_packages=False):
         raise ValueError('build request differs from dispatched ownership record')
     if (root/'status.json').exists(): raise ValueError('build already attempted; use a fresh build plan')
     state = {'schema': 1, **owner, 'status': 'running', 'started_unix_ns': time.time_ns(),
-             'comparison_eligible': False, 'commands': [], 'cleanup_confirmed': False}
+             'comparison_eligible': False, 'commands': [], 'cleanup_confirmed': False, 'build_jobs': BUILD_JOBS}
     source = root/'source'; target = source/'core/raptr/.native-deps/target'
     logs = root/'logs'; logs.mkdir(mode=0o700)
     environment = {k:v for k,v in os.environ.items() if k in ('HOME', 'LANG', 'LC_ALL', 'TMPDIR')}
@@ -151,7 +152,7 @@ def run_build(nonce, commit, install_packages=False):
                 'fetch','--manifest-path',str(source/'core/raptr/node/Cargo.toml'),'--locked'], source, timeout=1200, env=build_env)
         for action in ('test','build'):
             command('guarded-'+action, [sys.executable,str(source/'scripts/build_raptr_shared.py'),action,
-                    '--profile','release','--toolchain',str(toolchain/'bin'),'--cargo-home',str(cargo_home),
+                    '--profile','release','--jobs',str(BUILD_JOBS),'--toolchain',str(toolchain/'bin'),'--cargo-home',str(cargo_home),
                     '--target',str(target),'--output',str(source/'results/cloud-build'/action)], source, timeout=2100)
         command('publish', [sys.executable,str(source/'scripts/common_artifact.py'),'pack',
                 '--binary',str(target/'release/raptr-shared-node'),

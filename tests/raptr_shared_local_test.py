@@ -174,6 +174,21 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'built role'):
             runner.validate_build(binary,stamp,self.root)
 
+    def test_build_receipt_parallelism_cannot_disagree_with_actual_recipe(self):
+        binary,stamp=self.build_fixture()
+        stamp['build_jobs']=2
+        stamp['environment']={'CARGO_BUILD_JOBS':'2'}
+        with self.assertRaisesRegex(ValueError,'build recipe differs'):
+            runner.validate_build(binary,stamp,self.root)
+        argv=stamp['command']['argv'];argv[argv.index('--jobs')+1]='2'
+        runner.validate_build(binary,stamp,self.root)
+        stamp['environment']['CARGO_BUILD_JOBS']='1'
+        with self.assertRaisesRegex(ValueError,'parallelism differs'):
+            runner.validate_build(binary,stamp,self.root)
+        stamp['build_jobs']=5
+        with self.assertRaisesRegex(ValueError,'parallelism must be'):
+            runner.validate_build(binary,stamp,self.root)
+
     def common_build_fixture(self):
         binary,stamp=self.build_fixture()
         root_manifest=self.root/'core/raptr/node/Cargo.toml'

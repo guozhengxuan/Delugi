@@ -99,9 +99,18 @@ class PilotTests(unittest.TestCase):
     def test_build_plan_pins_revision_and_helpers(self):
         plan=build.make_plan(self.inventory,'a'*40)
         self.assertEqual(build.validate(plan,dispatch=True),plan)
+        self.assertEqual(plan['build_jobs'],2)
         changed=dict(plan,worker_sha256='0'*64)
         with self.assertRaisesRegex(ValueError,'changed'): build.validate(changed,dispatch=True)
         with self.assertRaises(ValueError): build.make_plan(self.inventory,'main')
+
+    def test_build_dispatch_rejects_inaccurate_parallelism_even_with_valid_plan_hash(self):
+        plan=build.make_plan(self.inventory,'a'*40)
+        plan['build_jobs']=1
+        plan['plan_sha256']=bench.hash_json({k:v for k,v in plan.items() if k!='plan_sha256'})
+        self.assertEqual(build.validate(plan),plan)
+        with self.assertRaisesRegex(ValueError,'parallelism differs'):
+            build.validate(plan,dispatch=True)
 
     def test_instance_dry_run_does_not_construct_a_client(self):
         argv=['aliyun_bench.py','instances','launch','--state',str(self.root/'missing'),'--amount','4']

@@ -123,12 +123,13 @@ def prepare_native_archive(output, root=ROOT):
                 archive_path=archive.relative_to(root).as_posix(),directory=f'core/raptr/.native-deps/{PIN}')
 
 
-def environment(toolchain,target,cargo_home,base=None):
+def environment(toolchain,target,cargo_home,base=None,*,jobs=1):
+    jobs=contract.validate_build_jobs(jobs)
     base=os.environ if base is None else base;toolchain=Path(toolchain).resolve()
     env={key:base[key] for key in ('HOME','TMPDIR','LANG','LC_ALL') if key in base}
     env.update(PATH=str(toolchain)+':/usr/bin:/bin:/usr/sbin:/sbin:/Library/Developer/CommandLineTools/usr/bin',
                RUSTC=str(toolchain/'rustc'),RUSTDOC=str(toolchain/'rustdoc'),CARGO_HOME=str(Path(cargo_home).resolve()),
-               CARGO_TARGET_DIR=str(Path(target).resolve()),CARGO_BUILD_JOBS='1',CARGO_INCREMENTAL='0',
+               CARGO_TARGET_DIR=str(Path(target).resolve()),CARGO_BUILD_JOBS=str(jobs),CARGO_INCREMENTAL='0',
                CARGO_PROFILE_DEV_DEBUG='0',CARGO_PROFILE_TEST_DEBUG='0',CARGO_PROFILE_RELEASE_DEBUG='0')
     if platform.system()=='Darwin':
         env.update(CFLAGS='-Dfdopen=fdopen',LIBCLANG_PATH='/Library/Developer/CommandLineTools/usr/lib')
@@ -151,11 +152,12 @@ def toolchain_identity(toolchain,env):
     return {'rustc_version':'1.78.0','executables':records,'host':{'system':platform.system(),'machine':platform.machine()}}
 
 
-def recipe(action,toolchain,profile='dev',root=ROOT):
+def recipe(action,toolchain,profile='dev',root=ROOT,*,jobs=1):
+    jobs=contract.validate_build_jobs(jobs)
     if action not in ('check','test','build') or profile not in ('dev','release'):
         raise ValueError('fixed check/test/build recipe and dev/release profile required')
     argv=[str(Path(toolchain).resolve()/'cargo'),'--config',str(Path(root)/'core/raptr/native/.cargo/config.toml'),action,
-          '--manifest-path',str(Path(root)/'core/raptr/node/Cargo.toml'),'--locked','--offline','--jobs','1']
+          '--manifest-path',str(Path(root)/'core/raptr/node/Cargo.toml'),'--locked','--offline','--jobs',str(jobs)]
     if profile=='release': argv.append('--release')
     argv += ['--bin','raptr-shared-node'] if action=='build' else ['--all-targets']
     return argv
@@ -286,7 +288,8 @@ def capability_metadata(output, toolchain, env):
             **contract.file_record(path),'argv':argv,'returncode':process.returncode,'cleanup':cleanup}}
 
 
-def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOME,profile='dev',limits=None):
+def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOME,profile='dev',limits=None,jobs=1):
+    jobs=contract.validate_build_jobs(jobs)
     output=Path(output).resolve();target=Path(target).resolve()
     if not output.is_relative_to(ROOT): raise ValueError('build evidence must be inside the project for reproducible artifact references')
     output.mkdir(parents=True,exist_ok=False)
@@ -295,10 +298,10 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
         raise ValueError('build resource guard exceeds the approved local envelope')
     receipt={'schema':1,'format':contract.BUILD_FORMAT if action=='build' else f'raptr-shared-{action}-v1','status':'preparing',
              'build_root':str(ROOT.resolve()),
-             'action':action,'profile':profile,'native_commit':PIN,'started_unix_ns':time.time_ns(),
+             'action':action,'profile':profile,'build_jobs':jobs,'native_commit':PIN,'started_unix_ns':time.time_ns(),
              'comparison_eligible':False,'shared_target_retained':True,'source_before_after_equal':False,
              'resource_guard':{'limits':limits,'scope':'sampled owned process RSS/allocated target/free space; not kernel-enforced quotas'}}
-    env=environment(toolchain,target,cargo_home);command={}
+    env=environment(toolchain,target,cargo_home,jobs=jobs);command={}
     try:
         with GUARD.target_lock(target):
             receipt['sources']=source_snapshot();receipt['profiles']=profile_snapshot()
@@ -310,7 +313,7 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
             receipt['cache_before']=cache_identity(ROOT/'core/raptr/node/Cargo.lock',cargo_home)
             receipt['command']=command
             contract.atomic_json(output/'source-before.json',receipt)
-            GUARD.guarded_command(recipe(action,toolchain,profile),ROOT,env,target,
+            GUARD.guarded_command(recipe(action,toolchain,profile,jobs=jobs),ROOT,env,target,
                                   output/'cargo.log',output/'resources.jsonl',limits,command)
             receipt['source_before_after_equal']=(receipt['sources']==source_snapshot() and receipt['profiles']==profile_snapshot())
             if not receipt['source_before_after_equal']:raise ValueError('mutable node/shared source changed during build')
@@ -343,8 +346,9 @@ def main():
     parser.add_argument('--target',type=Path,default=TARGET)
     parser.add_argument('--cargo-home',type=Path,default=CARGO_HOME)
     parser.add_argument('--profile',choices=('dev','release'),default='dev')
+    parser.add_argument('--jobs',type=int,choices=range(1,5),default=1)
     args=parser.parse_args()
-    result=build(args.action,args.output,toolchain=args.toolchain,target=args.target,cargo_home=args.cargo_home,profile=args.profile)
+    result=build(args.action,args.output,toolchain=args.toolchain,target=args.target,cargo_home=args.cargo_home,profile=args.profile,jobs=args.jobs)
     print(json.dumps({'status':result['status'],'receipt':str(args.output/'build-receipt.json'),'error':result.get('error')},indent=2))
     return 0 if result['status'] in ('completed','checked_not_built','tested_not_built') else 1
 

@@ -26,7 +26,7 @@ def make_plan(inventory, commit, replica=0, install_packages=False):
             'install_packages': install_packages,
             'ssh_inputs': {name: placement.sha(Path(host[name]).expanduser()) for name in ('identity_file','known_hosts_file')},
             'scope': 'one Linux common release build and tests; no validators or paid instances created',
-            'compiler': '1.78.0', 'build_jobs': 1, 'per_cargo_deadline_seconds': 1800,
+            'compiler': '1.78.0', 'build_jobs': worker.BUILD_JOBS, 'per_cargo_deadline_seconds': 1800,
             'cargo_target_bytes': 20*1024**3, 'cargo_rss_bytes': 8*1024**3, 'comparison_eligible': False}
     result['plan_sha256'] = hashlib.sha256(json.dumps(result,sort_keys=True,separators=(',',':')).encode()).hexdigest()
     return result
@@ -47,6 +47,8 @@ def validate(plan, *, dispatch=False):
     if set(plan['ssh_inputs']) != {'identity_file','known_hosts_file'}:
         raise ValueError('build SSH identity and known-host bindings required')
     if dispatch:
+        if plan.get('build_jobs') != worker.BUILD_JOBS:
+            raise ValueError('build parallelism differs from the dispatched helper')
         for name, field in [('common_cloud_build.py','worker_sha256'),('remote_worker.py','runtime_sha256')]:
             if placement.sha(ROOT/'scripts'/name) != plan[field]: raise ValueError('build helper changed after planning')
     return plan
