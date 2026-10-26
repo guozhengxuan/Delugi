@@ -200,13 +200,19 @@ class Lease:
             self.state['security_group'] = response['SecurityGroupId']
             save(self.path, self.state)
         group = self.state['security_group']
+        if not self.state.get('inner_policy_drop'):
+            # Alibaba rejects a rule whose source group is the destination
+            # group. Disable implicit intra-group access, then authorize the
+            # exact private /32 peers after their addresses are allocated.
+            self.call('modify_security_group_policy', m.ModifySecurityGroupPolicyRequest(
+                region_id=p['region'], security_group_id=group, inner_access_policy='Drop'))
+            self.state['inner_policy_drop'] = True
+            save(self.path,self.state)
         if not self.state.get('rules_installed'):
             self.call('authorize_security_group', m.AuthorizeSecurityGroupRequest(
                 region_id=p['region'], security_group_id=group, permissions=[
                     m.AuthorizeSecurityGroupRequestPermissions(ip_protocol='TCP', port_range='22/22',
                         source_cidr_ip=p['controller_cidr'], description='Delugi controller SSH'),
-                    m.AuthorizeSecurityGroupRequestPermissions(ip_protocol='TCP', port_range='8000/8099',
-                        source_group_id=group, description='Delugi lease peer traffic'),
                 ]))
             self.state['rules_installed'] = True
         if not pending:
@@ -244,6 +250,40 @@ class Lease:
     @serialized_action
     def refresh(self):
         return self._refresh()
+
+    @serialized_action
+    def peers(self):
+        if not self.state.get('inner_policy_drop') or not self.state.get('security_group'):
+            raise ValueError('owned isolated security group required before peer authorization')
+        if any('ids' not in batch for batch in self.state.get('batches',[])):
+            raise ValueError('resolve uncertain creation before peer authorization')
+        expected={i for b in self.state.get('batches',[]) for i in b.get('ids',[])}
+        instances=self._refresh()
+        if not expected or {i['InstanceId'] for i in instances}!=expected:
+            raise ValueError('every saved owned instance must exist before peer authorization')
+        addresses=[]
+        networks=[ipaddress.ip_network(n) for n in ('10.0.0.0/8','172.16.0.0/12','192.168.0.0/16')]
+        for item in instances:
+            vpc=item.get('VpcAttributes',{})
+            ips=vpc.get('PrivateIpAddress',{}).get('IpAddress',[])
+            if vpc.get('VpcId')!=self.plan['vpc_id'] or len(ips)!=1:
+                raise ValueError('owned instance must have one private address in the planned VPC')
+            ip=ipaddress.ip_address(ips[0])
+            if ip.version!=4 or not any(ip in network for network in networks):
+                raise ValueError('private RFC1918 peer address required')
+            addresses.append(str(ip))
+        addresses=sorted(addresses)
+        if len(set(addresses))!=len(addresses):raise ValueError('distinct private peer addresses required')
+        old=self.state.get('peer_ips')
+        if old is not None and old!=addresses:
+            raise ValueError('peer placement changed; reconcile existing firewall rules explicitly')
+        if old is None:
+            self.call('authorize_security_group',self.models.AuthorizeSecurityGroupRequest(
+                region_id=self.plan['region'],security_group_id=self.state['security_group'],permissions=[
+                    self.models.AuthorizeSecurityGroupRequestPermissions(ip_protocol='TCP',port_range='8000/8099',
+                        source_cidr_ip=ip+'/32',description='Delugi exact private peer') for ip in addresses]))
+            self.state['peer_ips']=addresses;save(self.path,self.state)
+        return {'peer_ips':addresses,'port_range':'8000/8099','implicit_intra_group_access':'Drop'}
 
     @serialized_action
     def start(self):
@@ -307,7 +347,7 @@ class Lease:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('initialize', 'launch', 'refresh', 'start', 'stop', 'destroy'))
+    parser.add_argument('action', choices=('initialize', 'launch', 'refresh', 'peers', 'start', 'stop', 'destroy'))
     parser.add_argument('--state', type=Path, required=True)
     parser.add_argument('--plan', type=Path)
     parser.add_argument('--amount', type=int)

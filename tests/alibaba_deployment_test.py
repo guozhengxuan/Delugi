@@ -174,6 +174,33 @@ class LeaseBoundTests(unittest.TestCase):
                 with patch.object(lease,'_refresh',side_effect=AssertionError('must not call provider')):
                     with self.assertRaises(ValueError):lease.start()
 
+    def test_peer_rules_allow_exact_owned_private_addresses_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'lease.json';plan=dict(self.plan,region='ap-southeast-1',vpc_id='vpc-owned')
+            save(path,{'plan':plan,'inner_policy_drop':True,'security_group':'sg-owned',
+                       'batches':[{'ids':['i-a','i-b']} ]})
+            lease=object.__new__(Lease);lease.path,lease.plan=path,plan
+            instances=[{'InstanceId':f'i-{name}','VpcAttributes':{'VpcId':'vpc-owned','PrivateIpAddress':{'IpAddress':[ip]}}}
+                       for name,ip in [('a','10.0.0.2'),('b','10.0.0.3')]]
+            lease._refresh=lambda:instances
+            lease.models=SimpleNamespace(AuthorizeSecurityGroupRequest=lambda **kw:kw,
+                                          AuthorizeSecurityGroupRequestPermissions=lambda **kw:kw)
+            calls=[];lease.call=lambda name,request:calls.append((name,request))
+            self.assertEqual(lease.peers()['peer_ips'],['10.0.0.2','10.0.0.3'])
+            permissions=calls[0][1]['permissions']
+            self.assertEqual([p['source_cidr_ip'] for p in permissions],['10.0.0.2/32','10.0.0.3/32'])
+            self.assertTrue(all(p['port_range']=='8000/8099' and 'source_group_id' not in p for p in permissions))
+            lease.peers();self.assertEqual(len(calls),1)
+            instances[0]['VpcAttributes']['PrivateIpAddress']['IpAddress']=['10.0.0.4']
+            with self.assertRaisesRegex(ValueError,'placement changed'):lease.peers()
+
+    def test_peer_authorization_rejects_missing_instance(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'lease.json';plan=dict(self.plan,region='ap-southeast-1',vpc_id='vpc-owned')
+            save(path,{'plan':plan,'inner_policy_drop':True,'security_group':'sg-owned','batches':[{'ids':['i-a']} ]})
+            lease=object.__new__(Lease);lease.path,lease.plan=path,plan;lease._refresh=lambda:[]
+            with self.assertRaisesRegex(ValueError,'every saved owned instance'):lease.peers()
+
 
 if __name__ == '__main__':
     unittest.main()

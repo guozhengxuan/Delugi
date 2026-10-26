@@ -410,7 +410,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     commands=parser.add_subparsers(dest='command',required=True)
     lease=commands.add_parser('instances',help='exact-ID lease create/status/start/stop/delete')
-    lease.add_argument('action',choices=('initialize','launch','refresh','start','stop','destroy'))
+    lease.add_argument('action',choices=('initialize','launch','refresh','peers','start','stop','destroy'))
     lease.add_argument('--state',type=Path,required=True);lease.add_argument('--plan',type=Path)
     lease.add_argument('--amount',type=int);lease.add_argument('--execute',action='store_true')
     hosts=commands.add_parser('inventory',help='import exact instance IDs from a saved Loom-format inventory')
@@ -506,5 +506,6 @@ if __name__=='__main__':
     except Exception as error:
         # SDK errors can contain signed credential-bearing request details.
         print(json.dumps({'status':'failed','error_type':type(error).__name__,
+                          'error_code':getattr(error,'code',None),
                           'message':str(error) if isinstance(error,(ValueError,RuntimeError)) else 'operation failed; retained evidence/state must be inspected'}))
         raise SystemExit(1)
