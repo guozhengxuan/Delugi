@@ -78,8 +78,11 @@ executables or manually rewritten stamps. `scripts/build_raptr_shared.py` suppor
 guarded `test` and `build` actions; only a successful build can issue an executable
 receipt. Existing Delugi runners accept it through `--shared-build-receipt`.
 
-Current acceptance is local conformance with no added delay and Delta100ms.
-Dev-build controls do not establish protocol performance rankings. Native
+Current acceptance includes local conformance and a
+[four-host Aliyun Linux-release pilot](benchmarks/results/aliyun-four-host-pilot-2026-10-26.txt)
+with no added delay and Delta100ms. Delugi and Raptr each passed three healthy
+round-4 trials and three silent-leader recovery trials on independent hosts.
+These finite fixtures do not establish protocol performance rankings. Native
 reference artifacts and historical results remain separate. See the
 [approved architecture](benchmarks/plans/2026-10-21-shared-core-architecture.txt)
 and [frozen services](benchmarks/plans/2026-10-21-shared-service-contract.txt).
@@ -94,8 +97,10 @@ The [Aliyun pilot workflow](benchmarks/ALIYUN_PILOT.txt) provides Loom-style
 instance management, pinned Linux builds, private-network configuration,
 independent Delugi/Raptr replica launch, and per-host evidence collection through
 `scripts/aliyun_bench.py`. Its initial four-host healthy/silent-leader matrix is
-finite and unshaped; distributed acceptance and sustained comparisons require
-actual cloud runs. Plans are offline and remote actions require `--execute`.
+finite and unshaped; all 12 cloud trials passed with per-host evidence and owned
+process cleanup. The four instances and dedicated security group were deleted
+after collection. Matched sustained comparisons remain the next qualification
+stage. Plans are offline and remote actions require `--execute`.
 
 ## Implemented ordering
 

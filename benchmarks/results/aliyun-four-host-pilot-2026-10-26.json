@@ -1,0 +1,2586 @@
+{
+  "schema": 1,
+  "date": "2026-10-26",
+  "status": "passed",
+  "scope": "Four independent Aliyun hosts; common Linux release; finite distributed functional and lifecycle acceptance",
+  "comparison_eligible": false,
+  "implementation_commit": "b0fb02ca800329ec2f5be8c43710246132106568",
+  "controller_commit": "7a5f638b3f825e65c8d639608bcb95996b4f7d22",
+  "native_raptr_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+  "placement": {
+    "provider": "Alibaba Cloud ECS",
+    "region": "ap-southeast-1",
+    "hosts": 4,
+    "instance_type": "ecs.g9i.xlarge",
+    "cpus_per_host": 4,
+    "provider_memory_gib": 16,
+    "observed_memory_bytes": 16335233024,
+    "swap_bytes": 0,
+    "system_disk_gib": 200,
+    "system_disk_category": "cloud_essd",
+    "os": "Ubuntu 24.04.5 LTS",
+    "protocol_network": "private IPv4 VPC",
+    "public_egress_mbps_per_host": 5
+  },
+  "configuration": {
+    "configured_Delta_ms": 100,
+    "injected_delta_ms": 0,
+    "useful_transaction_bytes": 128,
+    "storage_profile": "shared-rocksdb-written-v1",
+    "repetitions_per_case": 3,
+    "delugi_workload": "2 transactions per correct origin per payload height, four heights preloaded",
+    "raptr_workload": "16 timed requests per correct origin, 1ms cadence, 100ms start delay, 5s measurement + 5s drain",
+    "fault_identities": {
+      "delugi": 0,
+      "raptr": 1
+    }
+  },
+  "build": {
+    "status": "completed",
+    "profile": "release",
+    "rust": "1.78.0",
+    "jobs": 2,
+    "machine": "x86_64",
+    "binary_sha256": "46ea823ca04e0aa8dcc0d0ed39ddc996f9a70d35967c0798d56a6233965645e4",
+    "publication_sha256": "e85b86c23283bb645ce1ff955337643d52a306a8045c12337474122e161088fd",
+    "publication_bytes": 34070679,
+    "native_tests_passed": 19,
+    "native_tests_failed": 0,
+    "elapsed_seconds": 1521.239683428,
+    "cleanup_confirmed": true,
+    "target_removed": true,
+    "test_log": {
+      "path": "results/local/aliyun-live-20261026/build-collected-3/files/source/results/cloud-build/test/cargo.log",
+      "sha256": "954ca751a1c0fd6610d90b7a906a6ddedd91ddff5e0fd916d61df215d44d9b78",
+      "bytes": 63169
+    },
+    "test_receipt": {
+      "path": "results/local/aliyun-live-20261026/build-collected-3/files/source/results/cloud-build/test/build-receipt.json",
+      "sha256": "7a416113a894192baab59cfc8c0b1b66d6a615f21e219cd5c95d8ad0ad90de8e",
+      "bytes": 3670557
+    },
+    "build_receipt": {
+      "path": "results/local/aliyun-live-20261026/build-collected-3/files/source/results/cloud-build/build/build-receipt.json",
+      "sha256": "515a2a7c06663ade5472f7aae646c9b0a9876a688d11f08cc8f523ef6621da6b",
+      "bytes": 3672854
+    },
+    "collection": {
+      "path": "results/local/aliyun-live-20261026/build-collected-3/collection.json",
+      "sha256": "1559683bd00abce76e3cd6c680e87c6c251fbc113baee1fe74949c0e15b9d853",
+      "bytes": 1704
+    }
+  },
+  "controller_checks": [
+    {
+      "path": "results/local/aliyun-live-20261026/provider-tests.log",
+      "sha256": "f196bef0973ff999dcbcf679ca035393cbb4be84e582dd7f9d09005e1f656ac4",
+      "bytes": 113,
+      "passed": 14
+    },
+    {
+      "path": "results/local/aliyun-live-20261026/parallel-build-validation.log",
+      "sha256": "5a13eb4349335333e6bc21e271110aae990d2e907f72415be58709c56bf51fe3",
+      "bytes": 186,
+      "passed": 87
+    },
+    {
+      "path": "results/local/aliyun-live-20261026/disk-sampling-validation.log",
+      "sha256": "56466d9e5a535b7b0d941c222eef00c87a78f9d6a6495e99306067f16609ff26",
+      "bytes": 218,
+      "passed": 118
+    },
+    {
+      "path": "results/local/aliyun-live-20261026/linux-sampler-validation.log",
+      "sha256": "1a1988359edf881674b87b300016f525db5f8bef94b30fbd8ab2d95d4384e1e6",
+      "bytes": 560,
+      "passed": 3
+    },
+    {
+      "path": "results/local/aliyun-live-20261026/ssh-session-tests.log",
+      "sha256": "8ab861d011f684def609597f873d869d8e4b594af4b5154d7bc7f4fc393c5f58",
+      "bytes": 119,
+      "passed": 20
+    }
+  ],
+  "controller_checks_note": "Overlapping focused suites are listed separately, not summed.",
+  "campaign": {
+    "path": "results/local/aliyun-live-20261026/pilot-002/campaign.json",
+    "sha256": "34cfe686c11543e16fb958aecf0ee3f627e10d7e0c0d0af0c78c6007665987d3",
+    "bytes": 2941
+  },
+  "trials": [
+    {
+      "repeat": 1,
+      "protocol": "delugi",
+      "case": "healthy",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/1-delugi-healthy/trial.json",
+        "sha256": "6bfe85cd455fc71ae01f36a3cdadd2409f0f9d5b985f8700a1451bcfc5d426d0",
+        "bytes": 42924
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "1": {
+          "sha256": "eb57d5ca5bf51e963543d17931492bc566eaf03bee638abc16bf98b5ccda9c79",
+          "bytes": 713033,
+          "files": 11
+        },
+        "3": {
+          "sha256": "eeb39ae4b96140e6f69069923fe5c3dbf7492792d6b3977bb540c4761bbd1fb7",
+          "bytes": 718030,
+          "files": 11
+        },
+        "0": {
+          "sha256": "9b01325591b1ce7fdda177833d2966a21a7b7245b8e9cd72b3097e6ef7baff28",
+          "bytes": 713012,
+          "files": 11
+        },
+        "2": {
+          "sha256": "adf3fcfda6047e49fb4e54361f144a61a506ece92142da289cbcc5cfc866eeda",
+          "bytes": 713005,
+          "files": 11
+        }
+      },
+      "correct_replica_resources": {
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22544384,
+          "child_user_seconds": 0.092,
+          "child_system_seconds": 0.030666,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22806528,
+          "child_user_seconds": 0.083974,
+          "child_system_seconds": 0.020992999999999998,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22937600,
+          "child_user_seconds": 0.099627,
+          "child_system_seconds": 0.02335,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22675456,
+          "child_user_seconds": 0.087461,
+          "child_system_seconds": 0.02294,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "expected_rounds": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 32,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 1,
+          "reporters": [
+            0,
+            1,
+            2
+          ],
+          "has_cer_proof": true
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 4,
+          "signed_observations": 16,
+          "inputs": 4,
+          "historical_sources": 0,
+          "empty_coordinates": 0
+        }
+      },
+      "latency": {
+        "available": false,
+        "reason": "preloaded finite fixture; cross-host wall-clock subtraction is not used"
+      },
+      "traffic": {
+        "scope": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic",
+        "total": {
+          "transport_enqueued_payload_bytes": 254643,
+          "protocol_payload_written_bytes": 254643,
+          "data_frame_written_bytes": 306051,
+          "data_frame_read_bytes": 306051,
+          "ack_written_bytes": 48384,
+          "ack_read_bytes": 48384,
+          "enqueued_frames": 252,
+          "acknowledged_frames": 252,
+          "accepted_frames": 252,
+          "outstanding_frames": 0,
+          "deferred_frames": 0,
+          "scheduled_frames": 252,
+          "retries": 0,
+          "partial_frame_written_bytes": 0,
+          "connection_failures": 0,
+          "rejected_frames": 0,
+          "queue_full_failures": 0,
+          "deferred_accepts": 0,
+          "resource_exhaustions": 0,
+          "workload_index_enqueued_bytes": 216207,
+          "beyond_workload_enqueued_bytes": 37380,
+          "workload_index_enqueued_messages": 243,
+          "beyond_workload_enqueued_messages": 117,
+          "protocol_enqueued_bytes": 253587,
+          "protocol_enqueued_messages": 360,
+          "ordering_bundle_frames": 78,
+          "ordering_bundle_members": 186,
+          "bundle_enqueued_envelope_bytes": 1056,
+          "auth_and_framing_written_bytes": 51408,
+          "socket_written_bytes": 354435,
+          "socket_read_bytes": 354435,
+          "written_categories": {
+            "available": true,
+            "payload_bytes": 16512,
+            "evidence_control_bytes": 237075,
+            "repair_bytes": 0,
+            "transport_overhead_bytes": 100848,
+            "total_written_bytes": 354435
+          }
+        }
+      }
+    },
+    {
+      "repeat": 1,
+      "protocol": "raptr",
+      "case": "healthy",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/1-raptr-healthy/trial.json",
+        "sha256": "6041c2006d26812230f5a9c5841f06d301dc4375475b9db0ac25c810d1429b0b",
+        "bytes": 139344
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "3": {
+          "sha256": "499c3890fbdcb805f55a3412896c3f709f87a011b222e91ab7293c364bf6fedf",
+          "bytes": 2161581,
+          "files": 18
+        },
+        "1": {
+          "sha256": "a13422c9fa7543533bdab920114df7cbd6eababc5370f578f6c199bf12eafdd3",
+          "bytes": 2158893,
+          "files": 18
+        },
+        "2": {
+          "sha256": "54ee8483d1df24a8a085a3f113e43531f4f9012494235d01a0b38cd962b96d12",
+          "bytes": 2161601,
+          "files": 18
+        },
+        "0": {
+          "sha256": "bccf74b2127e0fdb56d7a89e478c837600f9155bb1f39b65a5a719291500def6",
+          "bytes": 2158899,
+          "files": 18
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81584128,
+          "child_user_seconds": 13.816389,
+          "child_system_seconds": 0.34859199999999996,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81264640,
+          "child_user_seconds": 15.010449,
+          "child_system_seconds": 0.41320599999999996,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81489920,
+          "child_user_seconds": 14.981443,
+          "child_system_seconds": 0.378278,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81264640,
+          "child_user_seconds": 13.929359999999999,
+          "child_system_seconds": 0.34732199999999996,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "agreement": {
+          "status": "passed",
+          "sections": {
+            "0": 6525,
+            "1": 6525,
+            "2": 6534,
+            "3": 6534
+          },
+          "longest_sections": 6534,
+          "scope": "exact canonical native section and batch/transaction order"
+        },
+        "totals": {
+          "planned": 64,
+          "offered": 64,
+          "admitted": 64,
+          "rejected": 0,
+          "completed": 64,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "all_correct_completion": {
+          "admitted": 64,
+          "completed": 64,
+          "unfinished": 0,
+          "clock": "unavailable across hosts",
+          "endpoint": "origin admission to the latest first actual append across every correct replica",
+          "mean_us": null,
+          "scope": "final membership only; no cross-host clock subtraction"
+        },
+        "honest_anchor_authors": null
+      },
+      "latency": {
+        "clock": "origin-local CLOCK_MONOTONIC",
+        "endpoint": "bounded ingress admission to actual first application append",
+        "count": 64,
+        "mean_us": 178167.890625,
+        "population": "completed own-origin admitted honest requests; unfinished remain censored"
+      },
+      "native_verification": {
+        "1": {
+          "verified": true,
+          "signer": 1,
+          "receipt_sha256": "4011aaddb743731c935dae24c02f252e593605dd29b836b612c6fc7762cc8d11",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "0": {
+          "verified": true,
+          "signer": 0,
+          "receipt_sha256": "5c560a95be27db2bfef497ed22f202b13b04f7cc5238a73105f0d6fc8d805950",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "2": {
+          "verified": true,
+          "signer": 2,
+          "receipt_sha256": "1d4b75597228259d54a53bfa1727fe18f061a10ffa6f5728e843131a080e4312",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "3": {
+          "verified": true,
+          "signer": 3,
+          "receipt_sha256": "8bc38872f2919846210ca4d7490757b44d6d81b1e58f8077cb7380ff5ad89368",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        }
+      },
+      "traffic": {
+        "scope": "correct replicas only, sampled before shutdown; native idle consensus continues through finite measurement+drain; excludes IP/link headers and kernel retransmissions",
+        "written_categories": {
+          "payload_bytes": 78528,
+          "evidence_control_bytes": 4340994,
+          "repair_bytes": 0,
+          "transport_overhead_bytes": 8237592,
+          "total_written_bytes": 12657114
+        }
+      }
+    },
+    {
+      "repeat": 1,
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/1-delugi-silent-first-leader/trial.json",
+        "sha256": "e8557be6bf38bf0e4d56ebe7c2e22c330dbac4f3bd6f56b7038e42c837d4a4ff",
+        "bytes": 40854
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "0": {
+          "sha256": "c1cecf889afb844c69a98c11f752afef7a56d506d71143b3d314196f599c1d94",
+          "bytes": 97031,
+          "files": 11
+        },
+        "3": {
+          "sha256": "b060019281c939a62a7a90af053bb4ccf487b131b319d5b6dd486d711930a181",
+          "bytes": 617171,
+          "files": 11
+        },
+        "1": {
+          "sha256": "9ffeb594b03909b067621869fe3365fd515b0ae7f8868394526025cba5260466",
+          "bytes": 615768,
+          "files": 11
+        },
+        "2": {
+          "sha256": "b334195d9b5ce60163bc74518a22429dc27c3d622c9672e4b51b970191945e06",
+          "bytes": 615704,
+          "files": 11
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21233664,
+          "child_user_seconds": 0.084453,
+          "child_system_seconds": 0.029375,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21102592,
+          "child_user_seconds": 0.10114,
+          "child_system_seconds": 0.020544,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21495808,
+          "child_user_seconds": 0.088652,
+          "child_system_seconds": 0.022163,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "expected_rounds": [
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 24,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 0,
+          "reporters": [
+            1,
+            2,
+            3
+          ],
+          "has_cer_proof": false
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 3,
+          "signed_observations": 9,
+          "inputs": 3,
+          "historical_sources": 0,
+          "empty_coordinates": 3
+        }
+      },
+      "latency": {
+        "available": false,
+        "reason": "preloaded finite fixture; cross-host wall-clock subtraction is not used"
+      },
+      "traffic": {
+        "scope": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic",
+        "total": {
+          "transport_enqueued_payload_bytes": 170996,
+          "protocol_payload_written_bytes": 170996,
+          "data_frame_written_bytes": 221792,
+          "data_frame_read_bytes": 221792,
+          "ack_written_bytes": 47808,
+          "ack_read_bytes": 47808,
+          "enqueued_frames": 249,
+          "acknowledged_frames": 249,
+          "accepted_frames": 249,
+          "outstanding_frames": 0,
+          "deferred_frames": 0,
+          "scheduled_frames": 249,
+          "retries": 0,
+          "partial_frame_written_bytes": 0,
+          "connection_failures": 0,
+          "rejected_frames": 0,
+          "queue_full_failures": 0,
+          "deferred_accepts": 0,
+          "resource_exhaustions": 0,
+          "workload_index_enqueued_bytes": 136380,
+          "beyond_workload_enqueued_bytes": 34028,
+          "workload_index_enqueued_messages": 161,
+          "beyond_workload_enqueued_messages": 151,
+          "protocol_enqueued_bytes": 170408,
+          "protocol_enqueued_messages": 312,
+          "ordering_bundle_frames": 42,
+          "ordering_bundle_members": 105,
+          "bundle_enqueued_envelope_bytes": 588,
+          "auth_and_framing_written_bytes": 50796,
+          "socket_written_bytes": 269600,
+          "socket_read_bytes": 269600,
+          "written_categories": {
+            "available": true,
+            "payload_bytes": 12384,
+            "evidence_control_bytes": 158024,
+            "repair_bytes": 0,
+            "transport_overhead_bytes": 99192,
+            "total_written_bytes": 269600
+          }
+        }
+      }
+    },
+    {
+      "repeat": 1,
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/1-raptr-silent-first-leader/trial.json",
+        "sha256": "c9cf6a87af561dc63de56e2e0c64ad1f869dd5a08068df9a661055aad562d0a5",
+        "bytes": 75423
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "1": {
+          "sha256": "f34e58e308d03099f52074c1eb37aca8a132dae1af79daf72d06e51e8e9e4718",
+          "bytes": 21723,
+          "files": 13
+        },
+        "3": {
+          "sha256": "46f9f16c60dd3a4a3726232b746f5bee9037e6171992c68e76b354185ee45723",
+          "bytes": 360424,
+          "files": 18
+        },
+        "0": {
+          "sha256": "53c248648b248215b1931afcdab727624be5796e2b5e3b7674f79286556adea4",
+          "bytes": 360431,
+          "files": 18
+        },
+        "2": {
+          "sha256": "77a92e46d375b3fa51c5c345e7f61063e1d8115d1dc244fbdf67a6bd60dffaaf",
+          "bytes": 360440,
+          "files": 18
+        }
+      },
+      "correct_replica_resources": {
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36052992,
+          "child_user_seconds": 1.609113,
+          "child_system_seconds": 0.054983,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36040704,
+          "child_user_seconds": 1.571011,
+          "child_system_seconds": 0.08763,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36024320,
+          "child_user_seconds": 1.644903,
+          "child_system_seconds": 0.063815,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "agreement": {
+          "status": "passed",
+          "sections": {
+            "0": 594,
+            "2": 594,
+            "3": 594
+          },
+          "longest_sections": 594,
+          "scope": "exact canonical native section and batch/transaction order"
+        },
+        "totals": {
+          "planned": 48,
+          "offered": 48,
+          "admitted": 48,
+          "rejected": 0,
+          "completed": 48,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "all_correct_completion": {
+          "admitted": 48,
+          "completed": 48,
+          "unfinished": 0,
+          "clock": "unavailable across hosts",
+          "endpoint": "origin admission to the latest first actual append across every correct replica",
+          "mean_us": null,
+          "scope": "final membership only; no cross-host clock subtraction"
+        },
+        "honest_anchor_authors": {
+          "0": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          },
+          "2": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          },
+          "3": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          }
+        }
+      },
+      "latency": {
+        "clock": "origin-local CLOCK_MONOTONIC",
+        "endpoint": "bounded ingress admission to actual first application append",
+        "count": 48,
+        "mean_us": 327813.7708333333,
+        "population": "completed own-origin admitted honest requests; unfinished remain censored"
+      },
+      "native_verification": {
+        "0": {
+          "verified": true,
+          "signer": 0,
+          "receipt_sha256": "d708840719806596878fe9741d12ec833b43a07e45829d247a583cf0e4142fc4",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "2": {
+          "verified": true,
+          "signer": 2,
+          "receipt_sha256": "498852ed0a53f531cd292786e65f34b5bd1bbcaf60807591bcc20c14ddd5bc3d",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "3": {
+          "verified": true,
+          "signer": 3,
+          "receipt_sha256": "a462ef5aa25ff42b4bd7ba16a3e6ef3f7e42f1712834d1aaac6bbe2c7c727fde",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        }
+      },
+      "traffic": {
+        "scope": "correct replicas only, sampled before shutdown; native idle consensus continues through finite measurement+drain; excludes IP/link headers and kernel retransmissions",
+        "written_categories": {
+          "payload_bytes": 274848,
+          "evidence_control_bytes": 479917,
+          "repair_bytes": 0,
+          "transport_overhead_bytes": 681336,
+          "total_written_bytes": 1436101
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "protocol": "raptr",
+      "case": "healthy",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/2-raptr-healthy/trial.json",
+        "sha256": "f573088c089f0045523692f15978368675d127bc629ca1ea546c2be96edb4880",
+        "bytes": 139352
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "2": {
+          "sha256": "c93c2e66966d72aba4139b86f6a895ac460801729b6a58df0920a47859cc09d9",
+          "bytes": 2147601,
+          "files": 18
+        },
+        "3": {
+          "sha256": "28efe44b329d9836b375873ad4b6eb777b954a96d9d3dc7deeddc82fc4bafd33",
+          "bytes": 2142202,
+          "files": 18
+        },
+        "1": {
+          "sha256": "c345727b6c702aa4359e6835c0c476a672357742f76df5f35052b4249f1b6a5e",
+          "bytes": 2144896,
+          "files": 18
+        },
+        "0": {
+          "sha256": "97df445700194f2592bfd7623a11e0a65775e216193e597156402b28bff455ee",
+          "bytes": 2144910,
+          "files": 18
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81264640,
+          "child_user_seconds": 13.782919,
+          "child_system_seconds": 0.375031,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81395712,
+          "child_user_seconds": 15.000114,
+          "child_system_seconds": 0.42921499999999996,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81133568,
+          "child_user_seconds": 15.032683,
+          "child_system_seconds": 0.35135299999999997,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81395712,
+          "child_user_seconds": 13.928412999999999,
+          "child_system_seconds": 0.356433,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "agreement": {
+          "status": "passed",
+          "sections": {
+            "0": 6534,
+            "1": 6534,
+            "2": 6543,
+            "3": 6525
+          },
+          "longest_sections": 6543,
+          "scope": "exact canonical native section and batch/transaction order"
+        },
+        "totals": {
+          "planned": 64,
+          "offered": 64,
+          "admitted": 64,
+          "rejected": 0,
+          "completed": 64,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "all_correct_completion": {
+          "admitted": 64,
+          "completed": 64,
+          "unfinished": 0,
+          "clock": "unavailable across hosts",
+          "endpoint": "origin admission to the latest first actual append across every correct replica",
+          "mean_us": null,
+          "scope": "final membership only; no cross-host clock subtraction"
+        },
+        "honest_anchor_authors": null
+      },
+      "latency": {
+        "clock": "origin-local CLOCK_MONOTONIC",
+        "endpoint": "bounded ingress admission to actual first application append",
+        "count": 64,
+        "mean_us": 176715.96875,
+        "population": "completed own-origin admitted honest requests; unfinished remain censored"
+      },
+      "native_verification": {
+        "1": {
+          "verified": true,
+          "signer": 1,
+          "receipt_sha256": "7efaf0f563a25f1850ac727dd24e24799fd02b3e00d76a26661a0baab55b2856",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "0": {
+          "verified": true,
+          "signer": 0,
+          "receipt_sha256": "1916fb2017119e599e8a4c1c7650042082bcf217b9b0d836dfa01c1323c94054",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "2": {
+          "verified": true,
+          "signer": 2,
+          "receipt_sha256": "11dc420736ecc4ec5830b236709e5a8feb3abcc456bede5418315c30426e7413",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "3": {
+          "verified": true,
+          "signer": 3,
+          "receipt_sha256": "1098e8bda1119b285cf92e3ee1c378a0c4adeb00ea86092411c1fbcd79ac2ad7",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        }
+      },
+      "traffic": {
+        "scope": "correct replicas only, sampled before shutdown; native idle consensus continues through finite measurement+drain; excludes IP/link headers and kernel retransmissions",
+        "written_categories": {
+          "payload_bytes": 78528,
+          "evidence_control_bytes": 4341618,
+          "repair_bytes": 0,
+          "transport_overhead_bytes": 8236404,
+          "total_written_bytes": 12656550
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "protocol": "delugi",
+      "case": "healthy",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/2-delugi-healthy/trial.json",
+        "sha256": "8242501d01454d70bf2398af020353ddfdc80627625f93c157614223d56ec432",
+        "bytes": 42978
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "1": {
+          "sha256": "969b9ffe2d896999476f547686f216b3a30ba1fc9c6e893e1747771d33ce28f0",
+          "bytes": 707623,
+          "files": 11
+        },
+        "0": {
+          "sha256": "95d77fb3c0cf62c4bf49bfb40001d63e4c7df6843419db0571ab1a1212de39c1",
+          "bytes": 707649,
+          "files": 11
+        },
+        "2": {
+          "sha256": "5f46e2b337af00a4619e7ff1d3bb66ebd5ab2212b6c793dcd35e11821185c804",
+          "bytes": 707636,
+          "files": 11
+        },
+        "3": {
+          "sha256": "29aa0e3ccfb27f8961806bc32e5224ebde0404e496b616fd02ac42ae6815a0b8",
+          "bytes": 727816,
+          "files": 11
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22675456,
+          "child_user_seconds": 0.09081199999999999,
+          "child_system_seconds": 0.018788,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22806528,
+          "child_user_seconds": 0.08935599999999999,
+          "child_system_seconds": 0.025289,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22544384,
+          "child_user_seconds": 0.09621299999999999,
+          "child_system_seconds": 0.021223,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22544384,
+          "child_user_seconds": 0.089062,
+          "child_system_seconds": 0.025976,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "expected_rounds": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 32,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 1,
+          "reporters": [
+            0,
+            1,
+            2
+          ],
+          "has_cer_proof": true
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 4,
+          "signed_observations": 16,
+          "inputs": 4,
+          "historical_sources": 0,
+          "empty_coordinates": 4
+        }
+      },
+      "latency": {
+        "available": false,
+        "reason": "preloaded finite fixture; cross-host wall-clock subtraction is not used"
+      },
+      "traffic": {
+        "scope": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic",
+        "total": {
+          "transport_enqueued_payload_bytes": 263979,
+          "protocol_payload_written_bytes": 263979,
+          "data_frame_written_bytes": 314163,
+          "data_frame_read_bytes": 314163,
+          "ack_written_bytes": 47232,
+          "ack_read_bytes": 47232,
+          "enqueued_frames": 246,
+          "acknowledged_frames": 246,
+          "accepted_frames": 246,
+          "outstanding_frames": 0,
+          "deferred_frames": 0,
+          "scheduled_frames": 246,
+          "retries": 0,
+          "partial_frame_written_bytes": 0,
+          "connection_failures": 0,
+          "rejected_frames": 0,
+          "queue_full_failures": 0,
+          "deferred_accepts": 0,
+          "resource_exhaustions": 0,
+          "workload_index_enqueued_bytes": 225375,
+          "beyond_workload_enqueued_bytes": 37380,
+          "workload_index_enqueued_messages": 243,
+          "beyond_workload_enqueued_messages": 117,
+          "protocol_enqueued_bytes": 262755,
+          "protocol_enqueued_messages": 360,
+          "ordering_bundle_frames": 96,
+          "ordering_bundle_members": 210,
+          "bundle_enqueued_envelope_bytes": 1224,
+          "auth_and_framing_written_bytes": 50184,
+          "socket_written_bytes": 361395,
+          "socket_read_bytes": 361395,
+          "written_categories": {
+            "available": true,
+            "payload_bytes": 16512,
+            "evidence_control_bytes": 246243,
+            "repair_bytes": 0,
+            "transport_overhead_bytes": 98640,
+            "total_written_bytes": 361395
+          }
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/2-raptr-silent-first-leader/trial.json",
+        "sha256": "82cfd1dd1aa75f1eede57e75fbc11fdf56dc86381e80179cac3ab3e05aa26238",
+        "bytes": 75493
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "1": {
+          "sha256": "70f070648427b6e53db96ebdceda5628de8960355b4d6cf4ff84680882c0f864",
+          "bytes": 21709,
+          "files": 13
+        },
+        "3": {
+          "sha256": "1fa769c9ca300755ad8d1caa1c0b8ef663ba75e425aa791531b538c0bf4cf719",
+          "bytes": 360435,
+          "files": 18
+        },
+        "0": {
+          "sha256": "ac48a55855e72e8be9e00d56e33138c2981b9b973cd0d5096bf5d52716219590",
+          "bytes": 360441,
+          "files": 18
+        },
+        "2": {
+          "sha256": "6ab790ea5c150817151596a78cf0693e45b02e9316bb11d9a3b927016cd019eb",
+          "bytes": 360461,
+          "files": 18
+        }
+      },
+      "correct_replica_resources": {
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36126720,
+          "child_user_seconds": 1.6070479999999998,
+          "child_system_seconds": 0.059645,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36175872,
+          "child_user_seconds": 1.5900940000000001,
+          "child_system_seconds": 0.060901,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36032512,
+          "child_user_seconds": 1.6471390000000001,
+          "child_system_seconds": 0.06858399999999999,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "agreement": {
+          "status": "passed",
+          "sections": {
+            "0": 594,
+            "2": 594,
+            "3": 594
+          },
+          "longest_sections": 594,
+          "scope": "exact canonical native section and batch/transaction order"
+        },
+        "totals": {
+          "planned": 48,
+          "offered": 48,
+          "admitted": 48,
+          "rejected": 0,
+          "completed": 48,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "all_correct_completion": {
+          "admitted": 48,
+          "completed": 48,
+          "unfinished": 0,
+          "clock": "unavailable across hosts",
+          "endpoint": "origin admission to the latest first actual append across every correct replica",
+          "mean_us": null,
+          "scope": "final membership only; no cross-host clock subtraction"
+        },
+        "honest_anchor_authors": {
+          "0": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          },
+          "2": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          },
+          "3": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          }
+        }
+      },
+      "latency": {
+        "clock": "origin-local CLOCK_MONOTONIC",
+        "endpoint": "bounded ingress admission to actual first application append",
+        "count": 48,
+        "mean_us": 330276.0416666667,
+        "population": "completed own-origin admitted honest requests; unfinished remain censored"
+      },
+      "native_verification": {
+        "0": {
+          "verified": true,
+          "signer": 0,
+          "receipt_sha256": "5d49907a33a6ac813299f426ad97eaeec213c66e74bf774eb02c83bc2e2e99bd",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "2": {
+          "verified": true,
+          "signer": 2,
+          "receipt_sha256": "176c41967c8228b7bb0efd5176bd946861f8c4262c6c9d334c235460ddfc8a5f",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "3": {
+          "verified": true,
+          "signer": 3,
+          "receipt_sha256": "5838bee7ee938d3a0e4b547d9e326fcb935d3ac34ffb82a3a0866a25c54405c8",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        }
+      },
+      "traffic": {
+        "scope": "correct replicas only, sampled before shutdown; native idle consensus continues through finite measurement+drain; excludes IP/link headers and kernel retransmissions",
+        "written_categories": {
+          "payload_bytes": 274848,
+          "evidence_control_bytes": 479917,
+          "repair_bytes": 0,
+          "transport_overhead_bytes": 681336,
+          "total_written_bytes": 1436101
+        }
+      }
+    },
+    {
+      "repeat": 2,
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/2-delugi-silent-first-leader/trial.json",
+        "sha256": "ec7e6f140d6184818d0d5519aa3a64df0ee3ce9245ac17335899fa17901bedd8",
+        "bytes": 40837
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "0": {
+          "sha256": "2bbb43f763b043819d3752204d4c8983f976ff2371742eedeaceb068eae617da",
+          "bytes": 88790,
+          "files": 11
+        },
+        "3": {
+          "sha256": "d749b18409986e650949ec7166ed218ce5d9b947d0dab71c9cf459f86cc97bd6",
+          "bytes": 596241,
+          "files": 11
+        },
+        "1": {
+          "sha256": "5c001e4f2fe0e3c02480680744b8a99163580075301a05ed897e405dfa8eac6a",
+          "bytes": 594653,
+          "files": 11
+        },
+        "2": {
+          "sha256": "336ad42e0511bae26bd5ea55b039e973a1325979effe8decee2c2f09aba224a5",
+          "bytes": 594690,
+          "files": 11
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21364736,
+          "child_user_seconds": 0.08584,
+          "child_system_seconds": 0.019962,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21364736,
+          "child_user_seconds": 0.093806,
+          "child_system_seconds": 0.020232,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21364736,
+          "child_user_seconds": 0.08341,
+          "child_system_seconds": 0.028435,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "expected_rounds": [
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 24,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 0,
+          "reporters": [
+            1,
+            2,
+            3
+          ],
+          "has_cer_proof": false
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 3,
+          "signed_observations": 9,
+          "inputs": 3,
+          "historical_sources": 0,
+          "empty_coordinates": 3
+        }
+      },
+      "latency": {
+        "available": false,
+        "reason": "preloaded finite fixture; cross-host wall-clock subtraction is not used"
+      },
+      "traffic": {
+        "scope": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic",
+        "total": {
+          "transport_enqueued_payload_bytes": 168170,
+          "protocol_payload_written_bytes": 168170,
+          "data_frame_written_bytes": 215294,
+          "data_frame_read_bytes": 215294,
+          "ack_written_bytes": 44352,
+          "ack_read_bytes": 44352,
+          "enqueued_frames": 231,
+          "acknowledged_frames": 231,
+          "accepted_frames": 231,
+          "outstanding_frames": 0,
+          "deferred_frames": 0,
+          "scheduled_frames": 231,
+          "retries": 0,
+          "partial_frame_written_bytes": 0,
+          "connection_failures": 0,
+          "rejected_frames": 0,
+          "queue_full_failures": 0,
+          "deferred_accepts": 0,
+          "resource_exhaustions": 0,
+          "workload_index_enqueued_bytes": 136380,
+          "beyond_workload_enqueued_bytes": 31202,
+          "workload_index_enqueued_messages": 161,
+          "beyond_workload_enqueued_messages": 133,
+          "protocol_enqueued_bytes": 167582,
+          "protocol_enqueued_messages": 294,
+          "ordering_bundle_frames": 42,
+          "ordering_bundle_members": 105,
+          "bundle_enqueued_envelope_bytes": 588,
+          "auth_and_framing_written_bytes": 47124,
+          "socket_written_bytes": 259646,
+          "socket_read_bytes": 259646,
+          "written_categories": {
+            "available": true,
+            "payload_bytes": 12384,
+            "evidence_control_bytes": 155198,
+            "repair_bytes": 0,
+            "transport_overhead_bytes": 92064,
+            "total_written_bytes": 259646
+          }
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "protocol": "delugi",
+      "case": "healthy",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/3-delugi-healthy/trial.json",
+        "sha256": "f6e75bf739a9eba14a313ce7f7ad0045bdbaf4e723da5619eb93462dd9902105",
+        "bytes": 43008
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "2": {
+          "sha256": "d8ba7dea23aba2b65ec79ced8b338a05c8215e817baedea1795e40be7865ab1e",
+          "bytes": 714163,
+          "files": 11
+        },
+        "1": {
+          "sha256": "fc642abb66e9df82c9118554cff1bccd4a1de117500d01d1e3e8e0c21559b566",
+          "bytes": 714122,
+          "files": 11
+        },
+        "3": {
+          "sha256": "4b1d64e4376386871df7086bec76e0df91807c13841422a63360054c3205b392",
+          "bytes": 719213,
+          "files": 11
+        },
+        "0": {
+          "sha256": "6150a09f6f6bf1dab919b0c2efe3ca40d6572928f073c85874fc985ef97f15c6",
+          "bytes": 714078,
+          "files": 11
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22937600,
+          "child_user_seconds": 0.09085499999999999,
+          "child_system_seconds": 0.020648,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22675456,
+          "child_user_seconds": 0.099636,
+          "child_system_seconds": 0.019927,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22937600,
+          "child_user_seconds": 0.09197699999999999,
+          "child_system_seconds": 0.024818999999999997,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 22937600,
+          "child_user_seconds": 0.087687,
+          "child_system_seconds": 0.027604999999999998,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "expected_rounds": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 32,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 1,
+          "reporters": [
+            0,
+            1,
+            2
+          ],
+          "has_cer_proof": true
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 4,
+          "signed_observations": 16,
+          "inputs": 4,
+          "historical_sources": 0,
+          "empty_coordinates": 0
+        }
+      },
+      "latency": {
+        "available": false,
+        "reason": "preloaded finite fixture; cross-host wall-clock subtraction is not used"
+      },
+      "traffic": {
+        "scope": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic",
+        "total": {
+          "transport_enqueued_payload_bytes": 254811,
+          "protocol_payload_written_bytes": 254811,
+          "data_frame_written_bytes": 304995,
+          "data_frame_read_bytes": 304995,
+          "ack_written_bytes": 47232,
+          "ack_read_bytes": 47232,
+          "enqueued_frames": 246,
+          "acknowledged_frames": 246,
+          "accepted_frames": 246,
+          "outstanding_frames": 0,
+          "deferred_frames": 0,
+          "scheduled_frames": 246,
+          "retries": 0,
+          "partial_frame_written_bytes": 0,
+          "connection_failures": 0,
+          "rejected_frames": 0,
+          "queue_full_failures": 0,
+          "deferred_accepts": 0,
+          "resource_exhaustions": 0,
+          "workload_index_enqueued_bytes": 216207,
+          "beyond_workload_enqueued_bytes": 37380,
+          "workload_index_enqueued_messages": 243,
+          "beyond_workload_enqueued_messages": 117,
+          "protocol_enqueued_bytes": 253587,
+          "protocol_enqueued_messages": 360,
+          "ordering_bundle_frames": 96,
+          "ordering_bundle_members": 210,
+          "bundle_enqueued_envelope_bytes": 1224,
+          "auth_and_framing_written_bytes": 50184,
+          "socket_written_bytes": 352227,
+          "socket_read_bytes": 352227,
+          "written_categories": {
+            "available": true,
+            "payload_bytes": 16512,
+            "evidence_control_bytes": 237075,
+            "repair_bytes": 0,
+            "transport_overhead_bytes": 98640,
+            "total_written_bytes": 352227
+          }
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "protocol": "raptr",
+      "case": "healthy",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/3-raptr-healthy/trial.json",
+        "sha256": "6cee7d6e4496ec8e1838779382c92641e1ec516d16d34e51f8846edff326ac49",
+        "bytes": 139304
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "1": {
+          "sha256": "80ede2a498df620b31cbc663246122b7dbacbc47c144004f402c3a793b3a6ef4",
+          "bytes": 2111538,
+          "files": 18
+        },
+        "3": {
+          "sha256": "32dd24d183504aa11404eaedc4ba745d49f1463d3072bff2381d3f089be677b7",
+          "bytes": 2108851,
+          "files": 18
+        },
+        "2": {
+          "sha256": "2e12eba99c84adefea1f47461f3c01d3c1d7afa51e7866f8da68e90b51667a5c",
+          "bytes": 2111552,
+          "files": 18
+        },
+        "0": {
+          "sha256": "ccb770633d1bd8a158a65e5aef535b9e87f96375ecfaa3862e555250ed9b7892",
+          "bytes": 2108853,
+          "files": 18
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81002496,
+          "child_user_seconds": 13.823381,
+          "child_system_seconds": 0.349393,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81072128,
+          "child_user_seconds": 15.060002,
+          "child_system_seconds": 0.37596799999999997,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81260544,
+          "child_user_seconds": 15.002389,
+          "child_system_seconds": 0.400387,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 81068032,
+          "child_user_seconds": 13.939285,
+          "child_system_seconds": 0.34124499999999997,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "agreement": {
+          "status": "passed",
+          "sections": {
+            "0": 6525,
+            "1": 6534,
+            "2": 6534,
+            "3": 6525
+          },
+          "longest_sections": 6534,
+          "scope": "exact canonical native section and batch/transaction order"
+        },
+        "totals": {
+          "planned": 64,
+          "offered": 64,
+          "admitted": 64,
+          "rejected": 0,
+          "completed": 64,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "all_correct_completion": {
+          "admitted": 64,
+          "completed": 64,
+          "unfinished": 0,
+          "clock": "unavailable across hosts",
+          "endpoint": "origin admission to the latest first actual append across every correct replica",
+          "mean_us": null,
+          "scope": "final membership only; no cross-host clock subtraction"
+        },
+        "honest_anchor_authors": null
+      },
+      "latency": {
+        "clock": "origin-local CLOCK_MONOTONIC",
+        "endpoint": "bounded ingress admission to actual first application append",
+        "count": 64,
+        "mean_us": 169987.390625,
+        "population": "completed own-origin admitted honest requests; unfinished remain censored"
+      },
+      "native_verification": {
+        "1": {
+          "verified": true,
+          "signer": 1,
+          "receipt_sha256": "f7ba3f5b784d81bc25e950e9fe005d52635063ddbfdde5b50e05ae08b6c78b04",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "0": {
+          "verified": true,
+          "signer": 0,
+          "receipt_sha256": "6f017f6cbec6fddd0a78e12101c95267296f410026980366e163823cd068dec2",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "2": {
+          "verified": true,
+          "signer": 2,
+          "receipt_sha256": "c48c9ead11ee098b4bc8d5f1832a5cb3259eb8308255eafd004b47ca44c4ac9d",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "3": {
+          "verified": true,
+          "signer": 3,
+          "receipt_sha256": "1363652487fb00f60273f9151fad540750522a8335d7ca18d172136a795cc719",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        }
+      },
+      "traffic": {
+        "scope": "correct replicas only, sampled before shutdown; native idle consensus continues through finite measurement+drain; excludes IP/link headers and kernel retransmissions",
+        "written_categories": {
+          "payload_bytes": 78528,
+          "evidence_control_bytes": 4342962,
+          "repair_bytes": 0,
+          "transport_overhead_bytes": 8243148,
+          "total_written_bytes": 12664638
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/3-delugi-silent-first-leader/trial.json",
+        "sha256": "398b8cd1d339b0a4f6383dc123fc5b1601fbdd4f7e3150205515b63365844fdc",
+        "bytes": 40903
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "0": {
+          "sha256": "4a82744494b755ec3a02ae7ef54f60499e26b2f36d70efe8bb5227e8fe25c58b",
+          "bytes": 97056,
+          "files": 11
+        },
+        "3": {
+          "sha256": "d9874776fc9a256022b94ff90b52ac29522c1977e19f29eea849367431cc7732",
+          "bytes": 616718,
+          "files": 11
+        },
+        "1": {
+          "sha256": "3b568c2cae348c4735a35f45b38afd21b405fcabf029de57ffc2761c5f8946c8",
+          "bytes": 615269,
+          "files": 11
+        },
+        "2": {
+          "sha256": "a280e314f9ebe399ad9578959c3be95071161055f32684ff6ea4229f05f3c933",
+          "bytes": 615156,
+          "files": 11
+        }
+      },
+      "correct_replica_resources": {
+        "1": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21233664,
+          "child_user_seconds": 0.080929,
+          "child_system_seconds": 0.027549999999999998,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21233664,
+          "child_user_seconds": 0.091565,
+          "child_system_seconds": 0.028613999999999997,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 21495808,
+          "child_user_seconds": 0.086569,
+          "child_system_seconds": 0.02947,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "expected_rounds": [
+          2,
+          3,
+          4
+        ],
+        "transactions_per_correct_replica": 24,
+        "round_four_history": {
+          "horizon": 1,
+          "pivot": 0,
+          "reporters": [
+            1,
+            2,
+            3
+          ],
+          "has_cer_proof": false
+        },
+        "composition": {
+          "construction": "all-current",
+          "signed_reports": 3,
+          "signed_observations": 9,
+          "inputs": 3,
+          "historical_sources": 0,
+          "empty_coordinates": 3
+        }
+      },
+      "latency": {
+        "available": false,
+        "reason": "preloaded finite fixture; cross-host wall-clock subtraction is not used"
+      },
+      "traffic": {
+        "scope": "Successful data-frame and acknowledgement stream reads/writes, including retransmitted/partial application writes; excludes TCP/IP headers, TCP retransmissions, and control API bytes; includes silent recipients and beyond-workload traffic",
+        "total": {
+          "transport_enqueued_payload_bytes": 169583,
+          "protocol_payload_written_bytes": 169583,
+          "data_frame_written_bytes": 218543,
+          "data_frame_read_bytes": 218543,
+          "ack_written_bytes": 46080,
+          "ack_read_bytes": 46080,
+          "enqueued_frames": 240,
+          "acknowledged_frames": 240,
+          "accepted_frames": 240,
+          "outstanding_frames": 0,
+          "deferred_frames": 0,
+          "scheduled_frames": 240,
+          "retries": 0,
+          "partial_frame_written_bytes": 0,
+          "connection_failures": 0,
+          "rejected_frames": 0,
+          "queue_full_failures": 0,
+          "deferred_accepts": 0,
+          "resource_exhaustions": 0,
+          "workload_index_enqueued_bytes": 136380,
+          "beyond_workload_enqueued_bytes": 32615,
+          "workload_index_enqueued_messages": 161,
+          "beyond_workload_enqueued_messages": 142,
+          "protocol_enqueued_bytes": 168995,
+          "protocol_enqueued_messages": 303,
+          "ordering_bundle_frames": 42,
+          "ordering_bundle_members": 105,
+          "bundle_enqueued_envelope_bytes": 588,
+          "auth_and_framing_written_bytes": 48960,
+          "socket_written_bytes": 264623,
+          "socket_read_bytes": 264623,
+          "written_categories": {
+            "available": true,
+            "payload_bytes": 12384,
+            "evidence_control_bytes": 156611,
+            "repair_bytes": 0,
+            "transport_overhead_bytes": 95628,
+            "total_written_bytes": 264623
+          }
+        }
+      }
+    },
+    {
+      "repeat": 3,
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "status": "passed",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-002/3-raptr-silent-first-leader/trial.json",
+        "sha256": "9afaaa6135a4d8ffc1c5c256f20ee3e0ff5c5e8e581ae5dab40cdec81f8dd528",
+        "bytes": 75436
+      },
+      "all_four_process_groups_cleaned": true,
+      "all_four_hosts_collected": true,
+      "collection": {
+        "1": {
+          "sha256": "11327a043dfdc393da444f5eb66b461a580a6b29a27090f88e749954d1dc0058",
+          "bytes": 21711,
+          "files": 13
+        },
+        "3": {
+          "sha256": "422ca6ddf49b1359854ccc5b5601d714670eefcb7d4217de0e8f33300076d899",
+          "bytes": 360439,
+          "files": 18
+        },
+        "0": {
+          "sha256": "991223c35139d6ff9cd4dd410dd4aeafc72b576d3b341a9f65ee42370dc50ff9",
+          "bytes": 360437,
+          "files": 18
+        },
+        "2": {
+          "sha256": "d1cad509b2968519ca08ea8f13b7e875af92848503672cbcc8cb87fceaacc411",
+          "bytes": 360437,
+          "files": 18
+        }
+      },
+      "correct_replica_resources": {
+        "0": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36143104,
+          "child_user_seconds": 1.576108,
+          "child_system_seconds": 0.075635,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "3": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 35987456,
+          "child_user_seconds": 1.60469,
+          "child_system_seconds": 0.062460999999999996,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        },
+        "2": {
+          "status": "completed",
+          "exit_code": 0,
+          "cleanup_confirmed": true,
+          "child_peak_rss_bytes": 36028416,
+          "child_user_seconds": 1.663973,
+          "child_system_seconds": 0.038974,
+          "effective_budget": {
+            "cpu_enforcement": "inherited_process_affinity",
+            "cpus": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "host_swap_bytes": 0,
+            "memory_enforcement": "physical_host",
+            "memory_limit_bytes": 16335233024,
+            "swap_enforcement": "observed_host_swap",
+            "swap_limit_bytes": 0,
+            "swap_policy_verified": true
+          }
+        }
+      },
+      "correctness": {
+        "agreement": {
+          "status": "passed",
+          "sections": {
+            "0": 594,
+            "2": 594,
+            "3": 594
+          },
+          "longest_sections": 594,
+          "scope": "exact canonical native section and batch/transaction order"
+        },
+        "totals": {
+          "planned": 48,
+          "offered": 48,
+          "admitted": 48,
+          "rejected": 0,
+          "completed": 48,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "all_correct_completion": {
+          "admitted": 48,
+          "completed": 48,
+          "unfinished": 0,
+          "clock": "unavailable across hosts",
+          "endpoint": "origin admission to the latest first actual append across every correct replica",
+          "mean_us": null,
+          "scope": "final membership only; no cross-host clock subtraction"
+        },
+        "honest_anchor_authors": {
+          "0": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          },
+          "2": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          },
+          "3": {
+            "2": 2,
+            "3": 3,
+            "4": 0
+          }
+        }
+      },
+      "latency": {
+        "clock": "origin-local CLOCK_MONOTONIC",
+        "endpoint": "bounded ingress admission to actual first application append",
+        "count": 48,
+        "mean_us": 326679.6458333333,
+        "population": "completed own-origin admitted honest requests; unfinished remain censored"
+      },
+      "native_verification": {
+        "0": {
+          "verified": true,
+          "signer": 0,
+          "receipt_sha256": "39b4d7d6c3a660f160d179aafd9b8fff4cee5e9abf6b0874a79af37d86b7abfc",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "3": {
+          "verified": true,
+          "signer": 3,
+          "receipt_sha256": "13c33a8b3753e4077a7601f189157cb583a6b2e540c68dbcc0d26cbef1107a30",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        },
+        "2": {
+          "verified": true,
+          "signer": 2,
+          "receipt_sha256": "6a04d254232874c7471e6e02e1007edfcb7e851803492073041e24e8ffb3f234",
+          "verification_scope": "signed observer archive, authenticated finite native transactions, exact native batch payloads and canonical section prefix; native QC bytes absent, QC verification not claimed"
+        }
+      },
+      "traffic": {
+        "scope": "correct replicas only, sampled before shutdown; native idle consensus continues through finite measurement+drain; excludes IP/link headers and kernel retransmissions",
+        "written_categories": {
+          "payload_bytes": 274848,
+          "evidence_control_bytes": 479917,
+          "repair_bytes": 0,
+          "transport_overhead_bytes": 681336,
+          "total_written_bytes": 1436101
+        }
+      }
+    }
+  ],
+  "rejected_attempts": [
+    {
+      "kind": "native_build",
+      "attempt": 1,
+      "reason": "single-job RocksDB build exceeded 1800s command guard",
+      "cleanup_confirmed": true,
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/build-collected-1/collection.json",
+        "sha256": "393316df6369689824249e4b5423fc6ff35a840511a9df119e02e4730e8f71a2",
+        "bytes": 1189
+      }
+    },
+    {
+      "kind": "native_build",
+      "attempt": 2,
+      "reason": "du returned failure when a compiler temporary file disappeared during sampling",
+      "cleanup_confirmed": true,
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/build-collected-2/collection.json",
+        "sha256": "7420b668ad24a691233b45aea19e6bd44df2ee7883fc0056a99f1909517b6c5e",
+        "bytes": 1134
+      }
+    },
+    {
+      "kind": "campaign",
+      "attempt": 1,
+      "reason": "SSH connections reset before authentication during Delugi quiesce/cleanup; controller now reuses campaign-owned pinned sessions",
+      "accepted": false,
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/pilot-001/campaign.json",
+        "sha256": "a58e1ba2d30a1339728890699467fb50ef1ebd4c5b8a64a803a8afbf6583bcb7",
+        "bytes": 514
+      },
+      "recovered_cleanup": {
+        "path": "results/local/aliyun-live-20261026/pilot-001-recovered-stop.json",
+        "sha256": "a7da3715603e3ac0c61320b29e383f5c577052d0005754cf877ad36144448b0e",
+        "bytes": 3603
+      },
+      "recovered_collection": {
+        "path": "results/local/aliyun-live-20261026/pilot-001-recovered-collection.json",
+        "sha256": "94b0800f646a6961c9a8a17687c81eeb60ac3536b1ee0b35cfec2ca343bde17d",
+        "bytes": 1449
+      }
+    }
+  ],
+  "lease": {
+    "authorized_cap_cny": 50,
+    "authorized_max_hosts": 4,
+    "authorized_hours": 2,
+    "quoted_hourly_cny_per_host": 2.0833,
+    "quoted_full_lease_cny": 16.6664,
+    "actual_invoice_verified": false,
+    "no_extra_instances": true,
+    "lease_extended": false
+  },
+  "cleanup": {
+    "closed": true,
+    "remaining_instances": 0,
+    "remaining_security_groups": 0,
+    "verified_at_utc": "2026-10-26T11:44:37.496715+00:00",
+    "evidence": {
+      "path": "results/local/aliyun-live-20261026/cleanup-confirmed.json",
+      "sha256": "82239bcd91705d64da7327d034408ce067efe7efc1e686100509d50a9581e931",
+      "bytes": 212
+    },
+    "steps": {
+      "path": "results/local/aliyun-live-20261026/cloud-cleanup-steps.json",
+      "sha256": "5d792ac6cd87f54689a2a3413556bc17bd714c32ea105faefba93e7e738900bc",
+      "bytes": 323
+    }
+  },
+  "remaining_gates": [
+    "matched sustained Raptr ingress/cohort and common workload endpoints",
+    "calibrated delta=10ms / Delta=100ms trials",
+    "larger committees, load/payload/batch grids, fault matrix and WAN evaluation"
+  ],
+  "measurement_limits": [
+    "Finite workloads differ; no matched throughput or latency ranking.",
+    "Delugi preloaded fixture reports no transaction latency.",
+    "Raptr latency is origin-local monotonic admission to first actual application append; no cross-host clock subtraction.",
+    "Raptr native verifier authenticates observer journals, transactions and exact payload/order; raw native QC bytes are absent.",
+    "Traffic endpoints differ: Delugi fully drains; Raptr freezes before shutdown."
+  ],
+  "environment_evidence": [
+    {
+      "path": "results/local/aliyun-live-20261026/machine-facts.json",
+      "sha256": "df09c938b6e34ee0401d77e4ef791d962791cc633acf568d279bdbd13fd6d37d",
+      "bytes": 1900
+    },
+    {
+      "path": "results/local/aliyun-live-20261026/private-connectivity.json",
+      "sha256": "0d8cb36e51312a4441e82a12f6008a15fd64a015a4206d6a45e2d3fbfaedf7ef",
+      "bytes": 1662
+    },
+    {
+      "path": "results/local/aliyun-live-20261026/live-price.json",
+      "sha256": "fe751480197189471809610344ae62831461767aad025d831063bbb2652431b7",
+      "bytes": 452
+    }
+  ],
+  "plan_sha256": "d8212206e3b66d5e456a818b76f5d55cacfda1ce063eedf235504eb1cab0b7ce",
+  "publication_verified_hosts": [
+    {
+      "replica": 0,
+      "binary_sha256": "46ea823ca04e0aa8dcc0d0ed39ddc996f9a70d35967c0798d56a6233965645e4",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/published/host-0.json",
+        "sha256": "a8fde20eb011397604db0df60ea54cfb8fff3e83722a37cb0d06b36161eb509d",
+        "bytes": 3827
+      }
+    },
+    {
+      "replica": 1,
+      "binary_sha256": "46ea823ca04e0aa8dcc0d0ed39ddc996f9a70d35967c0798d56a6233965645e4",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/published/host-1.json",
+        "sha256": "719eb954a404695fef8b1713b42d363f62d6d63d5a3ae9075928e8d027797392",
+        "bytes": 3827
+      }
+    },
+    {
+      "replica": 2,
+      "binary_sha256": "46ea823ca04e0aa8dcc0d0ed39ddc996f9a70d35967c0798d56a6233965645e4",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/published/host-2.json",
+        "sha256": "a241d04bbba5fa0a949141837e5c4ea26526464f64c3df42d17036d5e763e9cd",
+        "bytes": 3827
+      }
+    },
+    {
+      "replica": 3,
+      "binary_sha256": "46ea823ca04e0aa8dcc0d0ed39ddc996f9a70d35967c0798d56a6233965645e4",
+      "evidence": {
+        "path": "results/local/aliyun-live-20261026/published/host-3.json",
+        "sha256": "49fb28bf09ee201f003029a1628f0f3bfbd5137fbe39e9546dae843a692b54f4",
+        "bytes": 3827
+      }
+    }
+  ]
+}

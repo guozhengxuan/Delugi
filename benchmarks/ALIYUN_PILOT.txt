@@ -49,6 +49,10 @@ identity, a local control channel, a finite deadline and an owned process group.
 The abort tombstone prevents a late prepare/start/arm after controller failure.
 SIGSTOP faults are confirmed from /proc; cleanup continues stopped children
 before terminating them. Every host is closed and collected after partial errors.
+Campaign control reuses one pinned SSH session per host in a private temporary
+directory. Sessions are explicitly closed on success/failure and have a 60 second
+idle expiry if the controller is killed. Mutating RPCs are never automatically
+replayed after a connection failure.
 
 Controller setup and host inventory
 ----------------------------------
@@ -232,9 +236,15 @@ https://www.alibabacloud.com/help/en/ecs/developer-reference/api-ecs-2014-05-26-
 
 Next gates
 ----------
-1. Approve actual region/scale/budget, prepare pinned host keys, build on Linux.
-2. Pass this matrix on four real hosts, including failure cleanup/collection.
-3. Complete shared sustained Raptr ingress/cohort support and common workload
+The first two gates passed on 26 October 2026: the approved Singapore lease produced
+a verified Linux release and all 12 four-host trials passed. The earlier failed
+SSH trial was retained, stopped and collected. All four instances and the owned
+security group were deleted before their automatic release deadline. See:
+  benchmarks/results/aliyun-four-host-pilot-2026-10-26.txt
+  benchmarks/results/aliyun-four-host-pilot-2026-10-26.json
+
+1. Complete shared sustained Raptr ingress/cohort support and common workload
    endpoints, then add calibrated Linux netem delta10ms / Delta100ms campaigns.
-4. Expand load, payload/batch caps, faults, committee sizes and WAN placements.
+2. Expand load, payload/batch caps, faults, committee sizes and WAN placements.
+New paid campaigns require their own approved placement, scale, budget and lease.
 Do not label the software-only checks or a successful build as cloud acceptance.

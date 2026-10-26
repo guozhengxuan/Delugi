@@ -1,0 +1,104 @@
+Delugi / Raptr: first four-host Aliyun pilot
+26 October 2026
+==========================================
+
+Result
+------
+All 12 distributed functional trials passed. Both integrated protocols ran from
+the same source-bound Linux release on four independent Singapore ECS instances.
+Every trial collected all four hosts and confirmed cleanup of its owned process
+groups. This completes the initial Linux artifact and four-host deployment gate.
+
+Protocol  Case                         Repetitions  Useful transactions
+Delugi    healthy through round 4       3/3 passed   32 at every correct replica
+Delugi    silent first leader          3/3 passed   24 at every correct replica
+Raptr     healthy through round 4       3/3 passed   64 complete at all 4 replicas
+Raptr     silent first leader          3/3 passed   48 complete at all 3 correct replicas
+
+Both silent cases require the three subsequent honest anchors. Delugi's silent
+leader is replica 0; Raptr's native schedule makes replica 1 the first leader.
+Delugi checks exact once-only transaction/batch output, state agreement, round
+classifications, direct commitments, HISTORY3 and all-current composition.
+Raptr checks authenticated finite inputs and native payloads, canonical output
+prefixes, cohort completion at every correct replica and executor shutdown.
+Its native verifier authenticates the observer archive and payload/order; the
+export does not contain raw native QC bytes and makes no offline QC-verification
+claim. Per-trial results and evidence hashes are in the adjacent JSON receipt.
+
+Environment and measurement scope
+---------------------------------
+Four ecs.g9i.xlarge hosts, each 4 vCPU / 16 GiB provider RAM, 200 GiB ESSD system disk,
+Ubuntu 24.04.5, Intel Xeon 6982P-C, swap 0. All four exposed 16335233024 usable RAM
+bytes. Protocol traffic used private VPC addresses; public administration used
+fixed 5 Mbps egress. All 12 directed private TCP connectivity probes passed.
+
+Configured Delta was 100 ms and injected delta was 0. No 10 ms shaping or one-way
+delay claim is made. Native protocol timer multipliers remained unchanged.
+Storage was shared-rocksdb-written-v1: WAL enabled, synchronous fsync disabled.
+Transactions contained 128 useful payload bytes.
+
+Delugi preloaded two transactions per correct origin for each of four payload
+heights before starting ordering. Its fixture reports no transaction latency.
+Raptr offered 16 finite requests per correct origin at 1 ms cadence, with 100 ms
+start delay, 5 s measurement and 5 s drain. Its per-trial latency is origin-local
+CLOCK_MONOTONIC admission to the first actual application append. Completion at
+every correct replica is checked as membership, without subtracting host clocks.
+
+These finite workload shapes differ; comparison_eligible=false. Throughput and
+latency rankings are not inferred. The JSON retains diagnostic traffic and
+Raptr latency values. Delugi traffic drains completely; Raptr counters freeze
+before shutdown and include its continuing idle consensus. Neither counts
+IP/link headers or kernel TCP retransmissions.
+
+Artifact and controller
+-----------------------
+Compiled source: b0fb02ca800329ec2f5be8c43710246132106568
+Controller:      7a5f638 (full commit is recorded in the JSON receipt)
+Native Raptr:    a4c98047cf8aeae3571168d02fb7e343140d2948
+Rust 1.78.0, Linux x86_64 release profile, two Cargo jobs.
+Binary SHA256:
+46ea823ca04e0aa8dcc0d0ed39ddc996f9a70d35967c0798d56a6233965645e4
+Publication archive SHA256:
+e85b86c23283bb645ce1ff955337643d52a306a8045c12337474122e161088fd
+
+All 19 native Linux tests passed, and each host verified the publication,
+compiled-source receipt, architecture and library availability. Focused Python
+checks passed: 14 provider, 87 build-job, 118 disk/resource, 3 Linux disk-sampler,
+and 20 pilot/controller checks. These suites overlap and are not summed.
+
+The live pilot exposed three engineering issues. A single-job RocksDB build
+exceeded its 1800 second guard; cloud builds now use two jobs. A later build hit
+a disk-sampling race when compiler temporary files disappeared; the sampler
+now counts allocated blocks without following links, tolerates only vanished
+entries and still rejects real I/O errors. Finally, short-lived SSH control
+connections reset before authentication during the first Delugi trial. That
+trial remains rejected, with recovered logs and confirmed process cleanup.
+The controller now reuses campaign-owned pinned SSH sessions and closes them
+afterward. The following full 12-trial campaign passed. These changes affect
+build/controller tooling; consensus code and dependency versions were unchanged.
+
+Resources and cost
+------------------
+The approved cap was CNY 50, maximum four instances, maximum two hours.
+The live full-profile quote was CNY 2.0833 per instance-hour, or CNY 16.6664 for
+the entire four-instance two-hour lease. This is a quote, not a verified invoice.
+No extra instances were created and the lease was not extended.
+
+All four instances and the dedicated security group were deleted and verified
+absent at 2026-10-26 11:44:37 UTC (19:44:37 Taipei), before the 11:58 UTC automatic
+release. The existing VPC and SSH keypair were preserved. Disposable build
+targets were removed, including the successful build's approximately 2.39 GB
+target. The executable, receipts and logs remain locally under:
+  results/local/aliyun-live-20261026/
+Raw configurations and host inventories stay private and are excluded from Git.
+
+Next evaluation stage
+---------------------
+Complete matched sustained Raptr ingress/cohort support and common workload
+endpoints, then run calibrated delta 10 ms / Delta 100 ms campaigns. Larger
+committees, payload/batch grids, fault matrices and WAN placements follow.
+The retained verified Linux publication can be reused for this source revision;
+a new paid campaign needs its own approved resource lease.
+
+Workflow: benchmarks/ALIYUN_PILOT.txt
+Receipt:  benchmarks/results/aliyun-four-host-pilot-2026-10-26.json

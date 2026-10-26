@@ -1,4 +1,36 @@
-# Progress — 21 October 2026
+# Progress — 26 October 2026
+
+## Four-host Aliyun pilot passed
+
+The integrated Delugi and pinned Raptr consensus/Quorum Store cores now pass
+distributed functional acceptance using one verified common Linux release on
+four independent Singapore ECS hosts. All 12 trials passed: three repetitions
+of healthy operation through round 4 and a silent first leader followed by
+three honest anchors, for each protocol. Exact output checks, native Raptr
+signed evidence, per-host logs, resource records and process cleanup passed.
+See the [pilot report](benchmarks/results/aliyun-four-host-pilot-2026-10-26.txt)
+and [machine-readable receipt](benchmarks/results/aliyun-four-host-pilot-2026-10-26.json).
+
+The pilot uses Delta100ms, no injected delay, 128-byte useful transactions and
+shared RocksDB Written storage. Delugi's preloaded fixture and Raptr's finite
+timed fixture have different workload shapes; these results establish deployment
+and recovery, not a matched throughput/latency comparison. The next stage is
+shared sustained Raptr ingress/cohort support, common workload endpoints and
+calibrated delta10ms / Delta100ms campaigns, followed by larger committees and WAN.
+
+The Linux release passed 19 native tests. Live execution also exercised and
+improved the build/resource guard and SSH controller: cloud builds use two jobs,
+disk sampling tolerates disappearing compiler temporary files, and each campaign
+reuses private, pinned SSH sessions with explicit closure. One failed cloud
+trial was retained separately, its processes stopped and all logs recovered.
+Consensus source, timer multipliers and dependency versions were unchanged.
+
+The user authorized up to CNY50 and a two-hour, four-host lease. The full-profile
+quote was CNY16.6664 for the complete lease; the final invoice was not queried.
+All four instances and their dedicated security group were deleted and verified
+absent at 11:44:37 UTC on 26 October, before the 11:58 UTC automatic release.
+Disposable build targets were removed; the verified executable and evidence
+are retained locally for reuse. Earlier sections below record historical stages.
 
 ## Delugi extraction checkpoint
 
