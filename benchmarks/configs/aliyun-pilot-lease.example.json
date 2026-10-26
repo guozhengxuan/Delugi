@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "settings": "~/gitrepo/Loom/benchmark/settings.json",
+  "region": "ap-southeast-1",
+  "maximum_instances": 4,
+  "lifetime_hours": 2,
+  "budget_cny": null,
+  "hourly_quote_cny": null,
+  "cost_margin_cny": null,
+  "controller_cidr": "REPLACE_WITH_CONTROLLER_IP/32",
+  "instance_type": "ecs.g9i.xlarge",
+  "system_disk_gib": 200,
+  "internet_charge_type": "PayByBandwidth",
+  "internet_max_bandwidth_out": 5,
+  "image_id": "REPLACE_WITH_UBUNTU_24_04_IMAGE_ID",
+  "vpc_id": "REPLACE_WITH_EXISTING_VPC",
+  "vswitch_id": "REPLACE_WITH_EXISTING_VSWITCH",
+  "key_pair": "REPLACE_WITH_LOOM_KEY_PAIR_NAME",
+  "user_authorization": ""
+}

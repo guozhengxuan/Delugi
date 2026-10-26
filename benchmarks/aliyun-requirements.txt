@@ -1,0 +1,2 @@
+# Match Loom/benchmark's ECS SDK; workload orchestration uses Python stdlib + SSH.
+alibabacloud_ecs20140526==4.1.8

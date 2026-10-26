@@ -1,0 +1,227 @@
+Integrated Delugi / Raptr: first Aliyun deployment pilot
+======================================================
+26 October 2026
+
+Purpose and scope
+-----------------
+Run the two integrated cores using one source-bound common executable, shared
+TCP/crypto/runtime/storage services and four independent private-network hosts.
+This is the distributed functional/lifecycle gate preceding sustained evaluation.
+No cloud instances are created merely by preparing a plan. Remote and provider
+mutations in aliyun_bench.py require --execute. Resource creation additionally
+requires a reviewed spending/scale lease; example files are not authorization.
+
+Initial matrix:
+  protocols         Delugi, Raptr (real pinned consensus and Quorum Store)
+  replicas          4, one dedicated host each, one Alibaba region/VPC
+  cases             healthy through round4; silent first leader + honest2/3/4
+  fault identity    Delugi0; Raptr1 (their native leader schedules differ)
+  repetitions       1..3, sequential; alternate protocol order between repeats
+  transaction bytes 1..4096 useful payload bytes, default128
+  Delta             100ms; native timer multipliers remain unchanged
+  injected delta    0; no shaping is installed by this pilot
+  storage           shared RocksDB Written, WAL enabled, sync=false
+  executable        common Linux release, Rust1.78.0, one build job
+  CPUs/memory       explicit inventory affinity and whole-machine RAM; swap0
+
+Delugi preloads two transactions per correct origin for each of four payload
+heights, then starts ordering. Raptr uses sixteen finite timed requests per
+correct origin, 1ms cadence, 5s measurement + 5s drain. These exercise the existing
+acceptance fixtures. Their workload shapes differ: neither their rates nor their
+latencies are a matched performance comparison. Plans/results carry
+comparison_eligible=false. Batch size, max payload limits, offered rate, arbitrary
+fault counts, larger committees and calibrated delta are later campaign controls;
+the initial configure command intentionally does not claim to support them.
+
+Structure, following Loom/benchmark
+----------------------------------
+Loom layer                 Delugi implementation
+instance.py                alibaba_inventory.py; alibaba_deployment.py
+settings/config.py         inventory + immutable configure/build-plan JSON
+remote.py / fabfile.py     aliyun_bench.py; common_cloud_controller.py
+install/uploadexec         common_cloud_build.py; common_artifact.py; publish
+remote process supervisor  common_cloud_worker.py + existing remote_worker.py
+logs.py / download         collect + runtime_evidence.py + protocol reducers
+
+The CLI is scripts/aliyun_bench.py. The worker does not use tmux or host-wide
+pkill. Each trial has a random nonce, an owned directory, per-replica PID/start
+identity, a local control channel, a finite deadline and an owned process group.
+The abort tombstone prevents a late prepare/start/arm after controller failure.
+SIGSTOP faults are confirmed from /proc; cleanup continues stopped children
+before terminating them. Every host is closed and collected after partial errors.
+
+Controller setup and host inventory
+----------------------------------
+Use Python3.12+ locally and on Ubuntu24.04 Linux hosts. Provider SDKs are needed
+only for inventory/instance actions, not configure or benchmark SSH actions.
+Install controller packages in a virtual environment using:
+  python3 -m venv benchmarks/.cache/aliyun-python
+  benchmarks/.cache/aliyun-python/bin/pip install -r benchmarks/aliyun-requirements.txt
+
+All commands below run from the Delugi checkout. Choose an output directory under
+results/local; generated keys, tokens, identities and raw logs must not be added
+to Git. The existing Loom settings are read from ~/gitrepo/Loom/benchmark/settings.json.
+Only cloud API methods read its access-key file, and credentials are never copied
+to replicas or serialized into plans/logs.
+
+Read-only discovery of existing hosts:
+  python3 scripts/alibaba_inventory.py \
+    --settings ~/gitrepo/Loom/benchmark/settings.json \
+    --output results/local/aliyun/inventory-saved.json
+
+For new hosts, fill benchmarks/configs/aliyun-pilot-lease.example.json into a new
+local file with a current full-profile CNY quote, budget, existing VPC/vSwitch,
+Ubuntu24.04 image ID, Loom key-pair name and explicit human authorization. The
+proposed placement is four ecs.g9i.xlarge instances in ap-southeast-1, 200GiB ESSD,
+fixed5Mbps public egress for administration; peer traffic uses private addresses.
+The example deliberately contains null budget/quote fields and cannot provision.
+
+  python3 scripts/aliyun_bench.py instances initialize \
+    --plan results/local/aliyun/lease-plan.json --state results/local/aliyun/lease.json --execute
+  python3 scripts/aliyun_bench.py instances launch \
+    --state results/local/aliyun/lease.json --amount 4 --execute
+  python3 scripts/aliyun_bench.py instances refresh \
+    --state results/local/aliyun/lease.json --execute
+
+Saved exact IDs and live DelugiRun tags constrain management. Uncertain create
+replies reuse the original request token. AutoReleaseTime bounds the lease.
+SSH is restricted to the controller IPv4/32; peer ports8000..8099 are restricted
+to the owned security group. No VPC or key pair is created or deleted.
+
+Authenticate SSH host fingerprints through a trusted channel and save them in a
+dedicated known_hosts file. Import exact Running IDs in replica order0..3:
+  python3 scripts/aliyun_bench.py inventory \
+    --settings ~/gitrepo/Loom/benchmark/settings.json \
+    --saved-inventory results/local/aliyun/lease.json \
+    --instance-ids i-FIRST i-SECOND i-THIRD i-FOURTH \
+    --known-hosts results/local/aliyun/known_hosts \
+    --cpus 0,1,2,3 --memory-bytes 17179869184 \
+    --python-executable /usr/bin/python3 \
+    --output results/local/aliyun/hosts.json
+
+--saved-inventory also accepts the read-only inventory-saved.json. Memory must
+match the provider's actual saved machine size; the value above is16GiB.
+Public IPs are used for pinned SSH, private RFC1918 IPs for protocol traffic.
+
+Build and publish one common artifact
+------------------------------------
+Commit and push the intended source first. --revision accepts a full40-hex commit,
+never a floating branch. The build worker clones that revision and pinned Raptr
+objects, verifies the official Rust1.78 distribution checksum, fetches locked
+dependencies, then runs guarded OFFLINE release tests and the binary build.
+--install-system-packages explicitly installs the listed Ubuntu build packages
+on the selected root builder. Omit it when those packages are already installed.
+The builder needs60GiB free initially. Each Cargo command has the existing
+20GiB target, 8GiB sampled RSS, 30GiB minimum free space and30minute guards.
+
+  python3 scripts/aliyun_bench.py build-plan \
+    --inventory results/local/aliyun/hosts.json --replica 0 \
+    --revision FULL_PUSHED_COMMIT --install-system-packages \
+    --output results/local/aliyun/build-plan.json
+  python3 scripts/aliyun_bench.py build --plan results/local/aliyun/build-plan.json --execute
+  python3 scripts/aliyun_bench.py build-status --plan results/local/aliyun/build-plan.json --execute
+  python3 scripts/aliyun_bench.py build-collect --plan results/local/aliyun/build-plan.json \
+    --output results/local/aliyun/build-collected --execute
+
+Build dispatch returns promptly; the bounded worker continues across an SSH
+disconnect. Poll build-status until completed/failed. A failed attempt retains
+logs and receipts and needs a fresh build plan/nonce to retry. Collection requires
+confirmed command cleanup. Disposable compilation targets are removed after
+successful publication or failure; source, dependency cache, compiler, logs and
+published files remain in the owned build directory until instance deletion.
+
+Publication includes the exact executable, original build receipt and Cargo
+metadata, bound compiled sources/profiles, pinned native source archive and the
+Python runtime. Relocation does not rewrite compiler arguments or metadata.
+Each host verifies all hashes, capabilities, Linux ELF architecture, SSE4.2 on
+x86_64 and dynamic-library availability. Homogeneous Ubuntu images avoid libc
+differences. Existing complete publications can be verified/reused idempotently.
+
+  python3 scripts/aliyun_bench.py publish --inventory results/local/aliyun/hosts.json \
+    --publication results/local/aliyun/build-collected/publication.json \
+    --output results/local/aliyun/published --execute
+
+Configure and run
+-----------------
+  python3 scripts/aliyun_bench.py configure \
+    --inventory results/local/aliyun/published/inventory.json \
+    --protocols delugi raptr --cases healthy silent-first-leader \
+    --transaction-bytes 128 --repeats 3 \
+    --output results/local/aliyun/pilot-plan.json
+  python3 scripts/aliyun_bench.py run --plan results/local/aliyun/pilot-plan.json \
+    --output results/local/aliyun/pilot-001
+  python3 scripts/aliyun_bench.py run --plan results/local/aliyun/pilot-plan.json \
+    --output results/local/aliyun/pilot-001 --execute
+
+The first run invocation is a dry run. Configure freezes placement, artifact
+identity, protocol options and SSH input hashes. Changed inputs require a new
+plan. Each trial creates fresh protocol keys, distributing only its own secret
+plus public committee material to each replica. Source receipt verification is
+repeated before launch. A failed case stops the remaining campaign matrix.
+
+Evidence and measurements
+-------------------------
+pilot-001/
+  plan.json, campaign.json           matrix status and provenance
+  1-delugi-healthy/                  one protocol/case/repeat
+    trial.json, config.json          lifecycle, errors, correctness and traffic
+    controller-0.jsonl ...           action durations, no secret request bodies
+    public/                         public committee only, for Raptr
+    snapshots.json, submitted.json  exact Delugi fixture evidence
+    host-0/ ... host-3/
+      evidence.stream               bounded transport with chunk/whole hashes
+      collection.json               extraction receipt
+      files/
+        node.stdout, node.stderr    unfiltered native logs
+        resource-summary.json       process exit, CPU/RSS, resource enforcement
+        process.json                PID/start identity and launch time
+        control.jsonl               local Delugi control request/reply events
+        replicas/node-N/            signed Raptr final + input/output/profile
+
+Secret key directories and RocksDB contents are excluded from exports. Run
+configuration contains a per-run local-control token; keep raw results private.
+Successful SSH/exit is insufficient: Delugi validates exact transaction/batch
+output, HISTORY3, round statuses, state agreement and drained traffic; Raptr
+executes its native signature/ledger verifier on each completed host and then
+reduces collected signed journals, native output prefixes, counts and executor
+cleanup evidence. Silent recovery requires the three subsequent native anchors.
+
+Raptr latency uses each origin's own CLOCK_MONOTONIC admission -> first actual
+application append. Cross-host delivery membership is checked without clock
+subtraction; all-correct latency is unavailable. Delugi's preloaded fixture has
+no reported transaction latency. Traffic is retained at each protocol's actual
+shared-transport observation boundary: Delugi drains fully, Raptr freezes before
+shutdown. These finite records are diagnostics, not matched throughput/traffic
+rankings. Neither includes IP/link headers or kernel TCP retransmissions.
+
+Recovery and resource lifecycle
+------------------------------
+Use the trial.json written before launch, even if the controller was interrupted:
+  python3 scripts/aliyun_bench.py status --plan PLAN --trial TRIAL --execute
+  python3 scripts/aliyun_bench.py stop --plan PLAN --trial TRIAL --execute
+  python3 scripts/aliyun_bench.py collect --plan PLAN --trial TRIAL \
+    --output NEW_COLLECTION_DIRECTORY --execute
+
+Local stop affects only that trial's nonce-owned processes. Separate instance
+management commands act on the lease's exact IDs:
+  python3 scripts/aliyun_bench.py instances stop --state LEASE --execute
+  python3 scripts/aliyun_bench.py instances start --state LEASE --execute
+  python3 scripts/aliyun_bench.py instances destroy --state LEASE --execute
+  python3 scripts/aliyun_bench.py instances refresh --state LEASE --execute
+
+Instance stop uses KeepCharging to preserve addresses; billing continues.
+Collect evidence before destroy. Deletion is asynchronous: repeat refresh/destroy
+until the owned instances and security group are gone and the lease is closed.
+Start does not extend expiry. SDK state retains unresolved requests for review.
+Official API references:
+https://www.alibabacloud.com/help/en/ecs/developer-reference/api-ecs-2014-05-26-stopinstances
+https://www.alibabacloud.com/help/en/ecs/developer-reference/api-ecs-2014-05-26-runinstances
+
+Next gates
+----------
+1. Approve actual region/scale/budget, prepare pinned host keys, build on Linux.
+2. Pass this matrix on four real hosts, including failure cleanup/collection.
+3. Complete shared sustained Raptr ingress/cohort support and common workload
+   endpoints, then add calibrated Linux netem delta10ms / Delta100ms campaigns.
+4. Expand load, payload/batch caps, faults, committee sizes and WAN placements.
+Do not label the software-only checks or a successful build as cloud acceptance.

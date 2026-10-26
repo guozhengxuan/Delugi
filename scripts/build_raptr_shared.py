@@ -294,6 +294,7 @@ def build(action,output,*,toolchain=TOOLCHAIN,target=TARGET,cargo_home=CARGO_HOM
     if limits['target_bytes']>20*1024**3 or limits['free_bytes']<30*1024**3 or limits['rss_bytes']>8*1024**3 or limits['seconds']>1800:
         raise ValueError('build resource guard exceeds the approved local envelope')
     receipt={'schema':1,'format':contract.BUILD_FORMAT if action=='build' else f'raptr-shared-{action}-v1','status':'preparing',
+             'build_root':str(ROOT.resolve()),
              'action':action,'profile':profile,'native_commit':PIN,'started_unix_ns':time.time_ns(),
              'comparison_eligible':False,'shared_target_retained':True,'source_before_after_equal':False,
              'resource_guard':{'limits':limits,'scope':'sampled owned process RSS/allocated target/free space; not kernel-enforced quotas'}}

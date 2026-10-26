@@ -5,6 +5,7 @@ import sys
 import tempfile
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from alibaba_deployment import (Lease, lease_lock, owned_instances, owned_security_group,
@@ -146,6 +147,32 @@ class LeaseBoundTests(unittest.TestCase):
             self.assertEqual(query['internet_max_bandwidth_out'], 5)
             self.assertEqual(query['system_disk'], {'category': 'cloud_essd', 'size': 200})
             self.assertEqual(query['image_id'], 'reviewed-image')
+
+    def test_start_stop_use_only_owned_saved_ids_and_preserve_expiry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'lease.json'
+            state={'run_id':'run1','plan':dict(self.plan,region='ap-southeast-1'),
+                   'expires_at':'2099-01-01T00:00:00Z','batches':[{'ids':['i-a','i-b']} ]}
+            save(path,state);lease=object.__new__(Lease)
+            lease.path,lease.plan,lease.state=path,state['plan'],state
+            lease.models=SimpleNamespace(StartInstancesRequest=lambda **kw:kw,StopInstancesRequest=lambda **kw:kw)
+            lease._refresh=lambda:[{'InstanceId':'i-a','Status':'Stopped'},{'InstanceId':'i-b','Status':'Running'}]
+            calls=[];lease.call=lambda name,request:calls.append((name,request))
+            with patch.object(lease,'_verify_fresh_price') as price:
+                self.assertEqual(lease.start()['start_requested'],['i-a']);price.assert_called_once()
+            self.assertEqual(lease.stop()['stop_requested'],['i-b'])
+            self.assertEqual(calls[1][1]['stopped_mode'],'KeepCharging')
+            self.assertFalse(calls[1][1]['force_stop'])
+            self.assertEqual(json.loads(path.read_text())['expires_at'],state['expires_at'])
+
+    def test_expired_or_uncertain_lease_cannot_start(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'lease.json';lease=object.__new__(Lease)
+            lease.path,lease.plan=path,self.plan
+            for expiry,batches in [('2000-01-01T00:00:00Z',[]),('2099-01-01T00:00:00Z',[{'amount':4}])]:
+                save(path,{'plan':self.plan,'expires_at':expiry,'batches':batches})
+                with patch.object(lease,'_refresh',side_effect=AssertionError('must not call provider')):
+                    with self.assertRaises(ValueError):lease.start()
 
 
 if __name__ == '__main__':

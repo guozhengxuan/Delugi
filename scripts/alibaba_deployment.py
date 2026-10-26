@@ -246,6 +246,36 @@ class Lease:
         return self._refresh()
 
     @serialized_action
+    def start(self):
+        if self.state.get('closed') or not self.state.get('expires_at'):
+            raise ValueError('an open launched lease is required')
+        if datetime.fromisoformat(self.state['expires_at'].replace('Z', '+00:00')) <= utcnow():
+            raise ValueError('expired lease cannot be restarted')
+        if any('ids' not in batch for batch in self.state.get('batches', [])):
+            raise ValueError('resolve uncertain instance creation before start')
+        instances = self._refresh()
+        ids = [item['InstanceId'] for item in instances if item['Status'] == 'Stopped']
+        if ids:
+            self._verify_fresh_price()
+            self.call('start_instances', self.models.StartInstancesRequest(
+                region_id=self.plan['region'], instance_id=ids, batch_optimization='AllTogether'))
+        return {'start_requested': ids, 'expires_at': self.state['expires_at'],
+                'next': 'refresh; restart does not extend the lease'}
+
+    @serialized_action
+    def stop(self):
+        if any('ids' not in batch for batch in self.state.get('batches', [])):
+            raise ValueError('resolve uncertain instance creation before stop')
+        instances = self._refresh()
+        ids = [item['InstanceId'] for item in instances if item['Status'] == 'Running']
+        if ids:
+            self.call('stop_instances', self.models.StopInstancesRequest(
+                region_id=self.plan['region'], instance_id=ids, force_stop=False,
+                stopped_mode='KeepCharging', batch_optimization='AllTogether'))
+        return {'stop_requested': ids, 'billing': 'KeepCharging preserves addresses; delete to release resources',
+                'next': 'refresh; stop does not delete disks or extend the lease'}
+
+    @serialized_action
     def destroy(self):
         if self.state.get('security_group_pending') and not self.state.get('security_group'):
             raise ValueError('resolve uncertain security-group creation before cleanup; lease remains open')
@@ -277,7 +307,7 @@ class Lease:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=('initialize', 'launch', 'refresh', 'destroy'))
+    parser.add_argument('action', choices=('initialize', 'launch', 'refresh', 'start', 'stop', 'destroy'))
     parser.add_argument('--state', type=Path, required=True)
     parser.add_argument('--plan', type=Path)
     parser.add_argument('--amount', type=int)

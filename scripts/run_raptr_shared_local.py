@@ -175,13 +175,14 @@ def validate_native_dependencies(record, source_root=ROOT):
     return {"files": len(entries), "tree_sha256": record["tree_sha256"], "archive_sha256": record["archive_sha256"]}
 
 
-def resolved_capabilities(metadata, source_root=ROOT):
+def resolved_capabilities(metadata, source_root=ROOT, build_root=None):
     """Derive capabilities from the fixed target and Cargo's resolved graph.
 
     These fields describe the compiled assembly, not completed protocol tests.
     The executable's historical filename does not imply a selected protocol.
     """
     root = Path(source_root).resolve()
+    declared_root = Path(build_root).resolve() if build_root is not None else root
     packages = metadata.get("packages")
     resolve = metadata.get("resolve")
     if metadata.get("version") != 1 or not isinstance(packages, list) or not isinstance(resolve, dict):
@@ -194,7 +195,7 @@ def resolved_capabilities(metadata, source_root=ROOT):
         raise ValueError("duplicate Cargo resolution node")
     assembly = by_id.get(resolve.get("root"), {})
     manifest_path = root / "core/raptr/node/Cargo.toml"
-    if assembly.get("manifest_path") != str(manifest_path) or assembly.get("name") != "raptr-shared-node":
+    if assembly.get("manifest_path") != str(declared_root / "core/raptr/node/Cargo.toml") or assembly.get("name") != "raptr-shared-node":
         raise ValueError("Cargo root is not the pinned common-node assembly")
     manifest = tomllib.loads(manifest_path.read_text())
     targets = [target for target in assembly.get("targets", []) if target.get("name") == "raptr-shared-node" and target.get("kind") == ["bin"]]
@@ -202,7 +203,7 @@ def resolved_capabilities(metadata, source_root=ROOT):
     if (len(targets) != 1 or len(bins) != 1 or manifest.get("package", {}).get("autobins") is not False
             or bins[0].get("path") != "../../../node/src/shared_main.rs"
             or not isinstance(targets[0].get("src_path"), str)
-            or Path(targets[0]["src_path"]).resolve() != root / "node/src/shared_main.rs"):
+            or Path(targets[0]["src_path"]).resolve() != declared_root / "node/src/shared_main.rs"):
         raise ValueError("common executable target/entry point differs from reviewed assembly")
     root_node = nodes.get(assembly.get("id"), {})
     direct = set(root_node.get("dependencies", []))
@@ -212,7 +213,7 @@ def resolved_capabilities(metadata, source_root=ROOT):
                 "common-node": ("node", None)}
     features = {}
     for name, (directory, required_feature) in required.items():
-        matching = [package for package in packages if package.get("name") == name and package.get("manifest_path") == str(root / directory / "Cargo.toml")]
+        matching = [package for package in packages if package.get("name") == name and package.get("manifest_path") == str(declared_root / directory / "Cargo.toml")]
         if len(matching) != 1 or matching[0]["id"] not in direct:
             raise ValueError(f"common assembly is missing direct core/service dependency: {name}")
         package = matching[0]
@@ -247,16 +248,17 @@ def validate_capabilities(stamp, source_root=ROOT):
         return {"protocols": ["raptr"], "compiled_features": {}, "entry_point": None,
                 "capability_evidence": "legacy_raptr_only_no_feature_promotion"}
     root = Path(source_root).resolve()
+    declared_root = receipt_build_root(stamp, root)
     path = safe_file(root, proof.get("path"))
     if file_record(path) != {key: proof.get(key) for key in ("bytes", "sha256")} or path.stat().st_size > MAX_METADATA:
         raise ValueError("resolved Cargo metadata bytes changed")
     cargo = stamp.get("toolchain", {}).get("executables", {}).get("cargo", {}).get("path")
-    expected = [cargo, "--config", str(root / "core/raptr/native/.cargo/config.toml"), "metadata",
-                "--manifest-path", str(root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--format-version", "1"]
+    expected = [cargo, "--config", str(declared_root / "core/raptr/native/.cargo/config.toml"), "metadata",
+                "--manifest-path", str(declared_root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--format-version", "1"]
     if (proof.get("argv") != expected or proof.get("returncode") != 0
             or proof.get("cleanup", {}).get("status") != "completed" or proof["cleanup"].get("remaining") != []):
         raise ValueError("Cargo capability proof used a different resolution recipe")
-    value = resolved_capabilities(bounded_json(path, MAX_METADATA), root)
+    value = resolved_capabilities(bounded_json(path, MAX_METADATA), root, declared_root)
     if any(stamp.get(key) != expected for key, expected in value.items()):
         raise ValueError("declared capabilities differ from the compiled assembly graph")
     for required in ("node/src/shared_main.rs", "core/delugi/Cargo.toml", "Cargo.toml", "Cargo.lock"):
@@ -265,9 +267,18 @@ def validate_capabilities(stamp, source_root=ROOT):
     return {**value, "capability_evidence": "locked_offline_metadata_and_bound_common_entry"}
 
 
+def receipt_build_root(stamp, source_root):
+    """Relocation never rewrites the original command or Cargo metadata bytes."""
+    value = stamp.get("build_root", str(source_root))
+    if not isinstance(value, str) or not Path(value).is_absolute() or ".." in Path(value).parts:
+        raise ValueError("invalid producer build root")
+    return Path(value)
+
+
 def validate_build(binary, stamp, source_root=ROOT):
     """A successful compiler exit alone is not an artifact/source binding."""
     source_root, binary = Path(source_root).resolve(), Path(binary).resolve()
+    build_root = receipt_build_root(stamp, source_root)
     if stamp.get("schema") != 1 or stamp.get("format") != BUILD_FORMAT or stamp.get("status") != "completed":
         raise ValueError("completed Raptr shared build receipt required")
     if stamp.get("native_commit") != PIN or stamp.get("source_before_after_equal") is not True:
@@ -278,8 +289,8 @@ def validate_build(binary, stamp, source_root=ROOT):
             or command.get("cleanup", {}).get("status") != "completed" or command["cleanup"].get("remaining") != []):
         raise ValueError("successful explicit binary build and owned cleanup receipt required")
     cargo = stamp.get("toolchain", {}).get("executables", {}).get("cargo", {}).get("path")
-    expected_command = [cargo, "--config", str(source_root / "core/raptr/native/.cargo/config.toml"), "build",
-                        "--manifest-path", str(source_root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--jobs", "1"]
+    expected_command = [cargo, "--config", str(build_root / "core/raptr/native/.cargo/config.toml"), "build",
+                        "--manifest-path", str(build_root / "core/raptr/node/Cargo.toml"), "--locked", "--offline", "--jobs", "1"]
     if stamp["profile"] == "release":
         expected_command.append("--release")
     expected_command += ["--bin", "raptr-shared-node"]
@@ -1004,9 +1015,17 @@ def validate_executor_lifecycle(body, *, required=False, expected_limits=None):
             "scope": "signed shared task ownership; explicit abort cancellations are allowed"}
 
 
-def validate_results(config, correct, output, config_hash, epoch, case, *, require_executor=False):
+def validate_results(config, correct, output, config_hash, epoch, case, *, require_executor=False,
+                     host_epochs=None, public_directory=None, replica_directory=None):
     output = Path(output)
-    committee = bounded_json(Path(config["key_directory"]) / "committee.json")
+    public_directory = Path(public_directory or config["key_directory"])
+    replica_directory = Path(replica_directory or config["output_directory"])
+    if host_epochs is not None and (set(host_epochs) != set(correct)
+                                   or any(type(v) is not int or v < 0 for v in host_epochs.values())):
+        raise ValueError("explicit host-local epoch required for every correct replica")
+    if host_epochs is not None and case not in ("healthy", "silent-first-leader"):
+        raise ValueError("distributed reduction currently supports healthy and silent-first-leader cases")
+    committee = bounded_json(public_directory / "committee.json")
     if committee.get("schema") != 1 or committee.get("epoch") != 1:
         raise ValueError("public committee identity differs")
     members = committee.get("members")
@@ -1016,13 +1035,15 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
     materialized_batches, fault_snapshots = {}, {}
     all_latency = []
     for replica in correct:
-        directory = Path(config["output_directory"]) / f"node-{replica}"
+        if host_epochs is not None:
+            epoch = host_epochs[replica]
+        directory = replica_directory / f"node-{replica}"
         receipt = bounded_json(directory / "final.json", 16 * 1024 * 1024)
         if receipt.get("schema") != 1 or receipt.get("signer") != replica:
             raise ValueError("final receipt belongs to another signer/schema")
         body = receipt.get("body", {})
         expected = {"schema": 1, "profile": PROFILE, "run_id": config["run_id"], "configuration_sha256": config_hash,
-                    "id": replica, "epoch_us": epoch, "committee_sha256": sha256(Path(config["key_directory"]) / "committee.json")}
+                    "id": replica, "epoch_us": epoch, "committee_sha256": sha256(public_directory / "committee.json")}
         if any(body.get(key) != value for key, value in expected.items()):
             raise ValueError("signed receipt run/configuration/epoch differs")
         if body.get("failure") is not None or body.get("status", "completed") != "completed":
@@ -1030,7 +1051,7 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
         executor = validate_executor_lifecycle(body, required=require_executor,
                     expected_limits={key: config.get("limits", {}).get(key, default) for key, default in EXECUTOR_LIMITS.items()})
         freeze = uint(body.get("freeze_us"), "freeze timestamp")
-        if freeze < epoch or freeze > clock_us():
+        if freeze < epoch or (host_epochs is None and freeze > clock_us()):
             raise ValueError("invalid receipt freeze timestamp")
         deadline = epoch + (config["measurement_duration_ms"] + config["drain_ms"]) * 1000
         if body.get("deadline_us") != deadline or freeze < deadline:
@@ -1046,7 +1067,7 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
             if sha256(path) != hex_hash(entry.get("sha256")) or path.stat().st_size > MAX_FILE:
                 raise ValueError("signed journal bytes changed before reduction")
         profiles[replica] = validate_effective_profile(bounded_json(directory / "effective-profile.json"), config,
-                                                     expected["committee_sha256"], sha256(Path(config["key_directory"]) / "genesis-ledger.bcs"))
+                                                     expected["committee_sha256"], sha256(public_directory / "genesis-ledger.bcs"))
         counts, latency = validate_requests(directory / "requests.jsonl", config, replica, epoch, deadline)
         if any(body.get("counts", {}).get(key) != value for key, value in counts.items()):
             raise ValueError("signed finite counts differ from authenticated request rows")
@@ -1081,16 +1102,20 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
         raise ValueError("correct replicas used different effective native/service policies")
     total = {key: sum(replica["counts"][key] for replica in replicas.values()) for key in next(iter(replicas.values()))["counts"]}
     all_correct_latencies = []
+    all_correct_members = 0
     for identity, (request, admitted, own_completed) in admissions.items():
         observations = [first_outputs[replica].get(identity) for replica in correct]
-        if own_completed and all(value is not None and value[0] == request and value[1] >= admitted for value in observations):
-            all_correct_latencies.append(max(value[1] for value in observations) - admitted)
-    all_correct = {"admitted": len(admissions), "completed": len(all_correct_latencies),
-                   "unfinished": len(admissions) - len(all_correct_latencies),
-                   "clock": "same-host CLOCK_MONOTONIC microseconds across independent processes",
+        if own_completed and all(value is not None and value[0] == request
+                                 and (host_epochs is not None or value[1] >= admitted) for value in observations):
+            all_correct_members += 1
+            if host_epochs is None:
+                all_correct_latencies.append(max(value[1] for value in observations) - admitted)
+    all_correct = {"admitted": len(admissions), "completed": all_correct_members,
+                   "unfinished": len(admissions) - all_correct_members,
+                   "clock": "unavailable across hosts" if host_epochs is not None else "same-host CLOCK_MONOTONIC microseconds across independent processes",
                    "endpoint": "origin admission to the latest first actual append across every correct replica",
                    "mean_us": sum(all_correct_latencies) / len(all_correct_latencies) if all_correct_latencies else None,
-                   "scope": "secondary local-host finite cohort; cross-host clock subtraction is unsupported"}
+                   "scope": "final membership only; no cross-host clock subtraction" if host_epochs is not None else "secondary local-host finite cohort; cross-host clock subtraction is unsupported"}
     if case in ("healthy", "materializer-delay", "silent-first-leader", "missing-payload-recovery") and total["completed"] != total["planned"]:
         raise ValueError("local completion gate left planned honest requests unfinished/rejected/unoffered")
     if case in ("healthy", "materializer-delay", "silent-first-leader", "missing-payload-recovery") and all_correct["unfinished"]:
@@ -1116,6 +1141,8 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
     recovery = None
     if case == "missing-payload-recovery":
         target = config["payload_fault"]["node"]
+        if host_epochs is not None:
+            epoch = host_epochs[target]
         if any(snapshot is not None for replica, snapshot in fault_snapshots.items() if replica != target):
             raise ValueError("payload omission applied at an unconfigured replica")
         recovery = validate_payload_recovery(fault_snapshots[target], config, committee, epoch,
@@ -1127,7 +1154,7 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
             "payload_recovery": recovery,
             "round_authors": {str(replica): rounds for replica, rounds in round_maps.items()},
             "materializer": materializer,
-            "latency": {"clock": "same-host CLOCK_MONOTONIC", "endpoint": "bounded ingress admission to actual first application append",
+            "latency": {"clock": "origin-local CLOCK_MONOTONIC" if host_epochs is not None else "same-host CLOCK_MONOTONIC", "endpoint": "bounded ingress admission to actual first application append",
                         "count": len(all_latency), "mean_us": sum(all_latency) / len(all_latency) if all_latency else None,
                         "population": "completed own-origin admitted honest requests; unfinished remain censored"}}
 

@@ -77,6 +77,10 @@ pub struct Config {
     pub run_id: String,
     pub key_directory: PathBuf,
     pub addresses: Vec<SocketAddr>,
+    /// Explicit opt-in for the four-host private-network deployment pilot.
+    /// Omitted configurations retain the accepted localhost-only contract.
+    #[serde(default)]
+    pub deployment_profile: Option<String>,
     pub output_directory: PathBuf,
     pub arm_path: PathBuf,
     pub delta_ms: u64,
@@ -112,13 +116,7 @@ impl Config {
             config.addresses.iter().collect::<BTreeSet<_>>().len() == n,
             "duplicate peer address"
         );
-        ensure!(
-            config
-                .addresses
-                .iter()
-                .all(|a| a.ip().is_loopback() && a.port() > 0),
-            "this accepted phase requires loopback addresses with explicit ports"
-        );
+        validate_addresses(&config.addresses, config.deployment_profile.as_deref())?;
         ensure!(unhex(&config.run_id)?.len() == 32, "run_id must be32 bytes");
         ensure!(
             config.finite_workload.counts.len() == n
@@ -213,6 +211,54 @@ impl Config {
             );
         }
         Ok(config)
+    }
+}
+
+fn validate_addresses(addresses: &[SocketAddr], profile: Option<&str>) -> Result<()> {
+    let valid = match profile {
+        None => addresses
+            .iter()
+            .all(|a| a.ip().is_loopback() && a.port() > 0),
+        Some("private-ipv4-n4-v1") => {
+            addresses.len() == 4
+                && addresses
+                    .iter()
+                    .map(|a| a.ip())
+                    .collect::<BTreeSet<_>>()
+                    .len()
+                    == 4
+                && addresses.iter().all(|a| match a {
+                    SocketAddr::V4(v4) => v4.ip().is_private() && v4.port() > 0,
+                    SocketAddr::V6(_) => false,
+                })
+        }
+        Some(_) => false,
+    };
+    ensure!(
+        valid,
+        "peer addresses do not match the explicit local/private deployment profile"
+    );
+    Ok(())
+}
+
+#[cfg(test)]
+mod deployment_tests {
+    use super::*;
+    #[test]
+    fn private_placement_is_explicit_and_has_distinct_hosts() {
+        let peers: Vec<SocketAddr> = (1..=4)
+            .map(|i| format!("10.0.0.{i}:8000").parse().unwrap())
+            .collect();
+        assert!(validate_addresses(&peers, None).is_err());
+        assert!(validate_addresses(&peers, Some("private-ipv4-n4-v1")).is_ok());
+        let mut bad = peers.clone();
+        bad[3] = "10.0.0.1:8001".parse().unwrap();
+        assert!(validate_addresses(&bad, Some("private-ipv4-n4-v1")).is_err());
+        bad[3] = "8.8.8.8:8000".parse().unwrap();
+        assert!(validate_addresses(&bad, Some("private-ipv4-n4-v1")).is_err());
+        assert!(validate_addresses(&peers, Some("unknown")).is_err());
+        let local = vec!["127.0.0.1:8000".parse().unwrap()];
+        assert!(validate_addresses(&local, None).is_ok());
     }
 }
 pub fn hex(bytes: &[u8]) -> String {

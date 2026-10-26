@@ -90,6 +90,13 @@ Raptr work. Its [checkpoint audit](benchmarks/results/checkpoint-audit-2026-10-2
 rechecks the retained artifact and harness contracts. Functional acceptance,
 distributed deployment acceptance and performance eligibility remain separate gates.
 
+The [Aliyun pilot workflow](benchmarks/ALIYUN_PILOT.txt) provides Loom-style
+instance management, pinned Linux builds, private-network configuration,
+independent Delugi/Raptr replica launch, and per-host evidence collection through
+`scripts/aliyun_bench.py`. Its initial four-host healthy/silent-leader matrix is
+finite and unshaped; distributed acceptance and sustained comparisons require
+actual cloud runs. Plans are offline and remote actions require `--execute`.
+
 ## Implemented ordering
 
 - `core/delugi/src/wire.rs`: canonical, bounded Ed25519/SHA-256 messages; instance,
