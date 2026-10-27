@@ -7,11 +7,15 @@ Author decision: evaluate exactly 10 and 50 replicas; omit the intermediate
 committee size. This supersedes the reviewers' 10/19/49 recommendation and
 makes 50-replica quorum/proof and resource-profile qualification necessary.
 
-Budget addendum: benchmarks/plans/2026-10-27-aliyun-budget.txt and its JSON
-price a bounded version of this matrix against live 27 October account quotes.
-Proposed caps: CNY 20,000 full regional study, or CNY 13,000 core regional;
-optional targeted WAN confirmation adds at most CNY 15,000 under its stated
-scope. Estimates include 25% contingency and do not authorize cloud spending.
+Author scope/budget correction: one 60-second run per configuration, coarse
+input-rate spacing, total ceiling = current Aliyun cash balance + CNY 2,000.
+The revised benchmarks/plans/2026-10-27-aliyun-budget.txt and JSON supersede
+the expanded estimate. Use six load points per curve, with at most two extras
+or selective reruns; the paper figures have 6–7 points (Simple-IT) and eight
+visible points on Raptr's own curve. The compact campaign costs an estimated
+CNY 516–921 including reserve. Allocate CNY 1,000 within the user ceiling.
+The additional allowance is not a top-up transaction; the private receipt
+records the cash balance and resolved ceiling without publishing them in Git.
 
 Decision proposed
 -----------------
@@ -163,15 +167,16 @@ to one validator's CPU/memory/network budget.
 Illustrative common requests, to be validated against every adapter:
   protocols: [delugi, raptr, simpleit-mempool, simpleit-dispersed, autobahn, mysticeti-c]
   committees: [10, 50]                     # author-selected exact sizes
-  useful_transaction_bytes: 512            # sensitivity: 128 and 1024
-  total_honest_input_tps: [1000, 4000, adaptive_frontier]
+  useful_transaction_bytes: 512
+  total_honest_input_tps: [1000, 4000, 8000, 16000, 32000, 64000]
   ingress: independent_open_loop           # deterministic request IDs/content
   batching: {useful_bytes_target: 65536, max_wait_ms: 5}
   proposal_budget: {useful_bytes: 1048576, max_payload_refs: 64}
   network: {added_one_way_delay_ms: 10, validator_egress_mbps: 100}
   timing: {Delta_ms: 100, mapping: native_reviewed}
-  duration: {warmup_s: 30, measure_s: 300, drain_s: 60}
-  repeats: 3                              # increase near frontier/uncertain effects
+  duration: {warmup_s: 0, measure_s: 60, drain_s: 15}
+  repeats: 1
+  supplemental_points_or_reruns_per_curve: 2 # maximum, not automatic
   faults: {kind: none, injected_count: 0, fixed_identities: [], seed: 1}
   instances: {type: ecs.g9i.xlarge, one_validator_per_host: true}
 
@@ -311,12 +316,19 @@ Measure CPU/RSS/queues, signature verification, coding, disk and observer overhe
 
 E. Proposed paper figures and fault experiments
 -----------------------------------------------
+Current paid scope: F1 at six coarse loads; F2 and resource accounting from
+the same traces; one recoverable missing-data case (F3) and one native silent
+leader case (F4), each at one common load per committee. Use one 60-second run
+per cell. The broader variants, parameter cross-products, F5 disruptions, CPU
+controls and WAN below remain a research menu, not a deployment checklist.
+Protocol-specific attacks require their own qualified actor before inclusion.
+
 F1. Healthy latency–goodput frontier.
     Two committee panels (n=10 and n=50); six main curves; p50/p95 (p99 supplementary),
     completion and backlog alongside offered load. Sweep through saturation.
-    Include 1k/4k tx/s checks, 512-byte main payload, 128/1024-byte sensitivity.
-    Add concentrated and sparse-origin points to expose committee metadata and
-    batch-fill costs that balanced saturated traffic can hide.
+    Start at 1k/4k/8k/16k/32k/64k total tx/s with 512-byte useful payloads.
+    Cap supplemental points/reruns at two per curve. Payload-size and origin
+    distribution sweeps are deferred from this compact campaign.
 
 F2. Latency decomposition and low-load critical path.
     Raptr-style mean stage bars at the same low/moderate offered loads; a separate
@@ -385,7 +397,7 @@ F6. Scale and resource efficiency.
     dispersed Simple-IT. The 100 Mbps profile is deliberately bandwidth-limited
     relative to the original papers and cannot establish unrestricted peak TPS.
 
-Mandatory Delugi attribution controls:
+Controls for later causal claims (not additional compact-campaign runs):
   canonical/paced PROG x bundling off/on, with identical payload construction,
   authentication and output semantics. Reconcile the selected ordering snapshot
   and scheduling amendment before attaching a formal latency theorem to a curve.
@@ -450,12 +462,13 @@ G. Sequence after author agreement
    leader recovery, missing data, forks/equivocation, sender spoofing/replay,
    exact prefixes, unfinished cohorts, overload and controller failure/cleanup.
    Use the same vetted build for healthy/fault trials with toggled injection.
-5. After a separately approved quote, run a small n=4/10 common campaign with
-   delta0/delta10 and Delta100; calibration, correctness, accounting and observer
+5. Within the author budget and a freshly priced finite lease, run the compact
+   n=4 qualification, then n=10 campaign at delta10 and Delta100; calibration,
+   correctness, accounting and observer
    overhead must pass before performance eligibility.
 6. Complete the quorum/proof and resource-profile gates for exactly 50 replicas,
-   run the healthy sweep, then the fixed-load fault matrix, then sensitivity/WAN
-   experiments.
+   run the six-point healthy sweep and two fixed-load fault cases. Additional
+   sensitivity/WAN experiments require a later scope decision within the budget.
 
 The four-host 12/12 pilot is functional evidence; it does not close these gates.
 This plan is deliberately staged so implementation can begin after agreement
@@ -477,7 +490,7 @@ application expansion, disclosed authentication adaptations, correct forwarding
 semantics and same-cohort stage sums. All are recorded above. Both consultations
 are complete. The author's subsequent choice of exactly 10/50 supersedes the
 committee recommendation; the 50-replica qualification gates remain in scope.
-The remaining proposal is unchanged.
+The later author correction limits paid runs to the compact campaign above.
 
 Consultation chats:
   eval: 01a1645b-6f01-7ad0-9b34-261ec5cd19c0 (GPT-6 Astra explicitly selected)

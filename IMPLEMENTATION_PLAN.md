@@ -11,15 +11,18 @@ campaign interface and paper-derived figures. The author selected exactly
 **10 and 50 replicas**, omitting the intermediate size. The 50-replica case
 requires general-membership quorum/proof and resource-profile qualification;
 it must not be replaced with 49. This selection updates the scale targets below
-and does not authorize a new cloud lease. The remaining proposal is unchanged.
+and keeps the qualification gates below in scope.
 
-The [27 October cloud budget estimate](benchmarks/plans/2026-10-27-aliyun-budget.txt)
-prices the bounded six-implementation matrix using live account quotes:
-**CNY 20,000** proposed cap for the full regional study (CNY 19,369 including
-25% contingency), or CNY 13,000 for the core study. A separate targeted WAN
-confirmation has a proposed CNY 15,000 cap. These are planning estimates;
-deployment remains subject to qualification, explicit spending authorization,
-and reviewed extensions to the current 31-host/CNY-500 lease limits.
+The author rejected the expanded study and set the total budget to the current
+Aliyun cash balance plus **CNY 2,000**. The revised
+[27 October budget and load-point audit](benchmarks/plans/2026-10-27-aliyun-budget.txt)
+uses **one 60-second run per configuration**, six coarse load points per curve,
+and at most two extra points or selective reruns per curve. It estimates
+CNY 516–921 including build, collection and reserve; allocate CNY 1,000 within
+the user ceiling. The private balance receipt resolves that ceiling; account
+balances are not published in Git. The former CNY 20,000/35,000 estimates are
+superseded. Qualify the adapters and exactly 50 replicas before deployment;
+retain finite leases, per-lease caps and the aggregate user budget.
 
 ## 1. Current stage and priorities
 
@@ -45,8 +48,10 @@ shapes and traffic endpoints differ, so `comparison_eligible=false`.
 
 All four instances and the dedicated security group were deleted on 26 October
 at 19:44:37 Taipei. The CNY 50 authorization covered that completed two-hour
-pilot. A new paid campaign needs a new explicit lease and budget. No cloud
-resources are to be created by this planning update.
+pilot. The later balance-plus-CNY-2,000 instruction is the current campaign
+budget. Resolve each lease against its unspent amount and actual available
+funds; the additional allowance is not evidence of a completed top-up. No
+cloud resources were created by this planning update.
 
 The approved [21 October architecture](benchmarks/plans/2026-10-21-shared-core-architecture.txt)
 supersedes the older proposal to make a Vantage fork the main implementation.
@@ -163,7 +168,7 @@ schema and fixtures replayable.
 
 **Gate:** empty, zero-output, unfinished, saturated-queue and cutoff-crossing
 fixtures reconcile every identity; duplicate/tampered/missing journal shards
-fail verification. A multi-minute run has bounded producer/observer memory and
+fail verification. A 60-second run has bounded producer/observer memory and
 bounded spool/journal storage. Measure protocol retained-state growth separately;
 Delugi's indefinite custody and retained history must not be silently pruned.
 
@@ -218,7 +223,7 @@ storage/observer/schedule profile. Retain Delugi deterministic/wire conformance
 and native Raptr/QS regressions. Keep rejected attempts in the evidence ledger.
 
 Then run unshaped local Linux sustained checks at 1k and 4k total tx/s, an
-explicit overload point, and a five-minute soak. Inspect conservation, censored
+explicit overload point, using 60-second windows. Inspect conservation, censored
 tails, backlog subwindows, journals, phase counters, CPU/RSS and retained storage.
 Run paired detailed/minimal observation controls before using detailed traces
 as performance results. Local placement results qualify the harness; they do
@@ -231,7 +236,7 @@ a broken generator or incomplete evidence makes the comparison ineligible.
 
 ### E4 — Matched four-host Aliyun timing and load qualification
 
-After E0–E3, prepare a fresh priced lease for user approval. Reuse the tested
+After E0–E3, prepare a fresh priced lease within the user's recorded ceiling. Reuse the tested
 Singapore host class and private networking as the first placement. Build before
 the paid measurement window where possible, and publish one verified artifact.
 
@@ -240,19 +245,19 @@ Run this small development matrix first:
 | Item | Initial setting |
 | --- | --- |
 | Protocols / placement | Integrated Delugi and Raptr; n=4, one validator per equal dedicated host |
-| Storage / payload | Shared RocksDB Written; 128 useful bytes per transaction; actual encoded bytes retained |
-| Offered rates | 1,000 and 4,000 total tx/s, identically allocated over active honest origins |
-| Network / bound | Unshaped control, then injected δ=10 ms; configured Δ=100 ms in both |
-| Duration / repeats | 10 s warmup + 60 s measurement + 30 s drain; three repetitions per cell |
-| Batching | First record each core's effective native/default policy; then a declared supported batching grid |
+| Storage / payload | Shared RocksDB Written; 512 useful bytes per transaction; actual encoded bytes retained |
+| Offered rate / cases | 4,000 total tx/s, healthy and silent-first-leader recovery; equal honest-origin allocation |
+| Network / bound | Injected δ=10 ms, Δ=100 ms; unshaped RTT calibration and existing local application controls |
+| Duration / repeats | One 60 s offered-load/measurement window; at most 15 s drain; one pass per case |
+| Batching | Record and freeze one supported configuration per implementation before the sweep |
 | Execution order | Interleave protocols and record the order/seed; fresh owned stores for each trial |
 
-This is 24 healthy trials before tuning expansion. The durations and controls
-are planned capabilities, not claims that the finite pilot CLI already supports
-them. The development matrix precedes formal capacity selection.
-The declared phases total 40 minutes across the sequential matrix; the lease
-must also cover publication, calibration, startup, verification, export and
-cleanup. Price any build host and retry allowance separately before approval.
+This is four Delugi/Raptr qualification trials. Apply the same two-case gate
+to the four other principal implementations when their adapters qualify, for
+12 cloud qualification trials total. The timed offered-load window remains
+60 seconds; preparation, bounded drain/export and cleanup are billed separately
+within the 2–4 minute budgeted slot. These are planned capabilities, not claims
+that the finite pilot CLI already supports the complete campaign.
 
 Calibrate Linux `tc/netem` on the exact private peer paths, applying the intended
 one-way delay once per path. Retain raw established-TCP RTT samples before,
@@ -273,31 +278,33 @@ paths for shaped cells, equivalent traffic windows, output agreement and full
 cleanup. Produce throughput/latency/backlog/traffic curves and a 4k tx/s stage
 breakdown that can locate history waiting, batching, queueing or retrieval delay.
 
-### E5 — Capacity, scheduling ablations and recovery under sustained load
+### E5 — Coarse load curves and two recovery cases
 
-Extend the healthy load grid from 1k/4k by bounded increases until an unstable
-point is observed, then refine around the highest accepted sampled rate. Freeze
-the grid, batching candidates, tail target and acceptance policy before selection.
-Use at least 120-second measurement windows and three repetitions for formal
-frontier claims; do not promote the 60-second development cells.
+Use six coarse offered-load points per implementation and committee, initially
+1k/4k/8k/16k/32k/64k total honest tx/s. Use one 60-second run per cell. The paper
+audit counts six or seven points on Simple-IT's curves and eight visible points
+on Raptr's own curve. Allow at most two supplemental points or selective reruns
+per curve from one shared allowance; do not apply three repetitions by default.
+Freeze supported batching, tail targets and acceptance rules. Add a common
+coarse rate when the initial grid misses saturation; avoid fine interpolation.
+Label the result as a 60-second sampled frontier and report unfinished work.
 
 Reuse [frontier selection](benchmarks/plans/2026-10-19-frontier-selection.txt):
-all repetitions must pass exact cohort conservation, zero rejected/unfinished
+all performed repetitions must pass exact cohort conservation, zero rejected/unfinished
 measured work, scheduled/admission p99 within the common declared tail target,
 at least 95% useful measurement-window goodput, and declared net-backlog and
 excursion limits across ten subwindows. Preserve failures and censored tails.
 A selected frontier is the highest accepted measured point, not an extrapolated
 maximum. Freeze the same resource contract across load/tuning choices.
 
-Run Delugi's four required scheduling cells: canonical or paced PROG, each with
-bundling off/on, on the same binary and pipelined transport. Add empty/fallback
-opportunities and a detailed/minimal observer pair. This isolates the scheduling
-and bundling effects from cryptography, load, transport or observation changes.
+Keep local conformance for canonical/paced PROG and bundling off/on, plus
+empty/fallback and detailed/minimal observer checks. Use the default paced,
+immediate-bundling setting in the paid main series. Additional cloud ablations
+are deferred; do not make unmeasured causal claims about the scheduling change.
 
-Then test missing follower payloads, controlled nonleader omissions and silent
-leaders affecting successors under a common absolute rate strictly below both
-healthy frontiers. Start with the retained three-honest-anchor recovery case.
-Add matched-utilization trials as a separate series. Keep a fixed faulty identity
+Then test one recoverable missing-data case and one native silent-leader case
+under a common absolute rate below the healthy frontiers. Start with the retained
+three-honest-anchor recovery case for Delugi. Keep a fixed faulty identity
 set of size at most f throughout each run; record actual fault activation and
 recovery times. A process pause or payload omission is not arbitrary Byzantine
 computation. Signed equivocation/fork performance requires its own fault actor
@@ -322,9 +329,8 @@ ordinary high quorums require 34 rather than 2f+1=33. Extend and validate the
 wire, process, network and provider limits, including proposal/witness size and
 queue/memory envelopes, before paid load sweeps. Do not round n=50 down to 49.
 
-After regional acceptance, plan Alibaba WAN placements with measured path RTTs
-and heterogeneous delay, recording whether the chosen Δ covers the test regime.
-Keep WAN observations separate from controlled regional δ experiments.
+WAN placements are outside the current compact regional campaign. Scope them
+only after the prioritized results and the remaining user budget are known.
 
 Only after the first accepted Delugi/Raptr comparison, scope a Mysticeti port
 against its preserved native artifact, then other counterparts as needed. Keep
@@ -340,8 +346,8 @@ Every run must record both the requested setting and the effective setting.
 | --- | --- | --- |
 | Useful transaction bytes | Pilot 1–4096, default 128; broader bounds in individual runners | Match useful bytes; record native signed/encoded size separately; later sweep 512/4096 useful bytes |
 | Total offered rate and origin allocation | Delugi sustained runner; Raptr finite counts/cadence | Shared open-loop total-rate recipe, exact fractional scheduling and honest-origin population |
-| Warmup / measurement / drain | Delugi sustained phases; Raptr finite horizon | Versioned multi-minute phases and derived process/collection deadlines |
-| Batch count and cut cadence | Delugi `max_batch_transactions` / ingress cadence; Raptr native QS policy | Expose operative per-core knobs with boundary tests; retain defaults and a declared tuning grid |
+| Warmup / measurement / drain | Delugi sustained phases; Raptr finite horizon | 60 s offered-load/measurement, no additional offered-load warmup, up to 15 s drain; derived process/collection deadlines |
+| Batch count and cut cadence | Delugi `max_batch_transactions` / ingress cadence; Raptr native QS policy | Expose operative per-core knobs with boundary tests; freeze one supported setting for the compact campaign |
 | Batch bytes | Delugi wire/profile bounds; Raptr QS configuration fields | Raptr's native per-batch byte-filter loop is inactive; do not advertise `sender_max_batch_bytes` as an enforced cap |
 | Maximum proposal payload | Protocol-specific descriptor, transaction, batch and byte limits | Name each unit and boundary separately; validate against wire/proof limits; Raptr's nominal 200-batch pull can admit 201 on its current path |
 | Pending payload / queue budgets | Component-specific frame, byte, ingress, output and task limits | Bind effective per-component envelopes plus observed/enforced whole-worker resources; do not call a pending-byte limit a proposal cap |
