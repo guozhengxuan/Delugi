@@ -464,6 +464,10 @@ os.chmod(root/'node',0o700)
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     commands=parser.add_subparsers(dest='command',required=True)
+    campaign=commands.add_parser('campaign',help='resolve the compact one-minute campaign without cloud operations')
+    campaign.add_argument('--config',type=Path,required=True)
+    campaign.add_argument('--plan',action='store_true',required=True)
+    campaign.add_argument('--output',type=Path)
     lease=commands.add_parser('instances',help='exact-ID lease create/status/start/stop/delete')
     lease.add_argument('action',choices=('initialize','launch','refresh','peers','start','stop','destroy'))
     lease.add_argument('--state',type=Path,required=True);lease.add_argument('--plan',type=Path)
@@ -495,7 +499,13 @@ def main():
         action.add_argument('--plan',type=Path,required=True);action.add_argument('--trial',type=Path,required=True)
         action.add_argument('--execute',action='store_true');action.add_argument('--output',type=Path)
     args=parser.parse_args()
-    if args.command=='instances':
+    if args.command=='campaign':
+        import compact_campaign
+        result=compact_campaign.create_plan(json.loads(args.config.read_text()))
+        if args.output is not None:
+            if args.output.exists(): raise ValueError('choose a new immutable campaign plan path')
+            save(args.output,result)
+    elif args.command=='instances':
         if not args.execute:
             result={'status':'dry-run','action':args.action,'state':str(args.state),'no_cloud_api_called':True}
         elif args.action=='initialize':

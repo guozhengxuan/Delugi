@@ -24,6 +24,15 @@ balances are not published in Git. The former CNY 20,000/35,000 estimates are
 superseded. Qualify the adapters and exactly 50 replicas before deployment;
 retain finite leases, per-lease caps and the aggregate user budget.
 
+Implementation resumed with the author's agreement on 27 October. The compact
+offline planner now resolves the six protocol identities and 72 healthy / 24
+fault cells through `aliyun_bench.py campaign --config ... --plan`; it verifies
+the selected archived specification without rewriting its hashes. Exact global
+arrival allocation is implemented in `shared/mempool` and the planner. A durable
+campaign budget ledger reserves before dispatch and retains ambiguous or unbilled
+leases. These components have focused tests; execution, adapter qualification,
+bounded native journals and exactly-50 membership remain the next gates.
+
 ## 1. Current stage and priorities
 
 **The shared Delugi/Raptr implementation has passed local conformance and an

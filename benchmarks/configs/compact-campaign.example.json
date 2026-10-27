@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "kind": "delugi-compact-campaign-v1",
+  "protocols": ["delugi", "raptr", "simpleit-mempool", "simpleit-dispersed", "autobahn", "mysticeti-c"],
+  "committees": [10, 50],
+  "useful_transaction_bytes": 512,
+  "total_honest_input_tps": [1000, 4000, 8000, 16000, 32000, 64000],
+  "duration": {"warmup_s": 0, "measure_s": 60, "drain_s": 15},
+  "network": {"added_one_way_delay_ms": 10, "validator_egress_mbps": 100},
+  "timing": {"Delta_ms": 100, "mapping": "native_reviewed"},
+  "batching": {"useful_bytes_target": 65536, "max_wait_ms": 5},
+  "proposal_budget": {"useful_bytes": 1048576, "max_payload_refs": 64},
+  "repeats": 1,
+  "supplemental_points_or_reruns_per_curve": 2,
+  "seed": 1,
+  "fault_cases": ["missing-data", "silent-first-leader"],
+  "specification": {
+    "manifest": "provenance/spec-2026-10-19.json",
+    "paper_repository": "results/local/migration-acceptance-n4-ablation-canonical-unbundled-20261019/snapshot/paper"
+  },
+  "protocol_options": {"delugi": {}, "raptr": {}, "simpleit-mempool": {}, "simpleit-dispersed": {}, "autobahn": {}, "mysticeti-c": {}}
+}
