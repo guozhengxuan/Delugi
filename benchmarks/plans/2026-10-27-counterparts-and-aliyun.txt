@@ -1,0 +1,477 @@
+Delugi: counterpart selection and one-command Aliyun evaluation
+27 October 2026 — proposal for author approval
+Reviewed implementation checkpoint: main 17e79da
+Status: research and planning only; no protocol changes or cloud deployment.
+
+Decision proposed
+-----------------
+Evaluate Delugi against Raptr, Simple-IT, Autobahn and Mysticeti-C. Use both
+Opt-Mempool-Simple-IT and Opt-Dispersed-Simple-IT when making claims about the
+Simple-IT family. This gives six principal curves including Delugi.
+
+Preserve the integrated Delugi/Raptr implementation. Run the other author
+artifacts through small native adapters under the same campaign controller.
+A single deployment command does not require one executable or a full port of
+every consensus core. Retain two clearly labeled comparisons:
+  A. Shared services: Delugi versus integrated Raptr.
+  B. Matched systems: all six implementations, with native policies and declared
+     service differences, under the same workload and machine/network budgets.
+Use native Raptr as a fidelity control for A. Vantage, Bracha variants and
+Shoal are optional controls, not prerequisites for the principal matrix.
+
+A. Counterparts, source identity and readiness
+---------------------------------------------
+Raptr:
+  https://github.com/aptos-labs/aptos-core/tree/raptr-public
+  a4c98047cf8aeae3571168d02fb7e343140d2948
+  Real consensus and Quorum Store are integrated into the shared executable.
+  Four-host functional acceptance exists; matched sustained performance does
+  not. Complete bounded independent ingress, journals and common phase windows.
+
+Mysticeti-C:
+  https://github.com/asonnino/mysticeti/tree/paper
+  96fd83154bb5e168def9a81ee8f3e90e94e46a2e
+  Keep the paper implementation, native WAL and two-leader configuration.
+  Retained local process/cohort/prefix evidence and instrumentation are useful.
+  Extend the remote adapter and quantify observer overhead.
+  Mysticeti-FPC is an object-specific fast path, outside the common total-order
+  workload. Do not substitute current Sui or FPC for Mysticeti-C.
+
+Autobahn:
+  https://github.com/neilgiri/autobahn-artifact/tree/autobahn
+  6d77e0307e9dc09cc8def2c846a20523646ab4de
+  Separate author disruption branch:
+  https://github.com/neilgiri/autobahn-artifact/tree/autobahn-blips
+  9e8ab2f79ab1c4509620347bcd122c878981168d
+  Native local workers, omission hooks and exact-output evidence already exist.
+  Retain explicit optimistic-tip/fast-path settings. Use one vetted revision
+  per reported configuration for healthy and faulty runs wherever possible.
+  Preserve the existing deterministic output expansion contract and distinguish
+  it from the author's unordered raw application upcall.
+
+Simple-IT — original author repository, identified from the paper's footnotes:
+  https://github.com/qyu100/Simple-IT
+
+  Opt-Mempool-Simple-IT:
+    164c139d375bb958b41f59b6e6ca5e06ac2f2fe9
+  Opt-Mempool-Simple-IT-Failure:
+    e9235246880486439265cf86f13fae0ed99e62c0
+  Opt-Dispersed-Simple-IT:
+    f32158594e0faeca1b1a90f25fc0839ab28f9f37
+  Opt-Dispersed-Simple-IT-Failure:
+    ad8935a9e989bdfd113a8c136f9b5d0011038931
+
+  These are inspected candidate pins, not built or qualified artifacts.
+  The mempool design descends from Autobahn; the dispersed design uses
+  pipelining, Reed-Solomon coding and Merkle proofs. The local Vantage checkout
+  already implements Simple-IT, but that is a separate reimplementation.
+
+  Source findings that make qualification necessary:
+  * Healthy mempool primary/src/core.rs:780–785 has inactive timeout handlers.
+    The failure branch adds timeout/timeout-accept logic and a skipped-proposal
+    hook. The healthy dispersed core comments out timeout receive paths.
+  * The inspected mempool receiver is raw framed TCP; dispatch receives no
+    authenticated peer identity. Membership/digest checks on claimed authors
+    do not implement the paper's authenticated-channel assumption.
+  * Dispersed proposer.rs:127–130 generates anonymous zero-filled transactions
+    when consensus_only=true (the default); false uses queued transactions.
+    Proposal-generated workload cannot measure waiting before proposal.
+  * Mempool committer iterates HashMap proposals and pending rounds. Its exact
+    application order, complete materialization and partial-output retries need
+    qualification; equal commit counters are insufficient.
+  * Both branches retain inherited tooling/README content. Neither branch has
+    a tracked Cargo.lock in the inspected tree.
+
+  Start from each failure-capable author revision, audit its diff against the
+  healthy revision, then test healthy operation with injection disabled.
+  Audit the full fallback/notification/repair path, direct-sender authentication,
+  replay handling and state transfer of evidence. Provision only a validator's
+  own channel keys; a shared master secret at every validator is insufficient.
+  Disclose and charge authenticated transport as an adaptation. Bind direct
+  messages to their authenticated sender while respecting legitimate forwarding
+  and embedded evidence; the proposal's origin need not be the forwarding peer.
+  Add real identifiable independent arrivals and a verified contiguous output
+  observer. If missing protocol behavior needs implementing, label the result
+  an adapted author implementation and preserve the original artifact as a
+  reproduction reference. Instrumentation alone cannot establish conformance.
+  Establish deterministic within-round expansion and pending-round release at
+  the application boundary. Never sort observer logs afterward to hide divergent
+  outputs. An added materialization contract is a disclosed adaptation.
+
+Fork policy:
+  After approval, maintain small pinned forks or upstream-plus-patch series for
+  Simple-IT, Autobahn and Mysticeti. Prefer a published fork when changes span
+  several files/branches, with upstream pin, patch hash, lock, toolchain, binary
+  hash and capabilities recorded in provenance. Keep protocol changes separate
+  from transport, workload, observer and deployment changes. Preserve original
+  licenses. Do not replace the current shared architecture with Vantage.
+
+B. One configuration and one deployment/run operation
+-----------------------------------------------------
+Proposed interface (not implemented commands):
+  python3 scripts/aliyun_bench.py campaign --config benchmarks/campaigns/paper.yaml --plan
+  python3 scripts/aliyun_bench.py campaign --config benchmarks/campaigns/paper.yaml --execute --authorization approved-lease.json
+
+One execution provisions or reuses one owned fleet, publishes cached artifacts,
+runs every selected protocol sequentially on the same hosts, collects/verifies
+evidence, produces common tables/plots and deletes the owned resources. Protocol
+order is randomized/interleaved across repetitions; fresh stores prevent history
+carry-over. Reuse the fleet for a bounded matrix rather than buying six fleets.
+
+Persist the controller state:
+  validate -> artifact qualification/build -> quote/lease -> provision
+  -> publish -> resolve config -> calibrate -> prepare/ready/arm
+  -> run/freeze -> collect/verify -> reduce -> delete/verify
+
+Every stage is restartable by campaign/run/resource identity. A host-local agent
+owns its process group and monotonic epoch, accepts stop/status/export, and has
+a finite deadline. Cleanup remains bounded after controller/export failures;
+the cloud lease expires independently. Preserve incomplete runs and failure
+receipts. Never terminate unrelated processes or delete unrelated resources.
+
+Reuse existing locations:
+  scripts/aliyun_bench.py                 campaign orchestration
+  scripts/alibaba_deployment.py           owned leases/instances/network
+  scripts/common_cloud_worker.py          host lifecycle and evidence export
+  scripts/baselines/                      per-artifact adapters/build recipes
+  scripts/linux_netem.py                  calibrated delay/loss/rate profiles
+  benchmarks/campaigns/                   proposed common study configurations
+  provenance/                            source/build/capability manifests
+  results/local/<campaign>/              private raw evidence, keys kept out
+  benchmarks/results/                    compact publishable receipts/tables
+
+Loom's benchmark separates instance management, remote orchestration,
+configuration, commands and log parsing. Reuse that separation while building
+on Delugi's already tested owned-process/publication/cleanup controller.
+
+Adapter contract:
+  capabilities, resolve_config, build/verify_artifact, make_committee,
+  prepare, ready, arm, status, stop, freeze, export, verify_output, reduce.
+A native implementation may launch a primary plus workers; all roles belong
+to one validator's CPU/memory/network budget.
+
+Illustrative common requests, to be validated against every adapter:
+  protocols: [delugi, raptr, simpleit-mempool, simpleit-dispersed, autobahn, mysticeti-c]
+  committees: [10, 19, 49]                 # recommendation; requires author agreement
+  useful_transaction_bytes: 512            # sensitivity: 128 and 1024
+  total_honest_input_tps: [1000, 4000, adaptive_frontier]
+  ingress: independent_open_loop           # deterministic request IDs/content
+  batching: {useful_bytes_target: 65536, max_wait_ms: 5}
+  proposal_budget: {useful_bytes: 1048576, max_payload_refs: 64}
+  network: {added_one_way_delay_ms: 10, validator_egress_mbps: 100}
+  timing: {Delta_ms: 100, mapping: native_reviewed}
+  duration: {warmup_s: 30, measure_s: 300, drain_s: 60}
+  repeats: 3                              # increase near frontier/uncertain effects
+  faults: {kind: none, injected_count: 0, fixed_identities: [], seed: 1}
+  instances: {type: ecs.g9i.xlarge, one_validator_per_host: true}
+
+The batch/proposal numbers are starting budget requests, subject to pilot
+selection. They do not silently override native semantics. Every resolved
+manifest must record requested AND effective values and units, including:
+  - useful transaction bytes versus metadata, serialization and network bytes;
+  - batch byte/count target, timeout, minimum age and actual fill distribution;
+  - proposal byte/reference limits, subblocks/leaders, actual inclusion counts;
+  - native timer relationships, repair/retry timers and backoff;
+  - authentication, storage acknowledgment, executors, workers and queue caps.
+
+Unsupported/unimplemented caps fail validation before provisioning. For
+example, the current Raptr QS byte filter and 200/201 pull behavior cannot be
+advertised as an enforced shared cap. Make separately labeled native-default
+and matched-budget profiles, with equal tuning search budgets. Limits on
+new proposal contents must never truncate mandatory safety/recovery evidence.
+
+Use one live settings file for future runs. Each run freezes an immutable
+resolved copy and hash; edits cannot alter a running trial.
+
+C. Machines, committees and network settings
+--------------------------------------------
+Accept ecs.g9i.xlarge as the main resource-constrained profile:
+4 vCPUs, 16 GiB, identical Ubuntu image and SSD profile, one validator per VM.
+Include primary, workers, crypto pools, database threads, generator and observer
+in the declared host budget. Record CPU/SMT allocation, RSS, disk I/O, no-swap
+status and retained-state growth. Build once per source/profile with bounded
+jobs; cache only the publication and needed source/locks, then remove disposable
+targets. Do not compile during measurements.
+
+Use 100,000,000 bits/s aggregate protocol EGRESS per validator, covering all
+peers and roles, including protocol TCP acknowledgments/repair/control traffic.
+Receive throughput is measured but not independently rate-limited in this
+profile. Exclude SSH and evidence export. A per-peer 100 Mbps limit would grant
+more total bandwidth as the committee grows and is not this profile.
+
+Alibaba documents g9i.xlarge internal baseline bandwidth of 4 Gbit/s (burst
+higher). Purchased public egress is a separate setting. Implement a private-VPC
+traffic shaper and validate actual aggregate fanout throughput, queue/burst
+limits, packet counts, drops and retransmissions. Delay is injected once per
+direction; calibrate idle and loaded RTT. Keep zero-injected-delay and unshaped
+controls so the 100 Mbps result is interpretable.
+
+Start in one Singapore VPC for controlled delay, preserving delta=10 ms and
+Delta=100 ms. Delta is a configured bound used through native timer mappings;
+it is not a measured guarantee under queueing. Preserve Delugi 7Delta/3Delta
+relationships, Raptr's native relationships, and separately audit every
+counterpart mapping. Do not force all timeout fields to 100 ms.
+A subsequent WAN profile should use a measured region/RTT matrix and separately
+quoted connectivity; it cannot promise uniform actual delta=10 ms.
+At 100 Mbps, one 1 MiB transmission alone takes about 84 ms before propagation,
+competing traffic and verification. Calibrate complete message sizes, including
+HISTORY3, before describing a cell as satisfying the configured delay bound.
+
+The user's suggested sizes have these fault budgets:
+  n=10: f_max=3,  n-f=7
+  n=20: f_max=6,  n-f=14
+  n=50: f_max=16, n-f=34
+
+Recommend 10/19/49 for the first formal study, subject to author agreement:
+  n=10: f_max=3,  n-f=7
+  n=19: f_max=6,  n-f=13
+  n=49: f_max=16, n-f=33
+These preserve the same fault budgets and current n=3f+1 protocol model.
+Current Delugi specification and membership require n=3f+1; the reviewed
+large-message profile and lease limit stop at 31, and the distributed shared
+profile is currently n=4. Therefore:
+  1. Extend/qualify n=10 first, without changing the fault model.
+  2. Qualify larger evidence/resource/deployment profiles for 19/49, including
+     mandatory HISTORY3 frames and all native worker endpoints. The 49-node
+     profile still needs these changes even though its quorum model is unchanged.
+  3. If the author prefers exact 20/50, first review and prove the general
+     n>=3f+1 formulation; audit every threshold, bound, signer set, history,
+     erasure-code rule and timer; extend wire/process/network/provider limits;
+     then adversarially test it. Never silently substitute a committee size.
+
+For ordinary intersecting certificates, q must satisfy 2q-n>f; using 2f+1
+unmodified at n=20/50 fails that condition. Do not replace every native threshold
+with n-f either: Raptr availability and Simple-IT optimistic RBC have distinct
+requirements. Simple-IT's 50-node optimistic RBC threshold is 40.
+Exercise fallback when the optimistic threshold becomes unreachable but the
+full Byzantine budget is respected; at n=50, 11 silent identities leave 39
+votes, below 40 but above the high-quorum threshold 34. Use the actual resolved
+thresholds at each selected size. Preserve every native fallback path.
+Separate tolerated f_max from injected Byzantine count b. The union of faulty
+identities across an experiment must stay within f_max.
+
+The completed CNY50 pilot authorization is spent/closed in scope. The proposal
+does not authorize a new lease. Quote the approved matrix, including storage,
+traffic and cleanup margin, before a separate spending decision.
+
+D. Measurement contract and instrumentation
+-------------------------------------------
+Use independent arrivals with planned/offered/admitted/rejected/completed/
+unfinished accounting. Keep the honest offered rate unchanged during faults.
+Byzantine traffic is a separate stream with zero honest-goodput credit.
+
+Primary transaction latency:
+  origin-local admission -> verified contiguous application append at that origin.
+Also report scheduled-arrival -> admission delay and scheduled-arrival -> append.
+A request has one identity and one useful-byte credit; replica copies do not
+multiply throughput. Count an output only after payload verification and exact
+ordered materialization. Show completion fraction and unfinished-age distribution
+beside latency; never drop stalled or zero-output trials.
+
+Use origin-local monotonic clocks for subtraction. Check all-correct output
+prefix/membership agreement independently; any all-correct completion latency
+needs a declared acknowledgment endpoint or measured clock-error bound.
+Retain per-origin/worst-honest statistics and run-to-run variability.
+
+Instrument event timestamps, not debugger pauses:
+  admission; batch seal; local availability/evidence readiness; proposal
+  eligibility/first inclusion; proposal send/receive; quorum decision; scanner
+  or ordered-prefix release; payload verified; application append.
+
+For additive latency bars, partition each request's same-clock causal path into
+non-overlapping waits and average those intervals over the SAME cohort. Show
+parallel dissemination, certificate/history construction and repair in a
+separate timeline/overlay. Do not add per-stage medians or p95s. Keep absent
+native stages explicit and report censored traces separately.
+
+Delugi-specific records:
+  round admission, PROG pacing release, leader report quorum, HISTORY3 assembly,
+  serialized HISTORY3 bytes/signatures, Q check, bundle bytes/queue wait, VOTE/CER
+  quorum, direct commit, catch-up/CLOSED, scanner output, empty fallback,
+  advancing bases, FIFO head age and materialization.
+This distinguishes history waiting from transmission, CPU work and quorum wait.
+
+Counterpart records:
+  Raptr batch age/PoA, inclusion, prefix length, QC/CC and fetch/materialization;
+  Simple-IT batch votes or shard collection, echo/ready/decide, reconstruction;
+  Autobahn lane availability, cut/slot, missing-tip repair and ordered release;
+  Mysticeti DAG insertion/round, undecided leader, missing ancestor/fetch and
+  committed-subDAG expansion. Record local state, not inferred success from logs.
+
+Traffic: reconcile setup/warmup/measurement/drain with whole-run totals.
+Report useful payload, evidence/control, repair and framing/auth separately where
+classified; include an explicit unclassified bucket until attribution is complete.
+Keep application-stream bytes separate from kernel bytes and TCP retransmissions.
+Measure CPU/RSS/queues, signature verification, coding, disk and observer overhead.
+
+E. Proposed paper figures and fault experiments
+-----------------------------------------------
+F1. Healthy latency–goodput frontier.
+    Three committee panels; six main curves; p50/p95 (p99 supplementary),
+    completion and backlog alongside offered load. Sweep through saturation.
+    Include 1k/4k tx/s checks, 512-byte main payload, 128/1024-byte sensitivity.
+    Add concentrated and sparse-origin points to expose committee metadata and
+    batch-fill costs that balanced saturated traffic can hide.
+
+F2. Latency decomposition and low-load critical path.
+    Raptr-style mean stage bars at the same low/moderate offered loads; a separate
+    normalized-utilization view near capacity. Show admission/batching/inclusion,
+    consensus, ordered-prefix waiting, payload/materialization and append.
+    Delugi leader trace explains HISTORY3 time/size, Q, bundling and CER collection.
+    A 3delta line refers to the relevant ready optimistic ordering path; it is
+    not a prediction for batching, queueing and complete transaction latency.
+
+F3. Missing-data resilience and decision/output separation.
+    Two distinct cases: (a) temporarily delay a correct-origin batch then restore
+    it; (b) fixed Byzantine publishers selectively distribute payload and withhold
+    repair. Plot honest useful goodput and p95, ordered versus delivered positions,
+    FIFO head age, unresolved dependencies, repair completion/bytes, leader egress
+    and actual suppressed sends.
+    For Delugi also show empty/advancing proposal fractions and HISTORY3/CLOSED.
+    Empty rounds alone are not useful progress. Byzantine-origin data lacking a
+    delivery guarantee is not counted as unfinished honest work.
+    Record the actual holder set and custody obligations. Preserve legitimate
+    certificates and honest custody; do not fabricate availability evidence or
+    silently prevent every honest custodian from following its protocol.
+    Mysticeti carries payload and consensus together in signed blocks: suppressing
+    those is a block-omission case, not identical payload-only omission. Use a
+    common transport impairment for the directly matched panel and separately
+    label architecture-specific semantic faults.
+    Include a small actual-delay versus Delta sensitivity panel. Hold workload
+    and batching fixed, vary propagation and the configured bound independently,
+    and mark cells where measured queueing violates the supposed delay bound.
+    Record source/proof readiness and empty fallback specifically while honest
+    data is pending, so sparse traffic cannot obscure the mechanism.
+
+F4. Silent-leader recovery and backlog clearance.
+    Trigger one native leader opportunity with no proposal; preserve each
+    protocol's actual leader schedule. Delugi's silent leader followed by three
+    honest anchors remains its own qualification diagnostic. Also sample fixed
+    crashed/silent sets at b=1, the optimistic-fallback boundary and f_max.
+    Plot throughput/p95 versus time, timeout/history/closure and leader/round
+    events, first useful post-fault output, full backlog clearance, lost work,
+    recovery traffic and CPU. Separate pause/crash from selective leader silence.
+    For pipelined protocols, separately test a valid selectively disseminated
+    Byzantine parent and track uniquely identified honest successors: whether
+    the original proposal survives, transactions eventually complete, and how
+    many replays/reproposals occur. A skipped-proposal hook does not implement
+    this fault actor; it needs its own efficacy and correctness qualification.
+    Freeze load below the minimum healthy sustainable rate; add a separately
+    labeled same-relative-utilization stress view.
+    Define recovery beforehand: e.g. three consecutive 1-second bins with
+    >=95% pre-fault goodput, p95 <=110% baseline and backlog within its pre-fault
+    envelope. Also report first progress and post-fault latency excess area.
+
+F5. Network glitch/partition time series.
+    Inspired by Raptr's partial/full glitches and Autobahn's blip/hangover plots.
+    Use documented packet loss/jitter or disconnects on a subset/all validators,
+    plus a finite partition that is explicitly allowed to prevent quorum progress.
+    Distinguish kernel packet loss (TCP retransmits) from application omission.
+    Record injection start/end, goodput, tail latency, retransmissions, qdisc
+    backlog, native round/anchor rate, actual healing and time to drain backlog.
+    Preserve TCP reliability; do not claim a permanent-message-loss experiment
+    when only packets were dropped.
+
+F6. Scale and resource efficiency.
+    Committee/payload-size versus sustainable goodput at a stated latency and
+    completion target; wire bytes per useful committed byte, worst-validator and
+    leader egress, CPU per useful tx, memory and repair/evidence fraction.
+    Include unshaped or higher-bandwidth sensitivity and coding-cost panels for
+    dispersed Simple-IT. The 100 Mbps profile is deliberately bandwidth-limited
+    relative to the original papers and cannot establish unrestricted peak TPS.
+
+Mandatory Delugi attribution controls:
+  canonical/paced PROG x bundling off/on, with identical payload construction,
+  authentication and output semantics. Reconcile the selected ordering snapshot
+  and scheduling amendment before attaching a formal latency theorem to a curve.
+Additional controls: authenticated observer-off/compact/full runs, native Raptr
+fidelity, Autobahn optimization switches and Simple-IT Bracha as budget permits.
+
+F. Paper evidence inspected visually
+-----------------------------------
+All complete evaluation pages below were rendered with Poppler and inspected.
+PDFs came from the user's Zotero library; no figures/results were reconstructed
+from memory. Screenshots are local review evidence, not copied into Git.
+
+Raptr, Zotero SPLV5IVF / PDF R2FV3QNC, pp9–12:
+  Figs2–3 frontier/decomposition; Figs4–5 partial/full glitches.
+  100 GCP replicas, 10 regions, 64vCPU/256GB, 310B transactions, five-minute runs.
+  Mempool entry -> execution-ready; 150ms/450tx batching, 30ms minimum batch age,
+  eight subblocks. Its stacked decomposition motivates F2, not copying its
+  throughput or timing parameters into the controlled profile.
+  https://arxiv.org/html/2504.18649v2#S7
+  PDF SHA256: 534fe77dd23e7132f7e70c9b71e4d87e4bdc9c31740593b8b5e40f5f6afacaa9
+
+Simple-IT, Zotero 4T2G4DPI / PDF CMGDXQSR, pp11–13:
+  Figs5–7 frontier/bandwidth; Figs8–9 skipped leader; Table5 coding costs.
+  10/50 GCP replicas, five regions, 16vCPU/64GB, 512B, 60/120s.
+  Transaction creation -> commit by half the honest nodes; dispersed creation
+  happens at proposal. Failure experiment skips one proposal, uses a 3s timeout
+  and a 3s sliding throughput window. This informs variant and metric selection;
+  its latency endpoint is not the proposed common endpoint.
+  https://arxiv.org/html/2606.14404v1#S5
+  PDF SHA256: 85ae217e997a25745c272d18f38385304829ad4f0144e76f297ea19ca5999465
+
+Autobahn, Zotero 5DCFIXY6 / PDF YMXW9VR7, pp11–13:
+  Figs5–6 frontier/scale; Figs7–8 leader blips and partial partition.
+  GCP t2d-standard-16, four US regions, n=4/12/20, 10Gbps, 512B,
+  500KB batches, 1s view timers and 60s runs. Arrival -> execution-ready.
+  Per-request time-series and post-blip backlog clearance motivate F4/F5.
+  https://www.cs.cornell.edu/~fsp/reports/Autobahn__SOSP24_CR.pdf
+  PDF SHA256: 2126cdbeee40a0010e018d57960539121ee7ee46ff43a1003de75a7fbef63559
+
+Mysticeti, Zotero 6DSMNZLB / PDF CI34BXFN, pp13–15:
+  Fig9 n=10/50 frontier; Fig10 crash faults; Fig11 separately evaluates FPC.
+  AWS m5d.8xlarge, 13 regions, 32vCPU/128GB/10Gbps, 512B, two proposer
+  slots and 1s leader wait. Mean latency and standard-deviation bars; crashes
+  0..3 at n=10. Preserve Mysticeti-C and report our independently defined endpoint.
+  https://arxiv.org/html/2310.14821v6#S7
+  PDF SHA256: 2acdf289f1eacad1ec8fa74de88c43a63dacd5b90adfc4b611357ac3c1e1fbac
+
+Alibaba primary sources checked on 27 October:
+  https://www.alibabacloud.com/help/en/ecs/user-guide/general-purpose-instance-families
+  https://www.alibabacloud.com/help/en/ecs/user-guide/network-bandwidth/
+
+G. Sequence after author agreement
+----------------------------------
+1. Freeze this counterpart/variant/metric/parameter contract and the selected
+   Delugi specification. Seek agreement on 10/19/49 or the extra general-membership
+   milestone for exact 10/20/50.
+2. Complete sustained Delugi/Raptr parity; qualify author Simple-IT and complete
+   native adapters. Add timestamp hooks and bound observer memory/I/O.
+3. Implement the common campaign/config resolver and aggregate rate shaper,
+   reusing current instance/process/publication/log machinery.
+4. Qualify locally and on Linux: healthy, round4 where meaningful, silent native
+   leader recovery, missing data, forks/equivocation, sender spoofing/replay,
+   exact prefixes, unfinished cohorts, overload and controller failure/cleanup.
+   Use the same vetted build for healthy/fault trials with toggled injection.
+5. After a separately approved quote, run a small n=4/10 common campaign with
+   delta0/delta10 and Delta100; calibration, correctness, accounting and observer
+   overhead must pass before performance eligibility.
+6. Extend the approved committee/resource profiles to the agreed larger sizes,
+   run the healthy sweep, then the fixed-load fault matrix, then sensitivity/WAN
+   experiments.
+
+The four-host 12/12 pilot is functional evidence; it does not close these gates.
+This plan is deliberately staged so implementation can begin after agreement
+without committing to the cost of the whole paper matrix.
+
+Consultation record
+-------------------
+Requested by the author: GPT-6 Astra in "eval" and Pro in "delugi eval context".
+Astra reviewed the current source/plan and provided a follow-up critique of the
+paper/source findings. It supports the four families, both Simple-IT variants
+for broad claims, native adapters, explicit committee/bandwidth gates, one
+failure-capable revision, authenticated channels and same-cohort causal stages.
+The Pro review independently supports those choices, recommends 10/19/49 as
+the practical first committee set, and emphasizes honest-successor preservation,
+actual-delay/Delta sensitivity, useful work rather than empty rounds, and a
+limited higher-bandwidth/CPU control. These refinements are included above.
+Pro's final check agrees with the refinements and emphasizes deterministic
+application expansion, disclosed authentication adaptations, correct forwarding
+semantics and same-cohort stage sums. All are recorded above. Both consultations
+are complete; author approval of the implementation scope remains pending.
+
+Consultation chats:
+  eval: 01a1645b-6f01-7ad0-9b34-261ec5cd19c0 (GPT-6 Astra explicitly selected)
+  delugi eval context: 6ad0826d-7048-83ec-b309-e09c2dca6590 (existing Pro chat)

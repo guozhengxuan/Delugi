@@ -5,6 +5,13 @@ results at commit `427c7e6`, including the completed four-host Aliyun pilot.
 This document is the active next-step plan. The dated plans and result receipts
 linked below retain their original scope and evidence.
 
+The [27 October counterpart and Aliyun proposal](benchmarks/plans/2026-10-27-counterparts-and-aliyun.txt)
+adds the requested Raptr, Simple-IT, Autobahn and Mysticeti study design, common
+campaign interface and paper-derived figures. It recommends 10/19/49 committees
+and records the extra quorum/proof gates for the suggested exact 10/20/50. It is
+pending author agreement and does not authorize implementation or a new cloud
+lease. The accepted checkpoint and existing E0–E6 sequence below remain intact.
+
 ## 1. Current stage and priorities
 
 **The shared Delugi/Raptr implementation has passed local conformance and an
