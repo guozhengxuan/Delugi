@@ -93,6 +93,10 @@ pub struct SustainedConfig {
     /// Exact committee-wide open-loop rate, round-robin across correct ingress.
     #[serde(default)]
     pub total_rate: Option<u64>,
+    /// Explicit compact-campaign schedule: global ordinal zero at the epoch,
+    /// shared with Raptr. Older signed workloads retain their original recipe.
+    #[serde(default)]
+    pub global_arrivals: bool,
     pub transaction_bytes: usize,
     pub batch_ms: u64,
     pub warmup_ms: u64,
@@ -175,7 +179,7 @@ impl SustainedConfig {
             count: self.arrival_count(id, members),
             useful_bytes: self.useful_bytes(),
             start_elapsed_us: start,
-            identity_version: 2,
+            identity_version: if self.global_arrivals {3} else {2},
             total_rate: self.total_rate,
             origins: self.origin_ids(members),
         }
@@ -195,6 +199,7 @@ impl SustainedConfig {
             .map_or(true, |origins| origins.contains(&id))
     }
     fn validate(&self) -> Result<(), String> {
+        if self.global_arrivals && self.total_rate.is_none() {return Err("global arrivals require an explicit total rate".into());}
         if self.rate_per_replica == 0
             || self.rate_per_replica > 25_000
             || self
@@ -531,7 +536,7 @@ pub fn verify_workload_ledger(config: &Config, ledger: &Value) -> Result<Value, 
         }
     }
     Ok(
-        json!({"verified":true,"identity_version":2,"signed_manifests":verified_manifests,
+        json!({"verified":true,"identity_version":if load.global_arrivals {3} else {2},"signed_manifests":verified_manifests,
         "verified_requests":verified_requests,"authentication":"strict Ed25519 manifest signature; SHA256 canonical request content/instance/origin/sequence"}),
     )
 }
@@ -1510,7 +1515,15 @@ impl Runtime {
             return Ok(false);
         }
         self.load.next_batch_us = (elapsed / (config.batch_ms * 1000) + 1) * config.batch_ms * 1000;
-        let arrivals = std::mem::take(&mut self.load.batch);
+        let mut arrivals = std::mem::take(&mut self.load.batch);
+        if config.global_arrivals {
+            let membership=ingress.receipt.lock().unwrap();
+            // An enqueue crossing the offer cutoff was tentative. Its explicit
+            // rejected receipt prevents a native batch or useful output credit.
+            arrivals.retain(|a|!membership.rejected.contains(a.sequence));
+        }
+        if arrivals.is_empty() {return Ok(false);}
+
         let mut txs = Vec::with_capacity(arrivals.len());
         {
             // Same channel-publication barrier in both modes.
@@ -1593,12 +1606,13 @@ impl Runtime {
                         self.config.addresses.len(),
                         self.load.start_us.unwrap(),
                     );
-                    self.load.ingress = Some(Ingress::start_with_mode(
+                    self.load.ingress = Some(Ingress::start_with_cutoff(
                         manifest,
                         &self.workload_key,
                         self.origin,
                         config.arrival_queue_capacity,
                         self.config.observer_mode,
+                        config.global_arrivals.then_some(self.load.start_us.unwrap()+(config.warmup_ms+config.measurement_ms)*1000),
                     ));
                     let ingress = self.load.ingress.as_ref().unwrap();
                     let membership = ingress.receipt.clone();
@@ -2780,6 +2794,7 @@ mod tests {
         let mut c = SustainedConfig {
             rate_per_replica: 1000,
             total_rate: None,
+            global_arrivals: false,
             transaction_bytes: 512,
             batch_ms: 10,
             warmup_ms: 10_000,

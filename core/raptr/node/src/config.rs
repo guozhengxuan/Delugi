@@ -29,6 +29,13 @@ pub struct WorkloadConfig {
     pub interval_us: u64,
     pub start_delay_ms: u64,
 }
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct SustainedConfig {
+    pub total_honest_input_tps: u64,
+    pub honest_origins: Vec<u32>,
+    pub spool_limit_bytes: u64,
+}
 /// Local conformance control: suppress original QS delivery at one receiver;
 /// native consensus, custody signatures, and repair policy remain unchanged.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -87,6 +94,8 @@ pub struct Config {
     pub measurement_duration_ms: u64,
     pub drain_ms: u64,
     pub finite_workload: WorkloadConfig,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sustained_workload: Option<SustainedConfig>,
     #[serde(default)]
     pub limits: Limits,
     #[serde(default)]
@@ -104,7 +113,8 @@ impl Config {
         let n = config.addresses.len();
         let l = &config.limits;
         ensure!(
-            config.schema == 1
+            ((config.schema == 1 && config.sustained_workload.is_none())
+                || (config.schema == 2 && config.sustained_workload.is_some()))
                 && config.epoch == 1
                 && n >= 4
                 && ((n <= 31 && (n - 1) % 3 == 0) || n == 50)
@@ -129,18 +139,23 @@ impl Config {
                 .iter()
                 .try_fold(0_u64, |a, &v| a.checked_add(v))
                 .context("workload count overflow")?
-                <= 100_000,
-            "finite workload exceeds100000 requests"
+                <= if config.schema == 2 {
+                    4_800_000
+                } else {
+                    100_000
+                },
+            "workload population exceeds selected envelope"
         );
         ensure!(
-            config
-                .finite_workload
-                .counts
-                .iter()
-                .sum::<u64>()
-                .checked_mul(config.finite_workload.useful_bytes as u64 + 1024)
-                .context("prepared byte overflow")?
-                <= 128 * 1024 * 1024,
+            config.schema == 2
+                || config
+                    .finite_workload
+                    .counts
+                    .iter()
+                    .sum::<u64>()
+                    .checked_mul(config.finite_workload.useful_bytes as u64 + 1024)
+                    .context("prepared byte overflow")?
+                    <= 128 * 1024 * 1024,
             "finite precomputed request envelope exceeds128MiB"
         );
         ensure!(
@@ -166,7 +181,12 @@ impl Config {
                 && l.output_capacity > 0
                 && l.output_capacity <= 100_000
                 && l.max_journal_bytes > 0
-                && l.max_journal_bytes <= 512 * 1024 * 1024,
+                && l.max_journal_bytes
+                    <= if config.schema == 2 {
+                        4 * 1024 * 1024 * 1024
+                    } else {
+                        512 * 1024 * 1024
+                    },
             "invalid finite resource envelope"
         );
         ensure!(
@@ -183,7 +203,40 @@ impl Config {
                 && l.max_pending_payload_bytes <= 1024 * 1024 * 1024,
             "invalid output envelope"
         );
+        if let Some(s) = &config.sustained_workload {
+            ensure!(
+                s.total_honest_input_tps <= 80_000
+                    && !s.honest_origins.is_empty()
+                    && s.honest_origins.windows(2).all(|w| w[0] < w[1])
+                    && s.honest_origins.iter().all(|&i| (i as usize) < n)
+                    && s.spool_limit_bytes > 0
+                    && s.spool_limit_bytes <= 16 * 1024 * 1024 * 1024
+                    && config.finite_workload.start_delay_ms == 0
+                    && config.finite_workload.interval_us == 0,
+                "invalid sustained workload allocation/storage/schedule"
+            );
+            for origin in 0..n {
+                let count = config
+                    .rate_plan(origin as u32)?
+                    .map(|p| p.count())
+                    .unwrap_or(0);
+                ensure!(
+                    config.finite_workload.counts[origin] == count,
+                    "counts differ from exact total honest rate"
+                );
+                let bytes = count
+                    .checked_mul(3 * config.finite_workload.useful_bytes as u64 + 8192)
+                    .context("spool size overflow")?;
+                ensure!(
+                    bytes <= s.spool_limit_bytes,
+                    "prepared spool exceeds declared disk envelope"
+                );
+            }
+        }
         for &count in &config.finite_workload.counts {
+            if config.schema == 2 {
+                break;
+            }
             if count > 0 {
                 let last = (count - 1)
                     .checked_mul(config.finite_workload.interval_us)
@@ -211,6 +264,42 @@ impl Config {
         }
         Ok(config)
     }
+
+    pub fn rate_plan(&self, origin: u32) -> Result<Option<shared_mempool::RatePlan>> {
+        let Some(s) = &self.sustained_workload else {
+            return Ok(None);
+        };
+        let Some(rank) = s.honest_origins.iter().position(|&i| i == origin) else {
+            return Ok(None);
+        };
+        Ok(Some(
+            shared_mempool::RatePlan::new(
+                s.total_honest_input_tps,
+                self.measurement_duration_ms * 1000,
+                s.honest_origins.len() as u64,
+                rank as u64,
+                0,
+            )
+            .map_err(anyhow::Error::msg)?,
+        ))
+    }
+    pub fn planned_offset_us(&self, origin: u32, sequence: u64) -> Result<u64> {
+        if self.schema == 2 {
+            return self
+                .rate_plan(origin)?
+                .and_then(|p| p.planned_us(sequence))
+                .context("request outside sustained arrival plan");
+        }
+        self.finite_workload
+            .start_delay_ms
+            .checked_mul(1000)
+            .and_then(|s| {
+                sequence
+                    .checked_mul(self.finite_workload.interval_us)?
+                    .checked_add(s)
+            })
+            .context("arrival schedule overflow")
+    }
 }
 
 fn validate_addresses(addresses: &[SocketAddr], profile: Option<&str>) -> Result<()> {
@@ -233,7 +322,12 @@ fn validate_addresses(addresses: &[SocketAddr], profile: Option<&str>) -> Result
         }
         Some("private-ipv4-n10-n50-v1") => {
             matches!(addresses.len(), 10 | 50)
-                && addresses.iter().map(|a| a.ip()).collect::<BTreeSet<_>>().len() == addresses.len()
+                && addresses
+                    .iter()
+                    .map(|a| a.ip())
+                    .collect::<BTreeSet<_>>()
+                    .len()
+                    == addresses.len()
                 && addresses.iter().all(|a| match a {
                     SocketAddr::V4(v4) => v4.ip().is_private() && v4.port() > 0,
                     SocketAddr::V6(_) => false,
@@ -271,7 +365,9 @@ mod deployment_tests {
     #[test]
     fn paper_placement_supports_exactly_ten_and_fifty_distinct_private_hosts() {
         for n in [10, 50] {
-            let peers: Vec<SocketAddr> = (1..=n).map(|i| format!("10.1.0.{i}:8000").parse().unwrap()).collect();
+            let peers: Vec<SocketAddr> = (1..=n)
+                .map(|i| format!("10.1.0.{i}:8000").parse().unwrap())
+                .collect();
             assert!(validate_addresses(&peers, Some("private-ipv4-n10-n50-v1")).is_ok());
             assert!(validate_addresses(&peers, Some("private-ipv4-n4-v1")).is_err());
         }

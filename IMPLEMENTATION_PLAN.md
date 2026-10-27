@@ -39,6 +39,18 @@ profile fails the complete-current witness bound at 50. Neither legacy profile
 is widened. Raptr PoA now matches the native strict two-thirds verifier (34 at
 50). These are core/profile changes; distributed n=50 qualification is pending.
 
+The next implementation checkpoint adds schema-2 Raptr input spools and streaming
+signed journals, exact shared global schedules, explicit cutoff cancellation and
+unoffered populations. Existing finite archives retain their schema and meaning.
+The native tests pass; a four-process sustained smoke run authenticates and
+reduces the new archives. The one-minute load and fault qualifications are in
+progress. The aggregate Linux egress helper has passed a real two-namespace
+test (100 Mbps aggregate, nominal 10 ms each direction, verified cleanup); see
+[the local calibration receipt](benchmarks/results/linux-egress-local-2026-10-27.json).
+The compact cloud lease now reserves against the persistent campaign budget
+before dispatch and recovers saved instance IDs after a ledger-update crash.
+No paid deployment has been performed for this implementation checkpoint.
+
 ## 1. Current stage and priorities
 
 **The shared Delugi/Raptr implementation has passed local conformance and an

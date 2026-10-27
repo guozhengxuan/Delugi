@@ -26,7 +26,6 @@ use raptr_qs::{
     quorum_store::quorum_store_db::QuorumStoreDB,
 };
 use raptr_shared_transport::{AsyncLimits, Auth, Context, Service};
-use serde::Serialize;
 use serde_json::{json, Value};
 use std::{fs, path::Path, sync::Arc, time::Duration};
 
@@ -112,18 +111,22 @@ async fn until(deadline_us: u64) -> Result<()> {
 fn output_snapshot(s: delugi_raptr_core::Snapshot) -> Value {
     json!({"frozen":s.frozen,"published_sections":s.published_sections,"published_transactions":s.published_transactions,"pending_slices":s.pending_slices,"resolved_pending_slices":s.resolved_pending_slices,"pending_transactions":s.pending_transactions,"pending_payload_bytes":s.pending_payload_bytes})
 }
-fn journal(path: &Path, name: &str, rows: &[impl Serialize]) -> Result<Value> {
-    let mut bytes = vec![];
-    for row in rows {
-        serde_json::to_writer(&mut bytes, row)?;
-        bytes.push(b'\n');
-    }
-    config::write_new(&path.join(name), &bytes, false)?;
-    Ok(json!({"name":name,"sha256":config::digest(&bytes),"bytes":bytes.len(),"rows":rows.len()}))
-}
 fn file_record(path: &Path, name: &str) -> Result<Value> {
-    let bytes = fs::read(path.join(name))?;
-    Ok(json!({"name":name,"sha256":config::digest(&bytes),"bytes":bytes.len(),"rows":1}))
+    use shared_crypto::{Digest, Sha256};
+    use std::io::Read;
+    let mut file = fs::File::open(path.join(name))?;
+    let mut hash = Sha256::new();
+    let mut bytes = 0u64;
+    let mut buffer = [0; 65536];
+    loop {
+        let n = file.read(&mut buffer)?;
+        if n == 0 {
+            break;
+        }
+        hash.update(&buffer[..n]);
+        bytes += n as u64;
+    }
+    Ok(json!({"name":name,"sha256":config::hex(hash.finalize().as_slice()),"bytes":bytes,"rows":1}))
 }
 async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let configuration_sha256 = config::digest(raw);
@@ -135,6 +138,11 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let directory = config.output_directory.join(format!("node-{id}"));
     fs::create_dir(&directory)?; // A result directory is never reused or overwritten.
     let committee = Arc::new(keys.committee.clone());
+    let end_guard_seconds = if config.schema == 2 {
+        55 + (config.measurement_duration_ms + config.drain_ms + 999) / 1000
+    } else {
+        180
+    };
     let workload = Workload::prepare(config.clone(), committee, id, &keys.transport)?;
     config::write_json_new(
         &directory.join("workload-manifest.json"),
@@ -277,7 +285,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let native_config = raptr::rehost::native_config(
         keys.authors.len(),
         Duration::from_millis(config.delta_ms),
-        shared_runtime_async::time::Instant::now() + Duration::from_secs(180),
+        shared_runtime_async::time::Instant::now() + Duration::from_secs(end_guard_seconds),
     )?;
     let core = raptr::rehost::build_core(
         native_config,
@@ -302,7 +310,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let snapshot = sender.shared().snapshot();
     config::write_json_new(
         &directory.join("effective-profile.json"),
-        &json!({"schema":1,"profile":PROFILE,"native_policy_commit":"a4c98047cf8aeae3571168d02fb7e343140d2948","transport":snapshot.transport,"consensus":consensus,"quorum_store":qs_config,"crypto":"nativeBCS/BLS/SHA3; ordinaryEd25519outertransport","storage":"blob-lz4-pipelined-v1 Written WAL enabled syncfalse","tokio_workers":2,"maximum_blocking_threads":32,"rayon_workers":2,"task_executor":"shared global queued-plus-running budgets; group-owned shutdown","endpoint_clock":"CLOCK_MONOTONIC; admission after successful enqueue/publication; output after verification and journal construction","proof_cache_entries":10000,"native_end_guard_seconds":180,"configured_delta_ms":config.delta_ms,"injected_delay_ms":0,"native_timer_multipliers":{"leader":4.0,"partial_qc":0.1,"fetch":2.0,"round_sync":15.0},"execution":"consensus-only, signed synthetic Script payload; no Aptos VM/state-sync; fixed quorum-signed genesis ledger","genesis_ledger_sha256":keys.committee.genesis_ledger_sha256,"committee_sha256":config::hex(&keys.public_hash),"materialization_delay_ms":config.materialization_delay_ms,"payload_fault":config.payload_fault,"limits":limits}),
+        &json!({"schema":1,"profile":PROFILE,"native_policy_commit":"a4c98047cf8aeae3571168d02fb7e343140d2948","transport":snapshot.transport,"consensus":consensus,"quorum_store":qs_config,"crypto":"nativeBCS/BLS/SHA3; ordinaryEd25519outertransport","storage":"blob-lz4-pipelined-v1 Written WAL enabled syncfalse","tokio_workers":2,"maximum_blocking_threads":32,"rayon_workers":2,"task_executor":"shared global queued-plus-running budgets; group-owned shutdown","endpoint_clock":"CLOCK_MONOTONIC; admission after successful enqueue/publication; output after verification and journal construction","proof_cache_entries":10000,"native_end_guard_seconds":end_guard_seconds,"configured_delta_ms":config.delta_ms,"injected_delay_ms":0,"native_timer_multipliers":{"leader":4.0,"partial_qc":0.1,"fetch":2.0,"round_sync":15.0},"execution":"consensus-only, signed synthetic Script payload; no Aptos VM/state-sync; fixed quorum-signed genesis ledger","genesis_ledger_sha256":keys.committee.genesis_ledger_sha256,"committee_sha256":config::hex(&keys.public_hash),"materialization_delay_ms":config.materialization_delay_ms,"payload_fault":config.payload_fault,"limits":limits}),
         false,
     )?;
     config::write_json_new(
@@ -342,7 +350,13 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         ended=&mut protocol=>(Err(anyhow!("native protocol ended before observer deadline: {ended:?}")),true),
     };
     ingress.stop();
-    let (freeze_us, rows, outputs, counts) = workload.freeze();
+    let (freeze_us, frozen, mut counts) = workload.freeze_archive()?;
+    if !counts["ingress_error"].is_null() {
+        result = Err(anyhow!(
+            "independent ingress failed: {}",
+            counts["ingress_error"]
+        ));
+    }
     let snapshot_completed_us = clock()?;
     let materialized = materializer.freeze();
     let transport = sender.shared().snapshot();
@@ -385,10 +399,11 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     }
     let executor_at_cleanup = executor.snapshot();
     service.shutdown();
-    let mut files = vec![
-        journal(&directory, "requests.jsonl", &rows)?,
-        journal(&directory, "output.jsonl", &outputs)?,
-    ];
+    let mut files = frozen.write(&directory, config.limits.max_journal_bytes, &mut counts)?;
+    if let Some(file) = workload.planned_file() {
+        files.push(file);
+        fs::remove_file(directory.join("prepared.spool"))?;
+    }
     files.push(file_record(&directory, "workload-manifest.json")?);
     files.push(file_record(&directory, "effective-profile.json")?);
     let body = json!({"schema":1,"profile":PROFILE,"run_id":config.run_id,"configuration_sha256":configuration_sha256,"committee_sha256":config::hex(&keys.public_hash),"id":id,"epoch_us":arm.epoch_us,"deadline_us":deadline_us,"freeze_us":freeze_us,"snapshot_completed_us":snapshot_completed_us,"snapshot_copy_us":snapshot_completed_us.saturating_sub(freeze_us),"executor_at_freeze":executor_at_freeze,"executor_at_cleanup":executor_at_cleanup,"deadline_lateness_us":freeze_us.saturating_sub(deadline_us),"status":if result.is_ok(){"completed"}else{"failed"},"error":result.as_ref().err().map(|e|format!("{e:#}")),"files":files,"counts":counts,"transport":transport.transport,"async_transport":{"leased_bytes":transport.leased_bytes,"maximum_leased_bytes":transport.maximum_leased_bytes,"pending_bytes":transport.pending_bytes,"maximum_pending_bytes":transport.maximum_pending_bytes,"maximum_extra_pending_bytes":transport.maximum_extra_pending_bytes,"self_frames":transport.self_frames,"inbound_frames":transport.inbound_frames,"terminal_error":transport.terminal_error},"output_snapshot":output_snapshot(materialized),"materializer":materializer.delay_telemetry(),"payload_fault":payload_fault,"metrics":costs});

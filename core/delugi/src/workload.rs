@@ -37,6 +37,16 @@ impl SigningDomain for Manifest {
 }
 impl Manifest {
     pub fn scheduled_us(&self, sequence: u64) -> u64 {
+        if self.identity_version == 3 {
+            let rank = self
+                .origins
+                .iter()
+                .position(|&id| id == self.origin)
+                .expect("configured origin");
+            let ordinal = sequence as u128 * self.origins.len() as u128 + rank as u128;
+            return self.start_elapsed_us
+                + (ordinal * 1_000_000 / self.total_rate.expect("global rate") as u128) as u64;
+        }
         let (position, rate) = if let Some(total) = self.total_rate {
             let rank = self
                 .origins
@@ -291,6 +301,16 @@ impl Ingress {
         capacity: usize,
         mode: ObserverMode,
     ) -> Self {
+        Self::start_with_cutoff(manifest, key, clock, capacity, mode, None)
+    }
+    pub fn start_with_cutoff(
+        manifest: Manifest,
+        key: &Keypair,
+        clock: Instant,
+        capacity: usize,
+        mode: ObserverMode,
+        cutoff: Option<u64>,
+    ) -> Self {
         let signed = wire::sign(key, manifest.origin, manifest.clone());
         let receipt = Arc::new(Mutex::new(AdmissionReceipt::new(manifest.count)));
         let worker_receipt = receipt.clone();
@@ -299,11 +319,16 @@ impl Ingress {
         let admitted = Arc::new(AtomicU64::new(0));
         let rejected = Arc::new(AtomicU64::new(0));
         let (records, due, accepted, denied) = (
-            timings.clone(), scheduled.clone(), admitted.clone(), rejected.clone(),
+            timings.clone(),
+            scheduled.clone(),
+            admitted.clone(),
+            rejected.clone(),
         );
         let schedule = manifest.clone();
         let (worker, receiver, finished) = shared_mempool::Worker::start(
-            capacity, manifest.count, clock,
+            capacity,
+            manifest.count,
+            clock,
             move |sequence| schedule.scheduled_us(sequence),
             move |sequence, sender| {
                 let transaction = manifest.transaction(sequence);
@@ -321,10 +346,29 @@ impl Ingress {
                     0
                 };
                 let mut timing = Timing::default();
-                match sender.try_send(Arrival {
-                    sequence,
-                    transaction,
-                }) {
+                let closed = cutoff.is_some_and(|end| clock.elapsed().as_micros() as u64 >= end);
+                let mut publication = if closed {
+                    Err("arrival_window_closed")
+                } else {
+                    sender
+                        .try_send(Arrival {
+                            sequence,
+                            transaction,
+                        })
+                        .map_err(|error| match error {
+                            mpsc::TrySendError::Full(_) => "arrival_queue_full",
+                            mpsc::TrySendError::Disconnected(_) => "ingress_closed",
+                        })
+                };
+                let now = if cutoff.is_some() {
+                    clock.elapsed().as_micros() as u64
+                } else {
+                    now
+                };
+                if cutoff.is_some_and(|end| now >= end) {
+                    publication = Err("arrival_window_closed");
+                }
+                match publication {
                     Ok(()) => {
                         membership.admitted.insert(sequence);
                         if mode == ObserverMode::Full {
@@ -332,17 +376,11 @@ impl Ingress {
                         }
                         accepted.fetch_add(1, Ordering::Relaxed);
                     }
-                    Err(error) => {
+                    Err(reason) => {
                         membership.rejected.insert(sequence);
                         if mode == ObserverMode::Full {
                             timing.rejected_us = Some(now);
-                            timing.rejection_reason = Some(
-                                match error {
-                                    mpsc::TrySendError::Full(_) => "arrival_queue_full",
-                                    mpsc::TrySendError::Disconnected(_) => "ingress_closed",
-                                }
-                                .into(),
-                            );
+                            timing.rejection_reason = Some(reason.into());
                         }
                         denied.fetch_add(1, Ordering::Relaxed);
                     }
@@ -527,6 +565,63 @@ mod tests {
         assert!(entries
             .iter()
             .all(|row| row.timing.materialized_us.is_none()));
+    }
+    #[test]
+    fn global_manifest_matches_shared_scheduler_for_sparse_honest_origins() {
+        let origins = vec![0, 3, 9];
+        for (rank, origin) in origins.iter().enumerate() {
+            let plan =
+                shared_mempool::RatePlan::new(7, 1_000_000, origins.len() as u64, rank as u64, 42)
+                    .unwrap();
+            let manifest = Manifest {
+                instance: [1; 32],
+                origin: *origin,
+                rate_per_second: 3,
+                count: plan.count(),
+                useful_bytes: 8,
+                start_elapsed_us: 42,
+                identity_version: 3,
+                total_rate: Some(7),
+                origins: origins.clone(),
+            };
+            for seq in 0..manifest.count {
+                assert_eq!(manifest.scheduled_us(seq), plan.planned_us(seq).unwrap());
+            }
+        }
+    }
+    #[test]
+    fn closed_arrival_window_keeps_population_without_late_admission() {
+        let manifest = Manifest {
+            instance: [1; 32],
+            origin: 0,
+            rate_per_second: 1_000_000,
+            count: 12,
+            useful_bytes: 8,
+            start_elapsed_us: 0,
+            identity_version: 3,
+            total_rate: Some(1_000_000),
+            origins: vec![0],
+        };
+        let ingress = Ingress::start_with_cutoff(
+            manifest,
+            &key(),
+            Instant::now(),
+            32,
+            ObserverMode::Full,
+            Some(0),
+        );
+        let deadline = Instant::now() + Duration::from_secs(2);
+        while !ingress.finished.load(Ordering::Acquire) {
+            assert!(Instant::now() < deadline);
+            thread::sleep(Duration::from_millis(1));
+        }
+        assert_eq!(ingress.admitted.load(Ordering::Relaxed), 0);
+        assert_eq!(ingress.rejected.load(Ordering::Relaxed), 12);
+        assert!(ingress.receiver.try_recv().is_err());
+        assert!(ingress
+            .entries(0, 12)
+            .iter()
+            .all(|row| row.timing.rejection_reason.as_deref() == Some("arrival_window_closed")));
     }
     #[test]
     fn finite_manifest_retains_not_yet_admitted_population() {

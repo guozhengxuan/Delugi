@@ -215,7 +215,7 @@ fn json_file(path: &Path, maximum: u64) -> Result<(Value, String, u64)> {
         bytes.len() as u64,
     ))
 }
-#[derive(Deserialize)]
+#[derive(serde::Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct FileRecord {
     name: String,
@@ -402,7 +402,8 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
                 "workload-manifest.json",
                 "requests.jsonl",
                 "output.jsonl",
-                "effective-profile.json"
+                "effective-profile.json",
+                "planned.jsonl"
             ]
             .contains(&row.name.as_str()),
             "unrecognized receipt file"
@@ -412,7 +413,14 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
             "duplicate receipt file"
         );
     }
-    ensure!(records.len() == 4, "missing receipt file");
+    ensure!(
+        records.len() == if config.schema == 2 { 5 } else { 4 },
+        "missing receipt file"
+    );
+    ensure!(
+        config.schema == 2 || !records.contains_key("planned.jsonl"),
+        "unexpected sustained file"
+    );
     ensure!(
         records["output.jsonl"].bytes <= config.limits.max_journal_bytes,
         "application output journal exceeds configured cumulative bound"
@@ -438,7 +446,7 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
         json_file(&relative(root, "workload-manifest.json")?, MANIFEST_LIMIT)?;
     check_record(&records["workload-manifest.json"], &hash, size, 1)?;
     ensure!(
-        uint(&manifest, "schema")? == 1
+        uint(&manifest, "schema")? == config.schema as u64
             && uint(&manifest, "origin")? == signer as u64
             && string(&manifest, "profile")? == config::PROFILE
             && string(&manifest, "run_id")? == config.run_id
@@ -446,14 +454,10 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
         "workload manifest binding mismatch"
     );
     let planned = config.finite_workload.counts[signer as usize];
-    let requests = array(&manifest, "requests")?;
-    ensure!(
-        requests.len() as u64 == planned,
-        "finite manifest population mismatch"
-    );
-    let mut identities = Vec::with_capacity(requests.len());
-    for (sequence, request) in requests.iter().enumerate() {
-        let bytes = config::unhex(string(request, "native_transaction_bcs_hex")?)?;
+    let mut identities = Vec::with_capacity(planned as usize);
+    let mut verify_planned = |request: Value| -> Result<()> {
+        let sequence = identities.len();
+        let bytes = config::unhex(string(&request, "native_transaction_bcs_hex")?)?;
         let tx: SignedTransaction = bcs::from_bytes(&bytes)?;
         ensure!(
             bcs::to_bytes(&tx)? == bytes,
@@ -463,13 +467,35 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
         ensure!(
             origin == signer
                 && seq == sequence as u64
-                && uint(request, "sequence")? == seq
-                && string(request, "request_id")? == id
-                && uint(request, "useful_bytes")? == config.finite_workload.useful_bytes as u64,
+                && uint(&request, "sequence")? == seq
+                && string(&request, "request_id")? == id
+                && uint(&request, "useful_bytes")? == config.finite_workload.useful_bytes as u64,
             "finite request identity mismatch"
         );
         identities.push((id, config::hex(tx.committed_hash().as_ref())));
+        Ok(())
+    };
+    if config.schema == 2 {
+        ensure!(
+            manifest["planned_file"] == serde_json::to_value(&records["planned.jsonl"])?,
+            "planned file descriptor differs"
+        );
+        journal(
+            &relative(root, "planned.jsonl")?,
+            &records["planned.jsonl"],
+            planned,
+            &mut verify_planned,
+        )?;
+    } else {
+        let requests = array(&manifest, "requests")?;
+        for request in requests {
+            verify_planned(request.clone())?;
+        }
     }
+    ensure!(
+        identities.len() as u64 == planned,
+        "planned population mismatch"
+    );
     drop(manifest);
     let mut rows = Vec::<Row>::with_capacity(planned as usize);
     let mut events = BTreeMap::new();
@@ -488,10 +514,7 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
                 "request journal identity/order mismatch"
             );
             ensure!(
-                row.planned_us
-                    == epoch
-                        + config.finite_workload.start_delay_ms * 1000
-                        + row.sequence * config.finite_workload.interval_us,
+                row.planned_us == epoch + config.planned_offset_us(signer, row.sequence)?,
                 "request intended schedule mismatch"
             );
             ensure!(
@@ -500,14 +523,58 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
             );
             for time in [row.admitted_us, row.rejected_us].into_iter().flatten() {
                 ensure!(
-                    time >= row.planned_us && time < deadline,
+                    time >= row.planned_us
+                        && time
+                            < if config.schema == 2 {
+                                epoch + config.measurement_duration_ms * 1000
+                            } else {
+                                deadline
+                            },
                     "request admission/rejection outside schedule/deadline"
                 );
             }
             event(&mut events, row.admission_event, row.admitted_us)?;
             event(&mut events, row.rejection_event, row.rejected_us)?;
+            event(&mut events, row.cancellation_event, row.cancelled_us)?;
+            if config.schema == 2 {
+                let outcomes = [row.admitted_us, row.rejected_us, row.cancelled_us]
+                    .into_iter()
+                    .flatten()
+                    .collect::<Vec<_>>();
+                ensure!(
+                    outcomes.len() <= 1 && row.offered_us.is_some() == !outcomes.is_empty(),
+                    "offer outcome missing or contradictory"
+                );
+                if let Some(offered) = row.offered_us {
+                    let prepared = row.prepared_us.context("missing preparation endpoint")?;
+                    ensure!(
+                        row.planned_us <= offered
+                            && offered <= prepared
+                            && prepared <= outcomes[0]
+                            && outcomes[0] <= freeze,
+                        "invalid offer/preparation/outcome ordering"
+                    );
+                } else {
+                    ensure!(row.prepared_us.is_none(), "preparation without an offer");
+                }
+                if let Some(cancelled) = row.cancelled_us {
+                    ensure!(
+                        cancelled >= epoch + config.measurement_duration_ms * 1000,
+                        "early cutoff cancellation"
+                    );
+                }
+            } else {
+                ensure!(
+                    row.offered_us.is_none()
+                        && row.prepared_us.is_none()
+                        && row.cancelled_us.is_none(),
+                    "sustained field in finite journal"
+                );
+            }
+
             ensure!(
-                row.rejection.is_some() == row.rejected_us.is_some(),
+                row.rejection.is_some()
+                    == (row.rejected_us.is_some() || row.cancelled_us.is_some()),
                 "request rejection reason mismatch"
             );
             ensure!(
@@ -716,16 +783,26 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
     }
     let admitted = rows.iter().filter(|r| r.admitted_us.is_some()).count() as u64;
     let rejected = rows.iter().filter(|r| r.rejected_us.is_some()).count() as u64;
+    let cancelled = rows.iter().filter(|r| r.cancelled_us.is_some()).count() as u64;
     let completed = completions.len() as u64;
     let counts = &body["counts"];
+    if config.schema == 2 {
+        ensure!(
+            uint(counts, "cancelled")? == cancelled && counts["ingress_error"].is_null(),
+            "failed ingress or cancellation mismatch"
+        );
+    }
     for (name, value) in [
         ("planned", planned),
         ("scheduled", planned),
-        ("offered", admitted + rejected),
+        ("offered", admitted + rejected + cancelled),
         ("admitted", admitted),
         ("rejected", rejected),
-        ("unoffered", planned - admitted - rejected),
-        ("scheduled_not_offered", planned - admitted - rejected),
+        ("unoffered", planned - admitted - rejected - cancelled),
+        (
+            "scheduled_not_offered",
+            planned - admitted - rejected - cancelled,
+        ),
         ("completed", completed),
         ("origin_completed", completed),
         ("unfinished", admitted - completed),

@@ -1,4 +1,5 @@
 //! Real Raptr/QS assembly over shared services; application materialization is ordered by native commit metadata.
+pub mod archive;
 pub mod config;
 pub mod dissemination;
 pub mod factory;

@@ -250,7 +250,7 @@ def validate_workload_manifests(ledgers, config):
         rank = load["origins"].index(replica)
         count = ((total_count + len(load["origins"]) - 1 - rank) // len(load["origins"])) if "total_rate" in load else total_count
         expected = {"instance": config["instance"], "origin": replica, "rate_per_second": load["rate_per_replica"],
-                    "count": count, "useful_bytes": load["useful_bytes"], "identity_version": 2,
+                    "count": count, "useful_bytes": load["useful_bytes"], "identity_version": 3 if load.get("global_arrivals",False) else 2,
                     "total_rate": load.get("total_rate"), "origins": load["origins"]}
         if not signed or signed["signer"] != replica or len(signed.get("signature", [])) != 64:
             raise AssertionError("missing signed finite workload manifest")
@@ -259,7 +259,7 @@ def validate_workload_manifests(ledgers, config):
         start = signed["body"]["start_elapsed_us"]
         for sequence, row in enumerate(ledger["requests"]):
             position, rate = (sequence * len(load["origins"]) + rank + 1, load["total_rate"]) if "total_rate" in load else (sequence + 1, load["rate_per_replica"])
-            scheduled = start + (position * 1_000_000 + rate - 1) // rate
+            scheduled = start + ((position-1)*1_000_000//rate if load.get("global_arrivals",False) else (position * 1_000_000 + rate - 1) // rate)
             if row["sequence"] != sequence or row["scheduled_us"] != scheduled or row["useful_bytes"] != load["useful_bytes"]:
                 raise AssertionError("request ledger does not match its finite manifest recipe")
 
@@ -272,13 +272,13 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
               cohort_accounting=True, nodes=4, resource_profile=None,
               fault_replica=None, fault_scope="payload", fault_after=0, fault_duration=0, fault_peers=None,
               measure_costs=False, deployment=None, fault_batches=0, fault_batch_transactions=64, fault_payload_bytes=472,
-              cohort_observer="full", storage_profile=STORAGE_PROFILES[0]):
+              cohort_observer="full", storage_profile=STORAGE_PROFILES[0], global_arrivals=False):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
     if deployment is not None and storage_profile != STORAGE_PROFILES[0]:
         raise ValueError("shared disk profile acceptance is currently local only")
-    if nodes not in (4, 7, 31):
-        raise ValueError("validated campaign committees are 4,7,31")
+    if nodes not in (4, 7, 10, 31, 50):
+        raise ValueError("supported committee profiles are 4,7,10,31,50; qualify each deployment separately")
     if pause_replica is not None and fault_replica is not None:
         raise ValueError("choose a process pause or a semantic omission, not both")
     faulty = pause_replica if pause_replica is not None else fault_replica
@@ -318,12 +318,14 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
                             "measurement_ms": round(measurement_seconds * 1000)},
               **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
     config["measure_costs"] = measure_costs
+    if global_arrivals:
+        config["sustained"]["global_arrivals"] = True
     config.update(storage_options(directory, storage_profile))
     if cohort_observer not in ("full", "compact"):
         raise ValueError("cohort observer must be full or compact")
     config["observer_mode"] = cohort_observer
     if resource_profile is not None or nodes > 7:
-        config["resource_profile"] = resource_profile or "complete-32mib-n31-v1"
+        config["resource_profile"] = resource_profile or ("complete-64mib-n50-v1" if nodes==50 else "complete-32mib-n31-v1")
     if fault_replica is not None:
         config["fault"] = {"replica": fault_replica, "scope": fault_scope,
                            "start_after_load_ms": round((warmup_seconds + fault_after) * 1000),
@@ -669,9 +671,10 @@ def verify_build_stamp(binary, compiler):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--rate", type=int, default=1000)
-    parser.add_argument("--nodes", type=int, choices=(4, 7, 31), default=4)
+    parser.add_argument("--nodes", type=int, choices=(4, 7, 10, 31, 50), default=4)
     parser.add_argument("--inventory", type=Path, help="explicit existing-host SSH inventory; no cloud provisioning")
-    parser.add_argument("--resource-profile", choices=("legacy-1mib-v1", "complete-32mib-n31-v1"))
+    parser.add_argument("--resource-profile", choices=("legacy-1mib-v1", "complete-32mib-n31-v1", "complete-64mib-n50-v1"))
+    parser.add_argument("--global-arrivals", action="store_true", help="use the shared zero-based total-rate schedule and measurement admission cutoff")
     parser.add_argument("--cohort-observer", choices=("full", "compact"), default="full", help="detailed timing or compact finite receipts; compact has no request latency metrics")
     parser.add_argument("--measure-costs", action="store_true", help="enable optional crypto/proof resource counters; use paired runs to quantify observer overhead")
     parser.add_argument("--transaction-size", type=int, help="legacy actual encoded transaction size; includes 60 bytes of ID, workload identity and encoding")
@@ -793,7 +796,8 @@ def main():
                                fault_after=args.fault_after, fault_duration=args.fault_duration, fault_peers=args.fault_peers,
                                measure_costs=args.measure_costs, deployment=deployment, cohort_observer=args.cohort_observer,
                                fault_batches=args.fault_batches, fault_batch_transactions=args.fault_batch_transactions,
-                               fault_payload_bytes=args.fault_payload_bytes, storage_profile=args.storage_profile)
+                               fault_payload_bytes=args.fault_payload_bytes, storage_profile=args.storage_profile,
+                               global_arrivals=args.global_arrivals)
             manifest["trial"] = result
             manifest["status"] = result["status"]
             for key in ("network_shaping", "network_shaping_cleanup", "network_shaping_cleanup_error",

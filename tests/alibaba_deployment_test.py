@@ -31,6 +31,35 @@ class LeaseBoundTests(unittest.TestCase):
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 validate_plan(dict(self.plan, **changes))
 
+    def test_compact_fifty_requires_explicit_aggregate_reservation(self):
+        from campaign_budget import Ledger
+        with tempfile.TemporaryDirectory() as directory:
+            ledger = Ledger(Path(directory) / 'budget.json')
+            ledger.initialize(70_000, 'a' * 64)
+            plan = dict(self.plan, profile='compact-n10-n50-v1', maximum_instances=50,
+                        lifetime_hours=3, budget_cny=400, cost_margin_cny=45,
+                        campaign_budget={'path': str(ledger.path), 'authorization_sha256': 'a' * 64})
+            validate_plan(plan)
+            lease = object.__new__(Lease)
+            lease.plan, lease.state = plan, {'run_id': 'fleet-1'}
+            with self.assertRaisesRegex(ValueError, 'one batch'):
+                lease._reserve_campaign(10)
+            lease._reserve_campaign(50)
+            self.assertEqual(ledger.snapshot()['reserved_fen'], 40_000)
+            lease._reserve_campaign(50)  # ambiguous creation retry retains reservation
+            self.assertEqual(ledger.snapshot()['reserved_fen'], 40_000)
+            lease.state = {'run_id': 'fleet-2'}
+            with self.assertRaisesRegex(ValueError, 'remaining aggregate'):
+                lease._reserve_campaign(50)
+            lease.state = {'run_id': 'fleet-1'}
+            ledger.launched('fleet-1', [f'i-node{i}' for i in range(50)])
+            with self.assertRaisesRegex(ValueError, 'already active'):
+                lease._reserve_campaign(50)
+            with self.assertRaises(ValueError):
+                validate_plan(dict(plan, campaign_budget={}))
+            with self.assertRaises(ValueError):
+                validate_plan(dict(plan, lifetime_hours=4))
+
     def test_cleanup_requires_exact_id_and_live_run_tag(self):
         item = {'InstanceId': 'i-owned', 'Tags': {'Tag': [{'TagKey': 'DelugiRun', 'TagValue': 'run1'}]}}
         self.assertEqual(owned_instances([item], 'run1', ['i-owned']), [item])

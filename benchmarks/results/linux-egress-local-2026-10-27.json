@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "kind": "linux-egress-local-calibration",
+  "status": "passed",
+  "date": "2026-10-27",
+  "scope": "task-owned AppleHV VM; two disposable Linux network namespaces; not cloud calibration",
+  "settings": {
+    "one_way_delay_ms": 10,
+    "aggregate_egress_mbps": 100
+  },
+  "baseline_rtt_ms": 0.018083,
+  "shaped_rtt_ms": 23.427095,
+  "restored_rtt_ms": 0.017958,
+  "parallel_streams": 2,
+  "aggregate_mbps": 92.56579897959085,
+  "cleanup": "both owned shaping trees cleared and namespaces removed",
+  "source_files": {
+    "scripts/linux_egress.py": "02dcebf522ba6abbc28d8a493075ba54f5cfb5a0848edaec62e8c8d852b8833b",
+    "tests/linux_egress_live.py": "d43a9f91bfb4b4798f2475e3472dbc85d586070f3515cf260042be7b7b92f3d1"
+  }
+}

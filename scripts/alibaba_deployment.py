@@ -65,9 +65,25 @@ def serialized_action(method):
 
 
 def validate_plan(plan):
+    if not all(type(plan.get(k)) in (int, float) and math.isfinite(plan[k]) for k in
+               ('lifetime_hours', 'budget_cny', 'hourly_quote_cny', 'cost_margin_cny')):
+        raise ValueError('finite numeric budget limits required')
+    compact = plan.get('profile') == 'compact-n10-n50-v1'
+    if plan.get('profile') not in (None, 'compact-n10-n50-v1'):
+        raise ValueError('unknown lease profile')
     if (plan.get('schema') != 1 or type(plan.get('maximum_instances')) is not int
-            or not 1 <= plan['maximum_instances'] <= 31):
+            or not 1 <= plan['maximum_instances'] <= (50 if compact else 31)):
         raise ValueError('explicit maximum of 1..31 instances required')
+    if compact:
+        import campaign_budget
+        if plan['maximum_instances'] not in (4, 10, 50) or not 0 < plan['lifetime_hours'] <= 3:
+            raise ValueError('compact leases permit 4/10/50 validators and at most three hours')
+        budget = plan.get('campaign_budget')
+        if not isinstance(budget, dict) or set(budget) != {'path', 'authorization_sha256'}:
+            raise ValueError('compact leases require a persistent aggregate budget')
+        if not isinstance(budget['path'], str) or not Path(budget['path']).is_absolute():
+            raise ValueError('aggregate budget needs an absolute private ledger path')
+        campaign_budget.identity(budget['authorization_sha256'])
     if not all(type(plan.get(k)) in (int, float) and math.isfinite(plan[k]) for k in
                ('lifetime_hours', 'budget_cny', 'hourly_quote_cny', 'cost_margin_cny')):
         raise ValueError('finite numeric budget limits required')
@@ -160,6 +176,35 @@ class Lease:
         if not accepted:
             raise ValueError('fresh full-profile hourly quote is missing, non-CNY, or above the authorized bound')
 
+    def _reserve_campaign(self, amount):
+        """Reserve the entire fixed-size lease before any potentially paid call.
+
+        Compact leases use one idempotent instance batch. A timeout keeps the
+        reservation; an identical provider token may recover the original batch.
+        Destroying instances never releases money before bill reconciliation.
+        """
+        if self.plan.get('profile') != 'compact-n10-n50-v1':
+            return None
+        import campaign_budget
+        from decimal import Decimal, ROUND_CEILING
+        if amount != self.plan['maximum_instances']:
+            raise ValueError('compact lease launches its fixed committee in one batch')
+        selected = self.plan['campaign_budget']
+        ledger = campaign_budget.Ledger(selected['path'])
+        with ledger.locked():
+            state = ledger._load()
+            if state['authorization_sha256'] != selected['authorization_sha256']:
+                raise ValueError('aggregate budget authorization changed')
+        upper = int((Decimal(str(self.plan['budget_cny'])) * 100).to_integral_value(rounding=ROUND_CEILING))
+        run = self.state['run_id']
+        snapshot = ledger.reserve(run, upper, campaign_budget.digest(self.plan))
+        status = snapshot['leases'][run]['status']
+        if status == 'reserved':
+            ledger.dispatch(run)
+        elif status != 'dispatching':
+            raise ValueError('campaign lease already active or closed; reconcile existing resources')
+        return ledger
+
     @serialized_action
     def launch(self, amount):
         if type(amount) is not int or amount <= 0:
@@ -182,6 +227,7 @@ class Lease:
         if expiry - utcnow() < timedelta(minutes=35):
             raise ValueError('insufficient lease time left to safely launch')
         self._verify_fresh_price()
+        budget_ledger = self._reserve_campaign(amount)
         m, p, run = self.models, self.plan, self.state['run_id']
         if 'security_group' not in self.state:
             # Save exact intent and token before mutation. After an uncertain
@@ -232,12 +278,28 @@ class Lease:
         save(self.path, self.state)
         if len(batch['ids']) != amount:
             raise RuntimeError('provider returned unexpected instance count; retain state and reconcile')
+        if budget_ledger is not None:
+            budget_ledger.launched(run, batch['ids'])
         return {'ids': batch['ids'], 'expires_at': self.state['expires_at']}
 
     def _refresh(self):
         ids = [item for batch in self.state.get('batches', []) for item in batch.get('ids', [])]
         if not ids:
             return []
+        # Recover a crash between saving RunInstances IDs and updating the
+        # aggregate ledger. This never releases a reservation or creates a lease.
+        if self.plan.get('profile') == 'compact-n10-n50-v1':
+            import campaign_budget
+            selected = self.plan['campaign_budget']
+            ledger = campaign_budget.Ledger(selected['path'])
+            with ledger.locked():
+                state = ledger._load()
+                if state['authorization_sha256'] != selected['authorization_sha256']:
+                    raise ValueError('aggregate budget authorization changed')
+                reservation = state['leases'][self.state['run_id']]
+                status = reservation['status']
+            if status == 'dispatching':
+                ledger.launched(self.state['run_id'], ids)
         response = self.call('describe_instances', self.models.DescribeInstancesRequest(
             region_id=self.plan['region'], instance_ids=json.dumps(ids), page_size=100))
         instances = owned_instances(response['Instances']['Instance'], self.state['run_id'], ids)
