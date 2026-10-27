@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "kind": "delugi-compact-execution-v1",
+  "plan_sha256": "REPLACE_WITH_EXACT_OFFLINE_PLAN_SHA256",
+  "catalog": "/REPLACE/private/artifacts.json",
+  "fleets": {
+    "10": {
+      "lease_plan": "/REPLACE/private/lease-10.json",
+      "lease_state": "/REPLACE/private/lease-10-state.json",
+      "ssh": {
+        "user": "root",
+        "identity_file": "/REPLACE/private/ssh-key",
+        "known_hosts_file": "/REPLACE/private/known_hosts",
+        "python_executable": "/usr/bin/python3",
+        "network_interface": "eth0",
+        "host_key_policy": "pretrusted"
+      }
+    },
+    "50": {
+      "lease_plan": "/REPLACE/private/lease-50.json",
+      "lease_state": "/REPLACE/private/lease-50-state.json",
+      "ssh": {
+        "user": "root",
+        "identity_file": "/REPLACE/private/ssh-key",
+        "known_hosts_file": "/REPLACE/private/known_hosts",
+        "python_executable": "/usr/bin/python3",
+        "network_interface": "eth0",
+        "host_key_policy": "pretrusted"
+      }
+    }
+  }
+}

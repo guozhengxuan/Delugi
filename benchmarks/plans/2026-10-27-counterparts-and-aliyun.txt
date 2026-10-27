@@ -1,7 +1,15 @@
 Delugi: counterpart selection and one-command Aliyun evaluation
 27 October 2026 — proposal; author confirmed 10/50 committee selection
 Reviewed implementation checkpoint: main 17e79da
-Status: research and planning only; no protocol changes or cloud deployment.
+Original status: research and planning only; no protocol changes or cloud deployment.
+
+Implementation follow-up (27 October, d76ba07): the author approved this plan.
+The six-adapter resolver, bounded workloads, native lifecycle and one-operation
+owned-fleet campaign are now implemented and locally tested. The historical
+proposal below retains its original research findings. Current readiness,
+qualification gaps and working commands are in IMPLEMENTATION_PLAN.md and
+docs/evaluation/compact-campaign.md. No cloud resources were created during
+this implementation phase; the new full cloud matrix remains unqualified.
 
 Author decision: evaluate exactly 10 and 50 replicas; omit the intermediate
 committee size. This supersedes the reviewers' 10/19/49 recommendation and

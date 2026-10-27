@@ -1,0 +1,13 @@
+{
+  "common": {
+    "publication": "/REPLACE/common-linux-publication/publication.json",
+    "local_verifier": {
+      "binary": "/REPLACE/source-matching/raptr-shared-node",
+      "build_receipt": "/REPLACE/source-matching/build-receipt.json"
+    }
+  },
+  "simpleit-mempool": {"archive": "/REPLACE/simpleit-mempool-linux-build/artifacts.tar"},
+  "simpleit-dispersed": {"archive": "/REPLACE/simpleit-dispersed-linux-build/artifacts.tar"},
+  "autobahn": {"archive": "/REPLACE/autobahn-linux-build/artifacts.tar"},
+  "mysticeti-c": {"archive": "/REPLACE/mysticeti-linux-build/artifacts.tar"}
+}

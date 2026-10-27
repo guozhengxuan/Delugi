@@ -1,0 +1,222 @@
+{
+  "schema": 1,
+  "date": "2026-10-27",
+  "implementation_commit": "90a5d1fe54ec9f9dcc03fd872853e159bd35802c",
+  "scope": "six-protocol compact campaign implementation and local component qualification",
+  "comparison_eligible": false,
+  "paid_deployments_this_phase": 0,
+  "configuration": {
+    "path": "benchmarks/configs/compact-campaign.native-services.json",
+    "sha256": "b49bec78ee1ad5b42e871d1854764cecf245bb095beab00f96491d9fc93625ba"
+  },
+  "matrix": {
+    "committees": [
+      10,
+      50
+    ],
+    "protocols": [
+      "delugi",
+      "raptr",
+      "simpleit-mempool",
+      "simpleit-dispersed",
+      "autobahn",
+      "mysticeti-c"
+    ],
+    "healthy_cells": 72,
+    "conditional_fault_cells": 24,
+    "offered_seconds": 60,
+    "repeats": 1,
+    "initial_rates_tps": [
+      1000,
+      4000,
+      8000,
+      16000,
+      32000,
+      64000
+    ]
+  },
+  "tests": {
+    "status": "passed",
+    "tests": 237,
+    "skipped": 10,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 2.81684416718781,
+    "modules": [
+      "campaign_adapters_test",
+      "campaign_execute_test",
+      "campaign_budget_test",
+      "compact_campaign_test",
+      "common_sustained_remote_test",
+      "remote_native_test",
+      "remote_deployment_test",
+      "deployment_prepare_test",
+      "alibaba_deployment_test",
+      "native_network_test",
+      "linux_egress_test",
+      "runtime_evidence_test",
+      "sustained_runner_test",
+      "raptr_sustained_test",
+      "native_cohort_store_test",
+      "native_campaign_test",
+      "mysticeti_receipts_test",
+      "simpleit_workload_test",
+      "simpleit_auth_test",
+      "common_cloud_worker_linux_test",
+      "common_cloud_export_test",
+      "aliyun_bench_test",
+      "campaign_traffic_test"
+    ],
+    "passed": 227,
+    "receipt": {
+      "path": "results/local/compact-campaign-tests-20261027-final-v3/receipt.json",
+      "sha256": "94091915afb480600d960bd9ddf1227c37ab6d697cc2fd5a48bfcb8b47d3b06d"
+    },
+    "log": {
+      "path": "results/local/compact-campaign-tests-20261027-final-v3/tests.log",
+      "sha256": "32dc34d6e121461867069b1089edb1b498fa706dee0749ba56b4ee5d90fa6f9f"
+    },
+    "scope": "unit and mocked provider/SSH/controller lifecycle; real native/Linux tests listed separately"
+  },
+  "planner": {
+    "path": "results/local/compact-campaign-resolved-20261027-final/resolve.json",
+    "sha256": "e7b2644b84cb8a9a4a9ea43eba3fc8b28b47af4dda6b6c59f3ee7ffac236bd7c"
+  },
+  "local_native_cases": [
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "nodes": 4,
+      "measurement_seconds": 3,
+      "input_tps": 100,
+      "Delta_ms": 100,
+      "added_delay_ms": 0,
+      "storage_profile": "shared-rocksdb-written-v1",
+      "functional_status": "passed",
+      "scheduled": 300,
+      "admitted": 300,
+      "completed": 221,
+      "unfinished": 79,
+      "prefix_agreement": true,
+      "liveness_observed": true,
+      "artifact": {
+        "path": "results/local/delugi-native-rocksdb-silent-gate-20261027/trial/result.json",
+        "sha256": "94337d66529c20fcd08aa84c6e3b15c869282557bd2ace753e37a884a64c2ac6"
+      },
+      "scope": "actual local debug common executable; no comparative performance claim"
+    },
+    {
+      "protocol": "mysticeti-c",
+      "case": "silent-first-leader",
+      "nodes": 4,
+      "measurement_seconds": 3,
+      "input_tps": 1001,
+      "Delta_ms": 100,
+      "added_delay_ms": 0,
+      "capture_status": "passed",
+      "liveness_observed": true,
+      "scheduled": 3003,
+      "completed": 2993,
+      "unfinished": 10,
+      "prefix_agreement": true,
+      "native_order_fidelity": {
+        "reason": "filtered journal cannot authenticate unseen leading/trailing native payload order; independent signed WAL proof required",
+        "status": "incomplete"
+      },
+      "binary_sha256": "c3ebd72023f118a78ff95b4deb865da62e31758145b3e744401bcae1055112a6",
+      "first_leader_replica": 1,
+      "absent_native_processes_started": 0,
+      "artifact": {
+        "path": "results/local/mysticeti-native-absent-leader-20261027-v2/acceptance.json",
+        "sha256": "1a6abb25b59192c55437cf70dd54fd6c567bafa03b7b622a826c922070bfd9b9"
+      },
+      "traffic_diagnostic": {
+        "traffic_measurement_written_bytes": 55988374,
+        "traffic_sampled_total_written_bytes": 162451020,
+        "traffic_window_quality": "sampled host-local scrape boundaries",
+        "traffic_boundary": "native successful replica stream writes; scrape intervals host-local"
+      },
+      "scope": "actual native processes through host lifecycle on macOS; Linux publication/resource preflight separately qualified"
+    },
+    {
+      "protocol": "autobahn",
+      "case": "silent-first-leader",
+      "nodes": 4,
+      "measurement_seconds": 60,
+      "input_tps": 1001,
+      "Delta_ms": 100,
+      "added_delay_ms": 0,
+      "capture_status": "passed",
+      "liveness_observed": false,
+      "scheduled": 60060,
+      "completed": 0,
+      "unfinished": 60060,
+      "prefix_agreement": true,
+      "native_order_fidelity": {
+        "reason": "complete native journal ordinals checked",
+        "status": "complete_observer_sequence"
+      },
+      "binary_sha256": "94ab120726a9f80841411c59e882fdce17e775fd354ff33eba1db2bb47491412",
+      "first_leader_replica": 1,
+      "absent_native_processes_started": 0,
+      "artifact": {
+        "path": "results/local/autobahn-native-absent-leader-60s-20261027/acceptance.json",
+        "sha256": "f65594641ad9e13e20b2149895bc5864321e58c39f9a37558236a73bd55ec062"
+      },
+      "traffic_diagnostic": {
+        "traffic_measurement_written_bytes": 63077296,
+        "traffic_sampled_total_written_bytes": 65357706,
+        "traffic_window_quality": "native per-operation window filtering",
+        "traffic_boundary": "native successful replica stream writes including host-local worker links"
+      },
+      "scope": "actual native processes through host lifecycle on macOS; Linux publication/resource preflight separately qualified"
+    }
+  ],
+  "related_receipts": [
+    "benchmarks/results/simpleit-local-2026-10-27.json",
+    "benchmarks/results/compact-integrated-local-2026-10-27.json",
+    "benchmarks/results/linux-egress-local-2026-10-27.json"
+  ],
+  "remaining_qualification": [
+    "current Linux x86_64 release artifacts for all selected implementations",
+    "n10/n50 nominal timer and resource qualification; local Raptr n50 Delta100ms failed before round4",
+    "Autobahn absent-leader zero-output liveness failure retained",
+    "Simple-IT forwarded certificate and full fallback security audit",
+    "Mysticeti remote complete signed WAL terminal-prefix fidelity",
+    "loaded host-network and observer overhead qualification",
+    "complete real Alibaba campaign execution"
+  ],
+  "source_files": {
+    "scripts/campaign_execute.py": "e8b97f11f45847c13be113a989942493c3321783eee686d889fe3d8062eda97e",
+    "scripts/campaign_adapters.py": "c5a1c18446a8b5c63eef70fa7975c6bd5063c5655704fc2edbbab8be13cd3f92",
+    "scripts/campaign_plot.py": "0c6f763d5a7d46453dd85fa8c9524bac8b27a817631e6bbad468c363650da75e",
+    "scripts/campaign_traffic.py": "d35d6f0529078d2fbfbf28f93dadce959f5fcafab07715879afc5301219d9bf4",
+    "scripts/common_sustained_remote.py": "66b83d516efaf556b67c7c6be6bd08721c7e4305a37506ff50885c555eaaaa7b",
+    "scripts/common_cloud_worker.py": "010229d2d4d9872adb6a24ff4a6b5af8ce2b0913b2ed4b5e7b08af0ddb131455",
+    "scripts/remote_native.py": "f8858843a28adccf8578c026c8fe7ed7be63cb534860d3eca4fc190edce99ccc",
+    "scripts/remote_deployment.py": "e6b81a59017f86eb24a781f940bda13da4df06415be25b676251f49619638f64",
+    "scripts/deployment_prepare.py": "249f4c499a2c493ddf01e2c32546569811a373e79a2dcf10662ba85ab52655be",
+    "scripts/alibaba_deployment.py": "18d9ae66b0b8fcd36b76202e633ff0ca99245c2450329a5a38f510800a0d0fb6",
+    "scripts/native_network.py": "44ae55bed2ac18ef22e2bfb42ebc1ef0abec2a9c8b24aee82a31455c2addff3b",
+    "scripts/linux_egress.py": "02dcebf522ba6abbc28d8a493075ba54f5cfb5a0848edaec62e8c8d852b8833b"
+  },
+  "cleanup": {
+    "reclaimed_target_bytes": 5466443776,
+    "retained_principal_binaries_match_receipts": true,
+    "disposable_plot_environment_removed_bytes": 122138624,
+    "scope": "only ignored Cargo .fingerprint/build/deps/incremental directories and task-owned plotting environment; retained executables, source checkouts, build receipts, locks, TLS probe and raw evidence",
+    "receipt": {
+      "path": "results/local/compact-campaign-cleanup-20261027.json",
+      "sha256": "681591bec87f7037c3e649001d426105bf5d1ed252a17ffb4c3c3470de6dd583"
+    }
+  },
+  "plot_renderer_qa": {
+    "synthetic_only": true,
+    "visually_inspected": true,
+    "image": {
+      "path": "results/local/campaign-plot-qa-20261027/figures-v2/latency-goodput.png",
+      "sha256": "c4645bec156b7645980c59a9e026fcd496df361ad7be141c4b0ded31b10aea79"
+    },
+    "paper_performance_evidence": false
+  }
+}
