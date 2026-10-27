@@ -1,0 +1,277 @@
+Delugi: Aliyun evaluation budget estimate
+27 October 2026 (Asia/Taipei)
+Planning checkpoint: main 0041f9b. Estimate only; no new spending authorization.
+
+Budget recommendation
+---------------------
+Reserve CNY 20,000 for the full regional study at exactly 10 and 50 replicas.
+The itemized estimate is CNY 15,495 before contingency, or CNY 19,369 with a
+25% reserve. A smaller core study costs CNY 12,928 including the same reserve;
+its proposed cap is CNY 13,000. These are alternatives, not additive budgets.
+
+If cross-region confirmation is included, allocate a separate CNY 15,000 cap
+for 108 targeted WAN trials. Conditional estimates at 25% and 50% network
+utilization are CNY 4,388 and CNY 6,600, including reserve. The conservative
+all-public, full-utilization estimate is CNY 13,568. Thus the proposed combined
+cap is CNY 35,000 for the full regional study plus this targeted WAN study.
+Repeating the entire regional matrix across the WAN is outside this estimate.
+
+The six principal implementations are Delugi, integrated Raptr, Simple-IT
+Opt-Mempool, Simple-IT Opt-Dispersed, original Autobahn, and Mysticeti-C.
+The budget includes native Raptr fidelity and selected secondary variants.
+The counts below bound the proposed experiments; they do not imply that the
+adapters, fault actors or 50-replica qualification already exist.
+
+Machine-readable assumptions, prices, rows and calculations:
+  benchmarks/plans/2026-10-27-aliyun-budget.json
+Study design and acceptance gates:
+  benchmarks/plans/2026-10-27-counterparts-and-aliyun.txt
+  IMPLEMENTATION_PLAN.md
+
+Prices verified against the account
+----------------------------------
+Read-only ECS DescribePrice queries completed at 2026-10-27 09:27:34 UTC.
+All prices returned CNY, with no discount in these quotes. Amount=10 and
+Amount=50 queries confirmed the linear fleet prices. Availability and quota
+remain separate checks. Refresh the quote immediately before each paid lease.
+
+Singapore profile                                  CNY per hour
+ecs.g9i.xlarge, 4 vCPU / 16 GiB, 200 GiB ESSD,
+  5 Mbps fixed public management bandwidth              2.0833
+10 of these hosts                                     20.8330
+50 of these hosts                                    104.1650
+Same host with no public bandwidth                      1.7708
+Same host with 100 Mbps fixed PUBLIC bandwidth         25.8333
+Same 5 Mbps host with 80 GiB disk                        1.88266
+ecs.g9i.2xlarge, 8 vCPU / 32 GiB, 200 GiB,
+  5 Mbps public; build host / limited CPU control         3.5197
+
+The baseline quote already includes the disk and fixed public bandwidth;
+neither is charged a second time in the calculation. Retain 200 GiB until
+artifact, store and evidence footprints demonstrate that a smaller disk fits.
+
+The regional 100 Mbps limit is an aggregate protocol-egress shaper on private
+VPC interfaces. It is not a purchase of 100 Mbps public Internet bandwidth.
+Alibaba documents same-LAN ECS traffic as free. Regional result exports use
+the quoted fixed 5 Mbps public connection: no additional per-GB charge in
+this profile, but export time keeps the machines billable. Resources are
+released after each lease; idle or stopped resources must not be treated as
+free. The estimate uses no NAT gateway, CEN, paid image, extra EIP, snapshot
+or OSS service, and retains collected results locally.
+
+How much work is budgeted
+------------------------
+Formal run: 30 s warmup + 300 s measurement + 60 s drain, followed by up to
+210 s for reset, evidence collection and cleanup: 10 minutes total per trial.
+Short qualification/tuning runs use 5-minute slots and shorter measurement.
+Formal comparisons use three repetitions. Tuning uses one discovery pass;
+it chooses settings before the repeated formal runs.
+
+Allocate 30 minutes per fleet session for boot, artifact publication,
+calibration and final cleanup, plus at most 5.5 hours of trial slots. A final
+partial session is released early. Reuse a fleet sequentially across protocols,
+interleave/randomize protocol order, and reset stores between trials. Do not
+keep 50 hosts running during a 10-host phase. At most 50 validators run at once;
+the build stage precedes fleet allocation.
+
+The 10-minute slot assumes at most 0.1 GiB of compressed exported evidence per
+host per trial and sufficient parallel collector capacity. Exporting 0.1 GiB
+at 5 Mbps takes about 172 seconds before overhead. Qualification must measure
+archive sizes, effective export speed and cleanup time. If the allowance is
+exceeded, reprice or improve the collection path before the large sweep;
+preserve the required correctness/cohort evidence. No quiet truncation of logs.
+
+Full regional matrix: trial-slot charges, before fleet startup and reserve
+------------------------------------------------------------------------
+Experiment                                    Trials       CNY
+Qualification, n=4/10/50                           60        150
+Batch/configuration tuning                       144        750
+Healthy throughput/latency frontiers              288      3,000
+Missing data and leader faults                    216      2,250
+Network loss and partition                        108      1,125
+Payload-size sensitivity                         216      2,250
+Delay/timeout sensitivity                        180      1,125
+Higher-bandwidth control                          72        750
+CPU sensitivity, n=10                             36        211
+Sparse/concentrated input origins                 72        750
+Delugi scheduling/bundling ablation                36        375
+Observer overhead controls                        72        750
+Native Raptr fidelity                             12        125
+Additional Autobahn/Simple-IT variants             36        375
+Simple-IT optimistic fallback boundary, n=50        6        104
+TOTAL                                         1,554     14,090
+
+Rows are rounded to the nearest CNY; JSON preserves the calculation precision.
+Except for the stated exceptions, each family includes both n=10 and n=50.
+There is no n=20 campaign. The n=4 runs are qualification only, not a paper
+scale point. Specifically:
+
+* Qualification: six implementations x two cases x three repeats at n=4,
+  then six x two x one qualification pass at each formal size. The large
+  performance matrix itself is repeated; this short gate is not its substitute.
+* Tuning: six implementations x six candidate configurations x two rates per
+  size. This is a bounded candidate set, not every batching/proposal Cartesian
+  product. Freeze the selected effective configuration before formal runs.
+* Healthy: six implementations x eight offered-load points x three repeats
+  per size. Bracket the frontier within these eight points; extra refinement
+  or repetitions draw on the reserve rather than an unbounded adaptive sweep.
+* Missing-data/leader faults: six implementations x six scenarios x one matched
+  load x three repeats per size. Scenarios are (1) a recoverable correct-payload
+  gap, (2) Byzantine partial publication with repair refusal, (3) one native
+  proposal omission, (4) repeated native omissions within a fixed faulty set,
+  (5) maximum tolerated static process silence, and (6) selective Byzantine
+  parent publication followed by honest successors. Implement protocol-native
+  actors and qualify their semantics. A scenario that does not map to a native
+  protocol is marked unsupported; the estimate allocates an upper bound and
+  does not license inventing an equivalent attack or fabricating results.
+* Network: six x three scenarios x three repeats per size: partial 1% packet
+  loss, all-node 1% packet loss, and a finite partition. Exact participants,
+  duration and load are fixed before each run and recorded with its seed.
+* Payload sizes: two additional useful sizes, 128 and 1,024 bytes, around the
+  main 512-byte profile; three load points x three repeats x six per size.
+* Timing: eight additional delta/Delta pairs at n=10, two corroborating pairs
+  at n=50; six implementations x one load x three repeats. The main profile
+  remains added delta=10 ms, Delta=100 ms with reviewed native timer mappings.
+  Select admissible sensitivity pairs explicitly; do not change timer semantics.
+* Bandwidth: six x two loads x three repeats per size with the injected
+  bandwidth limit removed; still private regional traffic, still measured.
+* CPU: six x two loads x three repeats at n=10 on the quoted 8-vCPU host.
+  Keep the validator memory budget at the declared baseline for CPU attribution.
+* Origins: six x two additional origin distributions x three repeats per size.
+* Delugi ablation: three additional canonical/paced x bundling off/on settings,
+  two loads x three repeats per size; default is already in the healthy matrix.
+* Observer controls: two additional minimal/compact/full modes, six
+  implementations x one load x three repeats per size; one mode is already
+  counted in the main runs. Native Raptr: two loads x three repeats per size.
+* Other variants: Autobahn certified tips and both Simple-IT Bracha designs,
+  two loads x three repeats per size; subject to qualification and relevance.
+* Simple-IT boundary: both optimistic designs, three repeats, n=50, eleven
+  silent replicas. This crosses the 40-vote optimistic threshold while leaving
+  enough live replicas for the 34-vote high quorum; qualify the actual fallback.
+
+Latency decomposition and resource/traffic figures reuse these trials.
+Do not multiply the full matrix by the number of figures. Likewise, this plan
+does not cross every fault with every load, payload size and timing pair.
+
+Totals and cost sensitivity
+--------------------------
+                                                Core          Full
+Trial count                                    1,014         1,554
+Trial-slot cost                               9,379.02     14,090.13
+Fleet session startup/cleanup                    879.15      1,320.59
+Build allowance: 24 billed 8-vCPU host-hours       84.47         84.47
+Subtotal                                     10,342.64     15,495.19
+25% contingency                               2,585.66      3,873.80
+Total including contingency                  12,928.30     19,368.99
+Suggested campaign cap                       13,000        20,000
+
+Core excludes the payload-size, timing, CPU, input-origin and extra
+Autobahn/Simple-IT variant rows. It retains all six principal implementations,
+healthy/fault/network experiments, bandwidth/observer controls, Delugi ablations,
+native Raptr fidelity and the Simple-IT fallback-boundary case.
+
+Full regional usage is 6,722 trial instance-hours, 627 session-overhead
+instance-hours and 24 build instance-hours: 7,373 billed instance-hours at the
+respective rates. Sequential fleet time is 265 hours plus the 24-hour build
+allowance, approximately twelve days if run continuously. Released intervals
+between sessions cost nothing; actual calendar time can be longer.
+
+Formula for each row:
+  trials x replicas x slot_minutes / 60 x quoted_host_hourly_price
+Then add per-session overhead and the build allowance; multiply by 1.25.
+
+Useful anchors:
+* One additional load point across all six implementations, both sizes and
+  three repetitions costs about CNY 375 in trial slots.
+* One extra minute on every trial costs about CNY 1,499, before additional
+  session startup and contingency. Evidence collection is therefore material.
+* If qualified collection permits 7-minute formal / 3.5-minute short slots,
+  the same full matrix costs CNY 13,581 including reserve. This is a sensitivity
+  estimate, not the default: the 0.1-GiB export assumption cannot fit that slot
+  over the current 5 Mbps connection without changing the collection path.
+* A 50% rather than 25% contingency raises the full estimate to CNY 23,243.
+* All totals estimate future cloud charges. The completed CNY-50-authorized
+  pilot, engineering time, local compute/storage and model usage are excluded.
+
+Optional targeted WAN confirmation
+----------------------------------
+Six implementations x two committee sizes x three loads x three repetitions
+= 108 full trials. Reuse qualified binaries and the regional study's selected
+settings. Use measured WAN latency and explicitly reviewed timeouts; natural
+WAN links cannot share the regional injected one-way 10 ms assumption.
+
+Use Loom's four regions with balanced placements, listed in this order:
+  Frankfurt / London / Singapore / Seoul
+  n=10: 3 / 3 / 2 / 2 hosts; n=50: 13 / 13 / 12 / 12 hosts.
+Each size uses nine trial hours plus one hour of session overhead. Public IPs
+use PayByTraffic, with same-region peers routed privately. Quote results:
+
+Region             Host+200GiB / hour       Outbound / GB
+Frankfurt                 1.68464                 0.50
+London                    1.62384                 0.50
+Singapore                 1.77080                 0.53
+Seoul                     1.73728                 0.80
+
+Compute/disks: CNY 1,020.49. Export allowance: CNY 200.73 for 0.1 GiB per host
+per trial. Calibration allowance: CNY 519.30 for ten minutes per session at
+100 Mbps per host, conservatively all public. Protocol traffic is charged for
+390 active seconds per trial, including warmup and drain.
+
+At uniform peer traffic, the public fraction is (n - local_region_hosts)/(n-1).
+Use this only for the utilization scenarios; protocols need not send uniformly.
+The conservative scenario instead counts every protocol byte as public.
+100 Mbps means aggregate host egress, not 100 Mbps per peer. Budget conversion
+uses decimal GB (10^9 bytes), conservatively larger than GiB for the same bytes.
+
+Scenario                              With 25% reserve
+25% cap utilization, uniform peers          CNY 4,388
+50% cap utilization, uniform peers          CNY 6,600
+100% cap utilization, all public            CNY 13,568
+Suggested WAN cap                          CNY 15,000
+
+These are conditional scenarios, not measured utilization forecasts. Charge
+all benchmark roles against the host cap, measure actual egress per phase,
+bound collection, and stop before projected traffic exceeds the remaining
+lease/campaign allowance. Verify effective WAN throughput before eligibility;
+a configured public bandwidth ceiling alone is not a throughput guarantee.
+
+Spending sequence and implementation prerequisites
+--------------------------------------------------
+1. Finish the local conformance/adapters and reproducible artifact work first.
+   The 24-hour build allowance is total billable time across bounded sessions.
+2. A CNY 500 initial gate can cover that build allowance, short qualification
+   at n=4/10/50 and estimated startup plus contingency (about CNY 376). Only
+   reach n=50 after its quorum/proof and resource gates pass. Charge this
+   spending against the chosen overall campaign cap, not in addition to it.
+3. Run matched Delugi/Raptr healthy sweeps, then extend to the remaining
+   qualified counterparts. Stop and release on failed accounting, correctness,
+   clock/network calibration or storage/export qualification.
+4. Finish the main healthy/fault curves before optional sensitivity variants;
+   select the WAN campaign separately after observing actual bytes per trial.
+
+Before execution, extend the reviewed lease/controller capabilities rather
+than bypassing existing limits. The current deployment guard accepts at most
+31 instances, seven hours, CNY 500, and one fixed 5-Mbps profile. It cannot yet
+execute this full plan, the build/CPU profile or traffic-billed WAN leases.
+A 50-host six-hour regional lease alone quotes CNY 624.99, or CNY 781.24 with
+25% margin. Add explicit per-lease authorization and a persistent aggregate
+campaign ledger, reserve cleanup/export costs before scheduling a trial, and
+preserve finite auto-release and independent cleanup. No instances or other
+paid resources were created while preparing this estimate.
+
+Price and billing evidence
+--------------------------
+Sanitized price fields and the original receipt SHA256 are in the JSON.
+The raw read-only receipt is retained locally at:
+  results/local/aliyun-budget-20261027/live-quotes.json
+
+Official DescribePrice API (prices above are live account queries):
+  https://help.aliyun.com/zh/ecs/developer-reference/api-ecs-2014-05-26-describeprice
+Pay-as-you-go billing, resource lifetime and charging granularity:
+  https://help.aliyun.com/zh/ecs/pay-as-you-go-1
+Same-LAN traffic and inbound/outbound billing:
+  https://www.alibabacloud.com/help/en/ecs/billing-item-faqs
+Public fixed-bandwidth versus traffic billing:
+  https://www.alibabacloud.com/help/en/ecs/public-bandwidth
+Instance family specifications:
+  https://www.alibabacloud.com/help/en/ecs/user-guide/general-purpose-instance-families

@@ -1,0 +1,956 @@
+{
+  "schema": 1,
+  "status": "estimate_only_not_spending_authorization",
+  "date": "2026-10-27",
+  "source_commit": "0041f9b",
+  "live_quote_time_utc": "2026-10-27T09:27:34.833236+00:00",
+  "live_quote_sha256": "cbf53e0cf1d5b95094bae679ff71c2e45ed3a0415efb6313bc07b5e8532bff37",
+  "currency": "CNY",
+  "prices": {
+    "singapore-fixed5-1": {
+      "query": {
+        "label": "singapore-fixed5-1",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 5,
+        "mode": "PayByBandwidth",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 2.0833
+    },
+    "singapore-fixed5-10": {
+      "query": {
+        "label": "singapore-fixed5-10",
+        "region": "ap-southeast-1",
+        "amount": 10,
+        "bandwidth": 5,
+        "mode": "PayByBandwidth",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 20.833
+    },
+    "singapore-fixed5-50": {
+      "query": {
+        "label": "singapore-fixed5-50",
+        "region": "ap-southeast-1",
+        "amount": 50,
+        "bandwidth": 5,
+        "mode": "PayByBandwidth",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 104.165
+    },
+    "singapore-fixed0": {
+      "query": {
+        "label": "singapore-fixed0",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 0,
+        "mode": "PayByBandwidth",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 1.7708
+    },
+    "singapore-fixed100": {
+      "query": {
+        "label": "singapore-fixed100",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByBandwidth",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 25.8333
+    },
+    "singapore-fixed5-80gib": {
+      "query": {
+        "label": "singapore-fixed5-80gib",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 5,
+        "mode": "PayByBandwidth",
+        "disk": 80,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 1.88266
+    },
+    "singapore-fixed5-8vcpu": {
+      "query": {
+        "label": "singapore-fixed5-8vcpu",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 5,
+        "mode": "PayByBandwidth",
+        "disk": 200,
+        "instance": "ecs.g9i.2xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 3.5197
+    },
+    "eu-central-1-traffic-instance": {
+      "query": {
+        "label": "eu-central-1-traffic-instance",
+        "region": "eu-central-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 1.68464
+    },
+    "eu-central-1-traffic-bandwidth": {
+      "query": {
+        "label": "eu-central-1-traffic-bandwidth",
+        "region": "eu-central-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "bandwidth"
+      },
+      "currency": "CNY",
+      "trade_price": 0.5
+    },
+    "eu-west-1-traffic-instance": {
+      "query": {
+        "label": "eu-west-1-traffic-instance",
+        "region": "eu-west-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 1.62384
+    },
+    "eu-west-1-traffic-bandwidth": {
+      "query": {
+        "label": "eu-west-1-traffic-bandwidth",
+        "region": "eu-west-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "bandwidth"
+      },
+      "currency": "CNY",
+      "trade_price": 0.5
+    },
+    "ap-southeast-1-traffic-instance": {
+      "query": {
+        "label": "ap-southeast-1-traffic-instance",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 1.7708
+    },
+    "ap-southeast-1-traffic-bandwidth": {
+      "query": {
+        "label": "ap-southeast-1-traffic-bandwidth",
+        "region": "ap-southeast-1",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "bandwidth"
+      },
+      "currency": "CNY",
+      "trade_price": 0.53
+    },
+    "ap-northeast-2-traffic-instance": {
+      "query": {
+        "label": "ap-northeast-2-traffic-instance",
+        "region": "ap-northeast-2",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "instance"
+      },
+      "currency": "CNY",
+      "trade_price": 1.73728
+    },
+    "ap-northeast-2-traffic-bandwidth": {
+      "query": {
+        "label": "ap-northeast-2-traffic-bandwidth",
+        "region": "ap-northeast-2",
+        "amount": 1,
+        "bandwidth": 100,
+        "mode": "PayByTraffic",
+        "disk": 200,
+        "instance": "ecs.g9i.xlarge",
+        "resource": "bandwidth"
+      },
+      "currency": "CNY",
+      "trade_price": 0.8
+    }
+  },
+  "assumptions": {
+    "main_implementations": 6,
+    "formal_committees": [
+      10,
+      50
+    ],
+    "repeats": 3,
+    "formal_trial_minutes": 10,
+    "formal_active_protocol_seconds": 390,
+    "short_trial_minutes": 5,
+    "per_session_hours": 6,
+    "per_session_boot_calibration_cleanup_minutes": 30,
+    "compressed_export_allowance_gib_per_host_trial": 0.1,
+    "contingency_fraction": 0.25,
+    "build_instance_type": "ecs.g9i.2xlarge",
+    "build_hours": 24,
+    "regional_profile": "Singapore, 200 GiB ESSD, 5 Mbps fixed public management, 100 Mbps shaped private protocol egress",
+    "budget_caps_cny": {
+      "core_regional": 13000,
+      "full_regional": 20000,
+      "optional_wan": 15000,
+      "full_regional_plus_optional_wan": 35000
+    }
+  },
+  "rows": [
+    {
+      "group": "Qualification",
+      "n": 4,
+      "trials": 36,
+      "minutes": 5,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 2 cases x 3 repeats; regression qualification only"
+    },
+    {
+      "group": "Qualification",
+      "n": 10,
+      "trials": 12,
+      "minutes": 5,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 2 cases x 1 qualification pass"
+    },
+    {
+      "group": "Qualification",
+      "n": 50,
+      "trials": 12,
+      "minutes": 5,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 2 cases x 1 qualification pass"
+    },
+    {
+      "group": "Batch/configuration tuning",
+      "n": 10,
+      "trials": 72,
+      "minutes": 5,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 6 configurations x 2 rates x 1 discovery pass"
+    },
+    {
+      "group": "Batch/configuration tuning",
+      "n": 50,
+      "trials": 72,
+      "minutes": 5,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 6 configurations x 2 rates x 1 discovery pass"
+    },
+    {
+      "group": "Healthy load frontiers",
+      "n": 10,
+      "trials": 144,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 8 load points x 3 repeats"
+    },
+    {
+      "group": "Healthy load frontiers",
+      "n": 50,
+      "trials": 144,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 8 load points x 3 repeats"
+    },
+    {
+      "group": "Missing data and leader faults",
+      "n": 10,
+      "trials": 108,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 6 fault scenarios x 1 matched load x 3 repeats"
+    },
+    {
+      "group": "Missing data and leader faults",
+      "n": 50,
+      "trials": 108,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 6 fault scenarios x 1 matched load x 3 repeats"
+    },
+    {
+      "group": "Network loss/partition",
+      "n": 10,
+      "trials": 54,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 3 network scenarios x 1 matched load x 3 repeats"
+    },
+    {
+      "group": "Network loss/partition",
+      "n": 50,
+      "trials": 54,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 3 network scenarios x 1 matched load x 3 repeats"
+    },
+    {
+      "group": "Payload-size sensitivity",
+      "n": 10,
+      "trials": 108,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "6 implementations x 2 additional sizes x 3 load points x 3 repeats"
+    },
+    {
+      "group": "Payload-size sensitivity",
+      "n": 50,
+      "trials": 108,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "6 implementations x 2 additional sizes x 3 load points x 3 repeats"
+    },
+    {
+      "group": "Delay/timeout sensitivity",
+      "n": 10,
+      "trials": 144,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "6 implementations x 8 additional delta/Delta pairs x 1 load x 3 repeats"
+    },
+    {
+      "group": "Delay/timeout sensitivity",
+      "n": 50,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "6 implementations x 2 corroborating delta/Delta pairs x 1 load x 3 repeats"
+    },
+    {
+      "group": "Higher-bandwidth control",
+      "n": 10,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 2 load points x 3 repeats; no injected bandwidth cap"
+    },
+    {
+      "group": "Higher-bandwidth control",
+      "n": 50,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "6 implementations x 2 load points x 3 repeats; no injected bandwidth cap"
+    },
+    {
+      "group": "CPU sensitivity",
+      "n": 10,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "3.5197",
+      "core": false,
+      "design": "6 implementations x 2 loads x 3 repeats; 8 vCPU host, same declared validator memory budget"
+    },
+    {
+      "group": "Sparse/concentrated origins",
+      "n": 10,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "6 implementations x 2 origin patterns x 1 load x 3 repeats"
+    },
+    {
+      "group": "Sparse/concentrated origins",
+      "n": 50,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "6 implementations x 2 origin patterns x 1 load x 3 repeats"
+    },
+    {
+      "group": "Delugi scheduling/bundling ablation",
+      "n": 10,
+      "trials": 18,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "3 extra variants x 2 loads x 3 repeats; default already measured"
+    },
+    {
+      "group": "Delugi scheduling/bundling ablation",
+      "n": 50,
+      "trials": 18,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "3 extra variants x 2 loads x 3 repeats; default already measured"
+    },
+    {
+      "group": "Observer overhead controls",
+      "n": 10,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "2 extra observer modes x 6 implementations x 1 load x 3 repeats"
+    },
+    {
+      "group": "Observer overhead controls",
+      "n": 50,
+      "trials": 36,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "2 extra observer modes x 6 implementations x 1 load x 3 repeats"
+    },
+    {
+      "group": "Native Raptr fidelity",
+      "n": 10,
+      "trials": 6,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "1 native reference x 2 loads x 3 repeats"
+    },
+    {
+      "group": "Native Raptr fidelity",
+      "n": 50,
+      "trials": 6,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "1 native reference x 2 loads x 3 repeats"
+    },
+    {
+      "group": "Additional Autobahn/Simple-IT variants",
+      "n": 10,
+      "trials": 18,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "3 variants (Autobahn certified tips, two Bracha designs) x 2 loads x 3 repeats"
+    },
+    {
+      "group": "Additional Autobahn/Simple-IT variants",
+      "n": 50,
+      "trials": 18,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": false,
+      "design": "3 variants (Autobahn certified tips, two Bracha designs) x 2 loads x 3 repeats"
+    },
+    {
+      "group": "Simple-IT optimistic fallback boundary",
+      "n": 50,
+      "trials": 6,
+      "minutes": 10,
+      "hourly_cny": "2.0833",
+      "core": true,
+      "design": "2 designs x 1 boundary fault case x 3 repeats"
+    }
+  ],
+  "core": {
+    "trials": 1014,
+    "trial_cost_cny": 9379.0166,
+    "build_hours": 24,
+    "build_cost_cny": 84.4728,
+    "session_overhead_cny": 879.1526,
+    "base_cny": 10342.642,
+    "with_25_percent_reserve_cny": 12928.3025,
+    "with_50_percent_reserve_cny": 15513.963,
+    "trial_instance_hours": 4502.0,
+    "total_elapsed_fleet_hours": 166.5,
+    "fleet_sessions": [
+      {
+        "n": 4,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 3.0,
+        "six_hour_sessions": 1,
+        "overhead_fleet_hours": 0.5,
+        "overhead_instance_hours": 2.0,
+        "overhead_cost_cny": 4.1666
+      },
+      {
+        "n": 10,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 74.0,
+        "six_hour_sessions": 14,
+        "overhead_fleet_hours": 7.0,
+        "overhead_instance_hours": 70.0,
+        "overhead_cost_cny": 145.831
+      },
+      {
+        "n": 50,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 75.0,
+        "six_hour_sessions": 14,
+        "overhead_fleet_hours": 7.0,
+        "overhead_instance_hours": 350.0,
+        "overhead_cost_cny": 729.155
+      }
+    ],
+    "groups": {
+      "Qualification": {
+        "trials": 60,
+        "instance_hours": 72.0,
+        "cost_cny": 149.9976
+      },
+      "Batch/configuration tuning": {
+        "trials": 144,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "Healthy load frontiers": {
+        "trials": 288,
+        "instance_hours": 1440.0,
+        "cost_cny": 2999.952
+      },
+      "Missing data and leader faults": {
+        "trials": 216,
+        "instance_hours": 1080.0,
+        "cost_cny": 2249.964
+      },
+      "Network loss/partition": {
+        "trials": 108,
+        "instance_hours": 540.0,
+        "cost_cny": 1124.982
+      },
+      "Higher-bandwidth control": {
+        "trials": 72,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "Delugi scheduling/bundling ablation": {
+        "trials": 36,
+        "instance_hours": 180.0,
+        "cost_cny": 374.994
+      },
+      "Observer overhead controls": {
+        "trials": 72,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "Native Raptr fidelity": {
+        "trials": 12,
+        "instance_hours": 60.0,
+        "cost_cny": 124.998
+      },
+      "Simple-IT optimistic fallback boundary": {
+        "trials": 6,
+        "instance_hours": 50.0,
+        "cost_cny": 104.165
+      }
+    }
+  },
+  "full": {
+    "trials": 1554,
+    "trial_cost_cny": 14090.1266,
+    "build_hours": 24,
+    "build_cost_cny": 84.4728,
+    "session_overhead_cny": 1320.5931,
+    "base_cny": 15495.1925,
+    "with_25_percent_reserve_cny": 19368.990625,
+    "with_50_percent_reserve_cny": 23242.78875,
+    "trial_instance_hours": 6722.0,
+    "total_elapsed_fleet_hours": 265.0,
+    "fleet_sessions": [
+      {
+        "n": 4,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 3.0,
+        "six_hour_sessions": 1,
+        "overhead_fleet_hours": 0.5,
+        "overhead_instance_hours": 2.0,
+        "overhead_cost_cny": 4.1666
+      },
+      {
+        "n": 10,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 125.0,
+        "six_hour_sessions": 23,
+        "overhead_fleet_hours": 11.5,
+        "overhead_instance_hours": 115.0,
+        "overhead_cost_cny": 239.5795
+      },
+      {
+        "n": 50,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 108.0,
+        "six_hour_sessions": 20,
+        "overhead_fleet_hours": 10.0,
+        "overhead_instance_hours": 500.0,
+        "overhead_cost_cny": 1041.65
+      },
+      {
+        "n": 10,
+        "hourly_cny": "3.5197",
+        "trial_fleet_hours": 6.0,
+        "six_hour_sessions": 2,
+        "overhead_fleet_hours": 1.0,
+        "overhead_instance_hours": 10.0,
+        "overhead_cost_cny": 35.197
+      }
+    ],
+    "groups": {
+      "Qualification": {
+        "trials": 60,
+        "instance_hours": 72.0,
+        "cost_cny": 149.9976
+      },
+      "Batch/configuration tuning": {
+        "trials": 144,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "Healthy load frontiers": {
+        "trials": 288,
+        "instance_hours": 1440.0,
+        "cost_cny": 2999.952
+      },
+      "Missing data and leader faults": {
+        "trials": 216,
+        "instance_hours": 1080.0,
+        "cost_cny": 2249.964
+      },
+      "Network loss/partition": {
+        "trials": 108,
+        "instance_hours": 540.0,
+        "cost_cny": 1124.982
+      },
+      "Payload-size sensitivity": {
+        "trials": 216,
+        "instance_hours": 1080.0,
+        "cost_cny": 2249.964
+      },
+      "Delay/timeout sensitivity": {
+        "trials": 180,
+        "instance_hours": 540.0,
+        "cost_cny": 1124.982
+      },
+      "Higher-bandwidth control": {
+        "trials": 72,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "CPU sensitivity": {
+        "trials": 36,
+        "instance_hours": 60.0,
+        "cost_cny": 211.182
+      },
+      "Sparse/concentrated origins": {
+        "trials": 72,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "Delugi scheduling/bundling ablation": {
+        "trials": 36,
+        "instance_hours": 180.0,
+        "cost_cny": 374.994
+      },
+      "Observer overhead controls": {
+        "trials": 72,
+        "instance_hours": 360.0,
+        "cost_cny": 749.988
+      },
+      "Native Raptr fidelity": {
+        "trials": 12,
+        "instance_hours": 60.0,
+        "cost_cny": 124.998
+      },
+      "Additional Autobahn/Simple-IT variants": {
+        "trials": 36,
+        "instance_hours": 180.0,
+        "cost_cny": 374.994
+      },
+      "Simple-IT optimistic fallback boundary": {
+        "trials": 6,
+        "instance_hours": 50.0,
+        "cost_cny": 104.165
+      }
+    }
+  },
+  "fast_export_sensitivity": {
+    "trials": 1554,
+    "trial_cost_cny": 9863.08862,
+    "build_hours": 24,
+    "build_cost_cny": 84.4728,
+    "session_overhead_cny": 917.5841,
+    "base_cny": 10865.14552,
+    "with_25_percent_reserve_cny": 13581.4319,
+    "with_50_percent_reserve_cny": 16297.71828,
+    "trial_instance_hours": 4705.4,
+    "total_elapsed_fleet_hours": 185.4,
+    "fleet_sessions": [
+      {
+        "n": 4,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 2.1,
+        "six_hour_sessions": 1,
+        "overhead_fleet_hours": 0.5,
+        "overhead_instance_hours": 2.0,
+        "overhead_cost_cny": 4.1666
+      },
+      {
+        "n": 10,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 87.5,
+        "six_hour_sessions": 16,
+        "overhead_fleet_hours": 8.0,
+        "overhead_instance_hours": 80.0,
+        "overhead_cost_cny": 166.664
+      },
+      {
+        "n": 50,
+        "hourly_cny": "2.0833",
+        "trial_fleet_hours": 75.6,
+        "six_hour_sessions": 14,
+        "overhead_fleet_hours": 7.0,
+        "overhead_instance_hours": 350.0,
+        "overhead_cost_cny": 729.155
+      },
+      {
+        "n": 10,
+        "hourly_cny": "3.5197",
+        "trial_fleet_hours": 4.2,
+        "six_hour_sessions": 1,
+        "overhead_fleet_hours": 0.5,
+        "overhead_instance_hours": 5.0,
+        "overhead_cost_cny": 17.5985
+      }
+    ],
+    "groups": {
+      "Qualification": {
+        "trials": 60,
+        "instance_hours": 50.4,
+        "cost_cny": 104.99832
+      },
+      "Batch/configuration tuning": {
+        "trials": 144,
+        "instance_hours": 252.0,
+        "cost_cny": 524.9916
+      },
+      "Healthy load frontiers": {
+        "trials": 288,
+        "instance_hours": 1008.0,
+        "cost_cny": 2099.9664
+      },
+      "Missing data and leader faults": {
+        "trials": 216,
+        "instance_hours": 756.0,
+        "cost_cny": 1574.9748
+      },
+      "Network loss/partition": {
+        "trials": 108,
+        "instance_hours": 378.0,
+        "cost_cny": 787.4874
+      },
+      "Payload-size sensitivity": {
+        "trials": 216,
+        "instance_hours": 756.0,
+        "cost_cny": 1574.9748
+      },
+      "Delay/timeout sensitivity": {
+        "trials": 180,
+        "instance_hours": 378.0,
+        "cost_cny": 787.4874
+      },
+      "Higher-bandwidth control": {
+        "trials": 72,
+        "instance_hours": 252.0,
+        "cost_cny": 524.9916
+      },
+      "CPU sensitivity": {
+        "trials": 36,
+        "instance_hours": 42.0,
+        "cost_cny": 147.8274
+      },
+      "Sparse/concentrated origins": {
+        "trials": 72,
+        "instance_hours": 252.0,
+        "cost_cny": 524.9916
+      },
+      "Delugi scheduling/bundling ablation": {
+        "trials": 36,
+        "instance_hours": 126.0,
+        "cost_cny": 262.4958
+      },
+      "Observer overhead controls": {
+        "trials": 72,
+        "instance_hours": 252.0,
+        "cost_cny": 524.9916
+      },
+      "Native Raptr fidelity": {
+        "trials": 12,
+        "instance_hours": 42.0,
+        "cost_cny": 87.4986
+      },
+      "Additional Autobahn/Simple-IT variants": {
+        "trials": 36,
+        "instance_hours": 126.0,
+        "cost_cny": 262.4958
+      },
+      "Simple-IT optimistic fallback boundary": {
+        "trials": 6,
+        "instance_hours": 35.0,
+        "cost_cny": 72.9155
+      }
+    }
+  },
+  "optional_wan": {
+    "trials": 108,
+    "compute_and_disk_cny": 1020.488,
+    "export_allowance_cny": 200.733886513152,
+    "calibration_allowance_cny": 519.3,
+    "protocol_traffic_at_full_utilization_uniform_placement_cny": 7079.120816326531,
+    "protocol_traffic_at_full_utilization_all_public_cny": 9113.715,
+    "scenario_25_percent_with_reserve_cny": 4387.8776132434805,
+    "scenario_50_percent_with_reserve_cny": 6600.1028683455215,
+    "conservative_all_public_full_utilization_with_reserve_cny": 13567.79610814144,
+    "rows": [
+      {
+        "n": 10,
+        "region": "eu-central-1",
+        "hosts": 3,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 50.5392,
+        "unit_traffic_cny_per_gb": 0.5,
+        "uniform_cross_region_fraction": 0.7777777777777778,
+        "maximum_protocol_egress_gb": 789.75
+      },
+      {
+        "n": 10,
+        "region": "eu-west-1",
+        "hosts": 3,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 48.7152,
+        "unit_traffic_cny_per_gb": 0.5,
+        "uniform_cross_region_fraction": 0.7777777777777778,
+        "maximum_protocol_egress_gb": 789.75
+      },
+      {
+        "n": 10,
+        "region": "ap-southeast-1",
+        "hosts": 2,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 35.416,
+        "unit_traffic_cny_per_gb": 0.53,
+        "uniform_cross_region_fraction": 0.8888888888888888,
+        "maximum_protocol_egress_gb": 526.5
+      },
+      {
+        "n": 10,
+        "region": "ap-northeast-2",
+        "hosts": 2,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 34.7456,
+        "unit_traffic_cny_per_gb": 0.8,
+        "uniform_cross_region_fraction": 0.8888888888888888,
+        "maximum_protocol_egress_gb": 526.5
+      },
+      {
+        "n": 50,
+        "region": "eu-central-1",
+        "hosts": 13,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 219.0032,
+        "unit_traffic_cny_per_gb": 0.5,
+        "uniform_cross_region_fraction": 0.7551020408163265,
+        "maximum_protocol_egress_gb": 3422.25
+      },
+      {
+        "n": 50,
+        "region": "eu-west-1",
+        "hosts": 13,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 211.0992,
+        "unit_traffic_cny_per_gb": 0.5,
+        "uniform_cross_region_fraction": 0.7551020408163265,
+        "maximum_protocol_egress_gb": 3422.25
+      },
+      {
+        "n": 50,
+        "region": "ap-southeast-1",
+        "hosts": 12,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 212.496,
+        "unit_traffic_cny_per_gb": 0.53,
+        "uniform_cross_region_fraction": 0.7755102040816326,
+        "maximum_protocol_egress_gb": 3159.0
+      },
+      {
+        "n": 50,
+        "region": "ap-northeast-2",
+        "hosts": 12,
+        "full_trial_count": 54,
+        "compute_hours": 10.0,
+        "compute_cny": 208.4736,
+        "unit_traffic_cny_per_gb": 0.8,
+        "uniform_cross_region_fraction": 0.7755102040816326,
+        "maximum_protocol_egress_gb": 3159.0
+      }
+    ]
+  }
+}

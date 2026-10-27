@@ -13,6 +13,14 @@ requires general-membership quorum/proof and resource-profile qualification;
 it must not be replaced with 49. This selection updates the scale targets below
 and does not authorize a new cloud lease. The remaining proposal is unchanged.
 
+The [27 October cloud budget estimate](benchmarks/plans/2026-10-27-aliyun-budget.txt)
+prices the bounded six-implementation matrix using live account quotes:
+**CNY 20,000** proposed cap for the full regional study (CNY 19,369 including
+25% contingency), or CNY 13,000 for the core study. A separate targeted WAN
+confirmation has a proposed CNY 15,000 cap. These are planning estimates;
+deployment remains subject to qualification, explicit spending authorization,
+and reviewed extensions to the current 31-host/CNY-500 lease limits.
+
 ## 1. Current stage and priorities
 
 **The shared Delugi/Raptr implementation has passed local conformance and an

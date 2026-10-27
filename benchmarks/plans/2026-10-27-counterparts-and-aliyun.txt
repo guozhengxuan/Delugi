@@ -7,6 +7,12 @@ Author decision: evaluate exactly 10 and 50 replicas; omit the intermediate
 committee size. This supersedes the reviewers' 10/19/49 recommendation and
 makes 50-replica quorum/proof and resource-profile qualification necessary.
 
+Budget addendum: benchmarks/plans/2026-10-27-aliyun-budget.txt and its JSON
+price a bounded version of this matrix against live 27 October account quotes.
+Proposed caps: CNY 20,000 full regional study, or CNY 13,000 core regional;
+optional targeted WAN confirmation adds at most CNY 15,000 under its stated
+scope. Estimates include 25% contingency and do not authorize cloud spending.
+
 Decision proposed
 -----------------
 Evaluate Delugi against Raptr, Simple-IT, Autobahn and Mysticeti-C. Use both
