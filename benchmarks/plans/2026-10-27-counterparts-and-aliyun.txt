@@ -1,7 +1,11 @@
 Delugi: counterpart selection and one-command Aliyun evaluation
-27 October 2026 — proposal for author approval
+27 October 2026 — proposal; author confirmed 10/50 committee selection
 Reviewed implementation checkpoint: main 17e79da
 Status: research and planning only; no protocol changes or cloud deployment.
+
+Author decision: evaluate exactly 10 and 50 replicas; omit the intermediate
+committee size. This supersedes the reviewers' 10/19/49 recommendation and
+makes 50-replica quorum/proof and resource-profile qualification necessary.
 
 Decision proposed
 -----------------
@@ -152,7 +156,7 @@ to one validator's CPU/memory/network budget.
 
 Illustrative common requests, to be validated against every adapter:
   protocols: [delugi, raptr, simpleit-mempool, simpleit-dispersed, autobahn, mysticeti-c]
-  committees: [10, 19, 49]                 # recommendation; requires author agreement
+  committees: [10, 50]                     # author-selected exact sizes
   useful_transaction_bytes: 512            # sensitivity: 128 and 1024
   total_honest_input_tps: [1000, 4000, adaptive_frontier]
   ingress: independent_open_loop           # deterministic request IDs/content
@@ -217,30 +221,25 @@ At 100 Mbps, one 1 MiB transmission alone takes about 84 ms before propagation,
 competing traffic and verification. Calibrate complete message sizes, including
 HISTORY3, before describing a cell as satisfying the configured delay bound.
 
-The user's suggested sizes have these fault budgets:
+The author-selected evaluation sizes have these fault budgets:
   n=10: f_max=3,  n-f=7
-  n=20: f_max=6,  n-f=14
   n=50: f_max=16, n-f=34
 
-Recommend 10/19/49 for the first formal study, subject to author agreement:
-  n=10: f_max=3,  n-f=7
-  n=19: f_max=6,  n-f=13
-  n=49: f_max=16, n-f=33
-These preserve the same fault budgets and current n=3f+1 protocol model.
+Use exactly these two sizes for the paper matrix. Omit the intermediate-size
+campaign and do not substitute 49 for 50. Existing small fixtures remain useful
+for regression and adapter qualification; they are not additional paper panels.
 Current Delugi specification and membership require n=3f+1; the reviewed
 large-message profile and lease limit stop at 31, and the distributed shared
 profile is currently n=4. Therefore:
   1. Extend/qualify n=10 first, without changing the fault model.
-  2. Qualify larger evidence/resource/deployment profiles for 19/49, including
-     mandatory HISTORY3 frames and all native worker endpoints. The 49-node
-     profile still needs these changes even though its quorum model is unchanged.
-  3. If the author prefers exact 20/50, first review and prove the general
-     n>=3f+1 formulation; audit every threshold, bound, signer set, history,
-     erasure-code rule and timer; extend wire/process/network/provider limits;
-     then adversarially test it. Never silently substitute a committee size.
+  2. For n=50, review and prove the general n>=3f+1 formulation; audit every
+     threshold, bound, signer set, history, erasure-code rule and timer.
+  3. Extend and qualify the 50-replica evidence/resource/deployment profile,
+     including mandatory HISTORY3 frames, all native worker endpoints and
+     wire/process/network/provider limits; then adversarially test it.
 
 For ordinary intersecting certificates, q must satisfy 2q-n>f; using 2f+1
-unmodified at n=20/50 fails that condition. Do not replace every native threshold
+unmodified at n=50 fails that condition. Do not replace every native threshold
 with n-f either: Raptr availability and Simple-IT optimistic RBC have distinct
 requirements. Simple-IT's 50-node optimistic RBC threshold is 40.
 Exercise fallback when the optimistic threshold becomes unreachable but the
@@ -307,7 +306,7 @@ Measure CPU/RSS/queues, signature verification, coding, disk and observer overhe
 E. Proposed paper figures and fault experiments
 -----------------------------------------------
 F1. Healthy latency–goodput frontier.
-    Three committee panels; six main curves; p50/p95 (p99 supplementary),
+    Two committee panels (n=10 and n=50); six main curves; p50/p95 (p99 supplementary),
     completion and backlog alongside offered load. Sweep through saturation.
     Include 1k/4k tx/s checks, 512-byte main payload, 128/1024-byte sensitivity.
     Add concentrated and sparse-origin points to expose committee metadata and
@@ -435,8 +434,8 @@ Alibaba primary sources checked on 27 October:
 G. Sequence after author agreement
 ----------------------------------
 1. Freeze this counterpart/variant/metric/parameter contract and the selected
-   Delugi specification. Seek agreement on 10/19/49 or the extra general-membership
-   milestone for exact 10/20/50.
+   Delugi specification. Committee sizes are fixed by the author at 10/50;
+   include the general-membership milestone required for exactly 50 replicas.
 2. Complete sustained Delugi/Raptr parity; qualify author Simple-IT and complete
    native adapters. Add timestamp hooks and bound observer memory/I/O.
 3. Implement the common campaign/config resolver and aggregate rate shaper,
@@ -448,7 +447,7 @@ G. Sequence after author agreement
 5. After a separately approved quote, run a small n=4/10 common campaign with
    delta0/delta10 and Delta100; calibration, correctness, accounting and observer
    overhead must pass before performance eligibility.
-6. Extend the approved committee/resource profiles to the agreed larger sizes,
+6. Complete the quorum/proof and resource-profile gates for exactly 50 replicas,
    run the healthy sweep, then the fixed-load fault matrix, then sensitivity/WAN
    experiments.
 
@@ -463,14 +462,16 @@ Astra reviewed the current source/plan and provided a follow-up critique of the
 paper/source findings. It supports the four families, both Simple-IT variants
 for broad claims, native adapters, explicit committee/bandwidth gates, one
 failure-capable revision, authenticated channels and same-cohort causal stages.
-The Pro review independently supports those choices, recommends 10/19/49 as
-the practical first committee set, and emphasizes honest-successor preservation,
+The Pro review independently supports those choices, initially recommended
+10/19/49, and emphasizes honest-successor preservation,
 actual-delay/Delta sensitivity, useful work rather than empty rounds, and a
 limited higher-bandwidth/CPU control. These refinements are included above.
 Pro's final check agrees with the refinements and emphasizes deterministic
 application expansion, disclosed authentication adaptations, correct forwarding
 semantics and same-cohort stage sums. All are recorded above. Both consultations
-are complete; author approval of the implementation scope remains pending.
+are complete. The author's subsequent choice of exactly 10/50 supersedes the
+committee recommendation; the 50-replica qualification gates remain in scope.
+The remaining proposal is unchanged.
 
 Consultation chats:
   eval: 01a1645b-6f01-7ad0-9b34-261ec5cd19c0 (GPT-6 Astra explicitly selected)

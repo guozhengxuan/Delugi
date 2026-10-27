@@ -7,10 +7,11 @@ linked below retain their original scope and evidence.
 
 The [27 October counterpart and Aliyun proposal](benchmarks/plans/2026-10-27-counterparts-and-aliyun.txt)
 adds the requested Raptr, Simple-IT, Autobahn and Mysticeti study design, common
-campaign interface and paper-derived figures. It recommends 10/19/49 committees
-and records the extra quorum/proof gates for the suggested exact 10/20/50. It is
-pending author agreement and does not authorize implementation or a new cloud
-lease. The accepted checkpoint and existing E0–E6 sequence below remain intact.
+campaign interface and paper-derived figures. The author selected exactly
+**10 and 50 replicas**, omitting the intermediate size. The 50-replica case
+requires general-membership quorum/proof and resource-profile qualification;
+it must not be replaced with 49. This selection updates the scale targets below
+and does not authorize a new cloud lease. The remaining proposal is unchanged.
 
 ## 1. Current stage and priorities
 
@@ -302,11 +303,16 @@ healthy goodput and latency, including failed/empty opportunities.
 ### E6 — Scale, WAN and later counterparts
 
 Generalize integrated runners, private-network validation, membership/key
-creation, fault selection and evidence reduction before n=7 and then n=31.
+creation, fault selection and evidence reduction for the author-selected n=10
+and n=50 evaluation cases. Omit intermediate-size performance campaigns; retain
+small existing fixtures as regression checks.
 Raptr's Rust configuration accepts n=3f+1 up to 31, but its accepted Python runner
 and private deployment profile currently require four nodes. An n setting alone
-is insufficient. Validate proposal/witness size and queue/memory envelopes at
-each size before paid load sweeps.
+is insufficient. For n=50/f=16, review the general n>=3f+1 specification and all
+consensus, availability and optimistic-path thresholds before implementation;
+ordinary high quorums require 34 rather than 2f+1=33. Extend and validate the
+wire, process, network and provider limits, including proposal/witness size and
+queue/memory envelopes, before paid load sweeps. Do not round n=50 down to 49.
 
 After regional acceptance, plan Alibaba WAN placements with measured path RTTs
 and heterogeneous delay, recording whether the chosen Δ covers the test regime.
@@ -333,7 +339,7 @@ Every run must record both the requested setting and the effective setting.
 | Pending payload / queue budgets | Component-specific frame, byte, ingress, output and task limits | Bind effective per-component envelopes plus observed/enforced whole-worker resources; do not call a pending-byte limit a proposal cap |
 | δ | Pilot unshaped; existing calibration/netem mechanisms | Validated per-path shaping, raw RTT evidence and exact cleanup |
 | Δ | Pilot fixes 100 ms | Record each operative mapping and native multiplier; initial matched setting remains 100 ms |
-| Committee and f | Integrated pilot n=4, f=1 | Generalize and qualify n=7/f=2, then n=31/f=10 |
+| Committee and f | Integrated pilot n=4, f=1 | Author-selected n=10/f=3 and n=50/f=16; qualify general quorums and larger profiles for 50 |
 | Injected faults | Named silent-leader and missing-payload controls | Separate fault budget f from injected count/type/identity/time; qualify 0, then 1, then up to f |
 | Storage | Memory Visible; common RocksDB Written | Match backend/completion/WAL/sync policy; record lack of core restart recovery |
 | Scheduling / observation | Delugi canonical/paced/barrier and bundling controls; finite native Raptr evidence | Primary Delugi paced+immediate bundling, explicit ablations, aligned full/minimal observation evidence |
