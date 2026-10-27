@@ -236,11 +236,20 @@ class OwnedGroup:
     def send(self, sig):
         if not self.isolated:
             raise OwnershipError("Refusing to signal a build group without established ownership")
+        self.process.poll()
         if self.members():
             try:
                 os.killpg(self.group, sig)
             except ProcessLookupError:
                 pass
+            except PermissionError:
+                # On macOS a stopped leader can exit immediately after CONT.
+                # A subsequent signal to its unreaped zombie may return EPERM.
+                # Only confirmed disappearance of the exact owned group makes
+                # that race successful; a live permission failure still fails.
+                self.process.poll()
+                if self.members():
+                    raise
 
     def cleanup(self, timeout):
         record = {"group": self.group, "status": "pending", "signals": []}

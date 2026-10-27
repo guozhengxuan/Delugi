@@ -94,5 +94,25 @@ while True: time.sleep(.1)
         with self.assertRaisesRegex(ValueError,'late worker'):worker.prepare(self.request)
         self.assertFalse((self.root/'process.json').exists())
 
+    def test_compact_membership_and_secret_isolation(self):
+        cfg=json.loads(self.request['config_text'])
+        cfg.update(schema=2,addresses=[f'10.0.0.{i+1}:8000' for i in range(50)],
+                   deployment_profile='private-ipv4-n10-n50-v1',sustained_workload={},
+                   measurement_duration_ms=60000,drain_ms=15000)
+        raw=json.dumps(cfg)
+        self.request.update(evaluation_profile=worker.COMPACT,config_text=raw,
+                            configuration_sha256=hashlib.sha256(raw.encode()).hexdigest())
+        bad=dict(self.request,keys_hex=self.request['keys_hex']|{'key-1.json':'04'})
+        with self.assertRaisesRegex(ValueError,'only this replica'):worker.prepare(bad)
+        self.assertFalse((self.root/'keys').exists())
+        worker.prepare(self.request)
+        self.assertEqual(sorted(p.name for p in (self.root/'keys').iterdir()),
+                         ['committee.json','genesis-ledger.bcs','key-0.json'])
+
+    def test_legacy_profile_cannot_silently_expand_to_fifty(self):
+        cfg=json.loads(self.request['config_text']);cfg['addresses']*=12
+        raw=json.dumps(cfg);self.request.update(config_text=raw,configuration_sha256=hashlib.sha256(raw.encode()).hexdigest())
+        with self.assertRaisesRegex(ValueError,'committee'):worker.prepare(self.request)
+
 
 if __name__=='__main__':unittest.main()

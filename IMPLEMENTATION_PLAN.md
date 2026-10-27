@@ -39,17 +39,30 @@ profile fails the complete-current witness bound at 50. Neither legacy profile
 is widened. Raptr PoA now matches the native strict two-thirds verifier (34 at
 50). These are core/profile changes; distributed n=50 qualification is pending.
 
-The next implementation checkpoint adds schema-2 Raptr input spools and streaming
+The sustained implementation adds schema-2 Raptr input spools and streaming
 signed journals, exact shared global schedules, explicit cutoff cancellation and
 unoffered populations. Existing finite archives retain their schema and meaning.
-The native tests pass; a four-process sustained smoke run authenticates and
-reduces the new archives. The one-minute load and fault qualifications are in
-progress. The aggregate Linux egress helper has passed a real two-namespace
+The native tests pass. A four-process, 60-second 4,000 tx/s diagnostic run
+authenticates and conserves all 240,000 planned requests, including overload
+rejections, cancellations and unfinished admissions. New signed window traffic
+snapshots separate measurement from drain. Four-process silent-leader and actual
+missing-payload recovery pass, as does healthy n=10. At n=50, the local empty
+run with Delta=100 ms stalls before round 4; Delta=1,000 ms reaches round 4.
+The relaxed-timer result is functional evidence only and does not qualify the
+requested timing profile. See the
+[sustained checkpoint receipt](benchmarks/results/compact-integrated-local-2026-10-27.json).
+The aggregate Linux egress helper has passed a real two-namespace
 test (100 Mbps aggregate, nominal 10 ms each direction, verified cleanup); see
 [the local calibration receipt](benchmarks/results/linux-egress-local-2026-10-27.json).
 The compact cloud lease now reserves against the persistent campaign budget
 before dispatch and recovers saved instance IDs after a ledger-update crash.
 No paid deployment has been performed for this implementation checkpoint.
+
+The cloud worker now has a separate bounded sustained profile for 4/10/50
+members, secret isolation, finite deadlines and larger streamed evidence
+exports. Five real Linux worker checks pass. Campaign execution, external
+adapter qualification and the nominal n=50 distributed test remain open;
+these changes do not make the six-protocol campaign deployment-ready.
 
 ## 1. Current stage and priorities
 

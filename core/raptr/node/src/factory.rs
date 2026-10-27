@@ -320,6 +320,18 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     )?;
     let arm = wait_arm(&config, &configuration_sha256).await?;
     until(arm.epoch_us).await?;
+    let sample_transport = |target_us: u64| -> Result<Value> {
+        let started_us = clock()?;
+        let counters = sender.shared().snapshot().transport;
+        let finished_us = clock()?;
+        Ok(json!({"target_us":target_us,"sample_start_us":started_us,
+                  "sample_end_us":finished_us,"counters":counters}))
+    };
+    let mut traffic_windows = if config.schema == 2 {
+        Some(json!({"before":sample_transport(arm.epoch_us)?}))
+    } else {
+        None
+    };
     shared_metrics::configure(true);
     let (mut ingress, pool_task) = workload.start(arm.epoch_us, pool_rx, node_tasks.clone())?;
     let (finish_tx, mut finish_rx) = tokio::sync::oneshot::channel::<()>();
@@ -344,10 +356,20 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
         NativeTimer::new(),
     ));
     let deadline_us = arm.epoch_us + (config.measurement_duration_ms + config.drain_ms) * 1000;
-    let (mut result, protocol_finished) = tokio::select! {
-        end=until(deadline_us)=>(end,false),
-        error=sender.failed()=>(Err(anyhow!(error)),false),
-        ended=&mut protocol=>(Err(anyhow!("native protocol ended before observer deadline: {ended:?}")),true),
+    let measurement_end = arm.epoch_us + config.measurement_duration_ms * 1000;
+    let mut sampled_end = traffic_windows.is_none();
+    let (mut result, protocol_finished) = loop {
+        tokio::select! {
+            biased;
+            end=until(measurement_end), if !sampled_end => {
+                if let Err(error)=end {break (Err(error),false);}
+                traffic_windows.as_mut().unwrap()["after"] = sample_transport(measurement_end)?;
+                sampled_end = true;
+            },
+            end=until(deadline_us)=>break (end,false),
+            error=sender.failed()=>break (Err(anyhow!(error)),false),
+            ended=&mut protocol=>break (Err(anyhow!("native protocol ended before observer deadline: {ended:?}")),true),
+        }
     };
     ingress.stop();
     let (freeze_us, frozen, mut counts) = workload.freeze_archive()?;
@@ -399,6 +421,9 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     }
     let executor_at_cleanup = executor.snapshot();
     service.shutdown();
+    if let Some(windows) = traffic_windows.as_mut() {
+        windows["after_shutdown"] = sample_transport(deadline_us)?;
+    }
     let mut files = frozen.write(&directory, config.limits.max_journal_bytes, &mut counts)?;
     if let Some(file) = workload.planned_file() {
         files.push(file);
@@ -406,7 +431,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     }
     files.push(file_record(&directory, "workload-manifest.json")?);
     files.push(file_record(&directory, "effective-profile.json")?);
-    let body = json!({"schema":1,"profile":PROFILE,"run_id":config.run_id,"configuration_sha256":configuration_sha256,"committee_sha256":config::hex(&keys.public_hash),"id":id,"epoch_us":arm.epoch_us,"deadline_us":deadline_us,"freeze_us":freeze_us,"snapshot_completed_us":snapshot_completed_us,"snapshot_copy_us":snapshot_completed_us.saturating_sub(freeze_us),"executor_at_freeze":executor_at_freeze,"executor_at_cleanup":executor_at_cleanup,"deadline_lateness_us":freeze_us.saturating_sub(deadline_us),"status":if result.is_ok(){"completed"}else{"failed"},"error":result.as_ref().err().map(|e|format!("{e:#}")),"files":files,"counts":counts,"transport":transport.transport,"async_transport":{"leased_bytes":transport.leased_bytes,"maximum_leased_bytes":transport.maximum_leased_bytes,"pending_bytes":transport.pending_bytes,"maximum_pending_bytes":transport.maximum_pending_bytes,"maximum_extra_pending_bytes":transport.maximum_extra_pending_bytes,"self_frames":transport.self_frames,"inbound_frames":transport.inbound_frames,"terminal_error":transport.terminal_error},"output_snapshot":output_snapshot(materialized),"materializer":materializer.delay_telemetry(),"payload_fault":payload_fault,"metrics":costs});
+    let body = json!({"schema":1,"profile":PROFILE,"run_id":config.run_id,"configuration_sha256":configuration_sha256,"committee_sha256":config::hex(&keys.public_hash),"id":id,"epoch_us":arm.epoch_us,"deadline_us":deadline_us,"freeze_us":freeze_us,"snapshot_completed_us":snapshot_completed_us,"snapshot_copy_us":snapshot_completed_us.saturating_sub(freeze_us),"executor_at_freeze":executor_at_freeze,"executor_at_cleanup":executor_at_cleanup,"deadline_lateness_us":freeze_us.saturating_sub(deadline_us),"status":if result.is_ok(){"completed"}else{"failed"},"error":result.as_ref().err().map(|e|format!("{e:#}")),"files":files,"counts":counts,"transport":transport.transport,"traffic_windows":traffic_windows,"async_transport":{"leased_bytes":transport.leased_bytes,"maximum_leased_bytes":transport.maximum_leased_bytes,"pending_bytes":transport.pending_bytes,"maximum_pending_bytes":transport.maximum_pending_bytes,"maximum_extra_pending_bytes":transport.maximum_extra_pending_bytes,"self_frames":transport.self_frames,"inbound_frames":transport.inbound_frames,"terminal_error":transport.terminal_error},"output_snapshot":output_snapshot(materialized),"materializer":materializer.delay_telemetry(),"payload_fault":payload_fault,"metrics":costs});
     let body_bcs = shared_crypto_aptos::encode(&serde_json::to_vec(&body)?)?;
     let mut signed = b"delugi-shared-observer-receipt-v1\0".to_vec();
     signed.extend_from_slice(&body_bcs);

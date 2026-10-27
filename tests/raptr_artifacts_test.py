@@ -318,6 +318,16 @@ class GuardTests(unittest.TestCase):
         self.assertEqual(send.call_args_list[-1].args[0], signal.SIGKILL)
         self.assertTrue(record["remaining"])
 
+    def test_signal_permission_race_requires_confirmed_empty_owned_group(self):
+        for remaining in ([], [self.row()]):
+            child=self.process();group=ART.OwnedGroup(child);group.isolated=True
+            with mock.patch.object(group,'members',side_effect=[[self.row(state='Z')],remaining]), \
+                 mock.patch.object(ART.os,'killpg',side_effect=PermissionError('zombie race')):
+                if remaining:
+                    with self.assertRaises(PermissionError):group.send(signal.SIGTERM)
+                else:group.send(signal.SIGTERM)
+                self.assertEqual(child.poll.call_count,2)
+
     def test_reused_pid_or_empty_group_is_not_signalled(self):
         group = ART.OwnedGroup(self.process())
         group.isolated = True

@@ -97,7 +97,8 @@ class ShardedArchive:
         if self.index.get("schema") != 2 or self.index.get("format") != FORMAT:
             raise ValueError("unknown sharded cohort schema")
         self.ledgers = {int(k): v for k, v in self.index["replicas"].items()}
-        if not self.ledgers or len(self.ledgers) > 31 or len(self.ledgers) != len(self.index["replicas"]):
+        maximum = 50 if self.index.get('population_profile') == 'compact-n10-n50-v1' else 31
+        if not self.ledgers or len(self.ledgers) > maximum or len(self.ledgers) != len(self.index["replicas"]):
             raise ValueError("invalid archive replica population")
 
     def rows(self, replica, stream):
@@ -213,6 +214,9 @@ def collect_sharded(controller, snapshots, directory, warmup_seconds, measuremen
         "resource_contract": {"max_page_bytes": MAX_PAGE_BYTES, "max_page_entries": MAX_PAGE_ENTRIES,
             "max_index_line_bytes": MAX_INDEX_LINE_BYTES, "max_row_bytes": MAX_ROW_BYTES, "aggregate_byte_limit": None,
             "replica_retained_state": "runtime timing maps, protocol custody and output retain O(N) state; this archive bounds controller/verifier working memory"}}
+    if len(replicas)>31:
+        if len(replicas)>50:raise ValueError('compact cohort population exceeds50')
+        manifest['population_profile']='compact-n10-n50-v1'
     path = root / "index.json"
     raw = (json.dumps(manifest, indent=2) + "\n").encode()
     if len(raw) > MAX_MANIFEST_BYTES:

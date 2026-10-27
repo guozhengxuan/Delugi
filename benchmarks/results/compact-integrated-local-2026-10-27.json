@@ -1,0 +1,71 @@
+{
+  "schema": 1,
+  "date": "2026-10-27",
+  "scope": "local debug integrated Raptr sustained workloads and explicit compact host lifecycle",
+  "comparison_eligible": false,
+  "runs": [
+    {
+      "artifact": "results/local/raptr-sustained-4k-60s-20261027/manifest.json",
+      "sha256": "ce76e0c7c77d1f657db20b0a019dd1cb511382d05e9199989d6c429c412cd6de",
+      "status": "completed",
+      "error": null,
+      "cleanup_confirmed": true
+    },
+    {
+      "artifact": "results/local/raptr-sustained-silent-first-leader-n4-20261027-window/manifest.json",
+      "sha256": "a5d329dbf46daf54e8fa6c2d80f29b0aa67f63502130b12183795323a945a755",
+      "status": "completed",
+      "error": null,
+      "cleanup_confirmed": true
+    },
+    {
+      "artifact": "results/local/raptr-sustained-missing-payload-recovery-n4-20261027-window/manifest.json",
+      "sha256": "bb34ee5d483f0d18af6685c4704f5dc136e52c47ed2ac7517bd3d83d5366b54a",
+      "status": "completed",
+      "error": null,
+      "cleanup_confirmed": true
+    },
+    {
+      "artifact": "results/local/raptr-sustained-healthy-n10-20261027-window/manifest.json",
+      "sha256": "0b9dcde2501b65eb2b2397cec567cc727325e8ba2b6fbce103fc77a55c278fb0",
+      "status": "completed",
+      "error": null,
+      "cleanup_confirmed": true
+    },
+    {
+      "artifact": "results/local/raptr-sustained-empty-n50-20261027-window/manifest.json",
+      "sha256": "50626831eecef4023b315ba3e0cd41117f4ac4ca7cb8840d045f4d91989fabef",
+      "status": "failed",
+      "error": "ValueError: a correct replica did not materialize native output through round4",
+      "cleanup_confirmed": true
+    },
+    {
+      "artifact": "results/local/raptr-empty-n50-relaxed-timer-20261027/manifest.json",
+      "sha256": "9d351a4f23644116dd5889293ac6eb543843255d5e7de1ce0f2077a911fe8289",
+      "status": "completed",
+      "error": null,
+      "cleanup_confirmed": true
+    }
+  ],
+  "one_minute_population": {
+    "planned": 240000,
+    "offered": 240000,
+    "admitted": 40179,
+    "rejected": 187001,
+    "cancelled": 12820,
+    "completed": 29046,
+    "unfinished": 11133,
+    "unoffered": 0
+  },
+  "checks": {
+    "raptr_sustained_python": 5,
+    "raptr_artifact_python": 32,
+    "cohort_store_python": 15,
+    "real_linux_worker": 5
+  },
+  "limitations": [
+    "Local debug binaries and shared machine are not formal performance evidence.",
+    "n=50 Delta=100 ms did not reach round4; Delta=1000 ms passed and is a separate diagnostic.",
+    "Six-protocol campaign execution and release/native qualification remain open."
+  ]
+}

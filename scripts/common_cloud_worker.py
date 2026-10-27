@@ -27,6 +27,18 @@ import runtime_evidence
 MAX_JSON = 16 * 1024**2
 MAX_LOG = 64 * 1024**2
 PREFIX = '/tmp/delugi-cloud-'
+COMPACT = 'compact-sustained-v1'
+
+
+def envelope(request):
+    """Version the larger workload without widening historical pilot requests."""
+    profile = request.get('evaluation_profile')
+    if profile not in (None, COMPACT):
+        raise ValueError('unknown evaluation lifecycle profile')
+    return ({'nodes':(4,10,50), 'seconds':600, 'file_bytes':16*1024**3,
+             'export_bytes':16*1024**3, 'disk_bytes':64*1024**3} if profile == COMPACT else
+            {'nodes':(4,), 'seconds':240, 'file_bytes':512*1024**2,
+             'export_bytes':512*1024**2, 'disk_bytes':4*1024**3})
 
 
 def digest(path):
@@ -95,10 +107,13 @@ def prepare(request):
         active(root)
         if (root / 'request.json').exists():
             raise ValueError('prepared run cannot be overwritten')
-        if request.get('protocol') not in ('delugi', 'raptr') or type(request.get('replica')) is not int or request['replica'] not in range(4):
-            raise ValueError('explicit protocol and replica0..3 required')
-        if not 10 <= request.get('timeout_seconds', 0) <= 240:
-            raise ValueError('finite pilot needs a10..240second process deadline')
+        limits = envelope(request)
+        if request.get('protocol') not in ('delugi', 'raptr') or type(request.get('replica')) is not int:
+            raise ValueError('explicit protocol and replica required')
+        if type(request.get('timeout_seconds')) is not int or not 10 <= request['timeout_seconds'] <= limits['seconds']:
+            raise ValueError('process deadline exceeds the selected lifecycle profile')
+        if type(request.get('disk_bytes', limits['disk_bytes'])) is not int or not 0 < request.get('disk_bytes', limits['disk_bytes']) <= limits['disk_bytes']:
+            raise ValueError('disk envelope exceeds the selected lifecycle profile')
         artifact = Path(request['artifact']).resolve()
         manifest = read(artifact / 'manifest.json')
         if (manifest.get('format') != 'delugi-common-artifact-v1'
@@ -111,8 +126,19 @@ def prepare(request):
         if hashlib.sha256(config_text.encode()).hexdigest() != request['configuration_sha256']:
             raise ValueError('configuration hash differs')
         config = json.loads(config_text)
-        if len(config['addresses']) != 4:
-            raise ValueError('pilot requires four members')
+        members = len(config['addresses'])
+        if members not in limits['nodes'] or request['replica'] not in range(members):
+            raise ValueError('committee/replica exceeds the selected lifecycle profile')
+        if request.get('evaluation_profile') == COMPACT:
+            if request['protocol'] == 'raptr':
+                if config.get('schema') != 2 or config.get('sustained_workload') is None:
+                    raise ValueError('compact Raptr requires bounded sustained schema2')
+                if not 0 < config['measurement_duration_ms'] <= 60_000 or not 0 <= config['drain_ms'] <= 15_000:
+                    raise ValueError('compact Raptr window exceeds60s plus15s drain')
+            else:
+                load = config.get('sustained', {})
+                if not load.get('global_arrivals') or load.get('warmup_ms') != 0 or not 0 < load.get('measurement_ms', 0) <= 60_000:
+                    raise ValueError('compact Delugi requires the shared global schedule and finite window')
         allowed = ({f'replica-{request["replica"]}.key'} if request['protocol'] == 'delugi'
                    else {f'key-{request["replica"]}.json', 'committee.json', 'genesis-ledger.bcs'})
         if set(request.get('keys_hex', {})) != allowed:
@@ -125,14 +151,15 @@ def prepare(request):
             with os.fdopen(os.open(root / 'keys' / name, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600), 'wb') as out:
                 out.write(payload)
         if request['protocol'] == 'raptr':
-            if (config.get('deployment_profile') != 'private-ipv4-n4-v1'
+            expected_profile = 'private-ipv4-n4-v1' if members==4 else 'private-ipv4-n10-n50-v1'
+            if (config.get('deployment_profile') != expected_profile
                     or config['key_directory'] != str(root / 'keys')
                     or config['output_directory'] != str(root / 'replicas')
                     or config['arm_path'] != str(root / 'arm.json')):
                 raise ValueError('Raptr deployment paths/profile differ')
             (root / 'replicas').mkdir(mode=0o700)
         else:
-            if config['key_files'] != [str(root / 'keys' / f'replica-{i}.key') for i in range(4)]:
+            if config['key_files'] != [str(root / 'keys' / f'replica-{i}.key') for i in range(members)]:
                 raise ValueError('Delugi key paths differ')
             if any(not a.startswith('127.0.0.1:') for a in config['control_addresses']):
                 raise ValueError('control sockets must remain loopback-only')
@@ -185,7 +212,8 @@ def supervise(nonce):
                 os.sched_setaffinity(0, set(budget['cpus']))
                 # This limit covers every regular file, including RocksDB SSTs.
                 # Keep the file bound above the core's maximum journal size.
-                resource.setrlimit(resource.RLIMIT_FSIZE, (512*1024**2, 512*1024**2))
+                maximum = envelope(request)['file_bytes']
+                resource.setrlimit(resource.RLIMIT_FSIZE, (maximum, maximum))
                 if cgroup is not None:
                     (cgroup / 'cgroup.procs').write_text(str(os.getpid()))
             env = {k: v for k, v in os.environ.items() if k.lower() not in ('http_proxy', 'https_proxy', 'all_proxy')
@@ -202,7 +230,7 @@ def supervise(nonce):
             if time.monotonic() >= deadline:
                 raise TimeoutError('finite pilot process deadline expired')
             size = sum(p.stat().st_size for p in root.rglob('*') if p.is_file() and not p.is_symlink())
-            if size > request.get('disk_bytes', 4 * 1024**3):
+            if size > request.get('disk_bytes', envelope(request)['disk_bytes']):
                 raise ValueError('owned run exceeded sampled disk envelope')
             if any(p.stat().st_size > MAX_LOG for p in (root/'node.stdout', root/'node.stderr')):
                 raise ValueError('owned process log exceeded sampled log envelope')
@@ -239,7 +267,7 @@ def supervise(nonce):
 
 def control(root, kind, fields=None):
     config, request = read(root / 'config.json'), read(root / 'request.json')
-    if request['protocol'] != 'delugi' or kind not in ('snapshot', 'prepare', 'submit', 'start', 'quiesce', 'stop'):
+    if request['protocol'] != 'delugi' or kind not in ('snapshot', 'prepare', 'submit', 'start', 'load', 'cohort', 'outputs', 'batches', 'quiesce', 'stop'):
         raise ValueError('unsupported finite Delugi control')
     replica = request['replica']
     identity = 'cloud-' + str(time.time_ns())
@@ -346,12 +374,15 @@ def export(request):
     names = [name for name in ('config.json', 'request.json', 'process.json', 'supervisor.json', 'resource-summary.json',
              'arm.json', 'aborted.json', 'node.stdout', 'node.stderr', 'supervisor.stdout', 'supervisor.stderr', 'control.jsonl', 'verification.json')
              if (root / name).is_file()]
+    saved = read(root / 'request.json')
     allowed = {'ready.json', 'final.json', 'requests.jsonl', 'output.jsonl', 'effective-profile.json', 'workload-manifest.json'}
+    if saved.get('evaluation_profile') == COMPACT: allowed.add('planned.jsonl')
     if (root / 'replicas').exists():
         names += [p.relative_to(root).as_posix() for p in sorted((root / 'replicas').glob('node-*/*'))
                   if p.name in allowed and p.is_file()]
-    runtime_evidence.pack(root, names, sys.stdout.buffer, {'nonce': request['nonce'], 'format': 'common-pilot-evidence-v1'},
-                          max_payload_bytes=512*1024**2, max_files=100)
+    runtime_evidence.pack(root, names, sys.stdout.buffer, {'nonce': request['nonce'],
+                          'format': 'common-sustained-evidence-v1' if saved.get('evaluation_profile') == COMPACT else 'common-pilot-evidence-v1'},
+                          max_payload_bytes=envelope(saved)['export_bytes'], max_files=100)
 
 
 def rpc(request):
@@ -364,7 +395,10 @@ def rpc(request):
             if request['protocol'] not in ('delugi', 'raptr') or digest(binary) != request['binary_sha256']:
                 raise ValueError('key generation artifact/protocol differs')
             path = root / 'generated-keys'
-            result = subprocess.run([str(binary), '--protocol', request['protocol'], '--keygen', str(path), '--nodes', '4'],
+            nodes = request.get('nodes',4)
+            if type(nodes) is not int or nodes not in envelope(request)['nodes']:
+                raise ValueError('key generation committee exceeds lifecycle profile')
+            result = subprocess.run([str(binary), '--protocol', request['protocol'], '--keygen', str(path), '--nodes', str(nodes)],
                                     capture_output=True, text=True, timeout=30)
             if result.returncode: raise ValueError('key generation failed')
             return {'public': json.loads(result.stdout), 'files_hex': {p.name: p.read_bytes().hex() for p in path.iterdir() if p.is_file()}}
@@ -404,7 +438,8 @@ def rpc(request):
             raise ValueError('native verifier executable changed')
         final = root / 'replicas' / f'node-{saved["replica"]}' / 'final.json'
         result = subprocess.run([str(Path(saved['artifact'])/'node'), '--protocol', 'raptr', '--config', str(root/'config.json'),
-                                 '--verify-workload-ledger', str(final)], capture_output=True, text=True, timeout=30)
+                                 '--verify-workload-ledger', str(final)], capture_output=True, text=True,
+                                 timeout=300 if saved.get('evaluation_profile') == COMPACT else 30)
         if result.returncode: raise ValueError('native signed-receipt verifier failed')
         value = json.loads(result.stdout)
         write(root/'verification.json', value)
