@@ -12,6 +12,7 @@ import csv
 import hashlib
 import json
 import os
+import re
 import subprocess
 import tarfile
 import time
@@ -26,6 +27,16 @@ import remote_native
 
 KIND='delugi-compact-execution-v1'
 NATIVE={'mysticeti-c':'mysticeti','autobahn':'autobahn','simpleit-mempool':'simpleit-mempool','simpleit-dispersed':'simpleit-dispersed'}
+
+
+def error_summary(error):
+    # Provider exceptions can contain signed request URLs or credential fields.
+    # Retain their class/code, never serialize the whole SDK exception to CSV/UI.
+    if isinstance(error,(ValueError,RuntimeError,TimeoutError)):
+        return f'{type(error).__name__}: {str(error)[:2000]}'
+    code=getattr(error,'code',None)
+    suffix=f' ({code})' if isinstance(code,str) and re.fullmatch(r'[A-Za-z0-9_.-]{1,100}',code) else ''
+    return type(error).__name__+suffix+'; operation failed, retained state requires inspection'
 
 
 def read(path):
@@ -348,7 +359,7 @@ def execute(plan,authorization,output,*,backend_factory=Backend,validate=validat
                     state['fleets'][str(n)]=backend.release(n);aliyun_bench.save(state_path,state)
             state['status']='completed' if all(r['status'] in ('passed','completed') for r in state['rows']) else 'completed_with_unrun_cells'
         except BaseException as error:
-            state.update(status='failed',error=f'{type(error).__name__}: {error}')
+            state.update(status='failed',error=error_summary(error))
             if state['active_trial'] and not any(row['trial_id']==state['active_trial']['trial_id'] for row in state['rows']):
                 state['rows'].append({**state['active_trial'],'status':'failed','error':state['error']})
             retain_unrun(state,plan)

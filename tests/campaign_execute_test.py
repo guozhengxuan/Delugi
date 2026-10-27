@@ -83,6 +83,10 @@ class Execution(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'stale artifact'):
             campaign.execute(self.plan,{},self.root/'campaign',backend_factory=self.factory,validate=reject)
         self.assertFalse(self.events);self.assertFalse((self.root/'campaign').exists())
+    def test_provider_exception_does_not_publish_signed_request_details(self):
+        class ProviderError(Exception):code='AccessDenied'
+        result=campaign.error_summary(ProviderError('private fixture signature in provider request'))
+        self.assertIn('AccessDenied',result);self.assertNotIn('signature',result)
     def test_interrupted_trial_only_cleans_up_and_never_relaunches(self):
         state=self.run_campaign();path=self.root/'campaign/state.json'
         state['active_trial']=state['rows'][0];campaign.aliyun_bench.save(path,state);self.events.clear()
