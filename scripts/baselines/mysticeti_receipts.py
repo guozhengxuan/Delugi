@@ -49,7 +49,7 @@ def opened(path, expected_bytes=None):
         yield stream
 
 
-def load(directory, replica, counts, useful_bytes, mode, start):
+def load(directory, replica, counts, useful_bytes, mode, start, *, population_profile=None):
     """Bind all populations and paths to trusted configuration before bitmap IO."""
     directory = Path(directory)
     with opened(directory / "header.json") as stream:
@@ -57,11 +57,14 @@ def load(directory, replica, counts, useful_bytes, mode, start):
     if len(raw) > HEADER_LIMIT:
         raise ValueError("native receipt header exceeds bound")
     header = json.loads(raw)
+    if population_profile not in (None,'compact-n10-n50-v1'):raise ValueError('unknown native population profile')
+    maximum=50 if population_profile=='compact-n10-n50-v1' else 31
+    if population_profile and start.get('population_profile')!=population_profile:raise ValueError('native population profile differs')
     if (type(header) is not dict or type(header.get("schema")) is not int or header.get("schema") != 1 or header.get("format") != FORMAT or header.get("mode") != mode
             or type(header.get("origin")) is not int or header.get("origin") != replica or header.get("counts") != counts
             or type(header.get("counts")) is not list or any(type(n) is not int for n in header["counts"])
             or type(header.get("useful_bytes")) is not int or header.get("useful_bytes") != useful_bytes or mode not in ("full", "compact")
-            or not 0 <= replica < len(counts) <= 31
+            or not 0 <= replica < len(counts) <= maximum
             or any(type(n) is not int or not 0 <= n <= 5_000_000 for n in counts)):
         raise ValueError("native receipt differs from finite configuration")
     for key in ("requested_us", "frozen_us", "output_count", "batch_count", "payload_bytes", "checkpoint_bytes"):

@@ -28,7 +28,7 @@ import uuid
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-PROTOCOLS = ("delugi", "mysticeti", "autobahn", "autobahn-blips", "shoal")
+PROTOCOLS = ("delugi", "mysticeti", "autobahn", "autobahn-blips", "shoal", "simpleit-mempool", "simpleit-dispersed")
 MAX_FILES, MAX_BYTES, MAX_FILE = 100000, 4 * 1024**3, 1024**3
 PACKAGES = ["build-essential", "clang", "libclang-dev", "llvm", "lld", "cmake", "pkg-config",
             "libssl-dev", "libudev-dev", "libdw-dev", "curl", "ca-certificates", "git", "unzip", "python3", "time"]
@@ -37,6 +37,7 @@ CONTROLLER_COMMON = ("scripts/deployment_prepare.py", "scripts/remote_deployment
                      "scripts/network_delay.py", "scripts/timing_calibration.py",
                      "scripts/spec_provenance.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py",
                      "scripts/shared_core_conformance.py",
+                     "scripts/compact_campaign.py",
                      "provenance/spec-2026-10-19.json", "provenance/baselines.json")
 CONTROLLER_NATIVE = ("scripts/baselines/native_artifacts.py", "scripts/baselines/native_faults.py",
                      "scripts/baselines/native_receipts.py", "scripts/baselines/mysticeti_wal.py",
@@ -68,7 +69,8 @@ def recipe(protocol, jobs=1, toolchain=None):
     if protocol not in PROTOCOLS or type(jobs) is not int or not 1 <= jobs <= 8:
         raise ValueError("unknown protocol or build job limit")
     fixed = {"delugi": "1.92.0", "mysticeti": "1.78.0", "autobahn": "1.92.0",
-             "autobahn-blips": "1.92.0", "shoal": "1.75.0"}
+             "autobahn-blips": "1.92.0", "shoal": "1.75.0",
+             "simpleit-mempool":"1.92.0", "simpleit-dispersed":"1.92.0"}
     toolchain = toolchain or fixed[protocol]
     if not re.fullmatch(r"\d+\.\d+\.\d+", toolchain) or (protocol != "delugi" and toolchain != fixed[protocol]):
         raise ValueError("exact reviewed Rust version required")
@@ -79,12 +81,14 @@ def recipe(protocol, jobs=1, toolchain=None):
         commands, binaries = [command + ["-p", "mysticeti"]], ["mysticeti"]
     elif protocol.startswith("autobahn"):
         commands, binaries = [command + ["-p", "node", "--features", "benchmark"]], ["node", "benchmark_client"]
+    elif protocol.startswith('simpleit'):
+        commands, binaries = [command + ['-p','node','--features','benchmark']], ['node']
     else:
         commands = [command + ["-p", "aptos-node", "--features", "consensus-only-perf-test"],
                     command + ["-p", "aptos-genesis", "--bin", "shoal-fixture"]]
         binaries = ["aptos-node", "shoal-fixture"]
     selected = {"protocol": protocol, "toolchain": toolchain, "jobs": jobs, "commands": commands,
-            "binaries": binaries, "release_debug": "0" if protocol in ("shoal", "mysticeti") else None,
+            "binaries": binaries, "release_debug": "0" if protocol in ("shoal", "mysticeti") or protocol.startswith('simpleit') else None,
             "packages": PACKAGES, "native_remote_runner_supported": protocol == "delugi"}
     if protocol == "shoal":
         # Native framework generation invokes rustfmt while rewriting tracked
@@ -180,12 +184,18 @@ def source_selection(root, protocol):
         if commit != pin["commit"]:
             raise ValueError("native checkout differs from reviewed exact commit")
         patch = (root / pin["instrumentation_patch"]).read_bytes()
-        diff = subprocess.check_output(["git", "-C", str(source), "diff", "HEAD"])
-        if diff != patch:
-            raise ValueError("native checkout differs from recorded instrumentation patch")
+        if protocol.startswith('simpleit'):
+            from baselines import simpleit
+            identity=simpleit.source_identity(protocol)
+            if identity['patch_sha256']!=hashlib.sha256(patch).hexdigest():raise ValueError('Simple-IT patch differs')
+        else:
+            diff = subprocess.check_output(["git", "-C", str(source), "diff", "HEAD"])
+            if diff != patch:
+                raise ValueError("native checkout differs from recorded instrumentation patch")
         if pin.get("dependency_lock") and (source / "Cargo.lock").read_bytes() != (root / pin["dependency_lock"]).read_bytes():
             raise ValueError("native dependency lock differs from reviewed lock")
         paths = [Path(p.decode()) for p in subprocess.check_output(["git", "-C", str(source), "ls-files", "-z"]).split(b"\0") if p]
+        if protocol.startswith('simpleit'):paths += list(map(Path,simpleit.NEW_FILES))
         if Path("Cargo.lock") not in paths:
             paths.append(Path("Cargo.lock"))
         provenance = {"protocol": protocol, "repository": pin["repository"], "commit": commit,
@@ -236,7 +246,7 @@ def bundle(root, protocol, output, jobs=1, toolchain=None, assets=None):
     # These files are archived for reproducibility, not executed by the worker.
     controller = list(CONTROLLER_COMMON)
     if protocol != "delugi":
-        selected = "autobahn" if protocol == "autobahn-blips" else protocol
+        selected = "simpleit" if protocol.startswith('simpleit') else "autobahn" if protocol == "autobahn-blips" else protocol
         controller += list(CONTROLLER_NATIVE) + ["scripts/baselines/" + selected + ".py"]
         if selected in ("autobahn", "shoal"):
             controller.append("scripts/baselines/" + selected + "_cohort.py")

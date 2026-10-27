@@ -30,8 +30,36 @@ fault cells through `aliyun_bench.py campaign --config ... --plan`; it verifies
 the selected archived specification without rewriting its hashes. Exact global
 arrival allocation is implemented in `shared/mempool` and the planner. A durable
 campaign budget ledger reserves before dispatch and retains ambiguous or unbilled
-leases. These components have focused tests; execution, adapter qualification,
-bounded native journals and exactly-50 membership remain the next gates.
+leases. These components have focused tests; full campaign execution, adversarial
+adapter qualification and nominal-timer n=50 acceptance remain open.
+
+Both failure-capable Simple-IT author branches now build with recorded patches,
+locks and binaries. Their adapters provide per-replica mTLS identities, exact
+independent arrivals, verified contiguous application output, signed bounded
+journals and native payload-omission witnesses. Healthy, silent-first-leader and
+three-header missing-data tests pass locally. Both variants also complete a
+60-second 4,000 tx/s diagnostic. Mempool needed an explicitly disclosed upstream
+fix: its cut-certificate constructor reset at two votes although its verifier
+required three at n=4. The corrected constructor respects both existing native
+thresholds. This is an adapted author implementation, and authenticated channels
+do not establish full forwarded-certificate or fallback security. See the
+[Simple-IT evidence](benchmarks/results/simpleit-local-2026-10-27.json).
+
+The Simple-IT remote lifecycle is connected to the existing native placement
+controller: pinned source bundles, one validator's keys per host, a committee
+prepare/arm barrier, bounded native supervision, typed verification, exact raw
+prefix checks and evidence export. Four real native processes exercise each
+variant's remote lifecycle locally, including ceremony-key sealing. Linux
+release and real host/resource qualification remain separate gates.
+
+Mysticeti and original Autobahn now use the same zero-based global arrival
+schedule and admission cutoff, including non-divisible rates and explicit n=50
+population bounds. Both pass local 1,001 tx/s fixtures. `campaign --resolve`
+records requested/effective adapter settings and rejects unsupported common
+proposal or batching caps. The explicit native-services configuration uses null
+for these native defaults; it does not claim a matched proposal cap. The single
+operation that provisions and executes the complete six-protocol matrix is still
+being connected. No cloud resource was created during this implementation phase.
 
 The selected n=50 core profile uses f=16, high quorum 34 and amplification 17.
 Delugi now has an explicit `complete-64mib-n50-v1` profile: the old 32 MiB

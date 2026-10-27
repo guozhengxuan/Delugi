@@ -131,6 +131,30 @@
       "acceptance": "Native Linux ARM64 validator/fixture build and five local finite-cohort functional accounting gates verified; formal comparison and observer-overhead gates remain open",
       "native_runtime_receipt": "benchmarks/results/shoal-native-local-acceptance-2026-10-19.json",
       "observer_contract": "shoal-native-receipt-v1"
+    },
+    "simpleit-mempool": {
+      "repository": "https://github.com/qyu100/Simple-IT.git",
+      "reference": "Opt-Mempool-Simple-IT-Failure",
+      "commit": "e9235246880486439265cf86f13fae0ed99e62c0",
+      "checkout": "benchmarks/baselines/simpleit-mempool",
+      "comparison_tier": "adapted_author",
+      "instrumentation_patch": "benchmarks/patches/simpleit-mempool-evaluation.patch",
+      "dependency_lock": "benchmarks/locks/simpleit-mempool-evaluation-2026-10-27.lock",
+      "build_toolchain": "1.92.0",
+      "scope": "Failure-capable author branch with authenticated channels, independent workload, deterministic complete application output, signed observer receipts and bounded omission probes. Local builds used the explicitly recorded nightly toolchain; Linux release recipe remains unqualified.",
+      "acceptance_status": "Local process and evidence tests recorded; full Byzantine certificate/fallback, Linux resource and observer-overhead gates remain open."
+    },
+    "simpleit-dispersed": {
+      "repository": "https://github.com/qyu100/Simple-IT.git",
+      "reference": "Opt-Dispersed-Simple-IT-Failure",
+      "commit": "ad8935a9e989bdfd113a8c136f9b5d0011038931",
+      "checkout": "benchmarks/baselines/simpleit-dispersed",
+      "comparison_tier": "adapted_author",
+      "instrumentation_patch": "benchmarks/patches/simpleit-dispersed-evaluation.patch",
+      "dependency_lock": "benchmarks/locks/simpleit-dispersed-evaluation-2026-10-27.lock",
+      "build_toolchain": "1.92.0",
+      "scope": "Failure-capable author branch with authenticated channels, independent workload, deterministic complete application output, signed observer receipts and bounded omission probes. Local builds used the explicitly recorded nightly toolchain; Linux release recipe remains unqualified.",
+      "acceptance_status": "Local process and evidence tests recorded; full Byzantine certificate/fallback, Linux resource and observer-overhead gates remain open."
     }
   }
 }

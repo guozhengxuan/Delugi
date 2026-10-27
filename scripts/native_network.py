@@ -2,6 +2,7 @@
 from __future__ import annotations
 import copy
 import json
+import timing_calibration
 from remote_deployment import RemoteDeployment
 
 
@@ -17,6 +18,66 @@ class NativeNetwork(RemoteDeployment):
         super().__init__({"schema":1,"hosts":hosts,"netem":plan["network"]})
         self.nonce=plan["nonce"];self.remote_directory=str(root/"controller/scripts")
         self.endpoints=plan["endpoints"];self.connections=connections
+        self.aggregate=(plan.get('network') or {}).get('rate_mbps')
+
+    def egress_rpc(self,host,request):
+        reply=json.loads(self.execute(host,['sudo','-n',self.remote_python(host),self.remote_directory+'/linux_egress.py'],
+            input=json.dumps(request)).stdout)
+        if reply.get('ok') is not True:raise RuntimeError(reply.get('error','owned egress helper failed'))
+        return reply['result']
+
+    def configure_network(self):
+        if self.aggregate is None:return super().configure_network()
+        settings=self.inventory['netem'];echoes=[]
+        try:
+            echoes=self.start_echoes('before');self.network_evidence['before']=self.calibrate_ring()
+            baseline=self.calibration_records(self.network_evidence['before'])
+            for i,host in self.hosts.items():
+                request={'action':'configure','nonce':self.nonce,'interface':host['network_interface'],
+                    'peers':[p for j,other in self.hosts.items() if j!=i for p in self.protocol_endpoints(other)],
+                    'local_ports':[p['port'] for p in self.protocol_endpoints(host)],
+                    'delay_ms':settings.get('delay_ms',0),'rate_mbps':self.aggregate}
+                self.netem_hosts.append(host)
+                installed=self.egress_rpc(host,request)
+                if installed.get('phase')!='active' or not installed.get('tree'):raise RuntimeError('aggregate egress installation unconfirmed')
+                self.network_evidence.setdefault('configuration',{})[i]=installed
+            self.network_evidence['configured']=self.calibrate_ring()
+            active=self.calibration_records(self.network_evidence['configured'])
+            checks=[{'source':edge[0],'destination':edge[1],'protocol_role_index':edge[2],
+                **timing_calibration.addition(baseline[edge]['median'],active[edge]['median'],settings.get('delay_ms',0))} for edge in sorted(baseline)]
+            self.network_evidence.update(backend='Linux_tc_aggregate_protocol_egress',settings=settings,calibration=checks,
+                bandwidth_scope='one shared class per validator across all protocol peers and roles, including ACKs',
+                bandwidth_calibrated=False,loaded_delay_calibrated=False)
+            if not all(c['addition_matches'] for c in checks):raise RuntimeError('aggregate egress delay calibration failed')
+            return self.network_evidence
+        except BaseException:
+            self.clear_network(verify_after=False);raise
+        finally:self.stop_echoes(echoes)
+
+    def clear_network(self,verify_after=True):
+        if self.aggregate is None:return super().clear_network(verify_after)
+        results={};errors=[];had=bool(self.netem_hosts)
+        for host in self.netem_hosts:
+            try:
+                self.network_evidence.setdefault('final_status',{})[host['replica']]=self.egress_rpc(host,{'action':'status','nonce':self.nonce})
+            except Exception as error:self.network_evidence.setdefault('final_status_errors',{})[host['replica']]=str(error)
+            try:
+                result=self.egress_rpc(host,{'action':'clear','nonce':self.nonce});results[host['replica']]=result
+                if result.get('phase')!='cleared' or result.get('cleanup',{}).get('restored_default') is not True:raise RuntimeError('aggregate queue restoration unconfirmed')
+            except Exception as error:errors.append(str(error))
+        self.network_evidence['cleanup']=results
+        if errors:raise RuntimeError('; '.join(errors))
+        self.netem_hosts=[]
+        if verify_after and had and self.network_evidence.get('before'):
+            echoes=self.start_echoes('after')
+            try:
+                self.network_evidence['after_cleanup']=self.calibrate_ring()
+                before=self.calibration_records(self.network_evidence['before']);after=self.calibration_records(self.network_evidence['after_cleanup'])
+                checks=[{'edge':edge,'restored':timing_calibration.restored(before[edge]['median'],after[edge]['median'])} for edge in before]
+                self.network_evidence['cleanup_calibration']=checks
+                if not all(c['restored'] for c in checks):raise RuntimeError('peer RTT failed to return to baseline')
+            finally:self.stop_echoes(echoes)
+        return results
 
     def protocol_endpoints(self,host):
         return self.endpoints[host["replica"]]["peer"]

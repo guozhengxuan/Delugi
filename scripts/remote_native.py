@@ -12,6 +12,7 @@ import os
 from pathlib import Path
 import re
 import signal
+import shutil
 import socket
 import subprocess
 import sys
@@ -21,16 +22,21 @@ import uuid
 import deployment_prepare as prep
 import remote_worker
 import linux_netem
+import linux_egress
 import runtime_evidence
 from native_network import NativeNetwork
 sys.path.insert(0,str(Path(__file__).with_name("baselines")))
 import native_placement as native
 
 MAX_LEDGER=64*1024**2
-PROTOCOLS=("mysticeti","autobahn","autobahn-blips","shoal")
+PROTOCOLS=("mysticeti","autobahn","autobahn-blips","shoal","simpleit-mempool","simpleit-dispersed")
 RUNTIME_FILES=tuple(dict.fromkeys((*prep.CONTROLLER_COMMON,*prep.CONTROLLER_NATIVE,
     "scripts/remote_native.py","scripts/native_network.py","scripts/runtime_evidence.py","scripts/baselines/native_placement.py","scripts/baselines/native_cohort_store.py","scripts/cohort_store.py",
     "scripts/baselines/mysticeti.py","scripts/baselines/autobahn_cohort.py","scripts/baselines/shoal_cohort.py","scripts/baselines/shoal_receipts.py")))
+# Native adapters share controller modules. Bind the complete Python runtime,
+# never checkout contents, secrets, caches, raw results or generated keys.
+RUNTIME_FILES=tuple(sorted(set(RUNTIME_FILES)|{p.relative_to(prep.ROOT).as_posix()
+    for p in (prep.ROOT/'scripts').rglob('*.py') if '__pycache__' not in p.parts}))
 
 
 def interpreter(host):
@@ -89,13 +95,17 @@ def copy_json(value):return json.loads(json.dumps(value))
 def validate_network(selected):
     network=selected.get("network")
     if network is None:return
-    if set(network)-{"delay_ms","loss_percent"}:raise ValueError("unknown native network setting")
+    if set(network)-{"delay_ms","loss_percent","rate_mbps"}:raise ValueError("unknown native network setting")
+    if 'rate_mbps' in network and network.get('loss_percent',0)!=0:raise ValueError('aggregate egress profile does not silently combine ingress loss')
     for host in selected["hosts"]:
         i=host["replica"]
-        linux_netem.validate_request({"action":"configure","nonce":selected["nonce"],"interface":host.get("network_interface"),
+        request={"action":"configure","nonce":selected["nonce"],"interface":host.get("network_interface"),
             "peers":[peer for row in selected["endpoints"] if row["replica"]!=i for peer in row["peer"]],
             "local_ports":[peer["port"] for peer in selected["endpoints"][i]["peer"]],
-            "delay_ms":network.get("delay_ms",0),"loss_percent":network.get("loss_percent",0)})
+            "delay_ms":network.get("delay_ms",0),"loss_percent":network.get("loss_percent",0)}
+        if 'rate_mbps' in network:
+            request.pop('loss_percent');request['rate_mbps']=network['rate_mbps'];linux_egress.validate_request(request)
+        else:linux_netem.validate_request(request)
 
 
 def root_for(nonce):
@@ -246,7 +256,7 @@ def rpc(request):
     if action=="preflight":return check_artifacts(request)
     root=checked_root(request)
     if action in ("readiness", "arm"):
-        if request["protocol"] != "shoal":raise ValueError("prepare/arm control is only supported by Shoal")
+        if request["protocol"] != "shoal" and not request['protocol'].startswith('simpleit'):raise ValueError("prepare/arm is unsupported by this native adapter")
         check_startup_abort(root, request)
         if (root / "result.json").exists():
             return {"state": "finished", "result_status": bounded_json(root / "result.json")["status"]}
@@ -269,6 +279,21 @@ def rpc(request):
         check_artifacts(request)
         selected=native.generate(request["protocol"],root,request["ips"],{name:row["path"] for name,row in request["host"]["native_binaries"].items()},request["settings"],request["nonce"])
         return {str(i):archive_selected(root,[str(path.relative_to(root)) for path in names],root/f"configuration-{i}.tar","native-configuration",{"replica":i,"nonce":request["nonce"]}) for i,names in enumerate(selected)}
+    if action=='seal_configuration':
+        # Host0 is a temporary ceremony host. Remove all other validators' keys
+        # and the TLS CA private key before any validator process starts.
+        marker=root/'configuration-sealed.json'
+        if marker.exists():return bounded_json(marker)
+        archive=root/'configuration-0.tar';expected=request['sha256']
+        if prep.sha(archive)!=expected:raise ValueError('ceremony archive changed before sealing')
+        own=root/'own-configuration';own.mkdir(mode=0o700)
+        manifest=prep.unpack_verified(archive,own,expected)
+        if manifest.get('metadata')!={'replica':0,'nonce':request['nonce']}:raise ValueError('wrong ceremony owner')
+        shutil.rmtree(root/'fixture');(own/'fixture').rename(root/'fixture')
+        for path in root.glob('configuration-*.tar'):
+            if path.is_symlink():raise ValueError('linked ceremony archive refused')
+            path.unlink()
+        value={'sealed':True,'replica':0,'own_archive_sha256':expected};prep.json_file(marker,value);return value
     if action=="install":
         manifest=prep.unpack_verified(root/"configuration.tar",root/"incoming",request["sha256"])
         if manifest.get("metadata")!={"replica":request["replica"],"nonce":request["nonce"]}:raise ValueError("wrong replica configuration archive")
@@ -284,7 +309,7 @@ def rpc(request):
     if action=="cleanup":
         # A cancellation tombstone also covers a dispatched worker that has not
         # written process.json yet. It must never start arrivals after cleanup.
-        if request.get("protocol") == "shoal" and not (root / "abort.json").exists():
+        if (request.get("protocol") == "shoal" or request.get('protocol','').startswith('simpleit')) and not (root / "abort.json").exists():
             publish_startup(root, "abort.json", startup_identity(request) | {"state": "abort_requested",
                 "requested_monotonic_ns": time.clock_gettime_ns(time.CLOCK_MONOTONIC)})
         state_path=root/"process.json"
@@ -303,6 +328,9 @@ def rpc(request):
 
 def run_host(request):
     root=checked_root(request);preflight=check_artifacts(request);cfg=request["settings"];protocol=request["protocol"];index=request["host"]["replica"]
+    if protocol.startswith('simpleit'):
+        from baselines import simpleit_remote
+        return simpleit_remote.run_host(request,root,preflight)
     # Clock origin is selected on this host, never copied from the controller.
     startup_started=time.clock_gettime_ns(time.CLOCK_MONOTONIC)
     epoch=None if protocol=="shoal" else startup_started+cfg["startup_seconds"]*1_000_000_000
@@ -525,11 +553,15 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
             if prep.sha(archive)!=generated[str(i)]["sha256"]:raise ValueError("native configuration download changed")
             connections[i].upload(archive,str(root/"configuration.tar"))
             connections[i].rpc_native(root,requests[i]|{"action":"install","replica":i,"sha256":generated[str(i)]["sha256"]})
+        if selected['protocol'].startswith('simpleit'):
+            result['ceremony_sealed']=connections[0].rpc_native(root,requests[0]|{'action':'seal_configuration','sha256':generated['0']['sha256']})
+            if result['ceremony_sealed'].get('sealed') is not True:raise ValueError('ceremony secrets were not sealed')
         if selected.get("network"):
             network=NativeNetwork(selected,root,connections)
             result["network"]=network.configure_network()
         runtime_limit=sum(cfg[k] for k in ("warmup","duration","drain","startup_seconds"))+30
-        if selected["protocol"]=="shoal":runtime_limit+=cfg["startup_seconds"]
+        if selected["protocol"]=="shoal" or selected['protocol'].startswith('simpleit'):runtime_limit+=cfg["startup_seconds"]
+        if selected['protocol'].startswith('simpleit'):runtime_limit+=300
         for host in selected["hosts"]:
             i=host["replica"];request=requests[i]
             prep.json_file(output/f"host-{i}.json",request);connections[i].upload(output/f"host-{i}.json",str(root/"run.json"))
@@ -551,7 +583,7 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
             # controller send/return bounds are retained, not equated.
             started=time.monotonic_ns();futures={i:pool.submit(launch,i) for i in connections}
             startup_error=None
-            if selected["protocol"]=="shoal":
+            if selected["protocol"]=="shoal" or selected['protocol'].startswith('simpleit'):
                 result["startup"]={}
                 try:
                     arm_prepared_shoal(connections,requests,root,futures,result["startup"])
@@ -586,6 +618,10 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
             directory=output/f"host-{i}";directory.mkdir()
             with path.open("rb") as stream:result["hosts"][i]["evidence"]=runtime_evidence.unpack(stream,directory,expected_metadata=metadata)
             if state["status"]!="completed":continue
+            if state.get('cohort_excluded'):
+                if not (selected['protocol'].startswith('simpleit') and cfg['case']=='silent-first-leader' and i==1 and state.get('silent_leader')):
+                    raise ValueError('unrecognized excluded native cohort')
+                continue
             archive=native.native_cohort_store.ShardedArchive(directory/"cohorts/index.json")
             if archive.index_sha256!=state["cohort_archive"]["sha256"] or set(archive.ledgers)!={i}:
                 raise ValueError("native host cohort archive identity differs")
@@ -599,7 +635,11 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
                 shoal_receipts[i]=native.collected_shoal_receipt(directory,i,cfg,selected["nonce"],
                     state["epoch_monotonic_ns"],state["native_observer"],archive)
             archives[i]=archive
-        if len(archives)!=len(connections):raise RuntimeError("one or more native hosts failed; partial evidence retained")
+        expected=set(connections)-({1} if selected['protocol'].startswith('simpleit') and cfg['case']=='silent-first-leader' else set())
+        if set(archives)!=expected:raise RuntimeError("one or more native hosts failed; partial evidence retained")
+        if selected['protocol'].startswith('simpleit'):
+            from baselines import simpleit_remote
+            result['native_output']=simpleit_remote.verify_collected(output,cfg,expected)
         result.update(native.reduce_archives([archives[i] for i in sorted(archives)],selected["settings"],output),status="completed")
         if selected["protocol"]=="shoal":
             result["native_receipt_agreement"]=native.shoal_receipts.compare(shoal_receipts,cfg["correct"])
@@ -638,7 +678,11 @@ def main():
     if len(sys.argv)>1 and sys.argv[1]=="_rpc":print(json.dumps(rpc(json.load(sys.stdin))));return 0
     if len(sys.argv)>1 and sys.argv[1]=="_export":
         request=json.load(sys.stdin);root=checked_root(request);result=bounded_json(root/"result.json")
-        runtime_evidence.pack(root,runtime_evidence.selected_files(root),sys.stdout.buffer,
+        names=list(runtime_evidence.selected_files(root))
+        if request['protocol'].startswith('simpleit'):
+            from baselines import simpleit_remote
+            names=list(dict.fromkeys(names+simpleit_remote.evidence_files(root,request['host']['replica'])))
+        runtime_evidence.pack(root,names,sys.stdout.buffer,
             {"nonce":request["nonce"],"replica":result["replica"],"plan_sha256":request["plan_sha256"]})
         return 0
     if len(sys.argv)==3 and sys.argv[1]=="_host":return run_host(json.loads(Path(sys.argv[2]).read_text()))

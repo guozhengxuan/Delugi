@@ -17,6 +17,7 @@ import shoal_cohort
 import shoal_receipts
 import native_faults
 import native_cohort_store
+import compact_campaign
 
 SHOAL_OBSERVER_CONTRACT = "shoal-native-receipt-v1"
 
@@ -26,10 +27,19 @@ def settings(value, nodes, protocol="autobahn"):
               "deadline_ms": 1000, "bound_ms": 100, "batch_ms": 10, "batch_bytes": 500000,
               "tokio_workers": 2, "startup_seconds":10, "faulty": [], "pause_replica": None, "pause_after": 1, "pause_seconds": .5,
               "omit_replica":None,"omission_after":1,"omission_seconds":.5,"publish_to_replica":[],
-              "omit_repair":False,"attacker_rate":100,"crypto_meter":"off"}
+              "omit_repair":False,"attacker_rate":100,"crypto_meter":"off",
+              "population_profile":None,"case":"healthy"}
     if set(value) - set(result): raise ValueError("unsupported native placement setting")
     result.update(value)
-    if nodes < 4 or nodes > 31 or (nodes - 1) % 3: raise ValueError("expected n=3f+1 in 4..31")
+    compact=result['population_profile']=='compact-n10-n50-v1'
+    if result['population_profile'] not in (None,'compact-n10-n50-v1'):raise ValueError('unknown native population profile')
+    if compact:
+        if nodes not in (4,10,50) or protocol not in ('mysticeti','autobahn','simpleit-mempool','simpleit-dispersed'):
+            raise ValueError('compact native placement requires the selected4/10/50 implementation')
+        if (result['warmup']!=0 or not 0<result['duration']<=60 or not 0<=result['drain']<=15
+                or result['rate']>80000 or result['useful_bytes']>4096):
+            raise ValueError('compact native workload envelope exceeded')
+    elif nodes < 4 or nodes > 31 or (nodes - 1) % 3: raise ValueError("expected n=3f+1 in 4..31")
     if any(type(result[k]) is not int or result[k] <= 0 for k in ("rate", "useful_bytes", "bound_ms", "batch_ms", "batch_bytes", "tokio_workers")):
         raise ValueError("positive integer native settings required")
     if not isinstance(result["deadline_ms"],(int,float)) or isinstance(result["deadline_ms"],bool) or not 0<result["deadline_ms"]<=600000:
@@ -40,6 +50,13 @@ def settings(value, nodes, protocol="autobahn"):
     if any(not isinstance(result[k], (int, float)) or isinstance(result[k], bool) or not 0 <= result[k] <= 300 for k in ("warmup", "duration", "drain")) or not result["duration"]:
         raise ValueError("bounded finite native run required")
     faulty = result["faulty"]
+    if protocol.startswith('simpleit'):
+        if (result['case'] not in ('healthy','missing-data','silent-first-leader') or result['warmup']!=0
+                or result['crypto_meter']!='off' or result['pause_replica'] is not None or result['omit_replica'] is not None):
+            raise ValueError('Simple-IT uses explicit native case hooks and no offered warmup')
+        expected=[] if result['case']=='healthy' else [1 if result['case']=='silent-first-leader' else 0]
+        if faulty!=expected:raise ValueError('Simple-IT faulty identities must match the fixed native hook')
+    elif result['case']!='healthy':raise ValueError('named native case hooks are only supported by Simple-IT')
     if len(set(faulty)) != len(faulty) or len(faulty) > (nodes-1)//3 or any(type(i) is not int or not 0 <= i < nodes for i in faulty):
         raise ValueError("fixed faulty identities exceed budget")
     if result["pause_replica"] is not None and (result["pause_replica"] not in faulty or not 0 <= result["pause_after"] < result["duration"] or not 0 < result["pause_seconds"] <= result["duration"] - result["pause_after"]):
@@ -50,6 +67,11 @@ def settings(value, nodes, protocol="autobahn"):
     rates = [result["rate"]//len(correct) + (correct.index(i) < result["rate"]%len(correct)) if i in correct else 0 for i in range(nodes)]
     if result["omit_replica"] is not None:rates[result["omit_replica"]]=result["attacker_rate"]
     counts = [int((result["warmup"] + result["duration"])*1e6)*rate//1000000 for rate in rates]
+    if compact:
+        plan=compact_campaign.origin_plan(result['rate'],round(result['duration']*1e6),nodes,correct)
+        counts=plan['counts']
+        if result['omit_replica'] is not None:
+            counts[result['omit_replica']]=round(result['duration']*1e6)*result['attacker_rate']//1000000
     return {**result, "correct": correct, "rates": rates, "counts": counts}
 
 
@@ -64,6 +86,9 @@ def endpoints(protocol, ips):
 
 def generate(protocol, root, ips, binaries, cfg, run_id, run=subprocess.run):
     """Generate one common ceremony, return exact per-host file allowlists."""
+    if protocol.startswith('simpleit'):
+        from baselines import simpleit_remote
+        return simpleit_remote.generate(protocol,root,ips,binaries,cfg,run_id)
     root = Path(root); fixture = root/"fixture"; fixture.mkdir()
     n = len(ips); selected = [[] for _ in ips]
     def command(argv, env=None):
@@ -119,6 +144,9 @@ def launches(protocol, root, replica, binaries, cfg, python, epoch_ns):
     if protocol=="mysticeti":
         env.update(CONSENSUS_ONLY="1",BENCHMARK_COHORT_PATH=str(root/"cohort.jsonl"),BENCHMARK_COHORT_START=str(root/"arrivals.start"),
             BENCHMARK_WARMUP_US=str(int(cfg["warmup"]*1e6)),BENCHMARK_DURATION_US=str(int(cfg["duration"]*1e6)),BENCHMARK_DRAIN_US=str(int(cfg["drain"]*1e6)),BENCHMARK_INGRESS_US=str(cfg["batch_ms"]*1000))
+        if cfg.get('population_profile')=='compact-n10-n50-v1':
+            env.update(BENCHMARK_POPULATION_PROFILE='compact-n10-n50-v1',BENCHMARK_GLOBAL_RATE=str(cfg['rate']),
+                BENCHMARK_HONEST_ORIGINS=','.join(map(str,cfg['correct'])),BENCHMARK_MEMBER_COUNT=str(len(cfg['rates'])))
         return [("validator",[binaries["mysticeti"],"run","--authority",str(i),"--committee-path",str(fixture/"genesis/committee.yaml"),"--public-config-path",str(fixture/"genesis/public-config.yaml"),"--private-config-path",str(fixture/"genesis"/f"private-config-{i}.yaml"),"--client-parameters-path",str(fixture/f"client-{i}.yaml")],env)]
     if protocol.startswith("autobahn"):
         env.update(BENCHMARK_EPOCH_NS=str(epoch_ns),BENCHMARK_WARMUP_US=str(int(cfg["warmup"]*1e6)),BENCHMARK_DURATION_US=str(int(cfg["duration"]*1e6)))
@@ -350,11 +378,14 @@ def fault_environment(protocol,root,index,role,cfg,ips):
 
 def application(protocol, root, replica, cfg, python, epoch_ns):
     if not protocol.startswith("autobahn"): return None
-    return [python,str(Path(__file__).with_name("autobahn_cohort.py")),"--origin",str(replica),"--rate",str(cfg["rates"][replica]),
+    command=[python,str(Path(__file__).with_name("autobahn_cohort.py")),"--origin",str(replica),"--rate",str(cfg["rates"][replica]),
             "--useful-bytes",str(cfg["useful_bytes"]),"--epoch-ns",str(epoch_ns),"--warmup-us",str(int(cfg["warmup"]*1e6)),
             "--duration-us",str(int(cfg["duration"]*1e6)),"--drain-us",str(int(cfg["drain"]*1e6)),"--workers","1",
             "--address",f"127.0.0.1:{9004+6*replica}","--observer-dir",str(Path(root)/"observer"),"--output",str(Path(root)/"ledger.json"),
             "--cohort-observer","full","--planned-counts",",".join(map(str,cfg["counts"]))]
+    if cfg.get('population_profile')=='compact-n10-n50-v1':
+        command+=['--global-rate',str(cfg['rate']),'--honest-origins',','.join(map(str,cfg['correct']))]
+    return command
 
 
 def ledger(protocol, root, replica, cfg, epoch_ns, admitted=None):
@@ -370,7 +401,7 @@ def ledger(protocol, root, replica, cfg, epoch_ns, admitted=None):
 
 def archive_ledger(protocol, root, replica, cfg, epoch_ns, admitted=None):
     """Bounded campaign collection; legacy ledger() remains a replay API."""
-    root=Path(root);store=native_cohort_store.NativeStore(root/"native-cohort-stage.sqlite")
+    root=Path(root);store=native_cohort_store.NativeStore(root/"native-cohort-stage.sqlite",population_profile=cfg.get('population_profile'))
     try:
         if protocol=="mysticeti":store.mysticeti(root/"cohort.jsonl",replica,mysticeti.cohort_request_id)
         elif protocol.startswith("autobahn"):store.legacy(root/"ledger.json",replica)
@@ -386,7 +417,7 @@ def archive_ledger(protocol, root, replica, cfg, epoch_ns, admitted=None):
 
 def reduce_archives(archives, cfg, directory):
     directory=Path(directory)
-    collection=native_cohort_store.combine_archives(archives,directory/"native-cohorts.json")
+    collection=native_cohort_store.combine_archives(archives,directory/"native-cohorts.json",population_profile=cfg.get('population_profile'))
     result=native_cohort_store.reduce_archive(collection,directory/"cohort-reduction.sqlite",cfg["correct"],cfg["deadline_ms"])
     return {**result,"clock":"origin-local ingress/materialization only; no subtraction across hosts",
             "comparison_eligible":False}

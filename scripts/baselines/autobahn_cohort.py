@@ -17,6 +17,7 @@ import threading
 import time
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parent))
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import native_receipts
 
 
@@ -82,6 +83,17 @@ def collect(args):
     now = lambda: max(0,(time.clock_gettime_ns(time.CLOCK_MONOTONIC)-args.epoch_ns)//1000)
     deadline = args.warmup_us+args.duration_us+args.drain_us
     count = (args.warmup_us+args.duration_us)*args.rate//1_000_000
+    global_rate=getattr(args,'global_rate',None)
+    origins=[int(v) for v in args.honest_origins.split(',')] if getattr(args,'honest_origins',None) else []
+    if global_rate is not None:
+        from compact_campaign import origin_plan, arrival_offset_us
+        if args.warmup_us!=0:raise ValueError('global arrival profile requires zero offered warmup')
+        population=[int(v) for v in args.planned_counts.split(',')]
+        plan=origin_plan(global_rate,args.duration_us,len(population),origins)
+        if args.origin in origins:count=plan['counts'][args.origin]
+    def scheduled(sequence):
+        return arrival_offset_us(plan,args.origin,sequence) if global_rate is not None and args.origin in origins else sequence*1_000_000//args.rate
+    admission_end=args.warmup_us+args.duration_us if global_rate is not None else deadline
     detailed=getattr(args,"cohort_observer","full")=="full"
     planned=getattr(args,"planned_counts",None)
     counts=[int(value) for value in planned.split(",")] if planned else [0]*args.origin+[count]
@@ -94,7 +106,7 @@ def collect(args):
         payload=application_payload(args.origin,sequence,args.useful_bytes)
         _,_,_,identity=request_identity(payload)
         requests[identity]={"request_id":identity,"origin":args.origin,"sequence":sequence,
-                            "useful_bytes":args.useful_bytes,"scheduled_us":sequence*1_000_000//args.rate,
+                            "useful_bytes":args.useful_bytes,"scheduled_us":scheduled(sequence),
                             "admitted_us":None,"batch_ready_us":None,"materialized_us":None}
     ledger={"requests":list(requests.values()),"output_index_base":0,"outputs":[],"batches":[],
             "window_start_us":args.warmup_us,"window_end_us":args.warmup_us+args.duration_us,
@@ -106,7 +118,7 @@ def collect(args):
         stream=None
         try:
             host,port=args.address.rsplit(":",1)
-            while time.clock_gettime_ns(time.CLOCK_MONOTONIC)<args.epoch_ns+deadline*1000:
+            while time.clock_gettime_ns(time.CLOCK_MONOTONIC)<args.epoch_ns+admission_end*1000:
                 try: stream=socket.create_connection((host,int(port)),timeout=0.2);break
                 except OSError: time.sleep(0.01)
             if stream is None:return
@@ -114,10 +126,10 @@ def collect(args):
             stream.settimeout(max(0.001,deadline/1e6))
             rows=list(requests.values()) if detailed else None
             for sequence in range(count):
-                due=args.epoch_ns+(sequence*1_000_000//args.rate)*1000
+                due=args.epoch_ns+scheduled(sequence)*1000
                 while time.clock_gettime_ns(time.CLOCK_MONOTONIC)<due:
                     time.sleep(max(0,min(0.001,(due-time.clock_gettime_ns(time.CLOCK_MONOTONIC))/1e9)))
-                if now()>=deadline:break
+                if now()>=admission_end:break
                 payload=application_payload(args.origin,sequence,args.useful_bytes)
                 admitted[sequence//8]|=1<<(sequence%8)
                 if detailed:rows[sequence]["admitted_us"]=now()
@@ -226,6 +238,8 @@ def main():
     p.add_argument("--address",required=True);p.add_argument("--observer-dir",type=Path,required=True);p.add_argument("--output",type=Path,required=True)
     p.add_argument("--cohort-observer",choices=("full","compact"),default="full")
     p.add_argument("--planned-counts",help="Common per-origin finite request counts, comma separated")
+    p.add_argument('--global-rate',type=int)
+    p.add_argument('--honest-origins')
     args=p.parse_args();collect(args)
 
 if __name__=="__main__":main()

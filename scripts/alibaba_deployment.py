@@ -336,16 +336,21 @@ class Lease:
             addresses.append(str(ip))
         addresses=sorted(addresses)
         if len(set(addresses))!=len(addresses):raise ValueError('distinct private peer addresses required')
+        port_ranges = (['1500/1599','8000/8099','9000/9299']
+                       if self.plan.get('profile')=='compact-n10-n50-v1' else ['8000/8099'])
         old=self.state.get('peer_ips')
         if old is not None and old!=addresses:
             raise ValueError('peer placement changed; reconcile existing firewall rules explicitly')
+        if old is not None and self.state.get('peer_port_ranges',['8000/8099'])!=port_ranges:
+            raise ValueError('peer port profile changed; reconcile existing firewall rules explicitly')
         if old is None:
             self.call('authorize_security_group',self.models.AuthorizeSecurityGroupRequest(
                 region_id=self.plan['region'],security_group_id=self.state['security_group'],permissions=[
-                    self.models.AuthorizeSecurityGroupRequestPermissions(ip_protocol='TCP',port_range='8000/8099',
-                        source_cidr_ip=ip+'/32',description='Delugi exact private peer') for ip in addresses]))
-            self.state['peer_ips']=addresses;save(self.path,self.state)
-        return {'peer_ips':addresses,'port_range':'8000/8099','implicit_intra_group_access':'Drop'}
+                    self.models.AuthorizeSecurityGroupRequestPermissions(ip_protocol='TCP',port_range=ports,
+                        source_cidr_ip=ip+'/32',description='Delugi exact private peer') for ip in addresses for ports in port_ranges]))
+            self.state['peer_ips']=addresses;self.state['peer_port_ranges']=port_ranges;save(self.path,self.state)
+        return {'peer_ips':addresses,'port_range':port_ranges[0] if len(port_ranges)==1 else None,
+                'port_ranges':port_ranges,'implicit_intra_group_access':'Drop'}
 
     @serialized_action
     def start(self):

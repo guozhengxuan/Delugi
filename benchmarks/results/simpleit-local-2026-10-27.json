@@ -1,0 +1,671 @@
+{
+  "schema": 1,
+  "comparison_eligible": false,
+  "scope": "local unshaped functional/evidence qualification; explicit per-run build versions",
+  "adaptations": [
+    "mTLS direct-sender authentication",
+    "independent identifiable global arrivals",
+    "complete ordered application materialization",
+    "Mempool cut certificate constructor must meet its existing quorum verifier",
+    "signed bounded observer and payload-omission witnesses"
+  ],
+  "remaining": [
+    "forwarded native certificate and full fallback security qualification",
+    "n10/n50 nominal timing qualification",
+    "Linux release resource network and observer overhead qualification",
+    "single-step full campaign execution"
+  ],
+  "runs": [
+    {
+      "case": "healthy",
+      "variant": "simpleit-mempool",
+      "status": "completed",
+      "manifest": "results/local/simpleit-mempool-healthy-n4-20261027/manifest.json",
+      "manifest_sha256": "d24c3506c20e929ab91e6d43df1e2aa2e9062f14717fa5117ece5f224d67ed82",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "7abcb3f3f5d58843496bc74dd77d44c3195c1577ce2c17308aa77b8ed8c02152",
+          "scripts/baselines/simpleit_tls.rs": "841b37f6b02db354fe6a4e206961325729e21bcd9a4de39c8962839ab5077d3d",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "7fa9833d6758763363f167c75e778ee16d39c9fab8398e3d48be203e4758d692"
+        },
+        "cargo_lock_sha256": "8cadd7b063dc2c60dbb8de6719e2756e09ff4c45f8eb95e195d4a988a458b396",
+        "patch_sha256": "be8047414274404a7a8f34108b8297eed974ee843604d639bfc6c255553b2e1e",
+        "source_commit": "e9235246880486439265cf86f13fae0ed99e62c0",
+        "variant": "simpleit-mempool"
+      },
+      "binary_sha256": "9fac72e17ef4f279a522c2214637abdef764632c34365eb932b7edb13de2c984",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          300,
+          300,
+          300,
+          300
+        ],
+        "duration_us": 3000000,
+        "honest_origins": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 400,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 1200
+      },
+      "population": {
+        "0": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "1": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 0,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "healthy",
+      "variant": "simpleit-dispersed",
+      "status": "completed",
+      "manifest": "results/local/simpleit-dispersed-healthy-n4-20261027/manifest.json",
+      "manifest_sha256": "edb27b75a977b3dda8509253f898cfbee14f233861cd5b2e9404c3cc904f6483",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "7abcb3f3f5d58843496bc74dd77d44c3195c1577ce2c17308aa77b8ed8c02152",
+          "scripts/baselines/simpleit_tls.rs": "841b37f6b02db354fe6a4e206961325729e21bcd9a4de39c8962839ab5077d3d",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "7fa9833d6758763363f167c75e778ee16d39c9fab8398e3d48be203e4758d692"
+        },
+        "cargo_lock_sha256": "bef6d0db97352f9ef0b9c81bd4f58ee6b0c3da2186344045c8ce2c5d392efbe5",
+        "patch_sha256": "d371f6e01295b47217c4f52df9133e56b7c46ed2526072d9ba5d36ccddaaa121",
+        "source_commit": "ad8935a9e989bdfd113a8c136f9b5d0011038931",
+        "variant": "simpleit-dispersed"
+      },
+      "binary_sha256": "ee14ed39b347b6931804a13149a215974a107dc3972f00e66a3aff3fc2ee5100",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          300,
+          300,
+          300,
+          300
+        ],
+        "duration_us": 3000000,
+        "honest_origins": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 400,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 1200
+      },
+      "population": {
+        "0": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "1": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 300,
+          "cancelled": 0,
+          "completed": 300,
+          "offered": 300,
+          "planned": 300,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 0,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "silent-first-leader",
+      "variant": "simpleit-mempool",
+      "status": "completed",
+      "manifest": "results/local/simpleit-mempool-silent-n4-20261027-quorum/manifest.json",
+      "manifest_sha256": "0bb03cafc3a83672b59114f4a005f54146b8223a30e8b56a3ff5a59da852ac09",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "e7458829655491b430e6e8f7e135dc9411e08317192fece27728984bc2891691",
+          "scripts/baselines/simpleit_tls.rs": "841b37f6b02db354fe6a4e206961325729e21bcd9a4de39c8962839ab5077d3d",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "7fa9833d6758763363f167c75e778ee16d39c9fab8398e3d48be203e4758d692"
+        },
+        "cargo_lock_sha256": "8cadd7b063dc2c60dbb8de6719e2756e09ff4c45f8eb95e195d4a988a458b396",
+        "patch_sha256": "e650d90b1112db362e0715f2458dc9cf13a0cf0ade3942568bda654a1f8bf179",
+        "source_commit": "e9235246880486439265cf86f13fae0ed99e62c0",
+        "variant": "simpleit-mempool"
+      },
+      "binary_sha256": "d61f2e7532181b1271ad6bcc9acb455cefd3fe982ac1164f55ef085cd587e556",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          534,
+          0,
+          533,
+          533
+        ],
+        "duration_us": 4000000,
+        "honest_origins": [
+          0,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 400,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 1600
+      },
+      "population": {
+        "0": {
+          "admitted": 534,
+          "cancelled": 0,
+          "completed": 534,
+          "offered": 534,
+          "planned": 534,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 533,
+          "cancelled": 0,
+          "completed": 533,
+          "offered": 533,
+          "planned": 533,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 533,
+          "cancelled": 0,
+          "completed": 533,
+          "offered": 533,
+          "planned": 533,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 0,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "silent-first-leader",
+      "variant": "simpleit-dispersed",
+      "status": "completed",
+      "manifest": "results/local/simpleit-dispersed-silent-n4-20261027/manifest.json",
+      "manifest_sha256": "dc913510ec1bfa13dd896c0df7124ab96bb57b5fe6982398043757ebe21ee4ea",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "7abcb3f3f5d58843496bc74dd77d44c3195c1577ce2c17308aa77b8ed8c02152",
+          "scripts/baselines/simpleit_tls.rs": "841b37f6b02db354fe6a4e206961325729e21bcd9a4de39c8962839ab5077d3d",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "7fa9833d6758763363f167c75e778ee16d39c9fab8398e3d48be203e4758d692"
+        },
+        "cargo_lock_sha256": "bef6d0db97352f9ef0b9c81bd4f58ee6b0c3da2186344045c8ce2c5d392efbe5",
+        "patch_sha256": "d371f6e01295b47217c4f52df9133e56b7c46ed2526072d9ba5d36ccddaaa121",
+        "source_commit": "ad8935a9e989bdfd113a8c136f9b5d0011038931",
+        "variant": "simpleit-dispersed"
+      },
+      "binary_sha256": "ee14ed39b347b6931804a13149a215974a107dc3972f00e66a3aff3fc2ee5100",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          534,
+          0,
+          533,
+          533
+        ],
+        "duration_us": 4000000,
+        "honest_origins": [
+          0,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 400,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 1600
+      },
+      "population": {
+        "0": {
+          "admitted": 534,
+          "cancelled": 0,
+          "completed": 534,
+          "offered": 534,
+          "planned": 534,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 533,
+          "cancelled": 0,
+          "completed": 533,
+          "offered": 533,
+          "planned": 533,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 533,
+          "cancelled": 0,
+          "completed": 533,
+          "offered": 533,
+          "planned": 533,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 0,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "missing-data",
+      "variant": "simpleit-mempool",
+      "status": "completed",
+      "manifest": "results/local/simpleit-mempool-missing-n4-20261027-atomic/manifest.json",
+      "manifest_sha256": "76b7c944749e0565d20226744cf1290fc6dbbe3f5a2df07825fc342d25d651c9",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "e9fb3e9a5a40502b7080e258b6d3ffaaa63dba986f176c4ad7e61678c32b19a1",
+          "scripts/baselines/simpleit_tls.rs": "56aef9fd3e7f6b2aeaa654f730832775b9ce2ee90d7a071112a7ebe279925b74",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "12aa0828e2fedc52f30b7ca324cf55605f303e13fe82cf652a0c7265c8d0faa2"
+        },
+        "cargo_lock_sha256": "1a5f730b54bd7d16a4f2903d20d67cf31c7fab0257959fa195eb554d21deafe1",
+        "patch_sha256": "7cdf71a5930f3cc451cf5147cc721eedbce26b13846a543bf52aa7c78463d0bc",
+        "source_commit": "e9235246880486439265cf86f13fae0ed99e62c0",
+        "variant": "simpleit-mempool"
+      },
+      "binary_sha256": "bbd1d65942696cb45f0a430bc7ba19b7979424628a8b2ef78e6706fc8d110d51",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          0,
+          400,
+          400,
+          400
+        ],
+        "duration_us": 3000000,
+        "honest_origins": [
+          1,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 400,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 1200
+      },
+      "population": {
+        "1": {
+          "admitted": 400,
+          "cancelled": 0,
+          "completed": 400,
+          "offered": 400,
+          "planned": 400,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 400,
+          "cancelled": 0,
+          "completed": 400,
+          "offered": 400,
+          "planned": 400,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 400,
+          "cancelled": 0,
+          "completed": 400,
+          "offered": 400,
+          "planned": 400,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 3,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "missing-data",
+      "variant": "simpleit-dispersed",
+      "status": "completed",
+      "manifest": "results/local/simpleit-dispersed-missing-n4-20261027-atomic/manifest.json",
+      "manifest_sha256": "e3c1d1afedb2cffa8890f9bc54fbb2d3f84acc510e80304bb7d39b6e6a32c2fa",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "e9fb3e9a5a40502b7080e258b6d3ffaaa63dba986f176c4ad7e61678c32b19a1",
+          "scripts/baselines/simpleit_tls.rs": "56aef9fd3e7f6b2aeaa654f730832775b9ce2ee90d7a071112a7ebe279925b74",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "12aa0828e2fedc52f30b7ca324cf55605f303e13fe82cf652a0c7265c8d0faa2"
+        },
+        "cargo_lock_sha256": "844308ab2a1346d97b3ff37e326424afc2014f5a028c097d715afac9280769f3",
+        "patch_sha256": "5e7d225221cc7b505120e3ffea967d7f5a0282c2557d0064ad9ec023524b2209",
+        "source_commit": "ad8935a9e989bdfd113a8c136f9b5d0011038931",
+        "variant": "simpleit-dispersed"
+      },
+      "binary_sha256": "48e53f866bf88f1ce65faa2594c7d9a5b93e93b3ff7d92c9642d845f6a586414",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          0,
+          400,
+          400,
+          400
+        ],
+        "duration_us": 3000000,
+        "honest_origins": [
+          1,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 400,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 1200
+      },
+      "population": {
+        "1": {
+          "admitted": 400,
+          "cancelled": 0,
+          "completed": 400,
+          "offered": 400,
+          "planned": 400,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 400,
+          "cancelled": 0,
+          "completed": 400,
+          "offered": 400,
+          "planned": 400,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 400,
+          "cancelled": 0,
+          "completed": 400,
+          "offered": 400,
+          "planned": 400,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 3,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "healthy",
+      "variant": "simpleit-mempool",
+      "status": "completed",
+      "manifest": "results/local/simpleit-mempool-4k-60s-20261027/manifest.json",
+      "manifest_sha256": "606c99e90eff837653b4375e6e61849d4329e938df851ebf6fe1aca683244b96",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "e9fb3e9a5a40502b7080e258b6d3ffaaa63dba986f176c4ad7e61678c32b19a1",
+          "scripts/baselines/simpleit_tls.rs": "56aef9fd3e7f6b2aeaa654f730832775b9ce2ee90d7a071112a7ebe279925b74",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "12aa0828e2fedc52f30b7ca324cf55605f303e13fe82cf652a0c7265c8d0faa2"
+        },
+        "cargo_lock_sha256": "1a5f730b54bd7d16a4f2903d20d67cf31c7fab0257959fa195eb554d21deafe1",
+        "patch_sha256": "7cdf71a5930f3cc451cf5147cc721eedbce26b13846a543bf52aa7c78463d0bc",
+        "source_commit": "e9235246880486439265cf86f13fae0ed99e62c0",
+        "variant": "simpleit-mempool"
+      },
+      "binary_sha256": "bbd1d65942696cb45f0a430bc7ba19b7979424628a8b2ef78e6706fc8d110d51",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          60000,
+          60000,
+          60000,
+          60000
+        ],
+        "duration_us": 60000000,
+        "honest_origins": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 4000,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 240000
+      },
+      "population": {
+        "0": {
+          "admitted": 60000,
+          "cancelled": 0,
+          "completed": 60000,
+          "offered": 60000,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "1": {
+          "admitted": 60000,
+          "cancelled": 0,
+          "completed": 60000,
+          "offered": 60000,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "2": {
+          "admitted": 60000,
+          "cancelled": 0,
+          "completed": 60000,
+          "offered": 60000,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        },
+        "3": {
+          "admitted": 59999,
+          "cancelled": 1,
+          "completed": 59999,
+          "offered": 60000,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 0
+        }
+      },
+      "prefix_agreement": true,
+      "native_recovery_headers": 0,
+      "cleanup_confirmed": true
+    },
+    {
+      "case": "healthy",
+      "variant": "simpleit-dispersed",
+      "status": "completed",
+      "manifest": "results/local/simpleit-dispersed-4k-60s-20261027/manifest.json",
+      "manifest_sha256": "89f25d0b7c53b983b70551abbae1888273408bcad9d6b1023961e0ef6da84f6a",
+      "source": {
+        "adapter_sources": {
+          "scripts/baselines/simpleit.py": "e9fb3e9a5a40502b7080e258b6d3ffaaa63dba986f176c4ad7e61678c32b19a1",
+          "scripts/baselines/simpleit_tls.rs": "56aef9fd3e7f6b2aeaa654f730832775b9ce2ee90d7a071112a7ebe279925b74",
+          "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+          "scripts/baselines/simpleit_workload.rs": "12aa0828e2fedc52f30b7ca324cf55605f303e13fe82cf652a0c7265c8d0faa2"
+        },
+        "cargo_lock_sha256": "844308ab2a1346d97b3ff37e326424afc2014f5a028c097d715afac9280769f3",
+        "patch_sha256": "5e7d225221cc7b505120e3ffea967d7f5a0282c2557d0064ad9ec023524b2209",
+        "source_commit": "ad8935a9e989bdfd113a8c136f9b5d0011038931",
+        "variant": "simpleit-dispersed"
+      },
+      "binary_sha256": "48e53f866bf88f1ce65faa2594c7d9a5b93e93b3ff7d92c9642d845f6a586414",
+      "nodes": 4,
+      "allocation": {
+        "counts": [
+          60000,
+          60000,
+          60000,
+          60000
+        ],
+        "duration_us": 60000000,
+        "honest_origins": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "members": 4,
+        "rate_tps": 4000,
+        "schedule": "floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)",
+        "total_requests": 240000
+      },
+      "population": {
+        "0": {
+          "admitted": 59998,
+          "cancelled": 1,
+          "completed": 59998,
+          "offered": 59999,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 1
+        },
+        "1": {
+          "admitted": 59994,
+          "cancelled": 1,
+          "completed": 59994,
+          "offered": 59995,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 5
+        },
+        "2": {
+          "admitted": 59996,
+          "cancelled": 1,
+          "completed": 59996,
+          "offered": 59997,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 3
+        },
+        "3": {
+          "admitted": 59998,
+          "cancelled": 1,
+          "completed": 59998,
+          "offered": 59999,
+          "planned": 60000,
+          "rejected": 0,
+          "unfinished": 0,
+          "unoffered": 1
+        }
+      },
+      "prefix_agreement": true,
+      "cleanup_confirmed": true
+    }
+  ],
+  "remote_lifecycle_local_tests": [
+    {
+      "variant": "simpleit-mempool",
+      "path": "results/local/simpleit-mempool-remote-lifecycle-20261027/acceptance.json",
+      "sha256": "da0dd611fd9776db916eeb70f744a9ca1a36f79c811c96acb7edab8ec96ba201",
+      "status": "passed",
+      "scope": "real native processes, host preparation and arm, ceremony key sealing, signed evidence and exact native prefix; macOS test excludes Linux resource wrapper"
+    },
+    {
+      "variant": "simpleit-dispersed",
+      "path": "results/local/simpleit-dispersed-remote-lifecycle-20261027/acceptance.json",
+      "sha256": "277593a55de520e2d9d1ba35e34f81a8f477cf1889b9c10f51b96ea101ccd43a",
+      "status": "passed",
+      "scope": "real native processes, host preparation and arm, ceremony key sealing, signed evidence and exact native prefix; macOS test excludes Linux resource wrapper"
+    }
+  ]
+}

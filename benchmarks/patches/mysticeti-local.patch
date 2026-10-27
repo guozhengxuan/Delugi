@@ -737,7 +737,7 @@ index 26d8274..0234656 100644
 +
 +}
 diff --git a/crates/mysticeti-core/src/transactions_generator.rs b/crates/mysticeti-core/src/transactions_generator.rs
-index aa02fe1..69e1b39 100644
+index aa02fe1..726c7f7 100644
 --- a/crates/mysticeti-core/src/transactions_generator.rs
 +++ b/crates/mysticeti-core/src/transactions_generator.rs
 @@ -32,12 +32,28 @@ impl TransactionGenerator {
@@ -836,7 +836,7 @@ index aa02fe1..69e1b39 100644
      pub fn extract_timestamp(transaction: &Transaction) -> Duration {
          let bytes = transaction.as_bytes()[0..8]
              .try_into()
-@@ -113,3 +164,759 @@ impl TransactionGenerator {
+@@ -113,3 +164,826 @@ impl TransactionGenerator {
          Duration::from_millis(u64::from_le_bytes(bytes))
      }
  }
@@ -1133,12 +1133,46 @@ index aa02fe1..69e1b39 100644
 +        let drain = setting("BENCHMARK_DRAIN_US", 1_000_000);
 +        let cadence = setting("BENCHMARK_INGRESS_US", 100_000);
 +        let rate = parameters.load as u64;
++        let compact = std::env::var("BENCHMARK_POPULATION_PROFILE")
++            .ok()
++            .as_deref()
++            == Some("compact-n10-n50-v1");
++        let global = if compact {
++            assert!(warmup == 0 && duration > 0 && duration <= 60_000_000 && drain <= 15_000_000);
++            let members = setting("BENCHMARK_MEMBER_COUNT", 0);
++            assert!([4, 10, 50].contains(&members) && origin < members);
++            let origins: Vec<u64> = std::env::var("BENCHMARK_HONEST_ORIGINS")
++                .unwrap()
++                .split(',')
++                .map(|s| s.parse().unwrap())
++                .collect();
++            assert!(
++                !origins.is_empty()
++                    && origins.windows(2).all(|w| w[0] < w[1])
++                    && *origins.last().unwrap() < members
++            );
++            let total = setting("BENCHMARK_GLOBAL_RATE", 0);
++            assert!(total > 0 && total <= 80_000);
++            origins
++                .iter()
++                .position(|&i| i == origin)
++                .map(|rank| (total, origins.len() as u64, rank as u64))
++        } else {
++            None
++        };
++        let offset = |sequence: u64| match global {
++            Some((total, k, rank)) => (sequence * k + rank) * 1_000_000 / total,
++            None => sequence * 1_000_000 / rate,
++        };
 +        assert!(cadence > 0);
 +        let useful = parameters
 +            .transaction_size
 +            .checked_sub(40)
 +            .expect("cohort payload metadata size");
-+        let count = ((warmup + duration) as u128 * rate as u128 / 1_000_000) as u64;
++        let count = match global {
++            Some((total, k, rank)) => (duration * total / 1_000_000 + k - 1 - rank) / k,
++            None => ((warmup + duration) as u128 * rate as u128 / 1_000_000) as u64,
++        };
 +        if let Some(j) = journal() {
 +            let mut shared = j.shared.lock().unwrap();
 +            if let Some(receipt) = shared.receipt.as_mut() {
@@ -1149,27 +1183,45 @@ index aa02fe1..69e1b39 100644
 +            }
 +        }
 +        emit(format!(
-+            r#"{{"event":"start","origin":{origin},"elapsed_us":{start},"window_start_us":{},"window_end_us":{},"observed_us":{},"rate":{rate},"count":{count},"useful_bytes":{useful}}}"#,
++            r#"{{"event":"start","origin":{origin},"elapsed_us":{start},"window_start_us":{},"window_end_us":{},"observed_us":{},"rate":{rate},"count":{count},"useful_bytes":{useful},"global_rate":{},"honest_origin_count":{},"origin_rank":{},"population_profile":"{}"}}"#,
 +            start + warmup,
 +            start + warmup + duration,
-+            start + warmup + duration + drain
++            start + warmup + duration + drain,
++            global.map(|v| v.0).unwrap_or(0),
++            global.map(|v| v.1).unwrap_or(0),
++            global.map(|v| v.2).unwrap_or(0),
++            if compact {
++                "compact-n10-n50-v1"
++            } else {
++                "legacy"
++            }
 +        ));
 +        flush();
 +        let deadline = start + warmup + duration + drain;
++        let admission_end = if compact { start + duration } else { deadline };
 +        let mut sequence = 0;
-+        while sequence < count && now_us() < deadline {
-+            let scheduled = start + (sequence as u128 * 1_000_000 / rate as u128) as u64;
++        while sequence < count && now_us() < admission_end {
++            let scheduled = start + offset(sequence);
 +            let flush_at = start + ((scheduled - start) / cadence + 1) * cadence;
-+            let last = ((((flush_at - start) as u128 * rate as u128 + 999_999) / 1_000_000) as u64)
-+                .min(count);
++            let last = match global {
++                Some((total, k, rank)) => {
++                    (((flush_at - start) * total + 999_999) / 1_000_000 + k - 1 - rank) / k
++                }
++                None => (((flush_at - start) as u128 * rate as u128 + 999_999) / 1_000_000) as u64,
++            }
++            .min(count);
 +            let mut block = Vec::new();
 +            let mut bytes = 0;
 +            while sequence < last {
-+                let due = start + (sequence as u128 * 1_000_000 / rate as u128) as u64;
++                let due = start + offset(sequence);
 +                while now_us() < due {
 +                    std::thread::sleep(Duration::from_micros(
 +                        due.saturating_sub(now_us()).min(1000),
 +                    ));
++                }
++                if now_us() >= admission_end {
++                    flush();
++                    return;
 +                }
 +                let mut payload = Vec::with_capacity(parameters.transaction_size);
 +                payload.extend_from_slice(&(timestamp_utc().as_millis() as u64).to_le_bytes());
@@ -1199,7 +1251,7 @@ index aa02fe1..69e1b39 100644
 +                        stage("batch_ready", tx);
 +                    }
 +                    loop {
-+                        if now_us() >= deadline {
++                        if now_us() >= admission_end {
 +                            for tx in &block {
 +                                stage("not_admitted", tx);
 +                            }
@@ -1223,6 +1275,12 @@ index aa02fe1..69e1b39 100644
 +                                break;
 +                            }
 +                            Err(mpsc::error::TrySendError::Full(_)) => {
++                                if compact {
++                                    for tx in &block {
++                                        stage("not_admitted", tx);
++                                    }
++                                    break;
++                                }
 +                                std::thread::sleep(Duration::from_millis(1))
 +                            }
 +                            Err(mpsc::error::TrySendError::Closed(_)) => return,
@@ -1315,7 +1373,16 @@ index aa02fe1..69e1b39 100644
 +            useful: usize,
 +            directory: std::path::PathBuf,
 +        ) -> Self {
-+            assert!(!counts.is_empty() && counts.len() <= 31 && origin < counts.len());
++            let maximum = if std::env::var("BENCHMARK_POPULATION_PROFILE")
++                .ok()
++                .as_deref()
++                == Some("compact-n10-n50-v1")
++            {
++                50
++            } else {
++                31
++            };
++            assert!(!counts.is_empty() && counts.len() <= maximum && origin < counts.len());
 +            assert!(counts.iter().all(|n| *n <= MAX_ORIGIN_COUNT));
 +            std::fs::create_dir(&directory).expect("exclusive native receipt directory");
 +            let checkpoints = BufWriter::new(

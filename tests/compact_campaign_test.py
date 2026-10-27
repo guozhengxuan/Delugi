@@ -103,6 +103,14 @@ class CompactCampaignTests(unittest.TestCase):
             self.assertEqual(aliyun_bench.main(), 0)
             plan.assert_called_once_with(self.config)
 
+    def test_global_ordinals_have_no_per_origin_rounding_or_timing_gaps(self):
+        for n in (4,10,50):
+            for rate in (1,97,1001):
+                plan=campaign.origin_plan(rate,1_000_000,n,list(range(1,n)))
+                offsets=sorted(campaign.arrival_offset_us(plan,i,j)
+                    for i in plan['honest_origins'] for j in range(plan['counts'][i]))
+                self.assertEqual(offsets,[k*1_000_000//rate for k in range(rate)])
+
 
 if __name__ == '__main__':
     unittest.main()

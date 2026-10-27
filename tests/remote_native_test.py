@@ -17,6 +17,23 @@ import deployment_prepare as prep
 
 
 class NativePlacement(unittest.TestCase):
+    def test_compact_profile_has_exact_total_population_at_fifty(self):
+        for protocol in ('mysticeti','autobahn'):
+            for n in (4,10,50):
+                cfg=remote.native.settings({'population_profile':'compact-n10-n50-v1',
+                    'rate':1001,'warmup':0,'duration':60,'drain':15,'faulty':[0]},n,protocol)
+                self.assertEqual(sum(cfg['counts']),60060)
+                self.assertEqual(cfg['counts'][0],0)
+                self.assertLessEqual(max(cfg['counts'][1:])-min(cfg['counts'][1:]),1)
+                if protocol=='mysticeti':
+                    role,argv,env=remote.native.launches(protocol,Path('/owned'),1,
+                        {'mysticeti':'/published/mysticeti'},cfg,'/usr/bin/python3',1234000)[0]
+                    self.assertEqual(env['BENCHMARK_GLOBAL_RATE'],'1001')
+                    self.assertEqual(env['BENCHMARK_MEMBER_COUNT'],str(n))
+                    self.assertEqual(env['BENCHMARK_HONEST_ORIGINS'],','.join(map(str,range(1,n))))
+        with self.assertRaises(ValueError):remote.native.settings({},50,'mysticeti')
+        with self.assertRaises(ValueError):remote.native.settings({'population_profile':'compact-n10-n50-v1'},50,'shoal')
+
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
         for name in ("key","known"):(self.root/name).write_text("fixture; never connected")
@@ -66,7 +83,7 @@ class NativePlacement(unittest.TestCase):
             "window_start_us":offset,"window_end_us":offset+1000000,"observed_us":offset+2000000,"output_index_base":0}
 
     def test_exact_protocol_roles_private_peer_ports_and_host_local_clocks(self):
-        for protocol in remote.PROTOCOLS:
+        for protocol in ('mysticeti','autobahn','autobahn-blips','shoal'):
             selected=self.selected(protocol);cfg=selected["settings"];root=Path("/tmp/delugi-native-"+selected["nonce"])
             binaries={name:row["path"] for name,row in selected["hosts"][0]["native_binaries"].items()}
             launch=remote.native.launches(protocol,root,0,binaries,cfg,"/opt/python3.11",987654321000)
@@ -79,6 +96,15 @@ class NativePlacement(unittest.TestCase):
                 self.assertEqual(argv[argv.index("--epoch-ns")+1],"987654321000")
                 self.assertEqual(len(selected["endpoints"][0]["peer"]),3)
             self.assertFalse(selected.get("comparison_eligible",False))
+
+    def test_simpleit_publication_has_explicit_case_and_fixed_recipe(self):
+        for protocol in ('simpleit-mempool','simpleit-dispersed'):
+            selected=self.selected(protocol)
+            self.assertEqual(selected['settings']['case'],'healthy')
+            self.assertEqual(selected['build_recipe']['binaries'],['node'])
+            self.assertEqual(selected['build_recipe']['toolchain'],'1.92.0')
+            with self.assertRaisesRegex(ValueError,'faulty identities'):
+                remote.native.settings({'case':'silent-first-leader','warmup':0},4,protocol)
 
     def test_missing_or_old_python_is_rejected_before_native_launch(self):
         publication=self.publication();publication["inventory"]["hosts"][0].pop("python_executable")

@@ -466,7 +466,9 @@ def main():
     commands=parser.add_subparsers(dest='command',required=True)
     campaign=commands.add_parser('campaign',help='resolve the compact one-minute campaign without cloud operations')
     campaign.add_argument('--config',type=Path,required=True)
-    campaign.add_argument('--plan',action='store_true',required=True)
+    action=campaign.add_mutually_exclusive_group(required=True)
+    action.add_argument('--plan',action='store_true')
+    action.add_argument('--resolve',action='store_true',help='validate all adapter requests and record effective native settings; no SSH')
     campaign.add_argument('--output',type=Path)
     lease=commands.add_parser('instances',help='exact-ID lease create/status/start/stop/delete')
     lease.add_argument('action',choices=('initialize','launch','refresh','peers','start','stop','destroy'))
@@ -502,6 +504,9 @@ def main():
     if args.command=='campaign':
         import compact_campaign
         result=compact_campaign.create_plan(json.loads(args.config.read_text()))
+        if args.resolve:
+            import campaign_adapters
+            result={'plan':result,'resolved':campaign_adapters.resolve_plan(result),'status':'resolved','comparison_eligible':False}
         if args.output is not None:
             if args.output.exists(): raise ValueError('choose a new immutable campaign plan path')
             save(args.output,result)

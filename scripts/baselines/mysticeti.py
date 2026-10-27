@@ -373,7 +373,7 @@ def read_cohort(path, replica):
         key = cohort_request_id(replica, sequence, start["useful_bytes"])
         requests[key] = {"request_id": key, "origin": replica, "sequence": sequence,
                          "useful_bytes": start["useful_bytes"],
-                         "scheduled_us": start["elapsed_us"] + sequence * 1_000_000 // start["rate"],
+                         "scheduled_us": start["elapsed_us"] + native_cohort_store.native_arrival_offset(start,sequence),
                          "admitted_us": None, "batch_ready_us": None, "materialized_us": None}
     ledger = {key: start[key] for key in ("window_start_us", "window_end_us", "observed_us")}
     ledger.update(requests=list(requests.values()), outputs=[], batches=[], output_index_base=0,
@@ -432,6 +432,7 @@ def argument_parser():
     parser.add_argument("--build", action="store_true", help="Build the pinned artifact even if the binary exists")
     parser.add_argument("--build-only", action="store_true", help="Build and record provenance without starting validators")
     parser.add_argument("--nodes", type=int, default=4, help="Committee size n=3f+1; native port profile currently n<=31")
+    parser.add_argument('--population-profile',choices=('compact-n10-n50-v1',))
     parser.add_argument("--faulty-replica", type=int, action="append", default=[], help="Excluded honest-ingress identity; no client workload is assigned to this replica")
     parser.add_argument("--warmup", type=float, default=10, help="Warmup seconds after all metrics endpoints are ready (default:10)")
     parser.add_argument("--duration", type=float, default=30, help="Measurement seconds (default:30)")
@@ -464,12 +465,19 @@ def main():
         parser.error("compact observer requires finite cohort mode")
     if args.legacy_window and args.omit_replica is not None:
         parser.error("native omission experiments require the common finite cohort")
-    if args.nodes < 4 or args.nodes > 31 or (args.nodes - 1) % 3 or len(set(args.faulty_replica)) > (args.nodes - 1) // 3 or any(i < 0 or i >= args.nodes for i in args.faulty_replica) or (args.pause_replica is not None and not 0 <= args.pause_replica < args.nodes):
+    compact=args.population_profile=='compact-n10-n50-v1'
+    if compact and (args.legacy_window or args.nodes not in (4,10,50) or args.warmup!=0 or not 0<args.duration<=60 or not 0<=args.drain<=15 or args.rate>80000 or args.useful_bytes>4096):
+        parser.error('compact native workload envelope exceeded')
+    if (not compact and (args.nodes < 4 or args.nodes > 31 or (args.nodes - 1) % 3)) or len(set(args.faulty_replica)) > (args.nodes - 1) // 3 or any(i < 0 or i >= args.nodes for i in args.faulty_replica) or (args.pause_replica is not None and not 0 <= args.pause_replica < args.nodes):
         parser.error("invalid native committee or faulty identity budget")
     correct = [i for i in range(args.nodes) if i not in args.faulty_replica]
     rates = [0 if i not in correct else args.rate // len(correct) + (correct.index(i) < args.rate % len(correct)) for i in range(args.nodes)]
     if args.omit_replica is not None: rates[args.omit_replica] = args.attacker_rate
     counts = [(int(args.warmup*1e6)+int(args.duration*1e6))*rate//1_000_000 for rate in rates]
+    if compact:
+        from compact_campaign import origin_plan
+        counts=origin_plan(args.rate,round(args.duration*1e6),args.nodes,correct)['counts']
+        if args.omit_replica is not None:counts[args.omit_replica]=round(args.duration*1e6)*args.attacker_rate//1000000
     if not args.legacy_window and any(count > 5_000_000 for count in counts):
         parser.error("finite native receipt population exceeds 5,000,000 requests per origin")
     if args.transaction_size is None:
@@ -558,6 +566,9 @@ def main():
         manifest["settings"]["metrics_ports"] = ports[args.nodes:]
         env = os.environ.copy()
         env.update(RUST_LOG="info,mysticeti_core::syncer=debug", CONSENSUS_ONLY="1", TOKIO_WORKER_THREADS=str(args.tokio_workers), RUST_BACKTRACE="1")
+        if compact:
+            env.update(BENCHMARK_POPULATION_PROFILE=args.population_profile,BENCHMARK_GLOBAL_RATE=str(args.rate),
+                BENCHMARK_HONEST_ORIGINS=','.join(map(str,correct)),BENCHMARK_MEMBER_COUNT=str(args.nodes))
         for index in range(args.nodes):
             if not args.legacy_window:
                 env.update(BENCHMARK_COHORT_PATH=str(output / f"cohort-{index}.jsonl"), BENCHMARK_COHORT_START=str(output / "start-arrivals"), BENCHMARK_WARMUP_US=str(int(args.warmup * 1e6)), BENCHMARK_DURATION_US=str(int(args.duration * 1e6)), BENCHMARK_DRAIN_US=str(int(args.drain * 1e6)), BENCHMARK_INGRESS_US=str(args.ingress_batch_ms * 1000))
@@ -690,7 +701,7 @@ def main():
                 starts = (row for row in native_cohort_store.journal_rows(output / f"cohort-{i}.jsonl") if row.get("event") == "start")
                 start = next(starts, None)
                 if start is None or next(starts, None) is not None: raise ValueError("exactly one native finite start required")
-                receipts[i] = mysticeti_receipts.load(output / f"receipt-{i}", i, counts, args.useful_bytes, args.cohort_observer, start)
+                receipts[i] = mysticeti_receipts.load(output / f"receipt-{i}", i, counts, args.useful_bytes, args.cohort_observer, start,population_profile=args.population_profile)
             finite = mysticeti_receipts.summarize(receipts, correct)
             manifest["finite_output_receipt"] = finite
             manifest["compact_output_agreement"] = finite["agreement"]
@@ -707,7 +718,7 @@ def main():
                 "reference_replica":finite["reference_replica"],
                 "boundary":"one complete native observer prefix; whole-committee traffic through later post-export scrape, including native work after observer freeze; trailing scrape-to-STOP bytes are not sampled"}
             if args.cohort_observer == "full":
-                staging = native_cohort_store.NativeStore(output / "native-cohort-stage.sqlite")
+                staging = native_cohort_store.NativeStore(output / "native-cohort-stage.sqlite",population_profile=args.population_profile)
                 try:
                     for i in range(args.nodes):
                         staging.mysticeti(output / f"cohort-{i}.jsonl", i, cohort_request_id, observed_us=receipts[i]["header"]["frozen_us"])

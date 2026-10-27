@@ -23,6 +23,19 @@ MAX_JOURNAL_RECORD = 4 * 1024 * 1024
 READ_CHUNK = 16 * 1024
 
 
+def native_arrival_offset(start, sequence):
+    if start.get('global_rate',0):
+        rate,k,rank=start['global_rate'],start['honest_origin_count'],start['origin_rank']
+        if (start.get('population_profile')!='compact-n10-n50-v1' or
+                any(type(v) is not int for v in (rate,k,rank,sequence)) or
+                not 1<=rate<=80000 or not 1<=k<=50 or not 0<=rank<k or not 0<=sequence<start['count']):
+            raise ValueError('invalid global native arrival schedule')
+        total=(start['window_end_us']-start['window_start_us'])*rate//1_000_000
+        if start['count']!=(total+k-1-rank)//k:raise ValueError('native global request count differs')
+        return (sequence*k+rank)*1_000_000//rate
+    return sequence*1_000_000//start['rate']
+
+
 def journal_rows(path, limit=MAX_JOURNAL_RECORD):
     """One bounded complete JSON object per native journal record."""
     with Path(path).open("rb") as stream:
@@ -191,7 +204,9 @@ class JsonStream:
 
 class NativeStore:
     """On-disk staging: fixed SQLite cache, no request/output Python population."""
-    def __init__(self, path):
+    def __init__(self, path, *, population_profile=None):
+        if population_profile not in (None,'compact-n10-n50-v1'):raise ValueError('unknown native population profile')
+        self.population_profile=population_profile
         self.path = Path(path)
         if self.path.exists(): raise ValueError("native staging database must be new")
         self.db = sqlite3.connect(path)
@@ -275,7 +290,7 @@ class NativeStore:
         for sequence in range(start["count"]):
             self.put(replica, "requests", {"request_id": request_id(replica, sequence, start["useful_bytes"]),
                 "origin": replica, "sequence": sequence, "useful_bytes": start["useful_bytes"],
-                "scheduled_us": start["elapsed_us"] + sequence * 1_000_000 // start["rate"],
+                "scheduled_us": start["elapsed_us"] + native_arrival_offset(start,sequence),
                 "admitted_us": None, "batch_ready_us": None, "materialized_us": None})
         for row in journal_rows(path):
             if row.get("elapsed_us", 0) > metadata["observed_us"]: continue
@@ -361,6 +376,7 @@ class NativeStore:
                 "max_page_entries": MAX_PAGE_ENTRIES, "max_row_bytes": MAX_ROW_BYTES,
                 "staging_sqlite_cache_bytes": 16 * 1024**2,
                 "scope": "bounded offline ingestion/reduction; original native custody and live materializer state may still grow with workload"}}
+        if self.population_profile is not None:manifest['population_profile']=self.population_profile
         raw = (json.dumps(manifest, indent=2, allow_nan=False) + "\n").encode()
         if len(raw) > MAX_MANIFEST_BYTES: raise ValueError("native archive metadata exceeds envelope")
         path = root / "index.json"; path.write_bytes(raw)
@@ -377,7 +393,8 @@ class ArchiveCollection:
         raw = bounded_read(self.path, MAX_MANIFEST_BYTES)
         self.index_sha256 = hashlib.sha256(raw).hexdigest()
         manifest = json.loads(raw)
-        if manifest.get("format") != "native-cohort-collection-v1" or not 1 <= len(manifest["archives"]) <= 31:
+        maximum=50 if manifest.get('population_profile')=='compact-n10-n50-v1' else 31
+        if manifest.get("format") != "native-cohort-collection-v1" or not 1 <= len(manifest["archives"]) <= maximum:
             raise ValueError("invalid native cohort collection")
         self.archives, self.ledgers = {}, {}
         for descriptor in manifest["archives"]:
@@ -387,18 +404,21 @@ class ArchiveCollection:
             for replica, metadata in archive.ledgers.items():
                 if replica in self.ledgers: raise ValueError("duplicate native archive replica")
                 self.archives[replica], self.ledgers[replica] = archive, metadata
-        if len(self.ledgers) > 31: raise ValueError("native archive population exceeds envelope")
+        if len(self.ledgers) > maximum: raise ValueError("native archive population exceeds envelope")
 
     def rows(self, replica, stream):
         yield from self.archives[replica].rows(replica, stream)
 
 
-def combine_archives(archives, path):
+def combine_archives(archives, path, *, population_profile=None):
     path = Path(path)
     entries = [{"path": str(archive.path.resolve().relative_to(path.parent.resolve())), "sha256": archive.index_sha256}
                for archive in archives]
     if path.exists(): raise ValueError("native archive collection must be new")
-    path.write_text(json.dumps({"schema": 1, "format": "native-cohort-collection-v1", "archives": entries}, indent=2) + "\n")
+    if population_profile not in (None,'compact-n10-n50-v1'):raise ValueError('unknown native population profile')
+    value={"schema":1,"format":"native-cohort-collection-v1","archives":entries}
+    if population_profile:value['population_profile']=population_profile
+    path.write_text(json.dumps(value,indent=2)+'\n')
     return ArchiveCollection(path)
 
 

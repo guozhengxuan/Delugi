@@ -65,6 +65,7 @@ def argument_parser():
     p.add_argument("--rate",type=int,default=400);p.add_argument("--useful-bytes",type=int,default=472)
     p.add_argument("--ingress-batch-ms",type=int,default=10);p.add_argument("--batch-bytes",type=int,default=500_000)
     p.add_argument("--bound-ms",type=int,default=100);p.add_argument("--nodes",type=int,default=4)
+    p.add_argument('--population-profile',choices=('compact-n10-n50-v1',))
     p.add_argument("--workers",type=int,choices=[1],default=1,help="One native worker per validator in current application adapter")
     p.add_argument("--tokio-workers",type=int,default=2)
     p.add_argument("--faulty-replica",type=int,action="append",default=[])
@@ -80,7 +81,10 @@ def main():
     p=argument_parser();args=p.parse_args()
     try:native_faults.validate(args,protocol="autobahn")
     except ValueError as error:p.error(str(error))
-    if min(args.duration,args.rate,args.useful_bytes,args.ingress_batch_ms,args.batch_bytes,args.bound_ms,args.tokio_workers,args.deadline_ms)<=0 or min(args.warmup,args.drain)<0 or args.nodes<4 or args.nodes>31 or (args.nodes-1)%3 or len(set(args.faulty_replica))>(args.nodes-1)//3 or any(i<0 or i>=args.nodes for i in args.faulty_replica):
+    compact=args.population_profile=='compact-n10-n50-v1'
+    if compact and (args.nodes not in (4,10,50) or args.warmup!=0 or not 0<args.duration<=60 or not 0<=args.drain<=15 or args.rate>80000 or args.useful_bytes>4096):
+        p.error('compact native workload envelope exceeded')
+    if min(args.duration,args.rate,args.useful_bytes,args.ingress_batch_ms,args.batch_bytes,args.bound_ms,args.tokio_workers,args.deadline_ms)<=0 or min(args.warmup,args.drain)<0 or (not compact and (args.nodes<4 or args.nodes>31 or (args.nodes-1)%3)) or len(set(args.faulty_replica))>(args.nodes-1)//3 or any(i<0 or i>=args.nodes for i in args.faulty_replica):
         p.error("invalid positive settings or Byzantine budget (n4 f1)")
     correct=[i for i in range(args.nodes) if i not in args.faulty_replica]
     if args.pause_replica is not None and not (0<=args.pause_after<args.duration and 0<args.pause_seconds<=args.duration-args.pause_after):p.error("finite disruption must fit measurement window")
@@ -138,10 +142,15 @@ def main():
         rates=[0 if index not in correct else args.rate//len(correct)+(correct.index(index)<args.rate%len(correct)) for index in range(args.nodes)]
         if args.omit_replica is not None:rates[args.omit_replica]=args.attacker_rate
         planned_counts=[(int(args.warmup*1e6)+int(args.duration*1e6))*rate//1_000_000 for rate in rates]
+        if compact:
+            from compact_campaign import origin_plan
+            planned_counts=origin_plan(args.rate,round(args.duration*1e6),args.nodes,correct)['counts']
+            if args.omit_replica is not None:planned_counts[args.omit_replica]=round(args.duration*1e6)*args.attacker_rate//1000000
         for index,addresses in enumerate(committee.workers_addresses()):
             rate=rates[index]
             command=[sys.executable,str(Path(__file__).with_name("autobahn_cohort.py")),"--origin",str(index),"--rate",str(rate),"--useful-bytes",str(args.useful_bytes),"--epoch-ns",str(epoch),"--warmup-us",str(int(args.warmup*1e6)),"--duration-us",str(int(args.duration*1e6)),"--drain-us",str(int(args.drain*1e6)),"--workers","1","--address",addresses[0][1],"--observer-dir",str(output/f"observer-{index}"),"--output",str(output/f"ledger-{index}.json")]
             command += ["--cohort-observer",args.cohort_observer,"--planned-counts",",".join(map(str,planned_counts))]
+            if compact:command+=['--global-rate',str(args.rate),'--honest-origins',','.join(map(str,correct))]
             applications.append(launch(command,f"application-{index}",env))
         manifest["process_ids"]=[process.pid for process in processes];paused=False;resumed=False
         cpu_before=None;cpu_after=None
@@ -179,7 +188,7 @@ def main():
             manifest["traffic_ledger"]={"per_process":io,"measurement_written_bytes":sum(row["window_written_bytes"] for row in io),"whole_run_written_bytes":sum(row["written_bytes"] for row in io),"counter_boundary":"successful_replica_tcp_stream_writes"}
             manifest["status"]="completed"
             return 0
-        staging=native_cohort_store.NativeStore(output/"native-cohort-stage.sqlite")
+        staging=native_cohort_store.NativeStore(output/"native-cohort-stage.sqlite",population_profile=args.population_profile)
         try:
             for i in range(args.nodes):staging.legacy(output/f"ledger-{i}.json",i)
             archive=staging.archive(output/"cohorts")

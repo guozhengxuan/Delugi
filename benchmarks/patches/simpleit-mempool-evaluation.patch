@@ -1,0 +1,1544 @@
+--- /dev/null
++++ b/network/src/eval_tls.rs
+@@ -0,0 +1,283 @@
++//! Evaluation adapter for the authenticated point-to-point channel assumption.
++//! Native messages and certificates remain unchanged. Forwarded objects are not
++//! re-labelled as originating from the forwarding connection.
++use once_cell::sync::Lazy;
++use serde::Deserialize;
++use sha2::{Digest, Sha256};
++use std::convert::TryFrom;
++use std::{collections::BTreeMap, fs, io, net::SocketAddr, path::Path, sync::Arc};
++use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
++use tokio::net::TcpStream;
++use tokio_rustls::{rustls, TlsAcceptor, TlsConnector};
++
++pub trait Io: AsyncRead + AsyncWrite + Unpin + Send {}
++impl<T: AsyncRead + AsyncWrite + Unpin + Send> Io for T {}
++pub type Stream = Box<dyn Io>;
++tokio::task_local! { pub static PEER: Option<Vec<u8>>; }
++
++use std::{
++    pin::Pin,
++    sync::atomic::{AtomicU64, Ordering},
++    task::{Context, Poll},
++};
++static WINDOW_START: AtomicU64 = AtomicU64::new(0);
++static WINDOW_END: AtomicU64 = AtomicU64::new(0);
++static WRITTEN: AtomicU64 = AtomicU64::new(0);
++static READ: AtomicU64 = AtomicU64::new(0);
++static WINDOW_WRITTEN: AtomicU64 = AtomicU64::new(0);
++static WINDOW_READ: AtomicU64 = AtomicU64::new(0);
++fn clock_us() -> u64 {
++    let mut t = libc::timespec {
++        tv_sec: 0,
++        tv_nsec: 0,
++    };
++    assert_eq!(
++        unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut t) },
++        0
++    );
++    t.tv_sec as u64 * 1_000_000 + t.tv_nsec as u64 / 1000
++}
++pub fn arm_traffic(start: u64, end: u64) {
++    assert!(start < end);
++    assert_eq!(WINDOW_END.load(Ordering::Acquire), 0);
++    WINDOW_START.store(start, Ordering::Release);
++    WINDOW_END.store(end, Ordering::Release);
++}
++fn measure(write: bool, bytes: usize) {
++    let (total, window) = if write {
++        (&WRITTEN, &WINDOW_WRITTEN)
++    } else {
++        (&READ, &WINDOW_READ)
++    };
++    total.fetch_add(bytes as u64, Ordering::Relaxed);
++    let at = clock_us();
++    if WINDOW_START.load(Ordering::Acquire) <= at && at < WINDOW_END.load(Ordering::Acquire) {
++        window.fetch_add(bytes as u64, Ordering::Relaxed);
++    }
++}
++pub fn traffic() -> serde_json::Value {
++    let start = clock_us();
++    let value = serde_json::json!({"written_bytes":WRITTEN.load(Ordering::Relaxed),"read_bytes":READ.load(Ordering::Relaxed),
++        "window_written_bytes":WINDOW_WRITTEN.load(Ordering::Relaxed),"window_read_bytes":WINDOW_READ.load(Ordering::Relaxed)});
++    serde_json::json!({"window_start_us":WINDOW_START.load(Ordering::Acquire),"window_end_us":WINDOW_END.load(Ordering::Acquire),
++        "sample_start_us":start,"sample_end_us":clock_us(),"counters":value,
++        "boundary":"successful underlying TCP bytes including TLS, native framing, ACKs and repair; per-operation measurement-window filtering"})
++}
++struct MeteredSocket(TcpStream);
++impl AsyncRead for MeteredSocket {
++    fn poll_read(
++        mut self: Pin<&mut Self>,
++        cx: &mut Context<'_>,
++        buf: &mut ReadBuf<'_>,
++    ) -> Poll<io::Result<()>> {
++        let before = buf.filled().len();
++        let result = Pin::new(&mut self.0).poll_read(cx, buf);
++        if let Poll::Ready(Ok(())) = &result {
++            measure(false, buf.filled().len() - before);
++        }
++        result
++    }
++}
++impl AsyncWrite for MeteredSocket {
++    fn poll_write(
++        mut self: Pin<&mut Self>,
++        cx: &mut Context<'_>,
++        bytes: &[u8],
++    ) -> Poll<io::Result<usize>> {
++        let result = Pin::new(&mut self.0).poll_write(cx, bytes);
++        if let Poll::Ready(Ok(n)) = &result {
++            measure(true, *n);
++        }
++        result
++    }
++    fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
++        Pin::new(&mut self.0).poll_flush(cx)
++    }
++    fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
++        Pin::new(&mut self.0).poll_shutdown(cx)
++    }
++}
++
++#[derive(Deserialize)]
++#[serde(deny_unknown_fields)]
++struct Configuration {
++    schema: u32,
++    ca_pem: String,
++    certificate_pem: String,
++    private_key_pem: String,
++    // DER leaf certificate SHA256 -> native public-key bytes in hex.
++    members: BTreeMap<String, String>,
++    // Exact protocol listen address -> DER leaf certificate SHA256.
++    destinations: BTreeMap<String, String>,
++}
++struct Tls {
++    client: Arc<rustls::ClientConfig>,
++    server: Arc<rustls::ServerConfig>,
++    members: BTreeMap<String, Vec<u8>>,
++    destinations: BTreeMap<String, String>,
++}
++fn invalid(message: impl ToString) -> io::Error {
++    io::Error::new(io::ErrorKind::InvalidData, message.to_string())
++}
++fn certs(path: &str) -> io::Result<Vec<rustls::Certificate>> {
++    let mut input = io::BufReader::new(fs::File::open(path)?);
++    Ok(rustls_pemfile::certs(&mut input)?
++        .into_iter()
++        .map(rustls::Certificate)
++        .collect())
++}
++fn key(path: &str) -> io::Result<rustls::PrivateKey> {
++    #[cfg(unix)]
++    {
++        use std::os::unix::fs::PermissionsExt;
++        if fs::metadata(path)?.permissions().mode() & 0o077 != 0 {
++            return Err(invalid("TLS private key must be mode0600"));
++        }
++    }
++    let mut input = io::BufReader::new(fs::File::open(path)?);
++    let mut keys = rustls_pemfile::pkcs8_private_keys(&mut input)?;
++    if keys.len() != 1 {
++        return Err(invalid("exactly one PKCS8 key required"));
++    }
++    Ok(rustls::PrivateKey(keys.remove(0)))
++}
++fn load(path: &Path) -> io::Result<Tls> {
++    let raw = fs::read(path)?;
++    if raw.len() > 1024 * 1024 {
++        return Err(invalid("TLS configuration exceeds1MiB"));
++    }
++    let cfg: Configuration = serde_json::from_slice(&raw).map_err(invalid)?;
++    if cfg.schema != 1 || !(4..=50).contains(&cfg.members.len()) || cfg.destinations.is_empty() {
++        return Err(invalid("invalid authenticated committee"));
++    }
++    let mut roots = rustls::RootCertStore::empty();
++    for certificate in certs(&cfg.ca_pem)? {
++        roots.add(&certificate).map_err(invalid)?;
++    }
++    let chain = certs(&cfg.certificate_pem)?;
++    let secret = key(&cfg.private_key_pem)?;
++    if chain.is_empty()
++        || !cfg
++            .members
++            .contains_key(&hex::encode(Sha256::digest(&chain[0].0)))
++    {
++        return Err(invalid("own certificate is outside the current committee"));
++    }
++    let members: BTreeMap<_, _> = cfg
++        .members
++        .into_iter()
++        .map(|(hash, value)| {
++            let hash_bytes = hex::decode(&hash).map_err(invalid)?;
++            let bytes = hex::decode(value).map_err(invalid)?;
++            if hash_bytes.len() != 32 || bytes.len() != 32 {
++                return Err(invalid("invalid certificate/public key identity"));
++            }
++            Ok((hash, bytes))
++        })
++        .collect::<io::Result<_>>()?;
++    let unique: std::collections::BTreeSet<_> = members.values().collect();
++    if unique.len() != members.len() {
++        return Err(invalid("duplicate native public key"));
++    }
++    for (address, hash) in &cfg.destinations {
++        let _: SocketAddr = address.parse().map_err(invalid)?;
++        if !members.contains_key(hash) {
++            return Err(invalid("unknown destination identity"));
++        }
++    }
++    let client = rustls::ClientConfig::builder()
++        .with_safe_defaults()
++        .with_root_certificates(roots.clone())
++        .with_client_auth_cert(chain.clone(), secret.clone())
++        .map_err(invalid)?;
++    let verifier = rustls::server::AllowAnyAuthenticatedClient::new(roots);
++    let server = rustls::ServerConfig::builder()
++        .with_safe_defaults()
++        .with_client_cert_verifier(Arc::new(verifier))
++        .with_single_cert(chain, secret)
++        .map_err(invalid)?;
++    Ok(Tls {
++        client: Arc::new(client),
++        server: Arc::new(server),
++        members,
++        destinations: cfg.destinations,
++    })
++}
++static TLS: Lazy<Option<Tls>> = Lazy::new(|| {
++    std::env::var_os("DELUGI_SIMPLEIT_TLS")
++        .map(|p| load(Path::new(&p)).expect("invalid explicit TLS profile"))
++});
++
++pub fn enabled() -> bool {
++    TLS.is_some()
++}
++fn identity(
++    tls: &Tls,
++    certificates: Option<&[rustls::Certificate]>,
++) -> io::Result<(String, Vec<u8>)> {
++    let leaf = certificates
++        .and_then(|c| c.first())
++        .ok_or_else(|| invalid("no peer certificate"))?;
++    let hash = hex::encode(Sha256::digest(&leaf.0));
++    let peer = tls
++        .members
++        .get(&hash)
++        .ok_or_else(|| invalid("certificate is not in current committee"))?;
++    Ok((hash, peer.clone()))
++}
++pub async fn connect(address: SocketAddr) -> io::Result<Stream> {
++    let socket = TcpStream::connect(address).await?;
++    socket.set_nodelay(true)?;
++    let socket = MeteredSocket(socket);
++    if let Some(tls) = &*TLS {
++        let expected = tls
++            .destinations
++            .get(&address.to_string())
++            .ok_or_else(|| invalid("unconfigured destination"))?;
++        let server_name = rustls::ServerName::try_from("delugi-eval").map_err(invalid)?;
++        let channel = tokio::time::timeout(
++            std::time::Duration::from_secs(5),
++            TlsConnector::from(tls.client.clone()).connect(server_name, socket),
++        )
++        .await??;
++        let (hash, _) = identity(tls, channel.get_ref().1.peer_certificates())?;
++        if &hash != expected {
++            return Err(invalid(
++                "destination certificate does not match addressed replica",
++            ));
++        }
++        Ok(Box::new(channel))
++    } else {
++        Ok(Box::new(socket))
++    }
++}
++pub async fn accept(socket: TcpStream) -> io::Result<(Stream, Option<Vec<u8>>)> {
++    socket.set_nodelay(true)?;
++    let socket = MeteredSocket(socket);
++    if let Some(tls) = &*TLS {
++        let channel = tokio::time::timeout(
++            std::time::Duration::from_secs(5),
++            TlsAcceptor::from(tls.server.clone()).accept(socket),
++        )
++        .await??;
++        let (_, peer) = identity(tls, channel.get_ref().1.peer_certificates())?;
++        Ok((Box::new(channel), Some(peer)))
++    } else {
++        Ok((Box::new(socket), None))
++    }
++}
++pub fn require_peer(author: &[u8]) -> io::Result<()> {
++    if !enabled() {
++        return Ok(());
++    }
++    if PEER
++        .try_with(|p| p.as_deref() == Some(author))
++        .unwrap_or(false)
++    {
++        Ok(())
++    } else {
++        Err(invalid(
++            "direct message author differs from authenticated channel peer",
++        ))
++    }
++}
+--- /dev/null
++++ b/network/examples/eval_tls_probe.rs
+@@ -0,0 +1,31 @@
++//! Local authentication qualification probe; not a consensus benchmark.
++use std::{env,net::SocketAddr};
++use tokio::io::{AsyncReadExt,AsyncWriteExt};
++#[tokio::main(flavor="current_thread")]
++async fn main()->Result<(),Box<dyn std::error::Error>> {
++    let args:Vec<_>=env::args().collect();
++    let address:SocketAddr=args[2].parse()?;
++    assert!(network::eval_tls::enabled());
++    match args[1].as_str() {
++        "server"=>{
++            let listener=tokio::net::TcpListener::bind(address).await?;
++            println!("ready");
++            let (socket,_)=listener.accept().await?;
++            let (mut stream,peer)=network::eval_tls::accept(socket).await?;
++            network::eval_tls::PEER.scope(peer,async move {
++                let mut author=[0;32];stream.read_exact(&mut author).await?;
++                network::eval_tls::require_peer(&author)?;
++                stream.write_all(b"accepted").await?;
++                Ok::<(),std::io::Error>(())
++            }).await?;
++        },
++        "client"=>{
++            let mut stream=network::eval_tls::connect(address).await?;
++            stream.write_all(&hex::decode(&args[3])?).await?;
++            let mut ack=[0;8];stream.read_exact(&mut ack).await?;
++            assert_eq!(&ack,b"accepted");
++        },
++        _=>panic!("expected server/client"),
++    }
++    Ok(())
++}
+--- /dev/null
++++ b/primary/src/evaluation.rs
+@@ -0,0 +1,827 @@
++//! Independent finite evaluation ingress and application observer.
++//! Protocol voting, timers and certificate rules are outside this module.
++use config::{Import, KeyPair};
++use crypto::{Digest as NativeDigest, PublicKey, Signature};
++use once_cell::sync::OnceCell;
++use serde::{Deserialize, Serialize};
++use serde_json::{json, Value};
++use sha2::{Digest, Sha256};
++use std::{
++    collections::VecDeque,
++    convert::TryInto,
++    fs::{self, File, OpenOptions},
++    io::{BufRead, BufReader, BufWriter, Read, Write},
++    path::PathBuf,
++    sync::{Arc, Mutex},
++    thread,
++    time::Duration,
++};
++
++#[derive(Clone, Deserialize)]
++#[serde(deny_unknown_fields)]
++struct Configuration {
++    schema: u32,
++    run_id: String,
++    id: usize,
++    members: Vec<String>,
++    honest_origins: Vec<usize>,
++    total_rate: u64,
++    duration_ms: u64,
++    drain_ms: u64,
++    useful_bytes: usize,
++    queue_capacity: usize,
++    journal_limit_bytes: u64,
++    directory: PathBuf,
++    arm_path: PathBuf,
++    native_key: PathBuf,
++    #[serde(default)]
++    payload_fault: Option<PayloadFault>,
++}
++#[derive(Clone, Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++struct PayloadFault {
++    source: usize,
++    recipient: usize,
++    initial_headers: usize,
++}
++#[derive(Clone, Default)]
++struct Row {
++    offered: u64,
++    admitted: u64,
++    rejected: u64,
++    cancelled: u64,
++    batch: u64,
++    done: u64,
++}
++struct State {
++    cfg: Configuration,
++    epoch: u64,
++    end: u64,
++    deadline: u64,
++    rows: Vec<Row>,
++    counts: Vec<u64>,
++    queue: VecDeque<Vec<u8>>,
++    seen: Vec<bool>,
++    output: BufWriter<File>,
++    output_bytes: u64,
++    output_rows: u64,
++    frozen: bool,
++    pending: VecDeque<(u64, NativeDigest)>,
++    retained_bytes: u64,
++    withheld: Vec<NativeDigest>,
++    fault_events: Vec<Value>,
++    attacker_headers: usize,
++}
++static STATE: OnceCell<Arc<Mutex<State>>> = OnceCell::new();
++pub fn enabled() -> bool {
++    std::env::var_os("DELUGI_SIMPLEIT_WORKLOAD").is_some()
++}
++pub fn now() -> u64 {
++    let mut t = libc::timespec {
++        tv_sec: 0,
++        tv_nsec: 0,
++    };
++    assert_eq!(
++        unsafe { libc::clock_gettime(libc::CLOCK_MONOTONIC, &mut t) },
++        0
++    );
++    t.tv_sec as u64 * 1_000_000 + t.tv_nsec as u64 / 1000
++}
++fn wait(at: u64) {
++    while now() < at {
++        thread::sleep(Duration::from_micros((at - now().min(at)).min(1000)));
++    }
++}
++fn count(cfg: &Configuration, id: usize) -> u64 {
++    let total = cfg.total_rate * cfg.duration_ms / 1000;
++    cfg.honest_origins
++        .iter()
++        .position(|&v| v == id)
++        .map(|rank| {
++            (total + cfg.honest_origins.len() as u64 - 1 - rank as u64)
++                / cfg.honest_origins.len() as u64
++        })
++        .unwrap_or(0)
++}
++fn scheduled(cfg: &Configuration, id: usize, seq: u64, epoch: u64) -> u64 {
++    let rank = cfg
++        .honest_origins
++        .iter()
++        .position(|&v| v == id)
++        .expect("honest origin");
++    epoch + (seq * cfg.honest_origins.len() as u64 + rank as u64) * 1_000_000 / cfg.total_rate
++}
++fn transaction(cfg: &Configuration, origin: usize, seq: u64) -> Vec<u8> {
++    let mut tx = b"DLG-SIT1".to_vec();
++    tx.extend_from_slice(&hex::decode(&cfg.run_id).unwrap());
++    tx.extend_from_slice(&(origin as u32).to_le_bytes());
++    tx.extend_from_slice(&seq.to_le_bytes());
++    let digest = Sha256::digest(&tx);
++    tx.extend((0..cfg.useful_bytes).map(|i| digest[i % 32]));
++    tx
++}
++fn identify(cfg: &Configuration, tx: &[u8]) -> Option<(usize, u64)> {
++    if tx.len() != 52 + cfg.useful_bytes || &tx[..8] != b"DLG-SIT1" {
++        return None;
++    }
++    let origin = u32::from_le_bytes(tx[40..44].try_into().ok()?) as usize;
++    let seq = u64::from_le_bytes(tx[44..52].try_into().ok()?);
++    if origin >= cfg.members.len()
++        || seq >= count(cfg, origin)
++        || tx != transaction(cfg, origin, seq)
++    {
++        return None;
++    }
++    Some((origin, seq))
++}
++fn new_file(path: &PathBuf) -> File {
++    use std::os::unix::fs::OpenOptionsExt;
++    OpenOptions::new()
++        .create_new(true)
++        .write(true)
++        .mode(0o600)
++        .open(path)
++        .expect("new private observer file")
++}
++fn write_json(path: PathBuf, value: &impl Serialize) {
++    let temporary = path.with_extension("pending");
++    let mut f = new_file(&temporary);
++    serde_json::to_writer(&mut f, value).unwrap();
++    f.write_all(b"\n").unwrap();
++    f.sync_all().unwrap();
++    fs::hard_link(&temporary, &path).expect("publish complete one-shot receipt");
++    fs::remove_file(&temporary).unwrap();
++}
++fn file_record(path: PathBuf) -> Value {
++    let mut f = File::open(&path).unwrap();
++    let mut hash = Sha256::new();
++    let mut buf = [0; 65536];
++    let mut bytes = 0;
++    loop {
++        let n = f.read(&mut buf).unwrap();
++        if n == 0 {
++            break;
++        }
++        hash.update(&buf[..n]);
++        bytes += n;
++    }
++    json!({"name":path.file_name().unwrap().to_str().unwrap(),"bytes":bytes,"sha256":hex::encode(hash.finalize())})
++}
++
++pub fn start(name: PublicKey) {
++    if !enabled() {
++        return;
++    }
++    assert!(
++        network::eval_tls::enabled(),
++        "identifiable evaluation requires authenticated channels"
++    );
++    let path = PathBuf::from(std::env::var_os("DELUGI_SIMPLEIT_WORKLOAD").unwrap());
++    let raw = fs::read(&path).unwrap();
++    assert!(raw.len() <= 1024 * 1024);
++    let cfg: Configuration = serde_json::from_slice(&raw).unwrap();
++    assert!(
++        cfg.schema == 1 && [4, 10, 50].contains(&cfg.members.len()) && cfg.id < cfg.members.len()
++    );
++    assert!(cfg
++        .members
++        .iter()
++        .all(|key| hex::decode(key).map(|b| b.len() == 32).unwrap_or(false)));
++    assert_eq!(
++        cfg.members
++            .iter()
++            .collect::<std::collections::HashSet<_>>()
++            .len(),
++        cfg.members.len()
++    );
++    assert!(
++        cfg.members[cfg.id] == hex::encode(name.as_ref())
++            && hex::decode(&cfg.run_id).unwrap().len() == 32
++    );
++    assert!(
++        !cfg.honest_origins.is_empty()
++            && cfg.honest_origins.windows(2).all(|w| w[0] < w[1])
++            && *cfg.honest_origins.last().unwrap() < cfg.members.len()
++    );
++    assert!(
++        cfg.total_rate <= 80_000
++            && cfg.duration_ms > 0
++            && cfg.duration_ms <= 60_000
++            && cfg.drain_ms <= 15_000
++    );
++    assert!((1..=4096).contains(&cfg.useful_bytes) && (1..=65536).contains(&cfg.queue_capacity));
++    assert!(cfg.journal_limit_bytes > 0 && cfg.journal_limit_bytes <= 4 * 1024 * 1024 * 1024);
++    if let Some(f) = &cfg.payload_fault {
++        assert!(
++            f.source < cfg.members.len()
++                && f.recipient < cfg.members.len()
++                && f.source != f.recipient
++        );
++        assert!((1..=3).contains(&f.initial_headers) && !cfg.honest_origins.contains(&f.source));
++    }
++    fs::create_dir(&cfg.directory).expect("fresh observer directory required");
++    write_json(
++        cfg.directory.join("ready.json"),
++        &json!({"schema":1,"id":cfg.id,"pid":std::process::id(),
++        "configuration_sha256":hex::encode(Sha256::digest(&raw)),"run_id":cfg.run_id,"ready_us":now()}),
++    );
++    let guard = now() + 240_000_000;
++    while !cfg.arm_path.is_file() {
++        assert!(now() < guard, "arm timeout");
++        thread::sleep(Duration::from_millis(2));
++    }
++    let arm: Value = serde_json::from_slice(&fs::read(&cfg.arm_path).unwrap()).unwrap();
++    assert_eq!(arm["run_id"], cfg.run_id);
++    let epoch = arm["epoch_us"].as_u64().unwrap();
++    assert!(epoch > now(), "arm epoch must be in the future");
++    network::eval_tls::arm_traffic(epoch, epoch + cfg.duration_ms * 1000);
++    wait(epoch);
++    let counts: Vec<_> = (0..cfg.members.len()).map(|i| count(&cfg, i)).collect();
++    let output = BufWriter::new(new_file(&cfg.directory.join("output.jsonl")));
++    let state = Arc::new(Mutex::new(State {
++        cfg: cfg.clone(),
++        epoch,
++        end: epoch + cfg.duration_ms * 1000,
++        deadline: epoch + (cfg.duration_ms + cfg.drain_ms) * 1000,
++        rows: vec![Row::default(); counts[cfg.id] as usize],
++        queue: VecDeque::new(),
++        seen: vec![false; counts.iter().sum::<u64>() as usize],
++        counts,
++        output,
++        output_bytes: 0,
++        output_rows: 0,
++        frozen: false,
++        pending: VecDeque::new(),
++        retained_bytes: 0,
++        withheld: Vec::new(),
++        fault_events: Vec::new(),
++        attacker_headers: 0,
++    }));
++    assert!(STATE.set(state.clone()).is_ok());
++    let arrivals = state.clone();
++    let plan = cfg.clone();
++    thread::spawn(move || {
++        for seq in 0..count(&plan, plan.id) {
++            let at = scheduled(&plan, plan.id, seq, epoch);
++            wait(at);
++            let offered = now();
++            if offered >= epoch + plan.duration_ms * 1000 {
++                break;
++            }
++            let tx = transaction(&plan, plan.id, seq);
++            let mut s = arrivals.lock().unwrap();
++            if s.frozen {
++                break;
++            }
++            let time = now();
++            let full = s.queue.len() >= plan.queue_capacity;
++            if time < s.end && !full {
++                s.queue.push_back(tx);
++            }
++            let end = s.end;
++            let row = &mut s.rows[seq as usize];
++            row.offered = offered;
++            if time >= end {
++                row.cancelled = time;
++            } else if full {
++                row.rejected = time;
++            } else {
++                row.admitted = time;
++            }
++        }
++    });
++    thread::spawn(move || {
++        while now() < epoch + (cfg.duration_ms + cfg.drain_ms) * 1000 {
++            while flush_one() {}
++            thread::sleep(Duration::from_millis(1));
++        }
++        let mut s = state.lock().unwrap();
++        s.frozen = true;
++        let freeze = now();
++        s.output.flush().unwrap();
++        s.output.get_ref().sync_all().unwrap();
++        let mut requests = BufWriter::new(new_file(&cfg.directory.join("requests.jsonl")));
++        let mut populations = [0u64; 6];
++        for (seq, row) in s.rows.iter().enumerate() {
++            let opt = |time| if time == 0 { None } else { Some(time) };
++            for (i, time) in [
++                row.offered,
++                row.admitted,
++                row.rejected,
++                row.cancelled,
++                row.done,
++            ]
++            .iter()
++            .enumerate()
++            {
++                populations[i] += u64::from(*time != 0);
++            }
++            let tx = transaction(&cfg, cfg.id, seq as u64);
++            let value = json!({"origin":cfg.id,"sequence":seq,"request_id":hex::encode(Sha256::digest(&tx)),
++                "useful_bytes":cfg.useful_bytes,"scheduled_us":scheduled(&cfg,cfg.id,seq as u64,epoch),
++                "offered_us":opt(row.offered),"admitted_us":opt(row.admitted),"rejected_us":opt(row.rejected),
++                "cancelled_us":opt(row.cancelled),"batch_ready_us":opt(row.batch),"materialized_us":opt(row.done)});
++            serde_json::to_writer(&mut requests, &value).unwrap();
++            requests.write_all(b"\n").unwrap();
++        }
++        requests.flush().unwrap();
++        requests.get_ref().sync_all().unwrap();
++        let [offered, admitted, rejected, cancelled, completed, _] = populations;
++        let body = json!({"schema":1,"run_id":cfg.run_id,"id":cfg.id,"epoch_us":epoch,"deadline_us":s.deadline,
++            "freeze_us":freeze,"configuration_sha256":hex::encode(Sha256::digest(&raw)),
++            "populations":{"planned":s.rows.len(),"offered":offered,"admitted":admitted,"rejected":rejected,
++                "cancelled":cancelled,"completed":completed,"unfinished":admitted-completed,"unoffered":s.rows.len() as u64-offered},
++            "output_rows":s.output_rows,"traffic":network::eval_tls::traffic(),
++            "payload_fault":{"configuration":cfg.payload_fault,"events":s.fault_events},
++            "files":[file_record(cfg.directory.join("requests.jsonl")),file_record(cfg.directory.join("output.jsonl"))]});
++        let bytes = serde_json::to_vec(&body).unwrap();
++        let digest: [u8; 32] = Sha256::digest(&bytes).into();
++        let keys = KeyPair::import(cfg.native_key.to_str().unwrap()).unwrap();
++        assert_eq!(keys.name, name);
++        let signature = Signature::new(&NativeDigest(digest), &keys.secret);
++        write_json(
++            cfg.directory.join("final.json"),
++            &json!({"body":body,"body_hex":hex::encode(bytes),"signature":signature}),
++        );
++    });
++}
++
++fn retain(id: &NativeDigest, kind: &str, bytes: &[u8]) {
++    if !enabled() {
++        return;
++    }
++    let mut s = STATE.get().unwrap().lock().unwrap();
++    if s.frozen {
++        return;
++    }
++    assert!(bytes.len() <= 64 * 1024 * 1024);
++    let path = s
++        .cfg
++        .directory
++        .join(format!("{}-{}.bin", kind, hex::encode(id.as_ref())));
++    if path.exists() {
++        assert_eq!(fs::read(path).unwrap(), bytes);
++        return;
++    }
++    s.retained_bytes += bytes.len() as u64;
++    assert!(s.retained_bytes <= s.cfg.journal_limit_bytes);
++    let mut file = new_file(&path);
++    file.write_all(bytes).unwrap();
++}
++pub fn retain_header(header: &crate::Header) {
++    use crypto::Hash;
++    if !enabled() {
++        return;
++    }
++    assert_eq!(
++        header.digest(),
++        header.id,
++        "reconstructed native header hash mismatch"
++    );
++    retain(&header.id, "header", &bincode::serialize(header).unwrap());
++}
++pub fn retain_reconstruction(id: &NativeDigest, bytes: &[u8]) {
++    fault_event("reconstructed", id);
++    retain(id, "payload", bytes);
++}
++
++pub fn fault_event(kind: &str, id: &NativeDigest) {
++    if !enabled() {
++        return;
++    }
++    let mut s = STATE.get().unwrap().lock().unwrap();
++    if s.frozen || s.cfg.payload_fault.is_none() {
++        return;
++    }
++    // Keep a bounded witness set; normal native processing is unaffected when
++    // later diagnostic events exceed the witness envelope.
++    let identity = hex::encode(id.as_ref());
++    if s.fault_events.len() < 1024
++        && !s
++            .fault_events
++            .iter()
++            .any(|e| e["kind"] == kind && e["header"] == identity)
++    {
++        let replica = s.cfg.id;
++        s.fault_events
++            .push(json!({"kind":kind,"header":identity,"replica":replica,"at_us":now()}));
++    }
++}
++pub fn withhold(header: &crate::Header) {
++    if !enabled() || header.payload.is_empty() {
++        return;
++    }
++    let mut s = STATE.get().unwrap().lock().unwrap();
++    let Some(f) = s.cfg.payload_fault.clone() else {
++        return;
++    };
++    if s.frozen
++        || f.source != s.cfg.id
++        || s.withheld.len() >= f.initial_headers
++        || s.withheld.contains(&header.id)
++    {
++        return;
++    }
++    s.withheld.push(header.id.clone());
++    s.fault_events.push(json!({"kind":"initial_header_withheld","header":hex::encode(header.id.as_ref()),
++        "source":f.source,"recipient":f.recipient,"payload_bytes":header.payload.iter().map(|p|p.len()).sum::<usize>(),"at_us":now()}));
++}
++pub fn publish_to(header: &NativeDigest, peer: &PublicKey) -> bool {
++    if !enabled() {
++        return true;
++    }
++    let s = STATE.get().unwrap().lock().unwrap();
++    match &s.cfg.payload_fault {
++        Some(f) => {
++            !(s.withheld.contains(header)
++                && s.cfg.members[f.recipient] == hex::encode(peer.as_ref()))
++        }
++        None => true,
++    }
++}
++pub fn reconstructed(id: &NativeDigest, length: usize) -> Option<Vec<Vec<u8>>> {
++    if !enabled() {
++        return None;
++    }
++    let s = STATE.get().unwrap().lock().unwrap();
++    let path = s
++        .cfg
++        .directory
++        .join(format!("payload-{}.bin", hex::encode(id.as_ref())));
++    if !path.exists() {
++        return None;
++    }
++    let bytes = fs::read(path).unwrap();
++    assert!(length <= bytes.len() && bytes.len() <= 64 * 1024 * 1024);
++    use bincode::Options;
++    Some(
++        bincode::DefaultOptions::new()
++            .with_fixint_encoding()
++            .with_limit(length as u64)
++            .reject_trailing_bytes()
++            .deserialize(&bytes[..length])
++            .expect("canonical reconstructed payload"),
++    )
++}
++pub fn decide(round: u64, id: NativeDigest) {
++    if !enabled() {
++        return;
++    }
++    let mut s = STATE.get().unwrap().lock().unwrap();
++    if s.frozen {
++        return;
++    }
++    assert!(
++        s.pending.len() < 65536,
++        "application backlog envelope exhausted"
++    );
++    s.pending.push_back((round, id));
++}
++fn flush_one() -> bool {
++    let (round, id, path) = {
++        let s = STATE.get().unwrap().lock().unwrap();
++        if s.frozen || now() >= s.deadline {
++            return false;
++        }
++        match s.pending.front() {
++            None => return false,
++            Some((round, id)) => (
++                *round,
++                id.clone(),
++                s.cfg
++                    .directory
++                    .join(format!("header-{}.bin", hex::encode(id.as_ref()))),
++            ),
++        }
++    };
++    if !path.exists() {
++        return false;
++    }
++    let bytes = fs::read(path).unwrap();
++    let header: crate::Header = bincode::deserialize(&bytes).unwrap();
++    use crypto::Hash;
++    assert_eq!(header.id, id);
++    assert_eq!(header.digest(), id);
++    materialize(round, id.clone(), bytes, &header.payload);
++    let mut s = STATE.get().unwrap().lock().unwrap();
++    assert_eq!(s.pending.pop_front(), Some((round, id)));
++    true
++}
++
++pub fn payload(maximum_bytes: usize) -> Vec<Vec<u8>> {
++    let owner = STATE.get().expect("workload started");
++    let mut s = owner.lock().unwrap();
++    if let Some(f) = s.cfg.payload_fault.clone() {
++        if !s.frozen && s.cfg.id == f.source && s.attacker_headers < f.initial_headers {
++            let mut payload = b"DLG-FAULT".to_vec();
++            payload.resize(s.cfg.useful_bytes.max(9), 0xA5);
++            assert!(payload.len() <= maximum_bytes);
++            s.attacker_headers += 1;
++            return vec![payload];
++        }
++    }
++    let mut out = vec![];
++    let mut bytes = 0;
++    while !s.frozen
++        && s.queue
++            .front()
++            .map(|t| bytes + t.len() <= maximum_bytes)
++            .unwrap_or(false)
++    {
++        let tx = s.queue.pop_front().unwrap();
++        bytes += tx.len();
++        if let Some((_, seq)) = identify(&s.cfg, &tx) {
++            s.rows[seq as usize].batch = now();
++        }
++        out.push(tx);
++    }
++    out
++}
++
++pub fn materialize(round: u64, header: NativeDigest, native_header: Vec<u8>, payload: &[Vec<u8>]) {
++    if !enabled() {
++        return;
++    }
++    let mut s = STATE.get().unwrap().lock().unwrap();
++    if s.frozen || now() >= s.deadline {
++        return;
++    }
++    let mut rows = vec![];
++    let mut staged = std::collections::HashSet::new();
++    let mut credits = vec![];
++    for tx in payload {
++        if let Some((origin, seq)) = identify(&s.cfg, tx) {
++            let index = (s.counts[..origin].iter().sum::<u64>() + seq) as usize;
++            let first = !s.seen[index] && staged.insert(index);
++            let own = origin == s.cfg.id && first && s.rows[seq as usize].admitted != 0;
++            if own {
++                credits.push(seq as usize);
++            }
++            rows.push(json!({"origin":origin,"sequence":seq,"request_id":hex::encode(Sha256::digest(tx)),"first_seen":first,"own_credit":own}));
++        }
++    }
++    // The endpoint follows complete native-body and request validation. Prepare
++    // the record before publishing any credit; deadline crossing stays censored.
++    let at = now();
++    if at >= s.deadline {
++        return;
++    }
++    let value = json!({"ordinal":s.output_rows,"round":round,"header":hex::encode(header.as_ref()),
++        "native_header_bincode_hex":hex::encode(native_header),"materialized_us":at,"transactions":rows});
++    let bytes = serde_json::to_vec(&value).unwrap();
++    assert!(bytes.len() <= 64 * 1024 * 1024);
++    assert!(s.output_bytes + bytes.len() as u64 + 1 <= s.cfg.journal_limit_bytes);
++    s.output.write_all(&bytes).unwrap();
++    s.output.write_all(b"\n").unwrap();
++    s.output_rows += 1;
++    s.output_bytes += bytes.len() as u64 + 1;
++    for index in staged {
++        s.seen[index] = true;
++    }
++    for seq in credits {
++        s.rows[seq].done = at;
++    }
++}
++
++fn journal(path: PathBuf, limit: u64, mut f: impl FnMut(Value)) -> u64 {
++    assert!(!path.is_symlink() && fs::metadata(&path).unwrap().len() <= limit);
++    let mut reader = BufReader::new(File::open(path).unwrap());
++    let mut ordinal = 0;
++    loop {
++        let mut bytes = Vec::new();
++        let n = reader
++            .by_ref()
++            .take(64 * 1024 * 1024 + 1)
++            .read_until(b'\n', &mut bytes)
++            .unwrap();
++        if n == 0 {
++            break;
++        }
++        assert!(n <= 64 * 1024 * 1024 && bytes.last() == Some(&b'\n'));
++        f(serde_json::from_slice(&bytes).unwrap());
++        ordinal += 1;
++        assert!(ordinal <= 4_800_000);
++    }
++    ordinal
++}
++
++/// Authenticate a frozen archive and re-decode every complete native header.
++/// This checks materialization evidence, not a new consensus/certificate rule.
++pub fn verify(config_path: &str, directory: &str) {
++    use bincode::Options;
++    use crypto::Hash;
++    let raw = fs::read(config_path).unwrap();
++    assert!(raw.len() <= 1024 * 1024);
++    let cfg: Configuration = serde_json::from_slice(&raw).unwrap();
++    assert!(
++        cfg.schema == 1 && [4, 10, 50].contains(&cfg.members.len()) && cfg.id < cfg.members.len()
++    );
++    assert!(
++        cfg.total_rate <= 80_000
++            && cfg.duration_ms > 0
++            && cfg.duration_ms <= 60_000
++            && cfg.drain_ms <= 15_000
++    );
++    assert!(
++        !cfg.honest_origins.is_empty()
++            && cfg.honest_origins.windows(2).all(|w| w[0] < w[1])
++            && *cfg.honest_origins.last().unwrap() < cfg.members.len()
++    );
++    assert!((1..=4096).contains(&cfg.useful_bytes));
++    assert!(cfg.journal_limit_bytes > 0 && cfg.journal_limit_bytes <= 4 * 1024 * 1024 * 1024);
++    let directory = PathBuf::from(directory);
++    let final_path = directory.join("final.json");
++    assert!(!final_path.is_symlink() && fs::metadata(&final_path).unwrap().len() < 1024 * 1024);
++    let receipt: Value = serde_json::from_slice(&fs::read(final_path).unwrap()).unwrap();
++    let bytes = hex::decode(receipt["body_hex"].as_str().unwrap()).unwrap();
++    let body: Value = serde_json::from_slice(&bytes).unwrap();
++    assert_eq!(receipt["body"], body);
++    let signature: Signature = serde_json::from_value(receipt["signature"].clone()).unwrap();
++    let key: [u8; 32] = hex::decode(&cfg.members[cfg.id])
++        .unwrap()
++        .try_into()
++        .unwrap();
++    signature
++        .verify(
++            &NativeDigest(Sha256::digest(&bytes).into()),
++            &PublicKey(key),
++        )
++        .unwrap();
++    assert_eq!(
++        body["configuration_sha256"],
++        hex::encode(Sha256::digest(&raw))
++    );
++    assert_eq!(body["schema"], 1);
++    assert_eq!(body["run_id"], cfg.run_id);
++    assert_eq!(body["id"], cfg.id);
++    let epoch = body["epoch_us"].as_u64().unwrap();
++    let end = epoch + cfg.duration_ms * 1000;
++    let deadline = end + cfg.drain_ms * 1000;
++    assert_eq!(body["deadline_us"], deadline);
++    assert!(body["freeze_us"].as_u64().unwrap() >= deadline);
++    if let Some(traffic) = body.get("traffic") {
++        assert_eq!(traffic["window_start_us"], epoch);
++        assert_eq!(traffic["window_end_us"], end);
++        let begin = traffic["sample_start_us"].as_u64().unwrap();
++        let finish = traffic["sample_end_us"].as_u64().unwrap();
++        assert!(begin >= deadline && finish >= begin);
++        for (window, total) in [
++            ("window_written_bytes", "written_bytes"),
++            ("window_read_bytes", "read_bytes"),
++        ] {
++            assert!(
++                traffic["counters"][window].as_u64().unwrap()
++                    <= traffic["counters"][total].as_u64().unwrap()
++            );
++        }
++    }
++    let files = body["files"].as_array().unwrap();
++    assert_eq!(files.len(), 2);
++    for (descriptor, name) in files.iter().zip(["requests.jsonl", "output.jsonl"]) {
++        assert_eq!(descriptor["name"], name);
++        let path = directory.join(name);
++        assert!(
++            !path.is_symlink() && fs::metadata(&path).unwrap().len() <= cfg.journal_limit_bytes
++        );
++        assert_eq!(*descriptor, file_record(path));
++    }
++    let counts: Vec<u64> = (0..cfg.members.len()).map(|i| count(&cfg, i)).collect();
++    let mut rows = Vec::new();
++    let mut populations = [0u64; 5];
++    journal(
++        directory.join("requests.jsonl"),
++        cfg.journal_limit_bytes,
++        |value| {
++            let seq = rows.len() as u64;
++            assert!(seq < counts[cfg.id]);
++            assert_eq!(value["origin"], cfg.id);
++            assert_eq!(value["sequence"], seq);
++            assert_eq!(value["useful_bytes"], cfg.useful_bytes);
++            assert_eq!(
++                value["request_id"],
++                hex::encode(Sha256::digest(transaction(&cfg, cfg.id, seq)))
++            );
++            let scheduled = scheduled(&cfg, cfg.id, seq, epoch);
++            assert_eq!(value["scheduled_us"], scheduled);
++            let time = |field: &str| {
++                if value[field].is_null() {
++                    0
++                } else {
++                    value[field].as_u64().unwrap()
++                }
++            };
++            let row = Row {
++                offered: time("offered_us"),
++                admitted: time("admitted_us"),
++                rejected: time("rejected_us"),
++                cancelled: time("cancelled_us"),
++                batch: time("batch_ready_us"),
++                done: time("materialized_us"),
++            };
++            if row.offered == 0 {
++                assert_eq!(
++                    row.admitted + row.rejected + row.cancelled + row.batch + row.done,
++                    0
++                );
++            } else {
++                assert!(scheduled <= row.offered && row.offered < end);
++                assert_eq!(
++                    [row.admitted, row.rejected, row.cancelled]
++                        .iter()
++                        .filter(|t| **t != 0)
++                        .count(),
++                    1
++                );
++                for t in [row.admitted, row.rejected].iter().filter(|t| **t != 0) {
++                    assert!(row.offered <= *t && *t < end);
++                }
++                if row.cancelled != 0 {
++                    assert!(row.cancelled >= end && row.cancelled >= row.offered);
++                }
++                if row.admitted == 0 {
++                    assert_eq!(row.batch + row.done, 0);
++                }
++                if row.batch != 0 {
++                    assert!(row.admitted > 0 && row.batch >= row.admitted);
++                }
++                if row.done != 0 {
++                    assert!(row.batch > 0 && row.done >= row.batch && row.done < deadline);
++                }
++            }
++            for (i, t) in [
++                row.offered,
++                row.admitted,
++                row.rejected,
++                row.cancelled,
++                row.done,
++            ]
++            .iter()
++            .enumerate()
++            {
++                populations[i] += u64::from(*t != 0);
++            }
++            rows.push(row);
++        },
++    );
++    assert_eq!(rows.len() as u64, counts[cfg.id]);
++    let [offered, admitted, rejected, cancelled, completed] = populations;
++    assert_eq!(
++        body["populations"],
++        json!({"planned":rows.len(),"offered":offered,"admitted":admitted,"rejected":rejected,"cancelled":cancelled,"completed":completed,"unfinished":admitted-completed,"unoffered":rows.len() as u64-offered})
++    );
++    let mut seen = vec![false; counts.iter().sum::<u64>() as usize];
++    let mut credits = vec![false; rows.len()];
++    let mut ordinal = 0;
++    let mut last_round = 0;
++    let mut last_time = epoch;
++    journal(
++        directory.join("output.jsonl"),
++        cfg.journal_limit_bytes,
++        |value| {
++            assert_eq!(value["ordinal"], ordinal);
++            let round = value["round"].as_u64().unwrap();
++            assert!(round >= last_round);
++            last_round = round;
++            let at = value["materialized_us"].as_u64().unwrap();
++            assert!(at >= last_time && at < deadline);
++            last_time = at;
++            let raw = hex::decode(value["native_header_bincode_hex"].as_str().unwrap()).unwrap();
++            assert!(raw.len() <= 32 * 1024 * 1024);
++            let header: crate::Header = bincode::DefaultOptions::new()
++                .with_fixint_encoding()
++                .with_limit(raw.len() as u64)
++                .reject_trailing_bytes()
++                .deserialize(&raw)
++                .unwrap();
++            assert_eq!(bincode::serialize(&header).unwrap(), raw);
++            assert_eq!(header.digest(), header.id);
++            assert_eq!(value["header"], hex::encode(header.id.as_ref()));
++            assert!(cfg.members.contains(&hex::encode(header.author.as_ref())));
++            let mut expected = vec![];
++            for tx in &header.payload {
++                if let Some((origin, seq)) = identify(&cfg, tx) {
++                    let index = (counts[..origin].iter().sum::<u64>() + seq) as usize;
++                    let first = !seen[index];
++                    seen[index] = true;
++                    let own = origin == cfg.id && first && rows[seq as usize].admitted != 0;
++                    if own {
++                        assert_eq!(rows[seq as usize].done, at);
++                        credits[seq as usize] = true;
++                    }
++                    expected.push(json!({"origin":origin,"sequence":seq,"request_id":hex::encode(Sha256::digest(tx)),"first_seen":first,"own_credit":own}));
++                }
++            }
++            assert_eq!(value["transactions"], json!(expected));
++            ordinal += 1;
++        },
++    );
++    assert_eq!(body["output_rows"], ordinal);
++    assert!(rows
++        .iter()
++        .enumerate()
++        .all(|(i, r)| (r.done != 0) == credits[i]));
++    println!(
++        "{}",
++        json!({"verified":true,"id":cfg.id,"output_rows":ordinal,"last_round":last_round,"populations":body["populations"]})
++    );
++}
+--- a/primary/src/lib.rs
++++ b/primary/src/lib.rs
+@@ -23,3 +23,5 @@
+ pub use crate::error::DagError;
+ pub use crate::messages::{Certificate, Header};
+ pub use crate::primary::{Primary, PrimaryWorkerMessage, Height, WorkerPrimaryMessage};
++
++pub mod evaluation;
+--- a/primary/Cargo.toml
++++ b/primary/Cargo.toml
+@@ -6,6 +6,11 @@
+ edition = "2018"
+ 
+ [dependencies]
++once_cell = "=1.21.3"
++serde_json = "1.0"
++sha2 = "=0.10.8"
++hex = "=0.4.3"
++libc = "0.2"
+ futures = "0.3.6"
+ serial_test = "0.9.0"
+ serde = { version = "1.0", features = ["derive"] }
+--- a/node/src/main.rs
++++ b/node/src/main.rs
+@@ -26,6 +26,9 @@
+     let matches = App::new(crate_name!())
+         .version(crate_version!())
+         .about("A research implementation of Narwhal and Tusk.")
++        .subcommand(SubCommand::with_name("verify_evaluation")
++            .args_from_usage("--configuration=<FILE> 'Frozen workload configuration'")
++            .args_from_usage("--directory=<PATH> 'Frozen observer directory'"))
+         .args_from_usage("-v... 'Sets the level of verbosity'")
+         .subcommand(
+             SubCommand::with_name("generate_keys")
+@@ -66,6 +69,8 @@
+         ("generate_keys", Some(sub_matches)) => KeyPair::new()
+             .export(sub_matches.value_of("filename").unwrap())
+             .context("Failed to generate key pair")?,
++        ("verify_evaluation",Some(args)) => primary::evaluation::verify(
++            args.value_of("configuration").unwrap(),args.value_of("directory").unwrap()),
+         ("run", Some(sub_matches)) => run(sub_matches).await?,
+         _ => unreachable!(),
+     }
+--- a/network/src/lib.rs
++++ b/network/src/lib.rs
+@@ -11,3 +11,5 @@
+ pub use crate::receiver::{MessageHandler, Receiver, Writer};
+ pub use crate::reliable_sender::{CancelHandler, ReliableSender};
+ pub use crate::simple_sender::SimpleSender;
++
++pub mod eval_tls;
+--- a/network/Cargo.toml
++++ b/network/Cargo.toml
+@@ -6,7 +6,15 @@
+ publish = false
+ 
+ [dependencies]
+-tokio = { version = "1.5.0", features = ["rt", "net", "sync", "macros", "time"] }
++once_cell = "=1.21.3"
++serde = { version = "1.0", features = ["derive"] }
++serde_json = "1.0"
++sha2 = "=0.10.8"
++hex = "=0.4.3"
++tokio-rustls = "=0.24.1"
++rustls-pemfile = "=1.0.4"
++libc = "0.2"
++tokio = { version = "1.5.0", features = ["rt", "net", "sync", "macros", "time", "io-util"] }
+ tokio-util = { version = "0.6.6", features = ["codec"] }
+ thiserror = "1.0.24"
+ bytes = "1.0.1"
+--- a/network/src/simple_sender.rs
++++ b/network/src/simple_sender.rs
+@@ -103,7 +103,7 @@
+     /// Main loop trying to connect to the peer and transmit messages.
+     async fn run(&mut self) {
+         // Try to connect to the peer.
+-        let (mut writer, mut reader) = match TcpStream::connect(self.address).await {
++        let (mut writer, mut reader) = match crate::eval_tls::connect(self.address).await {
+             Ok(stream) => Framed::new(stream, LengthDelimitedCodec::new()).split(),
+             Err(e) => {
+                 warn!(
+--- a/network/src/reliable_sender.rs
++++ b/network/src/reliable_sender.rs
+@@ -141,7 +141,7 @@
+         let mut delay = self.retry_delay;
+         let mut retry = 0;
+         loop {
+-            match TcpStream::connect(self.address).await {
++            match crate::eval_tls::connect(self.address).await {
+                 Ok(stream) => {
+                     info!("Outgoing connection established with {}", self.address);
+ 
+@@ -182,7 +182,7 @@
+     }
+ 
+     /// Transmit messages once we have established a connection.
+-    async fn keep_alive(&mut self, stream: TcpStream) -> NetworkError {
++    async fn keep_alive(&mut self, stream: crate::eval_tls::Stream) -> NetworkError {
+         // This buffer keeps all messages and handlers that we have successfully transmitted but for
+         // which we are still waiting to receive an ACK.
+         let mut pending_replies = VecDeque::new();
+--- a/network/src/receiver.rs
++++ b/network/src/receiver.rs
+@@ -15,7 +15,7 @@
+ pub mod receiver_tests;
+ 
+ /// Convenient alias for the writer end of the TCP channel.
+-pub type Writer = SplitSink<Framed<TcpStream, LengthDelimitedCodec>, Bytes>;
++pub type Writer = SplitSink<Framed<crate::eval_tls::Stream, LengthDelimitedCodec>, Bytes>;
+ 
+ #[async_trait]
+ pub trait MessageHandler: Clone + Send + Sync + 'static {
+@@ -68,6 +68,11 @@
+     /// using the provided handler.
+     async fn spawn_runner(socket: TcpStream, peer: SocketAddr, handler: Handler) {
+         tokio::spawn(async move {
++            let (socket, authenticated) = match crate::eval_tls::accept(socket).await {
++                Ok(value) => value,
++                Err(error) => { warn!("Authenticated channel rejected: {}", error); return; }
++            };
++            crate::eval_tls::PEER.scope(authenticated, async move {
+             let transport = Framed::new(socket, LengthDelimitedCodec::new());
+             let (mut writer, mut reader) = transport.split();
+             while let Some(frame) = reader.next().await {
+@@ -85,6 +90,7 @@
+                 }
+             }
+             warn!("Connection closed by peer {}", peer);
++            }).await;
+         });
+     }
+ }
+--- a/primary/src/primary.rs
++++ b/primary/src/primary.rs
+@@ -121,6 +121,7 @@
+ 
+         // Write the parameters to the logs.
+         // NOTE: These log entries are needed to compute performance.
++        crate::evaluation::start(name);
+         parameters.log();
+ 
+         // Atomic variable use to synchronizer all tasks with the latest consensus round. This is only
+@@ -314,7 +315,27 @@
+         let _ = writer.send(Bytes::from("Ack")).await;
+ 
+         // Deserialize and parse the message.
+-        match bincode::deserialize(&serialized).map_err(DagError::SerializationError)? {
++        let message: PrimaryMessage = bincode::deserialize(&serialized).map_err(DagError::SerializationError)?;
++        // Bind directly authored votes/requests to the channel identity. Header
++        // repair and forwarded certificate objects retain their native origin.
++        let direct_author = match &message {
++            PrimaryMessage::Timeout(m) => Some(&m.author),
++            PrimaryMessage::TimeoutAccept(m) => Some(&m.author),
++            PrimaryMessage::Decide(m) => Some(&m.author),
++            PrimaryMessage::CertificatesRequest(_, author) => Some(author),
++            PrimaryMessage::Vote(m) => Some(&m.author),
++            PrimaryMessage::CutVote(m) => Some(&m.author),
++            PrimaryMessage::CutProposal(m) => Some(&m.proposer),
++            PrimaryMessage::ConsensusVote(m) => Some(&m.author),
++            PrimaryMessage::HeadersRequest(_, author) => Some(author),
++            PrimaryMessage::ProposalHeadersRequest(_, _, author) => Some(author),
++            _ => None,
++        };
++        if let Some(author) = direct_author { network::eval_tls::require_peer(author.as_ref())?; }
++        if let PrimaryMessage::Header(header,true)=&message {
++            crate::evaluation::fault_event("repair_received",&header.id);
++        }
++        match message {
+             PrimaryMessage::CertificatesRequest(missing, requestor) => self
+                 .tx_cert_requests
+                 .send((missing, requestor))
+--- a/primary/src/proposer.rs
++++ b/primary/src/proposer.rs
+@@ -84,7 +84,7 @@
+             .take()
+             .expect("no parent available")
+             .header_id;
+-        let payload = vec![vec![0u8; self.tx_size]; self.header_size / self.tx_size];
++        let payload = if crate::evaluation::enabled() { crate::evaluation::payload(self.header_size) } else { vec![vec![0u8; self.tx_size]; self.header_size / self.tx_size] };
+         let header = Header::new(self.name, self.height, payload, parent).await;
+ 
+         #[cfg(feature = "benchmark")]
+--- a/primary/src/committer.rs
++++ b/primary/src/committer.rs
+@@ -96,36 +96,28 @@
+         round: Slot,
+         proposals: &HashMap<PublicKey, crate::messages::Proposal>,
+     ) -> crate::error::DagResult<()> {
++        // Preflight every selected lane before advancing application state.
++        // This preserves the native committed cut and deterministically expands
++        // its complete payload; a missing lane cannot publish a partial cut.
++        let mut prepared = Vec::new();
+         for (pk, proposal) in proposals {
+-            let has_matching_certificate = state
+-                .dag
+-                .get(&proposal.height)
+-                .and_then(|per_authority| per_authority.get(pk))
+-                .map(|(_, certificate)| certificate.header_id == proposal.header_digest)
+-                .unwrap_or(false);
+-
+-            if !has_matching_certificate {
+-                return Err(DagError::MalformedHeader(proposal.header_digest.clone()));
+-            }
+-
+-            let stop_height = *state.last_executed_heights.get(pk).unwrap_or(&0);
+-            if proposal.height <= stop_height {
+-                continue;
+-            }
+-
+-            let headers = self
+-                .synchronizer
+-                .get_all_headers_for_proposal(proposal.clone(), stop_height)
+-                .await?;
+-
+-            if proposal.height > stop_height {
+-                state.last_executed_heights.insert(*pk, proposal.height);
+-            }
+-
+-            for header in headers {
+-                info!("Committed {:?} ", header.id);
+-                let _ = self.tx_output.send(header).await;
+-            }
++            let matching = state.dag.get(&proposal.height).and_then(|a|a.get(pk))
++                .map(|(_,c)|c.header_id==proposal.header_digest).unwrap_or(false);
++            if !matching { return Err(DagError::MalformedHeader(proposal.header_digest.clone())); }
++            let stop = *state.last_executed_heights.get(pk).unwrap_or(&0);
++            if proposal.height>stop {
++                prepared.extend(self.synchronizer.get_all_headers_for_proposal(proposal.clone(),stop).await?);
++            }
++        }
++        prepared.sort_by_key(|header|(header.height,header.author,header.id.clone()));
++        for header in &prepared {
++            if header.digest()!=header.id {return Err(DagError::MalformedHeader(header.id.clone()));}
++        }
++        for (pk,proposal) in proposals {state.last_executed_heights.entry(*pk).and_modify(|h|*h=(*h).max(proposal.height));}
++        for header in prepared {
++            crate::evaluation::materialize(round,header.id.clone(),bincode::serialize(&header).unwrap(),&header.payload);
++            info!("Committed {:?} ",header.id);
++            let _ = self.tx_output.send(header).await;
+         }
+         Ok(())
+     }
+@@ -137,6 +129,10 @@
+     ) {
+         match commit_message {
+             ConsensusMessage::Commit { round, proposals } => {
++                if state.pending_commits.keys().any(|r|*r<round) {
++                    state.pending_commits.insert(round,ConsensusMessage::Commit{round,proposals});
++                    return;
++                }
+                 if state.log.contains_key(&round) {
+                     return;
+                 }
+@@ -169,7 +165,8 @@
+     }
+ 
+     async fn process_pending_commits(&mut self, state: &mut State) {
+-        let rounds: Vec<_> = state.pending_commits.keys().cloned().collect();
++        let mut rounds: Vec<_> = state.pending_commits.keys().cloned().collect();
++        rounds.sort();
+ 
+         for round in rounds {
+             let Some(commit_message) = state.pending_commits.get(&round).cloned() else {
+@@ -193,6 +190,7 @@
+                 Some(_) = self.rx_mempool.recv() => {},
+                 Some(commit_message) = self.rx_commit_message.recv() => {
+                     self.process_commit_message(state.borrow_mut(), commit_message).await;
++                    self.process_pending_commits(state.borrow_mut()).await;
+                 },
+                 Some(certificate) = self.rx_deliver.recv() => {
+                     state.dag
+--- a/primary/src/core.rs
++++ b/primary/src/core.rs
+@@ -339,11 +339,13 @@
+             },
+         );
+ 
+-        // Broadcast the new header in a reliable manner.
++        // Omit only selected initial bodies; native vote and repair paths stay active.
++        crate::evaluation::withhold(&header);
+         let addresses = self
+             .committee
+             .others_primaries(&self.name)
+             .iter()
++            .filter(|(pk,_)|crate::evaluation::publish_to(&header.id,pk))
+             .map(|(_, x)| x.primary_to_primary)
+             .collect();
+         let bytes = bincode::serialize(&PrimaryMessageRef::Header(&header, false))
+@@ -727,27 +729,25 @@
+     }
+ 
+     async fn emit_commit_to_committer(&mut self, round: u64, cut_id: &Digest) {
+-        if self.sent_commit_rounds.contains(&round) {
+-            return;
+-        }
+-
+-        let Some(cut) = self.cut_proposals.get(cut_id) else {
+-            return;
+-        };
+-
+-        let proposals: HashMap<PublicKey, Proposal> = cut
+-            .tips
+-            .iter()
+-            .map(|(pk, proposal)| (*pk, proposal.clone()))
+-            .collect();
+-
+-        let commit_msg = ConsensusMessage::Commit { round, proposals };
+-
+-        if self.tx_committer.send(commit_msg).await.is_err() {
+-            return;
+-        }
+-
+-        self.sent_commit_rounds.insert(round);
++        // Expand a decided native cut in ancestor order. Do not expose a
++        // descendant before an earlier cut whose individual Decide was delayed.
++        // This changes application delivery only, not votes or commit predicates.
++        let mut path=Vec::new();
++        let mut next=cut_id.clone();
++        let mut bound=round+1;
++        while next!=Digest::default() {
++            let Some(cut)=self.cut_proposals.get(&next) else {return;};
++            if self.sent_commit_rounds.contains(&cut.round) {break;}
++            if cut.round>=bound || cut.digest()!=next {return;}
++            bound=cut.round;
++            path.push(cut.clone());
++            next=cut.parent_cut.clone();
++        }
++        for cut in path.into_iter().rev() {
++            let proposals=cut.tips.into_iter().collect();
++            if self.tx_committer.send(ConsensusMessage::Commit{round:cut.round,proposals}).await.is_err(){return;}
++            self.sent_commit_rounds.insert(cut.round);
++        }
+     }
+ 
+     #[async_recursion]
+--- a/primary/src/aggregators.rs
++++ b/primary/src/aggregators.rs
+@@ -185,7 +185,10 @@
+         ensure!(self.used.insert(author), DagError::AuthorityReuse(author));
+         self.voters.push(author);
+         self.weight += committee.stake(&author);
+-        if self.weight >= committee.optimistic_threshold() {
++        // The published constructor emitted at 2 votes for n=4,f=1,
++        // then reset; its own verifier requires 3. With one silent member no
++        // valid certificate was ever emitted. Preserve both native predicates.
++        if self.weight >= committee.optimistic_threshold().max(committee.quorum_threshold()) {
+             self.weight = 0;
+             return Ok(Some(CutCertificate {
+                 round: vote.round,
+@@ -340,3 +343,34 @@
+         Ok(None)
+     }
+ }
++
++
++#[cfg(test)]
++mod evaluation_threshold_tests {
++    use super::*;
++    use config::{Authority,ConsensusAddresses,PrimaryAddresses};
++    use std::collections::{BTreeMap,HashMap};
++    #[test]
++    fn constructed_cut_certificate_meets_its_native_verifier() {
++        for n in [4u32,10,50] {
++            let mut authorities=BTreeMap::new();
++            for i in 0..n {
++                authorities.insert(PublicKey([(i+1) as u8;32]),Authority{
++                    node_id:Some(i as usize),stake:1,
++                    consensus:ConsensusAddresses{consensus_to_consensus:"127.0.0.1:19000".parse().unwrap()},
++                    primary:PrimaryAddresses{primary_to_primary:"127.0.0.1:19001".parse().unwrap(),worker_to_primary:"127.0.0.1:19002".parse().unwrap()},
++                    workers:HashMap::new()});
++            }
++            let committee=Committee::new(authorities,(n-1)/3);
++            let threshold=committee.optimistic_threshold().max(committee.quorum_threshold());
++            let mut aggregator=CutVoteAggregator::new();
++            for i in 0..threshold {
++                let vote=CutVote{round:2,cut_id:Digest([1;32]),author:PublicKey([(i+1) as u8;32])};
++                let certificate=aggregator.append(&vote,&committee).unwrap();
++                if i+1<threshold {assert!(certificate.is_none());}
++                else {certificate.unwrap().verify(&committee).unwrap();}
++            }
++            assert_eq!(threshold,match n {4=>3,10=>7,50=>40,_=>unreachable!()});
++        }
++    }
++}
+--- a/primary/src/synchronizer.rs
++++ b/primary/src/synchronizer.rs
+@@ -57,6 +57,7 @@
+     }
+ 
+     pub async fn fetch_header(&mut self, header_digest: Digest) -> DagResult<()> {
++        crate::evaluation::fault_event("repair_requested",&header_digest);
+         self.tx_header_waiter
+             .send(WaiterMessage::SyncHeader(header_digest))
+             .await

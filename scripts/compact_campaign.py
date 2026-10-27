@@ -82,11 +82,15 @@ def validate(config):
     if config['timing']['mapping'] != 'native_reviewed':
         raise ValueError('native timeout relationships must be retained')
     fields(config['batching'], ('useful_bytes_target', 'max_wait_ms'), 'batching')
-    integer(config['batching']['useful_bytes_target'], 1, 16*1024**2, 'batch useful bytes')
-    integer(config['batching']['max_wait_ms'], 1, 60_000, 'batch maximum wait')
+    if config['batching']['useful_bytes_target'] is not None:
+        integer(config['batching']['useful_bytes_target'], 1, 16*1024**2, 'batch useful bytes')
+    if config['batching']['max_wait_ms'] is not None:
+        integer(config['batching']['max_wait_ms'], 1, 60_000, 'batch maximum wait')
     fields(config['proposal_budget'], ('useful_bytes', 'max_payload_refs'), 'proposal budget')
-    integer(config['proposal_budget']['useful_bytes'], 1, 64*1024**2, 'proposal useful bytes')
-    integer(config['proposal_budget']['max_payload_refs'], 1, 4096, 'proposal references')
+    if config['proposal_budget']['useful_bytes'] is not None:
+        integer(config['proposal_budget']['useful_bytes'], 1, 64*1024**2, 'proposal useful bytes')
+    if config['proposal_budget']['max_payload_refs'] is not None:
+        integer(config['proposal_budget']['max_payload_refs'], 1, 4096, 'proposal references')
     faults = config['fault_cases']
     if (not isinstance(faults, list) or any(not isinstance(f, str) or f not in
             ('missing-data', 'silent-first-leader') for f in faults) or len(set(faults)) != len(faults)):
@@ -118,6 +122,15 @@ def origin_plan(rate, duration_us, members, honest_origins):
             'counts': [0 if i not in honest_origins else max(0, (total + k - 1 - honest_origins.index(i)) // k)
                        for i in range(members)],
             'schedule': 'floor((sequence*honest_origin_count+origin_rank)*1000000/rate_tps)'}
+
+
+def arrival_offset_us(plan, origin, sequence):
+    """Exact intended time; independent of batching, admission and completion."""
+    if (type(origin) is not int or origin not in plan['honest_origins'] or
+            type(sequence) is not int or not 0 <= sequence < plan['counts'][origin]):
+        raise ValueError('request is outside the selected honest-origin population')
+    ordinal=sequence*len(plan['honest_origins'])+plan['honest_origins'].index(origin)
+    return ordinal*1_000_000//plan['rate_tps']
 
 
 def create_plan(config, *, root=spec_provenance.ROOT):

@@ -198,7 +198,8 @@ def assert_correct_prefixes(controller, snapshots, correct):
 
 def replica_network_ports(config):
     addresses = config["addresses"]
-    if not 4 <= len(addresses) <= 31 or (len(addresses) - 1) % 3 or any(not address.startswith("127.0.0.1:") for address in addresses):
+    selected_fifty=len(addresses)==50 and config.get('resource_profile')=='complete-64mib-n50-v1'
+    if (not selected_fifty and (not 4 <= len(addresses) <= 31 or (len(addresses) - 1) % 3)) or any(not address.startswith("127.0.0.1:") for address in addresses):
         raise ValueError("Shaping expects a supported 3f+1 loopback committee")
     ports = [int(address.rsplit(":", 1)[1]) for address in addresses]
     if len(set(ports)) != len(addresses) or any(not 1 <= port <= 65535 for port in ports):

@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "date": "2026-10-27",
+  "status": "channel_qualified",
+  "comparison_eligible": false,
+  "native_primary_compile": [
+    "simpleit-mempool",
+    "simpleit-dispersed"
+  ],
+  "live_channel_cases": [
+    "valid peer accepted",
+    "forged direct author rejected",
+    "foreign run CA rejected",
+    "wrong destination certificate rejected"
+  ],
+  "source_files": {
+    "scripts/baselines/simpleit.py": "e9fb3e9a5a40502b7080e258b6d3ffaaa63dba986f176c4ad7e61678c32b19a1",
+    "scripts/baselines/simpleit_auth.py": "29f757c8055112bd26530831e76fa863ea252a53c3ecfb18ecdaaf0d6b822927",
+    "scripts/baselines/simpleit_tls.rs": "56aef9fd3e7f6b2aeaa654f730832775b9ce2ee90d7a071112a7ebe279925b74",
+    "scripts/baselines/simpleit_tls_probe.rs": "e561743ee667f3ce31d8b2defd486141ba67d14df05ea90bfef0d7d5cf5a9c4f",
+    "tests/simpleit_auth_test.py": "950b8d7ac63540f0d4ecd879429dffa68c31fd5c916101f0b90c71da925c7683"
+  },
+  "toolchain": "rustc 1.94.0-nightly (31010ca61 2025-12-16)\nbinary: rustc\ncommit-hash: 31010ca61c3ff019e1480dda0a7ef16bd2bd51c0\ncommit-date: 2025-12-16\nhost: aarch64-apple-darwin\nrelease: 1.94.0-nightly\nLLVM version: 21.1.8\n",
+  "remaining": [
+    "native certificate and full fallback adversarial qualification",
+    "Linux release/resource/network/observer qualification",
+    "full campaign routing"
+  ],
+  "locks": {
+    "simpleit-mempool": {
+      "path": "benchmarks/locks/simpleit-mempool-evaluation-2026-10-27.lock",
+      "sha256": "1a5f730b54bd7d16a4f2903d20d67cf31c7fab0257959fa195eb554d21deafe1"
+    },
+    "simpleit-dispersed": {
+      "path": "benchmarks/locks/simpleit-dispersed-evaluation-2026-10-27.lock",
+      "sha256": "844308ab2a1346d97b3ff37e326424afc2014f5a028c097d715afac9280769f3"
+    }
+  },
+  "receipt": "results/local/simpleit-current-channel-test-20261027/receipt.json"
+}
