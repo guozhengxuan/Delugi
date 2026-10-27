@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 import copy
 import hashlib
+import gzip
 import ipaddress
 import json
 import os
@@ -157,7 +158,8 @@ class Connection(placement.Connection):
 
     def rpc(self, request):
         helper = self.host['artifact']['directory'] + '/source/scripts/common_cloud_worker.py'
-        result = self.command([self.python(), helper], input=json.dumps(request), text=True, capture_output=True, timeout=40)
+        result = self.command([self.python(), helper], input=json.dumps(request), text=True, capture_output=True,
+                              timeout=330 if request.get('action')=='verify' else 40)
         if len(result.stdout) > 16*1024**2:
             raise ValueError('RPC reply exceeds bound')
         return json.loads(result.stdout)
@@ -172,20 +174,22 @@ class Connection(placement.Connection):
             raise ValueError('installed artifact differs from plan')
         return value
 
-    def collect(self, nonce, directory):
+    def collect(self, nonce, directory, *, compact=False):
         directory = Path(directory)
         directory.mkdir(mode=0o700, parents=True, exist_ok=False)
-        archive = directory / 'evidence.stream'
+        archive = directory / ('evidence.stream.gz' if compact else 'evidence.stream')
         helper = self.host['artifact']['directory'] + '/source/scripts/common_cloud_worker.py'
         with archive.open('xb') as stream:
-            self.command([self.python(), helper], input=json.dumps({'action': 'export', 'nonce': nonce}).encode(),
-                         stdout=stream, stderr=subprocess.PIPE, timeout=180)
-        if archive.stat().st_size > 520*1024**2:
+            self.command([self.python(), helper], input=json.dumps({'action': 'export', 'nonce': nonce,
+                **({'compression':'gzip'} if compact else {})}).encode(),
+                         stdout=stream, stderr=subprocess.PIPE, timeout=900 if compact else 180)
+        limit=16*1024**3 if compact else 512*1024**2
+        if archive.stat().st_size > limit+8*1024**2:
             raise ValueError('collected evidence exceeds pilot bound')
         extracted = directory / 'files'; extracted.mkdir(mode=0o700)
-        with archive.open('rb') as stream:
-            record = runtime_evidence.unpack(stream, extracted, expected_metadata={'nonce': nonce, 'format': 'common-pilot-evidence-v1'},
-                                               max_files=100, max_payload_bytes=512*1024**2)
+        with (gzip.open(archive,'rb') if compact else archive.open('rb')) as stream:
+            record = runtime_evidence.unpack(stream, extracted, expected_metadata={'nonce': nonce, 'format': 'common-sustained-evidence-v1' if compact else 'common-pilot-evidence-v1'},
+                                               max_files=100, max_payload_bytes=limit)
         save(directory / 'collection.json', record)
         return record
 
@@ -353,7 +357,7 @@ def run_trial(plan, protocol, case, directory, connection_factory=Connection):
 
 
 @contextmanager
-def campaign_connections():
+def campaign_connections(connection_type=Connection):
     """Reuse authenticated SSH sessions in a private, campaign-owned directory.
 
     A fresh authentication for every polling/control action can exhaust a local
@@ -371,7 +375,7 @@ def campaign_connections():
             path = root/key
             with lock:
                 hosts[key] = (copy.deepcopy(host), path)
-            return Connection(host, path)
+            return connection_type(host, path)
         try:
             yield factory
         finally:
@@ -418,8 +422,11 @@ def campaign(plan, output, connection_factory=Connection):
     return result
 
 
-def publish(inventory, archive, expected_sha, binary_sha, output, connection_factory=Connection):
-    validate_hosts(inventory)
+def publish(inventory, archive, expected_sha, binary_sha, output, connection_factory=Connection, *, compact=False):
+    if compact:
+        placement.validate_hosts(inventory)
+        if len(inventory['hosts']) not in (4,10,50):raise ValueError('compact publication requires4/10/50 hosts')
+    else:validate_hosts(inventory)
     if sha(archive)!=expected_sha: raise ValueError('publication archive changed')
     raptr.hex_hash(binary_sha)
     root='/tmp/delugi-common-'+expected_sha
@@ -464,11 +471,13 @@ os.chmod(root/'node',0o700)
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     commands=parser.add_subparsers(dest='command',required=True)
-    campaign=commands.add_parser('campaign',help='resolve the compact one-minute campaign without cloud operations')
+    campaign=commands.add_parser('campaign',help='plan, resolve or execute the compact campaign on owned fleets')
     campaign.add_argument('--config',type=Path,required=True)
     action=campaign.add_mutually_exclusive_group(required=True)
     action.add_argument('--plan',action='store_true')
     action.add_argument('--resolve',action='store_true',help='validate all adapter requests and record effective native settings; no SSH')
+    action.add_argument('--execute',action='store_true',help='publish/run/collect/delete using an exact authorized lease and artifact catalog')
+    campaign.add_argument('--authorization',type=Path)
     campaign.add_argument('--output',type=Path)
     lease=commands.add_parser('instances',help='exact-ID lease create/status/start/stop/delete')
     lease.add_argument('action',choices=('initialize','launch','refresh','peers','start','stop','destroy'))
@@ -504,10 +513,14 @@ def main():
     if args.command=='campaign':
         import compact_campaign
         result=compact_campaign.create_plan(json.loads(args.config.read_text()))
-        if args.resolve:
+        if args.execute:
+            if args.authorization is None or args.output is None:raise ValueError('execution requires authorization and persistent output directory')
+            import campaign_execute
+            result=campaign_execute.execute(result,json.loads(args.authorization.read_text()),args.output)
+        elif args.resolve:
             import campaign_adapters
             result={'plan':result,'resolved':campaign_adapters.resolve_plan(result),'status':'resolved','comparison_eligible':False}
-        if args.output is not None:
+        if args.output is not None and not args.execute:
             if args.output.exists(): raise ValueError('choose a new immutable campaign plan path')
             save(args.output,result)
     elif args.command=='instances':

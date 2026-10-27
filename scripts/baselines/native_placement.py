@@ -1,6 +1,7 @@
 """Fixed native placement recipes; all timing below belongs to one validator host."""
 from __future__ import annotations
 import json
+import base64
 import os
 from pathlib import Path
 import stat
@@ -56,7 +57,9 @@ def settings(value, nodes, protocol="autobahn"):
             raise ValueError('Simple-IT uses explicit native case hooks and no offered warmup')
         expected=[] if result['case']=='healthy' else [1 if result['case']=='silent-first-leader' else 0]
         if faulty!=expected:raise ValueError('Simple-IT faulty identities must match the fixed native hook')
-    elif result['case']!='healthy':raise ValueError('named native case hooks are only supported by Simple-IT')
+    elif result['case']!='healthy':
+        if protocol not in ('autobahn','mysticeti') or result['case']!='silent-first-leader' or faulty!=[1] or result['pause_replica'] is not None or result['omit_replica'] is not None:
+            raise ValueError('native first-leader case requires fixed absent identity1 and no timed injection')
     if len(set(faulty)) != len(faulty) or len(faulty) > (nodes-1)//3 or any(type(i) is not int or not 0 <= i < nodes for i in faulty):
         raise ValueError("fixed faulty identities exceed budget")
     if result["pause_replica"] is not None and (result["pause_replica"] not in faulty or not 0 <= result["pause_after"] < result["duration"] or not 0 < result["pause_seconds"] <= result["duration"] - result["pause_after"]):
@@ -104,8 +107,17 @@ def generate(protocol, root, ips, binaries, cfg, run_id, run=subprocess.run):
             selected[i] = [fixture/"genesis/committee.yaml", fixture/"genesis/public-config.yaml", fixture/"genesis"/f"private-config-{i}.yaml", client]
     elif protocol.startswith("autobahn"):
         authorities = {}; keys=[]
+        generated=[]
+        for i in range(n):
+            key=fixture/f'ceremony-{i}.json';command([binaries['node'],'generate_keys','--filename',str(key)])
+            generated.append(json.loads(key.read_text()));key.unlink()
+        generated.sort(key=lambda k:base64.b64decode(k['name'],validate=True))
+        # Native SemiParallelRR starts at(slot1,view1): rank2 in BTreeMap.
+        # Canonically place that key at deployment identity1 before any process
+        # starts. This changes placement only, not native leader election.
+        generated[1],generated[2]=generated[2],generated[1]
         for i, ip in enumerate(ips):
-            key = fixture/f"key-{i}.json"; command([binaries["node"], "generate_keys", "--filename", str(key)])
+            key = fixture/f"key-{i}.json";key.write_text(json.dumps(generated[i]))
             keys.append(key); name = json.loads(key.read_text())["name"]; port=9000+6*i
             authorities[name] = {"stake":1,"consensus":{"consensus_to_consensus":f"{ip}:{port}"},
                 "primary":{"primary_to_primary":f"{ip}:{port+1}","worker_to_primary":f"127.0.0.1:{port+2}"},
@@ -136,6 +148,22 @@ def generate(protocol, root, ips, binaries, cfg, run_id, run=subprocess.run):
             if path.is_symlink() or not path.is_file() or fixture not in path.parents: raise ValueError("generated configuration escaped owned ceremony")
             path.chmod(0o600)
     return selected
+
+
+def first_leader_record(protocol, root, replica):
+    """Check the real author election against the private ceremony placement."""
+    fixture=Path(root)/'fixture'
+    if protocol=='autobahn':
+        committee=json.loads((fixture/'committee.json').read_text())
+        names=sorted(committee['authorities'],key=lambda s:base64.b64decode(s,validate=True))
+        own=json.loads((fixture/f'key-{replica}.json').read_text())['name']
+        if replica!=1 or own!=names[2]:raise ValueError('absent Autobahn identity is not(slot1,view1) leader')
+        return {'replica':1,'author':own,'slot':1,'view':1,'native_rule':'BTreeMap rank(slot+view)%n'}
+    if protocol=='mysticeti':
+        if replica!=1:raise ValueError('absent Mysticeti identity is not round1 leader offset0')
+        return {'replica':1,'round':1,'leader_offset':0,'native_rule':'(round+offset)%n',
+            'other_leader_offset_1_remains_honest':True}
+    raise ValueError('no absent-leader recipe for this native artifact')
 
 
 def launches(protocol, root, replica, binaries, cfg, python, epoch_ns):

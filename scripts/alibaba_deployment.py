@@ -344,10 +344,15 @@ class Lease:
         if old is not None and self.state.get('peer_port_ranges',['8000/8099'])!=port_ranges:
             raise ValueError('peer port profile changed; reconcile existing firewall rules explicitly')
         if old is None:
-            self.call('authorize_security_group',self.models.AuthorizeSecurityGroupRequest(
-                region_id=self.plan['region'],security_group_id=self.state['security_group'],permissions=[
+            permissions=[
                     self.models.AuthorizeSecurityGroupRequestPermissions(ip_protocol='TCP',port_range=ports,
-                        source_cidr_ip=ip+'/32',description='Delugi exact private peer') for ip in addresses for ports in port_ranges]))
+                        source_cidr_ip=ip+'/32',description='Delugi exact private peer') for ip in addresses for ports in port_ranges]
+            # AuthorizeSecurityGroup accepts at most100 permissions per request.
+            # Identical existing rules are successful no-ops, so an uncertain
+            # batch can be replayed without broadening any address/port scope.
+            for offset in range(0,len(permissions),100):
+                self.call('authorize_security_group',self.models.AuthorizeSecurityGroupRequest(
+                    region_id=self.plan['region'],security_group_id=self.state['security_group'],permissions=permissions[offset:offset+100]))
             self.state['peer_ips']=addresses;self.state['peer_port_ranges']=port_ranges;save(self.path,self.state)
         return {'peer_ips':addresses,'port_range':port_ranges[0] if len(port_ranges)==1 else None,
                 'port_ranges':port_ranges,'implicit_intra_group_access':'Drop'}

@@ -104,6 +104,18 @@ class PilotTests(unittest.TestCase):
         self.assertTrue(all('-O' in a and a[a.index('-O')+1]=='exit' for a in calls))
         self.assertFalse(connections[0].control_path.parent.exists())
 
+    def test_native_connections_share_the_same_pinned_session_lifecycle(self):
+        from remote_native import Connection
+        with bench.campaign_connections(Connection) as factory:
+            first=factory(self.inventory['hosts'][0]);again=factory(self.inventory['hosts'][0])
+            self.assertIsInstance(first,Connection);self.assertEqual(first.control_path,again.control_path)
+            with patch.object(bench.subprocess,'run',return_value=SimpleNamespace(returncode=0)) as run:
+                first.command(['worker','status'],timeout=30)
+            self.assertIn('ControlMaster=auto',run.call_args.args[0])
+            self.assertIn('StrictHostKeyChecking=yes',run.call_args.args[0])
+            self.assertEqual(run.call_args.kwargs['timeout'],30)
+        self.assertFalse(first.control_path.parent.exists())
+
     def test_campaign_ssh_does_not_replay_failed_mutating_commands(self):
         with bench.campaign_connections() as factory:
             connection = factory(self.inventory['hosts'][0])

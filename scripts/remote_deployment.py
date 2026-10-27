@@ -212,19 +212,33 @@ if h.hexdigest()!=expected: raise ValueError('uploaded file digest mismatch')
             self.upload(host, ROOT / "scripts/remote_worker.py", self.remote_directory + "/remote_worker.py")
             if self.inventory.get("netem"):
                 self.upload(host, ROOT / "scripts/linux_netem.py", self.remote_directory + "/linux_netem.py")
+                if self.inventory['netem'].get('rate_mbps') is not None:
+                    self.upload(host, ROOT / 'scripts/linux_egress.py',self.remote_directory+'/linux_egress.py')
             self.machine_metadata[replica] = self.rpc(host, {"action": "inspect", "binary": host["binary"]["path"]})
             if self.machine_metadata[replica]["binary_sha256"] != host["binary"]["sha256"]:
                 raise ValueError("remote inventory binary hash does not match host")
             stamp = self.machine_metadata[replica].get("build_stamp")
             sources = [ROOT / "Cargo.toml", ROOT / "Cargo.lock", *sorted((ROOT / "src").rglob("*.rs"))]
             expected_sources = {str(path.relative_to(ROOT)): sha(path.read_bytes()) for path in sources}
-            if (not stamp or stamp.get("binary_sha256") != host["binary"]["sha256"]
+            if host.get('artifact') is not None:
+                artifact=host['artifact']
+                publication=json.loads(self.execute(host,[self.remote_python(host),
+                    artifact['directory']+'/source/scripts/common_artifact.py','verify',
+                    '--directory',artifact['directory'],'--host','--archive',artifact['directory']+'.tar.gz',
+                    '--archive-sha256',artifact['archive_sha256']],timeout=180).stdout)
+                if publication['binary_sha256']!=host['binary']['sha256']:raise ValueError('common publication and selected node differ')
+                self.machine_metadata[replica]['common_publication']=publication
+            elif (not stamp or stamp.get("binary_sha256") != host["binary"]["sha256"]
                     or stamp.get("inputs", {}).get("sources") != expected_sources):
                 raise ValueError("remote native artifact lacks a build stamp matching the selected current Rust source")
             local_key = config["key_files"][replica]
             self.upload(host, local_key, self.remote_directory + f"/key-{replica}.json")
             remote_config = copy.deepcopy(config)
             remote_config["key_files"] = [self.remote_directory + f"/key-{i}.json" for i in range(count)]
+            if remote_config.get('storage_profile')=='shared-rocksdb-written-v1':
+                if not getattr(self,'shared_storage',False):raise ValueError('remote shared storage profile is not enabled by this adapter')
+                remote_config['storage_directory']=self.remote_directory+'/records'
+                self.execute(host,['mkdir','-m','700',remote_config['storage_directory']])
             path = directory / f"remote-config-{replica}.json"
             path.write_text(json.dumps(remote_config, indent=2))
             self.upload(host, path, self.remote_directory + "/config.json")

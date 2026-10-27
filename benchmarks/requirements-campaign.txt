@@ -1,0 +1,4 @@
+# Provider SDK matches Loom. Matplotlib is used only after collection/cleanup.
+alibabacloud_ecs20140526==4.1.8
+alibabacloud_vpc20160428==6.6.6
+matplotlib==3.10.6

@@ -54,10 +54,13 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
         effective['batching']={'max_transactions':count,'useful_bytes_target':count*useful,'max_wait_ms':batch['max_wait_ms'] or 10}
         effective['timing'].update(catchup_ms=7*delta,proposal_wait_ms=3*delta)
         effective['resource_profile']='complete-64mib-n50-v1' if nodes==50 else 'complete-32mib-n31-v1'
+        effective['storage']='shared-rocksdb-written-v1; WAL enabled, sync=false; fresh database'
     elif protocol=='raptr':
+        effective['storage']='native Quorum Store and consensus storage through shared RocksDB; fresh databases'
         effective['batching']={'policy':'native Quorum Store defaults; effective-profile.json is authoritative'}
         effective['timing']['policy']='native Raptr relationships; effective-profile.json is authoritative'
     elif protocol.startswith('simpleit'):
+        effective['storage']='native RocksDB; fresh database'
         from run_simpleit_local import parameters
         target=batch['useful_bytes_target'] or 65536
         native=parameters(protocol,nodes,useful,target,delta)
@@ -67,6 +70,7 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
         effective['timing'].update(round_timeout_ms=delta,repair_retry_ms=delta)
         if protocol=='simpleit-mempool':effective['timing'].update(fast_path_ms=max(1,delta//2),car_ms=2*delta)
     elif protocol=='autobahn':
+        effective['storage']='native primary and worker RocksDB; fresh databases'
         # Native worker counts serialized transaction bytes, including ID metadata.
         count=(batch['useful_bytes_target']//useful if batch['useful_bytes_target'] is not None else None)
         if count==0:raise ValueError('batch target cannot hold a useful transaction')
@@ -74,6 +78,7 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
             'useful_bytes_target':count*useful if count else None,'max_wait_ms':batch['max_wait_ms'] or 10}
         effective['timing'].update(timeout_ms=delta,fast_path_ms=delta,car_ms=delta,repair_retry_ms=delta)
     else:
+        effective['storage']='native WAL; fresh directory'
         effective['batching']={'policy':'native blocks with two leaders; ingress wakeup5ms','ingress_wakeup_ms':5}
         effective['timing']['leader_timeout_ms']=delta
     return {'schema':1,'protocol':protocol,'nodes':nodes,'case':case,'requested':copy.deepcopy(config),
@@ -112,8 +117,9 @@ def local_command(resolved,artifacts,output,*,nodes=None,seconds=60,drain=15,rat
             '--useful-bytes',str(u),'--batch-ms',str(e['batching']['max_wait_ms']),
             '--max-batch-transactions',str(e['batching']['max_transactions']),'--bound-ms',str(d),'--output',out,
             '--spec-snapshot',str(ROOT/resolved['requested']['specification']['manifest']),
+            '--storage-profile','shared-rocksdb-written-v1',
             '--paper-repository',str(ROOT/resolved['requested']['specification']['paper_repository'])]
-        if case=='silent-first-leader':args+=['--pause-replica','0','--pause-after','0','--pause-duration',str(seconds)]
+        if case=='silent-first-leader':args+=['--silent-first-leader']
         elif case=='missing-data':args+=['--fault-replica','0','--fault-after','0','--fault-duration',str(seconds),
             '--fault-peers','1','--fault-batches','3','--fault-payload-bytes',str(u)]
         return args
@@ -129,6 +135,7 @@ def local_command(resolved,artifacts,output,*,nodes=None,seconds=60,drain=15,rat
     else:args+=['--ingress-batch-ms','5']
     if case=='silent-first-leader':
         raise ValueError(p+' currently exposes a timed process pause, not an authenticated first-leader startup gate')
-    elif case=='missing-data':args+=['--faulty-replica','0','--omit-replica','0','--omission-after','0',
-        '--omission-seconds',str(seconds),'--publish-to-replica',*map(str,range(2,n))]
+    elif case=='missing-data':
+        args+=['--faulty-replica','0','--omit-replica','0','--omission-after','0','--omission-seconds',str(seconds)]
+        for i in range(2,n):args+=['--publish-to-replica',str(i)]
     return args

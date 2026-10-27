@@ -10,12 +10,14 @@ import argparse
 from contextlib import contextmanager
 import fcntl
 import hashlib
+import gzip
 import json
 import os
 from pathlib import Path
 import re
 import resource
 import signal
+import shutil
 import socket
 import subprocess
 import sys
@@ -374,15 +376,21 @@ def export(request):
     names = [name for name in ('config.json', 'request.json', 'process.json', 'supervisor.json', 'resource-summary.json',
              'arm.json', 'aborted.json', 'node.stdout', 'node.stderr', 'supervisor.stdout', 'supervisor.stderr', 'control.jsonl', 'verification.json')
              if (root / name).is_file()]
-    saved = read(root / 'request.json')
+    # Abort may win the prepare race, leaving only a tombstone and a confirmed
+    # cleanup receipt. Export that bounded diagnostic without requiring a run.
+    saved = read(root / 'request.json') if (root / 'request.json').exists() else {}
     allowed = {'ready.json', 'final.json', 'requests.jsonl', 'output.jsonl', 'effective-profile.json', 'workload-manifest.json'}
     if saved.get('evaluation_profile') == COMPACT: allowed.add('planned.jsonl')
     if (root / 'replicas').exists():
         names += [p.relative_to(root).as_posix() for p in sorted((root / 'replicas').glob('node-*/*'))
                   if p.name in allowed and p.is_file()]
-    runtime_evidence.pack(root, names, sys.stdout.buffer, {'nonce': request['nonce'],
+    if request.get('compression') not in (None,'gzip'):raise ValueError('unsupported evidence compression')
+    stream=gzip.GzipFile(fileobj=sys.stdout.buffer,mode='wb',compresslevel=1,mtime=0) if request.get('compression')=='gzip' else sys.stdout.buffer
+    try:runtime_evidence.pack(root, names, stream, {'nonce': request['nonce'],
                           'format': 'common-sustained-evidence-v1' if saved.get('evaluation_profile') == COMPACT else 'common-pilot-evidence-v1'},
                           max_payload_bytes=envelope(saved)['export_bytes'], max_files=100)
+    finally:
+        if stream is not sys.stdout.buffer:stream.close()
 
 
 def rpc(request):
@@ -398,10 +406,13 @@ def rpc(request):
             nodes = request.get('nodes',4)
             if type(nodes) is not int or nodes not in envelope(request)['nodes']:
                 raise ValueError('key generation committee exceeds lifecycle profile')
-            result = subprocess.run([str(binary), '--protocol', request['protocol'], '--keygen', str(path), '--nodes', str(nodes)],
-                                    capture_output=True, text=True, timeout=30)
-            if result.returncode: raise ValueError('key generation failed')
-            return {'public': json.loads(result.stdout), 'files_hex': {p.name: p.read_bytes().hex() for p in path.iterdir() if p.is_file()}}
+            try:
+                result = subprocess.run([str(binary), '--protocol', request['protocol'], '--keygen', str(path), '--nodes', str(nodes)],
+                                        capture_output=True, text=True, timeout=30)
+                if result.returncode: raise ValueError('key generation failed')
+                return {'public': json.loads(result.stdout), 'files_hex': {p.name: p.read_bytes().hex() for p in path.iterdir() if p.is_file()}}
+            finally:
+                if path.exists():shutil.rmtree(path)
     if action == 'prepare': return prepare(request)
     if action == 'start': return start(request)
     if action == 'status': return status(request)

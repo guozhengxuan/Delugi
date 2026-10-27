@@ -7,6 +7,7 @@ cloud creation, or cross-host timestamp subtraction is exposed by this command.
 from __future__ import annotations
 import argparse
 import concurrent.futures
+import gzip
 import json
 import os
 from pathlib import Path
@@ -283,7 +284,10 @@ def rpc(request):
         # Host0 is a temporary ceremony host. Remove all other validators' keys
         # and the TLS CA private key before any validator process starts.
         marker=root/'configuration-sealed.json'
-        if marker.exists():return bounded_json(marker)
+        if marker.exists():
+            prior=bounded_json(marker)
+            if prior.get('own_archive_sha256')!=request['sha256']:raise ValueError('ceremony seal belongs to another archive')
+            return prior
         archive=root/'configuration-0.tar';expected=request['sha256']
         if prep.sha(archive)!=expected:raise ValueError('ceremony archive changed before sealing')
         own=root/'own-configuration';own.mkdir(mode=0o700)
@@ -331,6 +335,22 @@ def run_host(request):
     if protocol.startswith('simpleit'):
         from baselines import simpleit_remote
         return simpleit_remote.run_host(request,root,preflight)
+    if cfg['case']=='silent-first-leader' and index==1:
+        proof=native.first_leader_record(protocol,root,index)
+        # No native process is launched. The owned supervisor still attests the
+        # absent replica's configuration and participates in normal cleanup.
+        result={'status':'completed','replica':index,'preflight':preflight,'silent_leader':True,
+            'cohort_excluded':True,'native_processes_started':0,'first_leader':proof,
+            'fault_interval':'absent from protocol startup through the complete trial',
+            'comparison_eligible':False}
+        prep.json_file(root/'result.json',result)
+        (root/'host-events.jsonl').write_text(json.dumps({'event':'first_leader_not_started',**proof})+'\n')
+        return 0
+    if protocol=='mysticeti':
+        # Genesis creates empty storage directories on the ceremony host. Empty
+        # directories are deliberately not in per-host configuration archives.
+        # Recreate only this validator's owned directory before opening its WAL.
+        (root/'fixture/genesis'/f'storage-{index}').mkdir(mode=0o700)
     # Clock origin is selected on this host, never copied from the controller.
     startup_started=time.clock_gettime_ns(time.CLOCK_MONOTONIC)
     epoch=None if protocol=="shoal" else startup_started+cfg["startup_seconds"]*1_000_000_000
@@ -500,6 +520,10 @@ def arm_prepared_shoal(connections, requests, root, futures, evidence):
 
 
 def execute(selected, output, connection_factory=Connection):
+    if connection_factory is Connection:
+        from aliyun_bench import campaign_connections
+        with campaign_connections(Connection) as factory:
+            return execute(selected, output, factory)
     if selected["protocol"] not in PROTOCOLS:raise ValueError("unsupported native protocol")
     prep.validate_hosts({"schema":1,"hosts":selected["hosts"]})
     for host in selected["hosts"]:interpreter(host)
@@ -553,9 +577,8 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
             if prep.sha(archive)!=generated[str(i)]["sha256"]:raise ValueError("native configuration download changed")
             connections[i].upload(archive,str(root/"configuration.tar"))
             connections[i].rpc_native(root,requests[i]|{"action":"install","replica":i,"sha256":generated[str(i)]["sha256"]})
-        if selected['protocol'].startswith('simpleit'):
-            result['ceremony_sealed']=connections[0].rpc_native(root,requests[0]|{'action':'seal_configuration','sha256':generated['0']['sha256']})
-            if result['ceremony_sealed'].get('sealed') is not True:raise ValueError('ceremony secrets were not sealed')
+        result['ceremony_sealed']=connections[0].rpc_native(root,requests[0]|{'action':'seal_configuration','sha256':generated['0']['sha256']})
+        if result['ceremony_sealed'].get('sealed') is not True:raise ValueError('ceremony secrets were not sealed')
         if selected.get("network"):
             network=NativeNetwork(selected,root,connections)
             result["network"]=network.configure_network()
@@ -607,21 +630,24 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
             result["dispatch"]={"controller_started_ns":started,"controller_finished_ns":time.monotonic_ns(),"failures":failures}
             if startup_error is not None:raise startup_error
         archives={};shoal_receipts={}
-        for i,connection in connections.items():
+        compressed=cfg.get('population_profile')=='compact-n10-n50-v1'
+        def collect_one(i):
+            connection=connections[i]
             state=connection.rpc_native(root,requests[i]|{"action":"status"});result["hosts"][i]["result"]=state
-            artifact=connection.rpc_native(root,requests[i]|{"action":"collect"});path=output/f"evidence-{i}.stream"
+            artifact=connection.rpc_native(root,requests[i]|{"action":"collect"});path=output/(f'evidence-{i}.stream.gz' if compressed else f'evidence-{i}.stream')
             metadata={"nonce":selected["nonce"],"replica":i,"plan_sha256":plan_hash}
             if artifact!={"format":runtime_evidence.FORMAT,"metadata":metadata}:raise ValueError("native evidence receipt identity differs")
             with path.open("xb") as stream:
                 connection.command([interpreter(selected["hosts"][i]),str(root/"controller/scripts/remote_native.py"),"_export"],
-                    input=json.dumps(requests[i]).encode(),stdout=stream,stderr=subprocess.PIPE)
+                    input=json.dumps(requests[i]|({'compression':'gzip'} if compressed else {})).encode(),stdout=stream,stderr=subprocess.PIPE,timeout=900)
             directory=output/f"host-{i}";directory.mkdir()
-            with path.open("rb") as stream:result["hosts"][i]["evidence"]=runtime_evidence.unpack(stream,directory,expected_metadata=metadata)
-            if state["status"]!="completed":continue
+            with (gzip.open(path,'rb') if compressed else path.open('rb')) as stream:result["hosts"][i]["evidence"]=runtime_evidence.unpack(stream,directory,expected_metadata=metadata)
+            if state["status"]!="completed":return None
             if state.get('cohort_excluded'):
-                if not (selected['protocol'].startswith('simpleit') and cfg['case']=='silent-first-leader' and i==1 and state.get('silent_leader')):
+                if not (cfg['case']=='silent-first-leader' and i==1 and state.get('silent_leader') and
+                        (selected['protocol'].startswith('simpleit') or state.get('native_processes_started')==0)):
                     raise ValueError('unrecognized excluded native cohort')
-                continue
+                return None
             archive=native.native_cohort_store.ShardedArchive(directory/"cohorts/index.json")
             if archive.index_sha256!=state["cohort_archive"]["sha256"] or set(archive.ledgers)!={i}:
                 raise ValueError("native host cohort archive identity differs")
@@ -634,8 +660,17 @@ p=Path(sys.argv[1]);p.mkdir(mode=0o700);(p/'incoming').mkdir()
             if selected["protocol"]=="shoal":
                 shoal_receipts[i]=native.collected_shoal_receipt(directory,i,cfg,selected["nonce"],
                     state["epoch_monotonic_ns"],state["native_observer"],archive)
-            archives[i]=archive
-        expected=set(connections)-({1} if selected['protocol'].startswith('simpleit') and cfg['case']=='silent-first-leader' else set())
+            return archive
+        with concurrent.futures.ThreadPoolExecutor(max_workers=len(connections)) as pool:
+            collected={i:pool.submit(collect_one,i) for i in connections}
+            failures={}
+            for i,future in collected.items():
+                try:
+                    archive=future.result()
+                    if archive is not None:archives[i]=archive
+                except Exception as error:failures[i]=f'{type(error).__name__}: {error}'
+            if failures:raise RuntimeError(f'native evidence collection failed: {failures}')
+        expected=set(connections)-({1} if cfg['case']=='silent-first-leader' else set())
         if set(archives)!=expected:raise RuntimeError("one or more native hosts failed; partial evidence retained")
         if selected['protocol'].startswith('simpleit'):
             from baselines import simpleit_remote
@@ -682,8 +717,12 @@ def main():
         if request['protocol'].startswith('simpleit'):
             from baselines import simpleit_remote
             names=list(dict.fromkeys(names+simpleit_remote.evidence_files(root,request['host']['replica'])))
-        runtime_evidence.pack(root,names,sys.stdout.buffer,
+        if request.get('compression') not in (None,'gzip'):raise ValueError('unsupported evidence compression')
+        stream=gzip.GzipFile(fileobj=sys.stdout.buffer,mode='wb',compresslevel=1,mtime=0) if request.get('compression')=='gzip' else sys.stdout.buffer
+        try:runtime_evidence.pack(root,names,stream,
             {"nonce":request["nonce"],"replica":result["replica"],"plan_sha256":request["plan_sha256"]})
+        finally:
+            if stream is not sys.stdout.buffer:stream.close()
         return 0
     if len(sys.argv)==3 and sys.argv[1]=="_host":return run_host(json.loads(Path(sys.argv[2]).read_text()))
     parser=argparse.ArgumentParser(description=__doc__);commands=parser.add_subparsers(dest="action",required=True)

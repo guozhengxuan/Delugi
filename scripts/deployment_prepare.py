@@ -618,15 +618,20 @@ def worker(request):
 
 
 class Connection:
-    def __init__(self, host):
+    def __init__(self, host, control_path=None):
         self.host = host
+        self.control_path = control_path
 
     def python(self):
         return self.host.get("python_executable", "python3")
 
     def command(self, arguments, **kwargs):
         from remote_deployment import ssh_arguments
-        return subprocess.run(ssh_arguments(self.host) + [self.host["ssh"], shlex.join(arguments)], check=True, **kwargs)
+        options = ([] if self.control_path is None else
+                   ['-o', 'ControlMaster=auto', '-o', 'ControlPersist=60',
+                    '-o', 'ControlPath='+str(self.control_path)])
+        kwargs.setdefault('check', True)
+        return subprocess.run(ssh_arguments(self.host) + options + [self.host["ssh"], shlex.join(arguments)], **kwargs)
 
     def upload(self, source, remote):
         code = """import hashlib,os,shutil,sys

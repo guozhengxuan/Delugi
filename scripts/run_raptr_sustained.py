@@ -22,7 +22,7 @@ CASES = ('healthy', 'empty', 'silent-first-leader', 'missing-payload-recovery')
 
 
 def make_config(output, *, nodes=4, rate=1000, duration_ms=60_000, drain_ms=15_000,
-                useful_bytes=128, case='healthy', delta_ms=100, ingress_capacity=4096):
+                useful_bytes=128, case='healthy', delta_ms=100, ingress_capacity=4096, addresses=None):
     if nodes not in (4, 10, 50) or case not in CASES:
         raise ValueError('choose a supported committee and qualification case')
     contract.integer(duration_ms, 1, 60_000, 'measurement ms')
@@ -34,13 +34,15 @@ def make_config(output, *, nodes=4, rate=1000, duration_ms=60_000, drain_ms=15_0
     origins = [i for i in range(nodes) if i != faulty]
     allocation = contract.origin_plan(0 if case == 'empty' else rate, duration_ms*1000, nodes, origins)
     output = Path(output).resolve()
+    if addresses is not None and (not isinstance(addresses,list) or len(addresses)!=nodes or len(set(addresses))!=nodes):
+        raise ValueError('explicit remote addresses must cover every replica once')
     # File allocation is bounded before any replica starts. Includes the native
     # transaction spool, fixed row slots and planned identity journal.
     spool = max(64*1024**2, max(allocation['counts'])*(3*useful_bytes+8192))
     if spool > 16*1024**3:
         raise ValueError('requested preparation exceeds the per-origin spool envelope')
     return {'schema':2, 'epoch':1, 'run_id':secrets.token_hex(32),
-            'key_directory':str(output/'private-keys'), 'addresses':native.unused_addresses(nodes),
+            'key_directory':str(output/'private-keys'), 'addresses':list(addresses) if addresses is not None else native.unused_addresses(nodes),
             'output_directory':str(output/'replicas'), 'arm_path':str(output/'arm.json'),
             'delta_ms':delta_ms, 'measurement_duration_ms':duration_ms, 'drain_ms':drain_ms,
             'finite_workload':{'counts':allocation['counts'], 'useful_bytes':useful_bytes,
@@ -70,10 +72,10 @@ def journal(path, *, max_bytes=4*1024**3, max_rows=4_800_000, max_line=64*1024**
             yield row
 
 
-def bound_files(config, correct):
+def bound_files(config, correct, *, replica_directory=None):
     files = {}
     for i in correct:
-        directory = Path(config['output_directory'])/f'node-{i}'
+        directory = Path(replica_directory or config['output_directory'])/f'node-{i}'
         receipt = native.bounded_json(directory/'final.json')
         body = receipt['body']
         descriptors = body['files']
@@ -122,17 +124,17 @@ def traffic_windows(body, config):
             'boundary':'successful replica TCP stream writes including protocol framing, authentication and ACK bytes'}
 
 
-def normalize(config, correct, output, case='healthy'):
+def normalize(config, correct, output, case='healthy', *, replica_directory=None, public_directory=None):
     """Run only after typed offline signature/native-payload verification.
 
     No cross-host clock subtraction. Each origin's local first materialization
     determines useful credit; all replicas' raw output is retained separately.
     """
     output = Path(output)
-    directories = {i:Path(config['output_directory'])/f'node-{i}' for i in correct}
+    directories = {i:Path(replica_directory or config['output_directory'])/f'node-{i}' for i in correct}
     bodies = {i:native.bounded_json(d/'final.json')['body'] for i,d in directories.items()}
     ledgers, populations = {}, {}
-    committee=native.bounded_json(Path(config['key_directory'])/'committee.json')
+    committee=native.bounded_json(Path(public_directory or config['key_directory'])/'committee.json')
     authors={m['author']:m['id'] for m in committee['members']}
     rounds={i:{} for i in correct}
     target=config['payload_fault']['node'] if config.get('payload_fault') else None

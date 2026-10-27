@@ -273,16 +273,19 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
               cohort_accounting=True, nodes=4, resource_profile=None,
               fault_replica=None, fault_scope="payload", fault_after=0, fault_duration=0, fault_peers=None,
               measure_costs=False, deployment=None, fault_batches=0, fault_batch_transactions=64, fault_payload_bytes=472,
-              cohort_observer="full", storage_profile=STORAGE_PROFILES[0], global_arrivals=False):
+              cohort_observer="full", storage_profile=STORAGE_PROFILES[0], global_arrivals=False,
+              silent_first_leader=False):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
-    if deployment is not None and storage_profile != STORAGE_PROFILES[0]:
+    if deployment is not None and storage_profile != STORAGE_PROFILES[0] and not getattr(deployment,'shared_storage',False):
         raise ValueError("shared disk profile acceptance is currently local only")
     if nodes not in (4, 7, 10, 31, 50):
         raise ValueError("supported committee profiles are 4,7,10,31,50; qualify each deployment separately")
     if pause_replica is not None and fault_replica is not None:
         raise ValueError("choose a process pause or a semantic omission, not both")
-    faulty = pause_replica if pause_replica is not None else fault_replica
+    if silent_first_leader and (pause_replica is not None or fault_replica is not None):
+        raise ValueError('choose a silent first leader or a separate fault injection')
+    faulty = 0 if silent_first_leader else pause_replica if pause_replica is not None else fault_replica
     origins = [i for i in range(nodes) if i != faulty]
     if total_rate <= 0 or warmup_seconds < 0 or measurement_seconds <= 0:
         raise ValueError("rate and duration must be positive; warmup must be nonnegative")
@@ -308,8 +311,8 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
     addresses = unused_addresses(nodes * 2)
     config = {"instance": list(os.urandom(32)), "addresses": addresses[:nodes], "control_addresses": addresses[nodes:],
               "control_token": os.urandom(32).hex(), **keys, "bound_ms": bound_ms,
-              "chunk_capacity": 64, "workload_rounds": 4, "silent": None,
-              "max_runtime_ms": int((warmup_seconds + measurement_seconds + drain_seconds + 25) * 1000),
+              "chunk_capacity": 64, "workload_rounds": 4, "silent": 0 if silent_first_leader else None,
+              "max_runtime_ms": int((warmup_seconds + measurement_seconds + drain_seconds + (325 if deployment else 25)) * 1000),
               "sustained": {"rate_per_replica": math.ceil(total_rate / len(origins)), "total_rate": total_rate,
                             "transaction_bytes": transaction_size,
                             "useful_bytes": useful_bytes, "origins": origins,
@@ -346,6 +349,10 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
                        "after_measurement_start_seconds": pause_after, "duration_seconds": pause_duration,
                        "events": []}
     result["deadline_ms"] = deadline_ms
+    if silent_first_leader:
+        result['fault']={'kind':'native_protocol_silence_from_first_round','replica':0,
+            'correct_origins':origins,'transport_acknowledgments_active':True,
+            'scope':'native silent hook suppresses all ordering/dissemination processing; observation stays live'}
     if fault_replica is not None:
         result["fault"] = {"kind": "semantic_outgoing_omission", **config["fault"], "correct_origins": origins}
         result["fault"]["authored_workload"] = {"batches": fault_batches,
@@ -446,7 +453,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
             snapshots = snapshots_now()
             assert_healthy(snapshots)
             generated = sum(s["load"]["inserted"] for s in snapshots.values()) + sum(len(r["reply"]["data"]["transactions"]) for r in fault_submissions)
-            if pause_done and len(snapshots) == nodes and all(s["executed_count"] == generated and arrivals_drained(s) for s in snapshots.values()):
+            if pause_done and len(snapshots) == nodes and all(snapshots[i]["executed_count"] == generated and arrivals_drained(snapshots[i]) for i in origins):
                 break
             time.sleep(.1)
         result["drain_seconds"] = time.monotonic() - drain_started
@@ -478,7 +485,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
             result["comparison"]["traffic_window_includes_paused_replica"] = True
             result["comparison"]["traffic_window_note"] = "faulty replica boundaries can be delayed by process suspension; total-run absolute costs are authoritative"
         generated = sum(s["load"]["inserted"] for s in snapshots.values()) + sum(len(r["reply"]["data"]["transactions"]) for r in fault_submissions)
-        result["drain_complete"] = all(s["executed_count"] == generated and arrivals_drained(s) for s in snapshots.values())
+        result["drain_complete"] = all(snapshots[i]["executed_count"] == generated and arrivals_drained(snapshots[i]) for i in origins)
         if any(s["executed_count"] > generated for s in snapshots.values()):
             raise AssertionError("replica executed more transactions than were generated")
         result["agreement"] = assert_correct_prefixes(controller, snapshots, origins)
@@ -493,7 +500,14 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
         result["agreement"]["executed_counts"] = {i:s["executed_count"] for i,s in snapshots.items()}
         result["agreement"]["unique_generated_transactions"] = generated
         if result["drain_complete"]:
-            result["agreement"].update(assert_agreement(snapshots, sum(len(r["reply"]["data"]["transactions"]) for r in fault_submissions)))
+            if not silent_first_leader:
+                result["agreement"].update(assert_agreement(snapshots, sum(len(r["reply"]["data"]["transactions"]) for r in fault_submissions)))
+        if silent_first_leader:
+            delivered={i:snapshots[i]['last_delivered'] for i in origins}
+            if any(r<4 for r in delivered.values()) or snapshots[0]['executed_count']:
+                raise AssertionError('silent first leader failed to remain silent or honest delivery did not reach round4')
+            result['fault']['honest_last_delivered']=delivered
+            result['fault']['anchor_evidence']='streaming prefix progress; exact2/3/4 anchors are checked by the finite fixture'
         result["global_pending_by_replica"] = {i:generated-s["executed_count"] for i,s in snapshots.items()}
         final_traffic = [tcp_counters(s) for s in snapshots.values()]
         if sum(t["written_bytes"] for t in final_traffic) != sum(t["read_bytes"] for t in final_traffic):
@@ -676,6 +690,7 @@ def main():
     parser.add_argument("--inventory", type=Path, help="explicit existing-host SSH inventory; no cloud provisioning")
     parser.add_argument("--resource-profile", choices=("legacy-1mib-v1", "complete-32mib-n31-v1", "complete-64mib-n50-v1"))
     parser.add_argument("--global-arrivals", action="store_true", help="use the shared zero-based total-rate schedule and measurement admission cutoff")
+    parser.add_argument('--silent-first-leader',action='store_true',help='suppress native protocol participation by leader0 from startup')
     parser.add_argument("--cohort-observer", choices=("full", "compact"), default="full", help="detailed timing or compact finite receipts; compact has no request latency metrics")
     parser.add_argument("--measure-costs", action="store_true", help="enable optional crypto/proof resource counters; use paired runs to quantify observer overhead")
     parser.add_argument("--transaction-size", type=int, help="legacy actual encoded transaction size; includes 60 bytes of ID, workload identity and encoding")
@@ -798,7 +813,7 @@ def main():
                                measure_costs=args.measure_costs, deployment=deployment, cohort_observer=args.cohort_observer,
                                fault_batches=args.fault_batches, fault_batch_transactions=args.fault_batch_transactions,
                                fault_payload_bytes=args.fault_payload_bytes, storage_profile=args.storage_profile,
-                               global_arrivals=args.global_arrivals)
+                               global_arrivals=args.global_arrivals,silent_first_leader=args.silent_first_leader)
             manifest["trial"] = result
             manifest["status"] = result["status"]
             for key in ("network_shaping", "network_shaping_cleanup", "network_shaping_cleanup_error",

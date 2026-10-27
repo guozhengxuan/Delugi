@@ -230,6 +230,24 @@ class LeaseBoundTests(unittest.TestCase):
             lease=object.__new__(Lease);lease.path,lease.plan=path,plan;lease._refresh=lambda:[]
             with self.assertRaisesRegex(ValueError,'every saved owned instance'):lease.peers()
 
+    def test_fifty_validator_peer_rules_fit_provider_request_limit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'lease.json'
+            plan=dict(self.plan,profile='compact-n10-n50-v1',maximum_instances=50,lifetime_hours=3,
+                budget_cny=400,region='ap-southeast-1',vpc_id='vpc-owned',
+                campaign_budget={'path':str(Path(directory)/'budget.json'),'authorization_sha256':'a'*64})
+            ids=[f'i-{i}' for i in range(50)]
+            save(path,{'plan':plan,'inner_policy_drop':True,'security_group':'sg-owned','batches':[{'ids':ids}]})
+            lease=object.__new__(Lease);lease.path,lease.plan=path,plan
+            lease._refresh=lambda:[{'InstanceId':ids[i],'VpcAttributes':{'VpcId':'vpc-owned','PrivateIpAddress':{'IpAddress':[f'10.0.0.{i+1}']}}} for i in range(50)]
+            lease.models=SimpleNamespace(AuthorizeSecurityGroupRequest=lambda **kw:kw,AuthorizeSecurityGroupRequestPermissions=lambda **kw:kw)
+            calls=[];lease.call=lambda name,r:calls.append(r)
+            receipt=lease.peers();self.assertEqual(receipt['port_ranges'],['1500/1599','8000/8099','9000/9299'])
+            self.assertEqual([len(r['permissions']) for r in calls],[100,50])
+            rules=[p for r in calls for p in r['permissions']]
+            self.assertEqual(len({(p['source_cidr_ip'],p['port_range']) for p in rules}),150)
+            lease.peers();self.assertEqual(len(calls),2)
+
 
 if __name__ == '__main__':
     unittest.main()

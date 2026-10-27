@@ -189,17 +189,20 @@ class NativePlacement(unittest.TestCase):
             remote.check_artifacts(request)
 
     def test_configuration_generator_routes_one_private_key_per_validator(self):
+        import base64
+        names=[base64.b64encode(bytes([i])*32).decode() for i in range(4)]
         root=self.root/"run";root.mkdir();seen=[]
         def run(argv,**kwargs):
-            seen.append(argv);path=Path(argv[-1]);i=int(path.stem.split("-")[-1]);path.write_text(json.dumps({"name":f"pk{i}","secret":f"sk{i}"}))
+            seen.append(argv);path=Path(argv[-1]);i=int(path.stem.split("-")[-1]);path.write_text(json.dumps({"name":names[i],"secret":f"sk{i}"}))
             return subprocess.CompletedProcess(argv,0,"","")
         cfg=remote.native.settings({"rate":4,"duration":1,"warmup":0},4)
         files=remote.native.generate("autobahn",root,[f"10.0.0.{i+1}" for i in range(4)],{"node":"/fixed/node"},cfg,"a"*32,run=run)
         for i,row in enumerate(files):
             self.assertEqual([p.name for p in row if p.name.startswith("key-")],[f"key-{i}.json"])
         committee=json.loads((root/"fixture/committee.json").read_text())["authorities"]
-        self.assertEqual(committee["pk0"]["workers"]["0"]["transactions"],"127.0.0.1:9004")
-        self.assertEqual(committee["pk1"]["workers"]["0"]["worker_to_worker"],"10.0.0.2:9011")
+        self.assertEqual(committee[names[0]]["workers"]["0"]["transactions"],"127.0.0.1:9004")
+        self.assertEqual(committee[names[2]]["workers"]["0"]["worker_to_worker"],"10.0.0.2:9011")
+        self.assertEqual(remote.native.first_leader_record('autobahn',root,1)['author'],names[2])
         self.assertTrue(all(argv[:2]==["/fixed/node","generate_keys"] for argv in seen))
 
     def test_reducer_uses_origin_durations_despite_arbitrary_cross_host_offsets(self):
@@ -250,6 +253,7 @@ class NativePlacement(unittest.TestCase):
                         outputs[str(i)]=remote.archive_selected(source,["fixture/config.json"],archive,"native-configuration",{"replica":i,"nonce":selected["nonce"]})
                     return outputs
                 if action=="install":return {"installed":True}
+                if action=='seal_configuration':return {'sealed':True,'replica':0,'own_archive_sha256':request['sha256']}
                 if action=="readiness":
                     return remote.startup_identity(request)|{"state":"prepared","readiness":{"ready":True},"readiness_sha256":str(self.i)*64}
                 if action=="arm":
