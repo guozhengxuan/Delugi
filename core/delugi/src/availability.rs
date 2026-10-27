@@ -1788,6 +1788,7 @@ mod tests {
             (4, wire::ResourceProfile::Legacy1MibV1),
             (7, wire::ResourceProfile::Legacy1MibV1),
             (31, wire::ResourceProfile::Complete32MibN31V1),
+            (50, wire::ResourceProfile::Complete64MibN50V1),
         ] {
             let committee = Committee::with_profile(
                 [71; 32],
@@ -1876,17 +1877,19 @@ mod tests {
     }
 
     #[test]
-    fn complete_profile_accepts_authenticated_all_current_and_empty_inputs_at_n31() {
+    fn complete_profiles_accept_authenticated_all_current_and_empty_inputs() {
+        for (n, profile) in [(31, wire::ResourceProfile::Complete32MibN31V1), (50, wire::ResourceProfile::Complete64MibN50V1)] {
+        let quorum = n - (n - 1) / 3;
         let committee = Committee::with_profile(
             [72; 32],
-            (0..31).map(|id| fixture_key(id).public).collect(),
-            wire::ResourceProfile::Complete32MibN31V1,
+            (0..n).map(|id| fixture_key(id).public).collect(),
+            profile,
         )
         .unwrap();
         let config = AvailabilityConfig::new(committee.clone(), 4).unwrap();
         let mut store = BatchStore::new(committee, 4).unwrap();
         let binding = base(&config, 1);
-        let empty_pool: Vec<_> = (0..21)
+        let empty_pool: Vec<_> = (0..quorum)
             .map(|id| {
                 config
                     .observe(&binding, &mut store, &fixture_key(id), id)
@@ -1901,10 +1904,10 @@ mod tests {
             config.decode_descriptor(&empty_value).unwrap().targets,
             binding.frontier
         );
-        for id in 0..31 {
+        for id in 0..n {
             store.produce(&fixture_key(id), id, vec![id as u8]).unwrap();
         }
-        let pool: Vec<_> = (0..21)
+        let pool: Vec<_> = (0..quorum)
             .map(|id| {
                 config
                     .observe(&binding, &mut store, &fixture_key(id), id)
@@ -1923,6 +1926,7 @@ mod tests {
         let mut malformed: AvailabilityProof = config.committee.decode(&proof).unwrap();
         malformed.pool[0].signature[0] ^= 1;
         assert!(!config.q(1, &value, &config.committee.encode(&malformed).unwrap()));
+        }
     }
 
     #[test]

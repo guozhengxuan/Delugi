@@ -31,6 +31,8 @@ pub enum ResourceProfile {
     Legacy1MibV1,
     #[serde(rename = "complete-32mib-n31-v1")]
     Complete32MibN31V1,
+    #[serde(rename = "complete-64mib-n50-v1")]
+    Complete64MibN50V1,
 }
 
 impl ResourceProfile {
@@ -38,6 +40,7 @@ impl ResourceProfile {
         match self {
             Self::Legacy1MibV1 => "legacy-1mib-v1",
             Self::Complete32MibN31V1 => "complete-32mib-n31-v1",
+            Self::Complete64MibN50V1 => "complete-64mib-n50-v1",
         }
     }
 
@@ -45,6 +48,7 @@ impl ResourceProfile {
         match self {
             Self::Legacy1MibV1 => MAX_WIRE_BYTES,
             Self::Complete32MibN31V1 => 32 * 1024 * 1024,
+            Self::Complete64MibN50V1 => 64 * 1024 * 1024,
         }
     }
 
@@ -54,6 +58,7 @@ impl ResourceProfile {
             // fixtures; the existing mandatory-frame check is tighter in practice.
             Self::Legacy1MibV1 => 1024,
             Self::Complete32MibN31V1 => 31,
+            Self::Complete64MibN50V1 => 50,
         }
     }
 }
@@ -598,8 +603,9 @@ impl Committee {
         resource_profile: ResourceProfile,
     ) -> Result<Self, String> {
         let n = keys.len();
-        if n < 4 || (n - 1) % 3 != 0 || n > Id::MAX as usize {
-            return Err("committee requires n = 3f + 1 >= 4 representable members".into());
+        let selected_fifty = n == 50 && resource_profile == ResourceProfile::Complete64MibN50V1;
+        if n < 4 || ((n - 1) % 3 != 0 && !selected_fifty) || n > Id::MAX as usize {
+            return Err("committee requires n = 3f + 1 >= 4, or the explicit n=50 profile".into());
         }
         if n > resource_profile.max_committee_members() {
             return Err("committee exceeds the selected resource profile".into());
@@ -847,6 +853,22 @@ mod tests {
 
     fn committee() -> Committee {
         Committee::new([7; 32], (0..4).map(|i| fixture_key(i).public).collect()).unwrap()
+    }
+
+    #[test]
+    fn fifty_is_explicitly_bound_to_its_complete_resource_profile() {
+        let keys = || (0..50).map(|i| fixture_key(i).public).collect();
+        assert!(Committee::new([7; 32], keys()).is_err());
+        assert!(Committee::with_profile([7; 32], keys(), ResourceProfile::Complete32MibN31V1).is_err());
+        let c = Committee::with_profile([7; 32], keys(), ResourceProfile::Complete64MibN50V1).unwrap();
+        assert!(c.input_budget() > 0);
+        for frame in maximum_control_frames(50) {
+            assert!(encode(&frame).unwrap().len() < c.max_wire_bytes());
+        }
+        let small = (0..4).map(|i| fixture_key(i).public).collect();
+        let changed = Committee::with_profile([7; 32], small, ResourceProfile::Complete64MibN50V1).unwrap();
+        assert_ne!(committee().context, changed.context);
+        assert!(Committee::with_profile([7; 32], (0..51).map(|i| fixture_key(i).public).collect(), ResourceProfile::Complete64MibN50V1).is_err());
     }
 
     fn proposal(committee: &Committee, round: u64) -> Proposal {

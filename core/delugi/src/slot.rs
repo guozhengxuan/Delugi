@@ -55,13 +55,15 @@ pub struct Slot {
 }
 
 impl Slot {
-    /// Create a non-genesis slot for n = 3f + 1 and f >= 1.
+    /// Create a non-genesis slot for n = 3f + 1, or the selected n=50 case.
+    /// All thresholds use f=floor((n-1)/3), n-f and f+1; at fifty they are
+    /// 16, 34 and 17 respectively, never the unsafe high quorum 2f+1=33.
     ///
     /// Panics for invalid configuration, an unknown own signer, round zero, or
     /// a round whose phase-admission indices cannot be represented.
     pub fn new(round: u64, n: usize, own: u32) -> Self {
         assert!(round >= 1 && round <= u64::MAX - 2, "invalid slot round");
-        assert!(n >= 4 && (n - 1) % 3 == 0, "requires n = 3f + 1, f >= 1");
+        assert!(n >= 4 && ((n - 1) % 3 == 0 || n == 50), "requires n = 3f + 1 or n=50, f >= 1");
         assert!(n <= u32::MAX as usize, "membership exceeds signer ID range");
         assert!((own as usize) < n, "own signer is not a member");
         let f = (n - 1) / 3;
@@ -199,6 +201,28 @@ mod tests {
 
     fn slot() -> Slot {
         Slot::new(1, 4, 0)
+    }
+
+    #[test]
+    fn fifty_uses_thirty_four_for_votes_and_commit_and_seventeen_for_amplification() {
+        let mut s = Slot::new(1, 50, 49);
+        for id in 0..33 { s.observe_vote(id, A); }
+        assert!(s.drive(3).is_empty());
+        s.observe_vote(33, A);
+        assert_eq!(s.drive(3), vec![Action::Cer(A)]);
+        assert_eq!(s.proof(), Some(&Trigger::Votes((0..34).collect())));
+
+        let mut s = Slot::new(1, 50, 49);
+        for id in 0..16 { s.observe_cer(id, A); }
+        assert!(s.drive(3).is_empty());
+        s.observe_cer(16, A);
+        assert_eq!(s.drive(3), vec![Action::Cer(A)]);
+        assert_eq!(s.proof(), Some(&Trigger::Cers((0..17).collect())));
+        // Our own CER is immediately retained, so 32 remote CERs total 33.
+        for id in 17..32 { s.observe_cer(id, A); }
+        assert!(s.drive(3).is_empty());
+        s.observe_cer(32, A);
+        assert_eq!(s.drive(3), vec![Action::DirectCommit(A)]);
     }
 
     fn vote_quorum(slot: &mut Slot, digest: Digest) {

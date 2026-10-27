@@ -107,8 +107,7 @@ impl Config {
             config.schema == 1
                 && config.epoch == 1
                 && n >= 4
-                && n <= 31
-                && (n - 1) % 3 == 0
+                && ((n <= 31 && (n - 1) % 3 == 0) || n == 50)
                 && (id as usize) < n,
             "invalid finite replica membership/epoch/schema"
         );
@@ -232,6 +231,14 @@ fn validate_addresses(addresses: &[SocketAddr], profile: Option<&str>) -> Result
                     SocketAddr::V6(_) => false,
                 })
         }
+        Some("private-ipv4-n10-n50-v1") => {
+            matches!(addresses.len(), 10 | 50)
+                && addresses.iter().map(|a| a.ip()).collect::<BTreeSet<_>>().len() == addresses.len()
+                && addresses.iter().all(|a| match a {
+                    SocketAddr::V4(v4) => v4.ip().is_private() && v4.port() > 0,
+                    SocketAddr::V6(_) => false,
+                })
+        }
         Some(_) => false,
     };
     ensure!(
@@ -259,6 +266,17 @@ mod deployment_tests {
         assert!(validate_addresses(&peers, Some("unknown")).is_err());
         let local = vec!["127.0.0.1:8000".parse().unwrap()];
         assert!(validate_addresses(&local, None).is_ok());
+    }
+
+    #[test]
+    fn paper_placement_supports_exactly_ten_and_fifty_distinct_private_hosts() {
+        for n in [10, 50] {
+            let peers: Vec<SocketAddr> = (1..=n).map(|i| format!("10.1.0.{i}:8000").parse().unwrap()).collect();
+            assert!(validate_addresses(&peers, Some("private-ipv4-n10-n50-v1")).is_ok());
+            assert!(validate_addresses(&peers, Some("private-ipv4-n4-v1")).is_err());
+        }
+        let peers = vec!["10.1.0.1:8000".parse().unwrap(); 50];
+        assert!(validate_addresses(&peers, Some("private-ipv4-n10-n50-v1")).is_err());
     }
 }
 pub fn hex(bytes: &[u8]) -> String {
@@ -406,8 +424,8 @@ impl Keys {
 }
 pub fn generate_keys(directory: &Path, n: usize) -> Result<String> {
     ensure!(
-        n >= 4 && n <= 31 && (n - 1) % 3 == 0,
-        "keys require n=3f+1 in4..31"
+        (n >= 4 && n <= 31 && (n - 1) % 3 == 0) || n == 50,
+        "keys require n=3f+1 in4..31 or exactly n=50"
     );
     fs::create_dir_all(directory)?;
     ensure!(

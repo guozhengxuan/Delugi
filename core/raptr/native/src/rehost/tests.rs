@@ -146,6 +146,8 @@ fn config_keeps_native_thresholds_and_timer_multipliers() {
     assert_eq!(config.extra_wait_before_qc_vote, Duration::from_millis(10));
     assert_eq!(config.block_fetch_interval, Duration::from_millis(200));
     assert!(config.enable_partial_qc_votes && config.enable_commit_votes);
+    let fifty = native_config(50, Duration::from_millis(100), Instant::now()).unwrap();
+    assert_eq!((fifty.f, fifty.quorum(), fifty.poa_quorum, fifty.storage_requirement), (16, 34, 34, 17));
 }
 
 #[test]

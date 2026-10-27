@@ -33,6 +33,12 @@ campaign budget ledger reserves before dispatch and retains ambiguous or unbille
 leases. These components have focused tests; execution, adapter qualification,
 bounded native journals and exactly-50 membership remain the next gates.
 
+The selected n=50 core profile uses f=16, high quorum 34 and amplification 17.
+Delugi now has an explicit `complete-64mib-n50-v1` profile: the old 32 MiB
+profile fails the complete-current witness bound at 50. Neither legacy profile
+is widened. Raptr PoA now matches the native strict two-thirds verifier (34 at
+50). These are core/profile changes; distributed n=50 qualification is pending.
+
 ## 1. Current stage and priorities
 
 **The shared Delugi/Raptr implementation has passed local conformance and an

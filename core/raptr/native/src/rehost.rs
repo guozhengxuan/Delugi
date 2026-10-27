@@ -78,7 +78,9 @@ pub fn native_config(n_nodes: usize, delta: Duration, end_of_run: Instant) -> Re
     Ok(Config {
         n_nodes,
         f,
-        poa_quorum: 2 * f + 1,
+        // Match the native validator verifier's strict two-thirds voting power.
+        // At n=50 the former 2f+1 shortcut is 33, but QS certificates require 34.
+        poa_quorum: 2 * n_nodes / 3 + 1,
         storage_requirement: f + 1,
         leader_timeout: delta * 4,
         delta,

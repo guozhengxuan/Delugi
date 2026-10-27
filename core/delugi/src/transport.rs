@@ -162,7 +162,7 @@ impl SettingsProvider for wire::ResourceProfile {
     fn transport_settings(&self) -> TransportSettings {
         let profile = *self;
         let mut settings = TransportSettings::default();
-        if profile == wire::ResourceProfile::Complete32MibN31V1 {
+        if matches!(profile, wire::ResourceProfile::Complete32MibN31V1 | wire::ResourceProfile::Complete64MibN50V1) {
             settings.max_inflight_bytes = 2 * (profile.max_wire_bytes() + MAX_AUTH_BYTES + 8);
             settings.max_outstanding_bytes = 1024 * 1024 * 1024;
             settings.max_inbox_bytes = 128 * 1024 * 1024;

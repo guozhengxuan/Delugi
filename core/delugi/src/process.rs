@@ -334,8 +334,8 @@ impl Config {
             }
         }
         if n < 4
-            || n > 31
-            || (n - 1) % 3 != 0
+            || (n > 31 && n != 50)
+            || ((n - 1) % 3 != 0 && n != 50)
             || id as usize >= n
             || self.addresses.len() != n
             || self
@@ -414,9 +414,9 @@ impl Config {
 }
 
 pub fn keygen(directory: &Path, n: usize) -> Result<Value, String> {
-    if n < 4 || n > 31 || (n - 1) % 3 != 0 {
+    if n != 50 && (n < 4 || n > 31 || (n - 1) % 3 != 0) {
         return Err(
-            "key generation supports n = 3f + 1 in 4..=31; select a compatible resource profile"
+            "key generation supports n = 3f + 1 in 4..=31 or n=50; select a compatible resource profile"
                 .into(),
         );
     }
