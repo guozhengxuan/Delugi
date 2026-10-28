@@ -36,7 +36,7 @@ def render(summary, directory, *, endpoint='end_to_end'):
             p=r['protocol'];color=COLORS.get(p,plt.get_cmap('tab10')(i));marker='o' if p=='delugi' else 's'
             x=r.get('goodput_tps');value=r.get(endpoint+'_p50_ms');status=r.get(endpoint+'_p50_status')
             upper=r.get(endpoint+'_p95_ms');label=LABELS.get(p,p)
-            if x is None or status=='empty' or not r.get('completed'):
+            if x is None or status=='empty' or (value is None and r.get(endpoint+'_p50_lower_bound_ms') is None):
                 ax.text(.03,.07+i*.07,label+': '+r['status']+'; latency unavailable',transform=ax.transAxes,color=color,fontsize=9)
                 continue
             censored=value is None
@@ -53,9 +53,11 @@ def render(summary, directory, *, endpoint='end_to_end'):
                     ax.vlines(x,y,max(y,bound/1000),color=color,linewidth=1.2,linestyle='--')
                     ax.annotate('',xy=(x,max(y,bound/1000)+ymax*.06),xytext=(x,max(y,bound/1000)),arrowprops={'arrowstyle':'->','color':color})
             if censored:ax.annotate('',xy=(x,y+ymax*.06),xytext=(x,y),arrowprops={'arrowstyle':'->','color':color})
-            offset=(-12,13) if p=='delugi' else (-12,-24)
-            text=f"{label}\n{x:.1f} tx/s, {'≥' if censored else ''}{y:.3f} s"
-            ax.annotate(text,(x,y),xytext=offset,textcoords='offset points',ha='right',fontsize=9,color=color)
+            # At a common offered rate the points are often vertically aligned.
+            # Keep their labels in separate fixed rows, away from the whiskers.
+            text=f"{label}: {x:.1f} tx/s · median {'≥' if censored else ''}{y:.3f} s"
+            ax.text(.035,.95-i*.105,text,transform=ax.transAxes,va='top',fontsize=9,color=color,
+                    bbox={'facecolor':'white','edgecolor':'none','alpha':.85,'pad':2})
         ax.set(title=CASES.get(case,case),xlabel='Measured useful throughput (tx/s)')
         ax.set_xlim(0,max(offered,max((r.get('goodput_tps') or 0 for r in selected),default=0))*1.18 or 1)
         ax.set_ylim(0,ymax);ax.grid(alpha=.18);ax.spines[['top','right']].set_visible(False)
