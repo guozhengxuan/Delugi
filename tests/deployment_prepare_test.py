@@ -19,8 +19,10 @@ import deployment_prepare as prepare
 class DeploymentPreparation(unittest.TestCase):
     def test_autobahn_pins_compatible_binding_compiler_only_in_its_recipe(self):
         recipe = prepare.recipe('autobahn')
-        self.assertEqual(recipe['environment'], {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib'})
+        self.assertEqual(recipe['environment'], {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib',
+                                                'CC': 'gcc-11', 'CXX': 'g++-11'})
         self.assertIn('libclang-14-dev', recipe['packages'])
+        self.assertIn('g++-11', recipe['packages'])
         self.assertNotIn('environment', prepare.recipe('simpleit-mempool'))
         self.assertNotIn('libclang-14-dev', prepare.recipe('mysticeti')['packages'])
 

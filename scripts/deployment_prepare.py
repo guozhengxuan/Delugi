@@ -94,8 +94,10 @@ def recipe(protocol, jobs=1, toolchain=None):
         # Upstream RocksDB6.20 uses bindgen0.59, which rejects the anonymous-enum
         # names emitted by Clang16+. Keep native sources/lock unchanged and pin
         # the binding generator's compiler separately from the Rust toolchain.
-        selected['packages'] = PACKAGES + ['libclang-14-dev']
-        selected['environment'] = {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib'}
+        # Its old C++ headers also rely on transitive includes removed in GCC13.
+        selected['packages'] = PACKAGES + ['libclang-14-dev', 'g++-11']
+        selected['environment'] = {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib',
+                                   'CC': 'gcc-11', 'CXX': 'g++-11'}
     if protocol == "shoal":
         # Native framework generation invokes rustfmt while rewriting tracked
         # SDK sources. The minimal Rust profile does not install this component.
