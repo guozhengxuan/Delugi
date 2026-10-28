@@ -22,7 +22,7 @@ retain the rationale and paper figure counts. Their former implementation
 pending statements are superseded by this plan and its evidence.
 
 The [configurable transport/Fabric checkpoint](benchmarks/results/configurable-transport-fabric-2026-10-28.json)
-records the local follow-up: 187 controller regressions, shared TCP tests and
+records the local follow-up: 189 controller regressions, shared TCP tests and
 four successful common-core process checks. No new paid operations occurred.
 
 ## 1. Scope fixed by the author

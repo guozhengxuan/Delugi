@@ -184,6 +184,22 @@ class FabricBenchmark(unittest.TestCase):
         self.assertEqual(paths['key']['accesskey'],str((self.root/'absent-secret.json').resolve()))
         with self.assertRaisesRegex(ValueError,'already exist'):config.initialize(out,source,inventory=inventory)
 
+    def test_protocol_selection_reuses_other_saved_native_options(self):
+        self.params['bench']['protocols']=['delugi','raptr'];self.write()
+        result=self.bench().describe()
+        self.assertEqual(result['plan']['trial_count'],4)
+        self.assertEqual(set(result['plan']['config']['protocol_options']),{'delugi','raptr'})
+        # Original settings retain the native options for a later selection.
+        self.assertIn('mysticeti-c',self.params['node']['protocol_options'])
+
+    def test_larger_transaction_size_derives_bounded_delugi_defaults(self):
+        self.params['bench']['tx_size']=4096;self.write()
+        e=next(r['effective'] for r in self.bench().resolved if r['protocol']=='delugi')
+        self.assertLessEqual(e['batching']['max_transactions']*(4096+60)+8,256*1024)
+        self.assertLessEqual(e['arrival_queue_capacity']*(4096+60),64*1024**2)
+        self.params['node']['protocol_options']['delugi']={'arrival_queue_capacity':65536};self.write()
+        with self.assertRaisesRegex(ValueError,'64MiB'):self.bench()
+
     def test_overlay_and_ssh_configuration_enforce_units_and_committee(self):
         from remote_deployment import ssh_arguments
         c=wan_overlay.settings({'subnet':'10.240.0.0/24','port':52999,'mtu':1280,'keepalive_s':9},10)

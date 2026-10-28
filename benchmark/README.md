@@ -57,7 +57,8 @@ its saved lease plans/inventory under `settings.testbeds` once.
 Select the immutable binaries once in `.state/artifacts.json`, using
 [`compact-artifacts.example.json`](../benchmarks/configs/compact-artifacts.example.json).
 A superset catalog can retain all six implementations while individual parameter
-files select a subset. The existing
+files select a subset. Saved `protocol_options` can also cover all six; changing
+`bench.protocols` automatically selects their options without deleting the rest. The existing
 [build/publication runbook](../docs/evaluation/compact-campaign.md#prepare-reusable-artifacts-once-per-source-revision)
 prepares these binaries once per source revision. Runs never compile code during
 measurement. A changed source/runtime requires a rebuilt common Linux publication;

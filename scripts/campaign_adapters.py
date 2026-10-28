@@ -59,13 +59,13 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
         'timing':{'Delta_ms':delta},'faulty_identities':[] if faulty is None else [faulty]}
     if selected_transport is not None:effective['transport']=selected_transport
     if protocol=='delugi':
-        count=(batch['useful_bytes_target']//useful if batch['useful_bytes_target'] is not None else 128)
+        count=(batch['useful_bytes_target']//useful if batch['useful_bytes_target'] is not None else min(128,(256*1024-8)//(useful+60)))
         if not 1<=count<=65536 or count*(useful+60)+8>256*1024:raise ValueError('Delugi batch target exceeds the native256KiB batch envelope')
         effective['batching']={'max_transactions':count,'useful_bytes_target':count*useful,'max_wait_ms':batch['max_wait_ms'] or 10}
         effective['timing'].update(catchup_ms=7*delta,proposal_wait_ms=3*delta)
         effective['resource_profile']=options.get('resource_profile','complete-64mib-n50-v1' if nodes==50 else 'complete-32mib-n31-v1')
         if effective['resource_profile'] not in ('legacy-1mib-v1','complete-32mib-n31-v1','complete-64mib-n50-v1'):raise ValueError('unknown Delugi resource profile')
-        effective['arrival_queue_capacity']=contract.integer(options.get('arrival_queue_capacity',65536),1,1000000,'arrival queue capacity')
+        effective['arrival_queue_capacity']=contract.integer(options.get('arrival_queue_capacity',min(65536,64*1024**2//(useful+60))),1,1000000,'arrival queue capacity')
         if effective['batching']['max_wait_ms']>1000:raise ValueError('Delugi batch wait exceeds the native1000ms envelope')
         if effective['arrival_queue_capacity']*(useful+60)>64*1024**2:raise ValueError('Delugi arrival queue exceeds the native64MiB envelope')
         if nodes>31 and effective['resource_profile']!='complete-64mib-n50-v1':raise ValueError('n=50 requires the complete64MiB resource profile')

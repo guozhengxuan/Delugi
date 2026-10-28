@@ -25,6 +25,11 @@ def parameters(value):
     b, n = value['bench'], value['node']
     campaign.fields(b, ('protocols','nodes','rate','tx_size','duration','drain','runs','faults','cases','fault_rate','seed'), 'bench')
     campaign.fields(n, ('Delta_ms','delay_ms','egress_mbps','batching','proposal_budget','transport','protocol_options'), 'node')
+    options=n['protocol_options']
+    if not isinstance(options,dict) or set(options)-set(campaign.PROTOCOLS) or any(not isinstance(v,dict) for v in options.values()):
+        raise ValueError('protocol_options must name supported implementations with object values')
+    if not isinstance(b['protocols'],list) or any(not isinstance(p,str) for p in b['protocols']):
+        raise ValueError('protocols must be a list of implementation names')
     cases = b['cases']
     if not isinstance(cases,list) or not cases or cases[0]!='healthy' or len(cases)!=len(set(cases)):
         raise ValueError('cases must start with healthy and be distinct')
@@ -41,7 +46,7 @@ def parameters(value):
         'network':{'added_one_way_delay_ms':n['delay_ms'],'validator_egress_mbps':n['egress_mbps']},
         'timing':{'Delta_ms':n['Delta_ms'],'mapping':'native_reviewed'},'shared_transport':n['transport'],
         'batching':n['batching'],'proposal_budget':n['proposal_budget'],
-        'protocol_options':n['protocol_options'],'specification':value['specification']}
+        'protocol_options':{p:copy.deepcopy(options.get(p,{})) for p in b['protocols']},'specification':value['specification']}
     return campaign.validate(copy.deepcopy(config))
 
 

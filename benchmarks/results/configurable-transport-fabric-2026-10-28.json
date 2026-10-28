@@ -28,7 +28,7 @@
       "passed": 1
     },
     "python_controller_regressions": {
-      "passed": 187
+      "passed": 189
     },
     "fabric_cli": [
       "list",
@@ -113,5 +113,10 @@
   "unsupported_common_parameters": {
     "proposal_caps": "rejected; no change to Delugi all-current construction",
     "fault_counts_above_one": "rejected; current hooks use one fixed faulty identity"
+  },
+  "build_cleanup": {
+    "freed_bytes": 2317160448,
+    "preserved_node_sha256": "4d55c10b5944f68d7e9ae2ff8de0949655086203c2edc890af67e10f6841cea7",
+    "evidence_preserved": true
   }
 }
