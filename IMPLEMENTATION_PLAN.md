@@ -1,10 +1,15 @@
 # Delugi implementation and evaluation plan
 
-Updated **27 October 2026**. Implementation checkpoint: `90a5d1f`.
-The approved compact campaign is implemented through local tests. The next
-stage is qualification of the final Linux artifacts and the 10/50-replica
-profiles, followed by paid measurement. No cloud resources were created for
-this implementation phase.
+Updated **28 October 2026**. Controller checkpoint: `6666b06`.
+The implementation has reached four-region, four-replica deployment
+qualification. All six Linux implementations build and deploy. The WAN checks
+exposed a shared transport connection-timeout bug in Delugi/Raptr and reproduced
+Autobahn's silent-leader recovery failure. These block the main comparison.
+The [WAN verification record](benchmarks/results/wan-verification-2026-10-28.json)
+contains the bounded run matrix, artifact identities, outcomes and resource cleanup.
+All four instances and their owned security groups have been deleted. Raw
+results are retained locally; the record contains a quote-based cost estimate
+and does not present it as a reconciled provider bill.
 
 Working commands are in the [compact campaign runbook](docs/evaluation/compact-campaign.md).
 The [counterpart proposal](benchmarks/plans/2026-10-27-counterparts-and-aliyun.txt)
@@ -21,7 +26,21 @@ implementations use pinned author sources, recorded patches and native
 services behind the same campaign controller. Shoal, Vantage and Mysticeti-FPC
 are outside this matrix.
 
-| Setting | Current campaign |
+The current verification uses **two workload attempts per implementation**:
+healthy and silent first leader, each configured for 60 seconds, with one
+100 tx/s total honest input rate, one useful byte per transaction and at most
+15 seconds of drain. The four hosts are in Singapore, Frankfurt, London and
+Seoul. Their provider egress cap is 20 Mbps; traffic uses an authenticated
+WireGuard overlay. The maximum measured RTT is 240 ms, with zero loss in the
+20-sample measurements of all 12 directed paths. Delta is 1,000 ms, using the
+pinned Simple-IT default floor and retaining native timer multipliers.
+
+Raptr's two attempts terminated early after approximately 55–58 seconds and
+count toward the limit. One Simple-IT startup failure occurred before any arm
+request or input; it was retained, repaired and retried. No started workload
+was repeated. The larger matrix below is future work, outside this verification.
+
+| Setting | Planned main campaign |
 | --- | --- |
 | Main committees | Exactly 10 and 50; n=4 remains a qualification fixture |
 | Offered load | 1k, 4k, 8k, 16k, 32k, 64k total honest tx/s |
@@ -57,7 +76,16 @@ budget ledger. A budget allowance is not evidence that the account was topped up
 | Results | Exact cohort reduction; CSV retains failed/zero/censored/unrun cells; latency/goodput/completion/traffic PDF and PNG; sampled and final traffic boundaries remain distinct |
 | Networking | Aggregate Linux egress tree, scoped peer/role selectors, before/during/after RTT checks, owned cleanup; real two-namespace aggregate bandwidth acceptance |
 
-The focused final Python suite ran 237 checks: **227 passed and 10 skipped**
+The WAN deployment adds a four-region lease profile, exact-peer WireGuard
+setup and an observed-WAN mode that records real delays without applying
+synthetic delay tolerances. Uploads are atomic and checksum checked, with a
+bounded deadline suitable for WAN transfers. Original Autobahn builds with
+libclang 14 and GCC 11, preserving its pinned protocol sources. Ceremony
+sealing now restores host 0's private-key permissions after archive extraction;
+41 remote-native tests and the local certificate test pass (the optional live
+TLS probe was not run in that test invocation).
+
+The 27 October Python suite ran 237 checks: **227 passed and 10 skipped**
 (Linux-only and explicit native opt-in tests). Separate real-process and Linux
 receipts supply their own evidence; skipped tests are not counted as passes.
 The campaign state-machine tests use fake cloud/SSH backends. They do not imply
@@ -65,6 +93,7 @@ that the full new controller has run on Alibaba.
 
 Evidence:
 
+- [Four-region deployment verification](benchmarks/results/wan-verification-2026-10-28.json).
 - [Current campaign checkpoint](benchmarks/results/compact-campaign-implementation-2026-10-27.json).
 - [Simple-IT builds, authentication and workload fixtures](benchmarks/results/simpleit-local-2026-10-27.json).
 - [Integrated Raptr sustained and scale fixtures](benchmarks/results/compact-integrated-local-2026-10-27.json).
@@ -73,11 +102,16 @@ Evidence:
 
 ## 3. Qualification findings that determine the next work
 
-1. **Final Linux artifacts are not yet qualified.** Current local builds include
-   macOS and debug artifacts. Rebuild the common Linux publication at the selected
-   pushed revision with Delugi RocksDB enabled, and qualify all four native Linux
-   x86_64 release archives. The controller rejects stale runtime, wrong
-   architecture, pin, patch or role.
+1. **The shared transport cannot yet span these WAN paths.** The final common
+   Linux release was built at `5bb8899`, with Delugi RocksDB enabled; all four
+   native Linux archives also built and were published on all hosts. However,
+   `shared/network` hardcodes a 100 ms TCP connection timeout. Only the four
+   directed edges below 100 ms connected; the eight longer edges repeatedly
+   failed. Both Delugi cases delivered zero transactions. Integrated Raptr
+   shares this setting and additionally exhausted its retained outbound byte
+   budget. Delta=1,000 ms does not change the transport timeout. Expose a WAN
+   connection budget and verify actual peer connectivity before admission,
+   preserving consensus timer semantics.
 2. **n=50 at Δ=100 ms remains open.** The local shared-machine Raptr empty test
    stalled before round 4. Δ=1,000 ms reached round 4 but qualifies only that
    diagnostic. Preserve 100 ms for the main series and resolve the failure on
@@ -87,16 +121,24 @@ Evidence:
    accounted for and zero completed. Native output progressed through empty
    slots 1–4 and stalled at slot 5. Lifecycle/evidence capture passed; liveness
    did not. Investigate native timeout configuration/behavior and retain this
-   result. Do not silently substitute the separate disruption branch.
+   result. The WAN verification reproduced zero completions from 6,000 admitted
+   requests with the first leader absent, while its healthy run completed all
+   6,000. Do not silently substitute the separate disruption branch.
 4. **Simple-IT security qualification remains incomplete.** Direct-sender mTLS
    does not authenticate all transferred certificates or establish fallback
    safety. The mempool constructor fix is disclosed: its old cut certificate
    reset at two votes while its verifier required three at n=4. Test forged,
    replayed and forwarded evidence and the complete fallback path before making
-   Byzantine claims.
+   Byzantine claims. Both variants produced agreeing output in both WAN cases,
+   but their one-transaction verification batches accumulated backlog at
+   100 tx/s. Mempool completed 1,676/984 transactions in healthy/silent cases;
+   Dispersed completed 1,121/147, out of 6,000 each. These batch settings do not
+   measure the implementations' capacity.
 5. **Observation and scale gates remain.** Mysticeti's remote exact observed
    workload prefixes agree, but do not establish a complete signed WAL terminal
-   prefix. Requalify output fidelity, observer overhead, bounded state/RSS/disk
+   prefix. Both WAN cases completed all 6,000 requests; this qualifies the
+   recorded workload progress, not the missing signed WAL proof. Requalify
+   output fidelity, observer overhead, bounded state/RSS/disk
    growth and traffic-window alignment on the selected artifacts. Run loaded
    network calibration on actual hosts; namespace and idle RTT checks do not
    establish loaded cloud queueing behavior.
@@ -110,26 +152,24 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Close local qualification gaps.** Diagnose Autobahn's zero-output recovery;
-   audit Simple-IT certificates/fallback; complete the selected Mysticeti
-   output-fidelity gate. Preserve failed attempts and original artifact identities.
-2. **Build and freeze Linux publications.** Use guarded recipes, pinned locks
-   and source snapshots. Verify both common roles and all native roles, retain
-   binary/build receipts, then delete disposable targets. Reuse publications
-   only while their exact source/runtime identities match.
-3. **Run bounded qualification fixtures.** On each final artifact: round 4,
-   silent leader, missing payload, empty/unfinished/overload, output agreement,
-   cleanup and selected storage. Test n=10 and exactly n=50 at the nominal timer;
-   local co-location supplies functional evidence only.
-4. **Perform small shaped cloud qualification after those gates.** Resolve
-   fresh quotes/leases against the same ledger. Check 4k tx/s healthy and
-   silent-leader cases for each implementation, one minute per cell. Validate
-   aggregate 100 Mbps, added RTT, loaded delay, resource limits, exact populations,
-   transfer and cleanup before the main sweep.
-5. **Run the main matrix once.** Change the common settings file, freeze its
-   plan, then use one `campaign --execute` operation. Select the same accepted
-   healthy input rate for all fault cases at a committee size. Extra points or
-   reruns require an explicit new plan within the shared allowance and budget.
+1. **Fix shared WAN connection establishment.** Parameterize the transport
+   connection timeout separately from Delta, add a readiness check that uses
+   the actual transport, and rebuild the common Linux publication. Keep the
+   two failed attempts for each core as evidence.
+2. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
+   choose Simple-IT batch targets compatible with the offered rate; audit its
+   certificates/fallback and complete Mysticeti's signed native-order proof.
+3. **Requalify with a new bounded plan.** The current two-attempt allowance is
+   exhausted. Agree on the next finite matrix after the fixes; do not silently
+   turn this smoke check into a rate sweep. Reuse exact native publications
+   while their source and recipe identities match, and retain all failed runs.
+4. **Qualify the intended 10/50 profiles and network.** Resolve the n=50 nominal
+   timer failure and verify aggregate 100 Mbps and loaded delay on the selected
+   hosts before interpreting latency/throughput curves.
+5. **Run the agreed main matrix.** Use one common settings file and one campaign
+   command, with fresh quotes and the durable budget ledger. Preparation and
+   collection remain outside the one-minute measurement; release owned resources
+   after collection and reconcile actual billing before releasing reservations.
 
 The controller's fault-rate selector is diagnostic: at least 99% admission and
 by-drain completion, and second-half pending growth at most 1% of that half's

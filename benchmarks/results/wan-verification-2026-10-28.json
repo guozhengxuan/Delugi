@@ -1,0 +1,1177 @@
+{
+  "schema": 1,
+  "date": "2026-10-28",
+  "scope": "four-region deployment verification; maximum two one-minute attempts per implementation at one input rate",
+  "comparison_eligible": false,
+  "controller_commit": "6666b06",
+  "implementation_commit": "5bb8899ae28c18efda5d5474cf585bd947378277",
+  "regions": [
+    "ap-southeast-1",
+    "eu-central-1",
+    "eu-west-1",
+    "ap-northeast-2"
+  ],
+  "placement": {
+    "hosts": 4,
+    "one_validator_per_region": true,
+    "instance_type": "ecs.g9i.xlarge",
+    "cpus_per_host": 4,
+    "memory_gib": 16,
+    "system_disk_gib": 200,
+    "os": "Ubuntu 24.04",
+    "protocol_network": "WireGuard private /32 overlay; only three owned peers per host",
+    "provider_public_egress_mbps": 20,
+    "bandwidth_calibrated": false
+  },
+  "configuration": {
+    "attempts_per_implementation": 2,
+    "cases": [
+      "healthy",
+      "silent-first-leader"
+    ],
+    "measurement_seconds": 60,
+    "warmup_seconds": 0,
+    "maximum_drain_seconds": 15,
+    "total_honest_input_tps": 100,
+    "useful_transaction_bytes": 1,
+    "configured_Delta_ms": 1000,
+    "added_one_way_delay_ms": 0,
+    "native_timer_multipliers_preserved": true,
+    "timeout_rule": "ceil(1.5 * maximum observed RTT / 100 ms) * 100 ms; minimum 1000 ms from pinned Simple-IT",
+    "frozen_matrix": {
+      "path": "results/local/wan-qualification-20261028/frozen-matrix.json",
+      "sha256": "48fbd99ebbb5c8c8fc1392705d172cc58bdaa86a6ff51ba1577523ba652064ed",
+      "bytes": 45547
+    },
+    "small_payload_batching": {
+      "simpleit-mempool_useful_bytes_target": 1,
+      "simpleit-dispersed_useful_bytes_target": 1,
+      "autobahn_useful_bytes_target": 16,
+      "note": "Explicit verification settings; native capacity must not be inferred from these tiny batches."
+    }
+  },
+  "calibration": {
+    "samples_per_directed_edge": 20,
+    "directed_edges": 12,
+    "loss_percent": 0,
+    "maximum_rtt_ms": 240,
+    "fullmesh": [
+      {
+        "source_region": "ap-southeast-1",
+        "target_region": "eu-central-1",
+        "median_rtt_ms": 160.0,
+        "maximum_rtt_ms": 161.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "ap-southeast-1",
+        "target_region": "eu-west-1",
+        "median_rtt_ms": 196.0,
+        "maximum_rtt_ms": 199.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "ap-southeast-1",
+        "target_region": "ap-northeast-2",
+        "median_rtt_ms": 66.4,
+        "maximum_rtt_ms": 74.9,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "eu-central-1",
+        "target_region": "ap-southeast-1",
+        "median_rtt_ms": 160.0,
+        "maximum_rtt_ms": 160.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "eu-central-1",
+        "target_region": "eu-west-1",
+        "median_rtt_ms": 13.7,
+        "maximum_rtt_ms": 13.8,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "eu-central-1",
+        "target_region": "ap-northeast-2",
+        "median_rtt_ms": 194.0,
+        "maximum_rtt_ms": 194.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "eu-west-1",
+        "target_region": "ap-southeast-1",
+        "median_rtt_ms": 196.0,
+        "maximum_rtt_ms": 199.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "eu-west-1",
+        "target_region": "eu-central-1",
+        "median_rtt_ms": 13.7,
+        "maximum_rtt_ms": 13.7,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "eu-west-1",
+        "target_region": "ap-northeast-2",
+        "median_rtt_ms": 240.0,
+        "maximum_rtt_ms": 240.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "ap-northeast-2",
+        "target_region": "ap-southeast-1",
+        "median_rtt_ms": 66.4,
+        "maximum_rtt_ms": 69.4,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "ap-northeast-2",
+        "target_region": "eu-central-1",
+        "median_rtt_ms": 194.0,
+        "maximum_rtt_ms": 195.0,
+        "loss_percent": 0.0
+      },
+      {
+        "source_region": "ap-northeast-2",
+        "target_region": "eu-west-1",
+        "median_rtt_ms": 240.0,
+        "maximum_rtt_ms": 240.0,
+        "loss_percent": 0.0
+      }
+    ]
+  },
+  "builds": {
+    "delugi_raptr": {
+      "binary_sha256": "2e1a85bd4e6840972b8420346b4d7a634c1951065d0aef1967081a361f76ce7d",
+      "sha256": "d03a5d0114a884376f20386622d4807d8be1f5f884fd37a031f9de6a1917c26f",
+      "bytes": 34174226,
+      "machine": "x86_64",
+      "native_raptr_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948"
+    },
+    "simpleit-mempool": {
+      "receipt": {
+        "path": "results/local/wan-qualification-20261028/simpleit-mempool-build/receipt-0.json",
+        "sha256": "c53bcf8fd7fb2f36510cc35db6485c81acd876aa75b7c5353c84cc119dd785bd",
+        "bytes": 4458
+      },
+      "artifact_archive_sha256": "807b4d11b20b057166b8d9c79f0f020053f50bc89200ee8ec2d104069abcca9b",
+      "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3",
+      "binaries": [
+        {
+          "bytes": 17868560,
+          "name": "node",
+          "sha256": "c0d68df95932d12ff6aaf0931286c9c94fb34df7b97ed69f01f31495a24220f2"
+        }
+      ],
+      "elapsed_seconds": 573.903296121,
+      "abi": {
+        "libc": [
+          "glibc",
+          "2.39"
+        ],
+        "machine": "x86_64",
+        "system": "Linux"
+      },
+      "source_bundle_sha256": "e798b268439dfddd36ea5e6568cb1e8af16f940bb4e37154db2646b6ff348a84",
+      "pin": {
+        "commit": "e9235246880486439265cf86f13fae0ed99e62c0",
+        "patch_sha256": "7cdf71a5930f3cc451cf5147cc721eedbce26b13846a543bf52aa7c78463d0bc"
+      }
+    },
+    "simpleit-dispersed": {
+      "receipt": {
+        "path": "results/local/wan-qualification-20261028/simpleit-dispersed-build/receipt-0.json",
+        "sha256": "227ef14ea62db7c5d3cbd45eaad0a195d76edef72b4535c2472250251811f19b",
+        "bytes": 3742
+      },
+      "artifact_archive_sha256": "0b1a2c80eb76783ad215a4feb303b1c75b13a9a708ebf9cfc2610b9b6ccf87c9",
+      "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3",
+      "binaries": [
+        {
+          "bytes": 18420216,
+          "name": "node",
+          "sha256": "46141790d79433fe6bc5cd86761c15265f5260ce290fbe74bc9316ed883eb1ea"
+        }
+      ],
+      "elapsed_seconds": 590.2208091419998,
+      "abi": {
+        "libc": [
+          "glibc",
+          "2.39"
+        ],
+        "machine": "x86_64",
+        "system": "Linux"
+      },
+      "source_bundle_sha256": "5759077e85b31e086affab84526bea657d95b79324dbcd85171ca9493e8288ec",
+      "pin": {
+        "commit": "ad8935a9e989bdfd113a8c136f9b5d0011038931",
+        "patch_sha256": "5e7d225221cc7b505120e3ffea967d7f5a0282c2557d0064ad9ec023524b2209"
+      }
+    },
+    "autobahn": {
+      "receipt": {
+        "path": "results/local/wan-qualification-20261028/autobahn-legacycc-build/receipt-0.json",
+        "sha256": "de44a0df2b25a538e71e563bec9008ed3ccc4a7ef0680cc28c5e0e68aa8427f7",
+        "bytes": 5334
+      },
+      "artifact_archive_sha256": "d055274334ee62729b76b2d67c56d9a7db763a665f55cf836bf68618945724b3",
+      "compiler": "rustc 1.92.0 (ded5c06cf 2025-12-08)\nbinary: rustc\ncommit-hash: ded5c06cf21d2b93bffd5d884aa6e96934ee4234\ncommit-date: 2025-12-08\nhost: x86_64-unknown-linux-gnu\nrelease: 1.92.0\nLLVM version: 21.1.3",
+      "binaries": [
+        {
+          "bytes": 13067992,
+          "name": "node",
+          "sha256": "e4f2188568e21029c0b7cff3377387a69bb0d1b262ecc9cabb09e8ca4a6f849c"
+        },
+        {
+          "bytes": 4241568,
+          "name": "benchmark_client",
+          "sha256": "5fd0c389cc1956da96ecf2952d597dcdde07ffc657d66b33d8f59c920bb61d65"
+        }
+      ],
+      "elapsed_seconds": 207.11948277500005,
+      "abi": {
+        "libc": [
+          "glibc",
+          "2.39"
+        ],
+        "machine": "x86_64",
+        "system": "Linux"
+      },
+      "source_bundle_sha256": "a4cda171178afd43a7ed937a716b72ac4887cf9557553e56d47cee2da82780c7",
+      "pin": {
+        "commit": "6d77e0307e9dc09cc8def2c846a20523646ab4de",
+        "patch_sha256": "d10c72648eb5996708ad6f42e6f98cdaf6c3e5987ba3c88482dc0cd0d32646d8"
+      }
+    },
+    "mysticeti-c": {
+      "receipt": {
+        "path": "results/local/wan-qualification-20261028/mysticeti-build/receipt-0.json",
+        "sha256": "e21db508374a5df3962fc63d3231640180c8b10a5cb07ffbf8d9691fd39c438f",
+        "bytes": 3590
+      },
+      "artifact_archive_sha256": "2fc8f1b0b1c08289d48cc621d7418688dd31b75ab0dddbdc1e5118a31c343b0a",
+      "compiler": "rustc 1.78.0 (9b00956e5 2024-04-29)\nbinary: rustc\ncommit-hash: 9b00956e56009bab2aa15d7bff10916599e3d6d6\ncommit-date: 2024-04-29\nhost: x86_64-unknown-linux-gnu\nrelease: 1.78.0\nLLVM version: 18.1.2",
+      "binaries": [
+        {
+          "bytes": 276599712,
+          "name": "mysticeti",
+          "sha256": "5377ffd6dcf37153270892b90d2d5d2d8b5e3eae1c2628f25e874370832df8ac"
+        }
+      ],
+      "elapsed_seconds": 128.1400108150001,
+      "abi": {
+        "libc": [
+          "glibc",
+          "2.39"
+        ],
+        "machine": "x86_64",
+        "system": "Linux"
+      },
+      "source_bundle_sha256": "eab6a1f5113d13671d9ecc550cc96228d0b437388122dd0b71939d05f93a0d46",
+      "pin": {
+        "commit": "96fd83154bb5e168def9a81ee8f3e90e94e46a2e",
+        "patch_sha256": "711fad7035a152a8964cc904d9ed02231b0bfa1817125c57b15d88172ed10716"
+      }
+    }
+  },
+  "trials": [
+    {
+      "id": "delugi-healthy",
+      "protocol": "delugi",
+      "case": "healthy",
+      "harness_status": "failed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/delugi-healthy/result.json",
+        "sha256": "a399f4a282c3e47d98ea69f18a949eebae3d4755ae427842c6e6953077acd9a8",
+        "bytes": 65980
+      },
+      "controller_wall_seconds": 232.909,
+      "outcome": "blocked_by_shared_transport_connect_timeout",
+      "completed_observed": 0,
+      "planned_transactions": 6000,
+      "authenticated_cohort_reduction_completed": false,
+      "diagnosis": {
+        "path": "results/local/wan-qualification-20261028/delugi-transport-diagnosis.json",
+        "sha256": "43abd740d0a5256bc6fd9763be59e1a48a02f34241b2df032acbe200a0a488ca",
+        "bytes": 3606
+      },
+      "measurement_seconds": 60,
+      "admitted_observed": 6000,
+      "owned_process_cleanup": {
+        "path": "results/local/wan-qualification-20261028/delugi-healthy-owned-cleanup.json",
+        "sha256": "78ca5d3648cde002edf0e937962a92ecaa1739d22f67d2d1455a59fdf1449b52",
+        "bytes": 967
+      }
+    },
+    {
+      "id": "delugi-silent-first-leader",
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "harness_status": "failed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/delugi-silent-first-leader/result.json",
+        "sha256": "51b32da387bfd19d017bf46ee12dcfe16317e6de53a90bbaf29ff744b0234c0f",
+        "bytes": 65221
+      },
+      "controller_wall_seconds": 224.029,
+      "outcome": "blocked_by_shared_transport_connect_timeout",
+      "completed_observed": 0,
+      "planned_transactions": 6000,
+      "authenticated_cohort_reduction_completed": false,
+      "diagnosis": {
+        "path": "results/local/wan-qualification-20261028/delugi-silent-snapshot-diagnosis.json",
+        "sha256": "5c28ed745ef1ee1fa79b87b3e1027e94a31a96ccab571de54f943a772685409e",
+        "bytes": 631
+      },
+      "measurement_seconds": 60,
+      "admitted_observed": 6000,
+      "owned_process_cleanup": {
+        "path": "results/local/wan-qualification-20261028/delugi-silent-first-leader-owned-cleanup.json",
+        "sha256": "061c89a4025c59c429a579768c5383603eea0074b1482f84f5103622a817fea7",
+        "bytes": 967
+      }
+    },
+    {
+      "id": "raptr-healthy",
+      "protocol": "raptr",
+      "case": "healthy",
+      "harness_status": "failed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/raptr-healthy/result.json",
+        "sha256": "6faf56fae70ef999c705a0b886e584792226cec5e58b54565549950b184ad620",
+        "bytes": 26752
+      },
+      "controller_wall_seconds": 89.837,
+      "outcome": "blocked_by_shared_transport_connect_timeout",
+      "completed_observed": 0,
+      "planned_transactions": 6000,
+      "authenticated_cohort_reduction_completed": false,
+      "diagnosis": {
+        "path": "results/local/wan-qualification-20261028/raptr-healthy-diagnosis.json",
+        "sha256": "c60925ea69daba2a6b2cd0690d6d817784e8748f413116bebde0aacc77204e63",
+        "bytes": 5775
+      },
+      "actual_origin_duration_seconds": {
+        "0": 57.708583,
+        "1": 57.812236,
+        "2": 57.852766,
+        "3": 57.803755
+      },
+      "admitted_observed": 5780,
+      "early_termination_reason": "retained outbound byte budget exhausted after repeated TCP connect failures",
+      "all_owned_process_groups_empty": true
+    },
+    {
+      "id": "raptr-silent-first-leader",
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "harness_status": "failed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/raptr-silent-first-leader/result.json",
+        "sha256": "da2440e0a3781278d635a45d2dfa1dc65bc83d9e1ee86cfbfb465480f448e6c6",
+        "bytes": 26731
+      },
+      "controller_wall_seconds": 87.58,
+      "outcome": "blocked_by_shared_transport_connect_timeout",
+      "completed_observed": 0,
+      "planned_transactions": 6000,
+      "authenticated_cohort_reduction_completed": false,
+      "diagnosis": {
+        "path": "results/local/wan-qualification-20261028/raptr-silent-first-leader-diagnosis.json",
+        "sha256": "0cd41b4a67468e45f087b9916b97b573fa1123eb105859b66314aab16d95b3c1",
+        "bytes": 4340
+      },
+      "actual_origin_duration_seconds": {
+        "0": 55.228521,
+        "2": 55.236475,
+        "3": 55.362226
+      },
+      "admitted_observed": 5527,
+      "early_termination_reason": "retained outbound byte budget exhausted after repeated TCP connect failures",
+      "all_owned_process_groups_empty": true
+    },
+    {
+      "id": "simpleit-mempool-healthy",
+      "protocol": "simpleit-mempool",
+      "case": "healthy",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/simpleit-mempool-healthy/result.json",
+        "sha256": "37c2c5b099d1d7963fc2c76494ed0958b04cde40ebbc22b1073da497dc62d7d2",
+        "bytes": 38655
+      },
+      "controller_wall_seconds": 172.063,
+      "outcome": "delivers_with_backlog",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 1676,
+        "completion_fraction": 0.2793333333333333,
+        "goodput_tps": 22.28333333333333,
+        "p50_ms": null,
+        "p95_ms": null,
+        "p95_status": "censored",
+        "p99_ms": null,
+        "pending_at_end": 4663,
+        "scheduled": 6000,
+        "traffic_boundary": "successful underlying TCP bytes including TLS, native framing, ACKs and repair; per-operation measurement-window filtering",
+        "traffic_measurement_written_bytes": 8127290,
+        "traffic_sampled_total_written_bytes": 10144216,
+        "traffic_window_quality": "native per-operation window filtering",
+        "unfinished": 4324
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "1": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 1675,
+      "agreement": {
+        "common_prefix_length": 1675,
+        "common_prefix_sha256": "59602f79c4e983f61d364e07cef3931d5581a154eacf2e82c7dde1810f7d7716",
+        "native_order_fidelity": {
+          "reason": "complete native journal ordinals checked",
+          "status": "complete_observer_sequence"
+        },
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "1": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 1675,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 1676,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 1676,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 1675,
+            "kind": "exact"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          1675,
+          1676,
+          1676,
+          1675
+        ]
+      },
+      "native_output": {
+        "comparison_eligible": false,
+        "exact_native_prefix_agreement": true,
+        "payload_recovery": null
+      },
+      "silent_replicas": [],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "simpleit-mempool-silent-first-leader",
+      "protocol": "simpleit-mempool",
+      "case": "silent-first-leader",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/simpleit-mempool-silent-first-leader/result.json",
+        "sha256": "d48bf2b2b7f4c3ffd3a09dbf2dd0a97275ebf02120af1ffd7838173a8ef0f070",
+        "bytes": 36152
+      },
+      "controller_wall_seconds": 167.504,
+      "outcome": "delivers_with_backlog",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 984,
+        "completion_fraction": 0.164,
+        "goodput_tps": 12.933333333333334,
+        "p50_ms": null,
+        "p95_ms": null,
+        "p95_status": "censored",
+        "p99_ms": null,
+        "pending_at_end": 5224,
+        "scheduled": 6000,
+        "traffic_boundary": "successful underlying TCP bytes including TLS, native framing, ACKs and repair; per-operation measurement-window filtering",
+        "traffic_measurement_written_bytes": 1975908,
+        "traffic_sampled_total_written_bytes": 2470542,
+        "traffic_window_quality": "native per-operation window filtering",
+        "unfinished": 5016
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 984,
+      "agreement": {
+        "common_prefix_length": 984,
+        "common_prefix_sha256": "d24d62bf8795b662fdc8aa4a5989e1c8410271fd2db68926221057223c0a3bfb",
+        "native_order_fidelity": {
+          "reason": "complete native journal ordinals checked",
+          "status": "complete_observer_sequence"
+        },
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 984,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 984,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 984,
+            "kind": "exact"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          984,
+          984,
+          984
+        ]
+      },
+      "native_output": {
+        "comparison_eligible": false,
+        "exact_native_prefix_agreement": true,
+        "payload_recovery": null
+      },
+      "silent_replicas": [
+        1
+      ],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "simpleit-dispersed-healthy",
+      "protocol": "simpleit-dispersed",
+      "case": "healthy",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/simpleit-dispersed-healthy/result.json",
+        "sha256": "cdda1874ea09c09462ece89cac2408eadf31249e4dc32f82e09ccc3a6f32a21d",
+        "bytes": 38731
+      },
+      "controller_wall_seconds": 168.561,
+      "outcome": "delivers_with_backlog",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 1121,
+        "completion_fraction": 0.18683333333333332,
+        "goodput_tps": 14.916666666666666,
+        "p50_ms": null,
+        "p95_ms": null,
+        "p95_status": "censored",
+        "p99_ms": null,
+        "pending_at_end": 5105,
+        "scheduled": 6000,
+        "traffic_boundary": "successful underlying TCP bytes including TLS, native framing, ACKs and repair; per-operation measurement-window filtering",
+        "traffic_measurement_written_bytes": 7973412,
+        "traffic_sampled_total_written_bytes": 9978864,
+        "traffic_window_quality": "native per-operation window filtering",
+        "unfinished": 4879
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "1": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 1119,
+      "agreement": {
+        "common_prefix_length": 1119,
+        "common_prefix_sha256": "7840bb5dc4a9692c7c078dc15d2e2d4518f7927357bb445831615f438b1b9da2",
+        "native_order_fidelity": {
+          "reason": "complete native journal ordinals checked",
+          "status": "complete_observer_sequence"
+        },
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "1": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 1121,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 1121,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 1121,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 1119,
+            "kind": "exact"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          1121,
+          1121,
+          1121,
+          1119
+        ]
+      },
+      "native_output": {
+        "comparison_eligible": false,
+        "exact_native_prefix_agreement": true,
+        "payload_recovery": null
+      },
+      "silent_replicas": [],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "simpleit-dispersed-silent-first-leader",
+      "protocol": "simpleit-dispersed",
+      "case": "silent-first-leader",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/simpleit-dispersed-silent-first-leader/result.json",
+        "sha256": "bc2ef10ed5e2e8122230cfa8b3b78a1624041a627417f24d548e77fdebec4987",
+        "bytes": 36151
+      },
+      "controller_wall_seconds": 169.76,
+      "outcome": "delivers_with_backlog",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 147,
+        "completion_fraction": 0.0245,
+        "goodput_tps": 1.9500000000000002,
+        "p50_ms": null,
+        "p95_ms": null,
+        "p95_status": "censored",
+        "p99_ms": null,
+        "pending_at_end": 5883,
+        "scheduled": 6000,
+        "traffic_boundary": "successful underlying TCP bytes including TLS, native framing, ACKs and repair; per-operation measurement-window filtering",
+        "traffic_measurement_written_bytes": 600751,
+        "traffic_sampled_total_written_bytes": 751411,
+        "traffic_window_quality": "native per-operation window filtering",
+        "unfinished": 5853
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 147,
+      "agreement": {
+        "common_prefix_length": 147,
+        "common_prefix_sha256": "c3e645af419db85b513c2c09697f8b83264a5856a17fadc1b3dcfd4339119f32",
+        "native_order_fidelity": {
+          "reason": "complete native journal ordinals checked",
+          "status": "complete_observer_sequence"
+        },
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 147,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 147,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 147,
+            "kind": "exact"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          147,
+          147,
+          147
+        ]
+      },
+      "native_output": {
+        "comparison_eligible": false,
+        "exact_native_prefix_agreement": true,
+        "payload_recovery": null
+      },
+      "silent_replicas": [
+        1
+      ],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "autobahn-healthy",
+      "protocol": "autobahn",
+      "case": "healthy",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/autobahn-healthy/result.json",
+        "sha256": "c61e24823d16b51de4ae3f9a15b276e2ac3d702a2b9980d2409b5867135e6299",
+        "bytes": 36255
+      },
+      "controller_wall_seconds": 204.856,
+      "outcome": "completed_workload",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 6000,
+        "completion_fraction": 1.0,
+        "goodput_tps": 98.66666666666667,
+        "p50_ms": 813.598,
+        "p95_ms": 1171.711,
+        "p95_status": "observed",
+        "p99_ms": 1327.67,
+        "pending_at_end": 80,
+        "scheduled": 6000,
+        "traffic_boundary": "native successful replica stream writes including host-local worker links",
+        "traffic_measurement_written_bytes": 17754278,
+        "traffic_sampled_total_written_bytes": 22752894,
+        "traffic_window_quality": "native per-operation window filtering",
+        "unfinished": 0
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "1": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 6000,
+      "agreement": {
+        "common_prefix_length": 6000,
+        "common_prefix_sha256": "57419f19af0520a46c1fb0bb5df9c0b422df4938da5307717b2f997a25241cb8",
+        "native_order_fidelity": {
+          "reason": "complete native journal ordinals checked",
+          "status": "complete_observer_sequence"
+        },
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "1": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 6000,
+            "kind": "exact"
+          },
+          "1": {
+            "count": 6000,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 6000,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 6000,
+            "kind": "exact"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          6000,
+          6000,
+          6000,
+          6000
+        ]
+      },
+      "native_output": null,
+      "silent_replicas": [],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "autobahn-silent-first-leader",
+      "protocol": "autobahn",
+      "case": "silent-first-leader",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/autobahn-silent-first-leader/result.json",
+        "sha256": "50275baa64b31b6911563ee6afbd486d269da9bcdf0b03a2b82d100b566424f8",
+        "bytes": 33688
+      },
+      "controller_wall_seconds": 182.093,
+      "outcome": "no_useful_output",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 0,
+        "completion_fraction": 0.0,
+        "goodput_tps": 0.0,
+        "p50_ms": null,
+        "p95_ms": null,
+        "p95_status": "censored",
+        "p99_ms": null,
+        "pending_at_end": 6000,
+        "scheduled": 6000,
+        "traffic_boundary": "native successful replica stream writes including host-local worker links",
+        "traffic_measurement_written_bytes": 3493803,
+        "traffic_sampled_total_written_bytes": 4182474,
+        "traffic_window_quality": "native per-operation window filtering",
+        "unfinished": 6000
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 0,
+      "agreement": {
+        "common_prefix_length": 0,
+        "common_prefix_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "native_order_fidelity": {
+          "reason": "complete native journal ordinals checked",
+          "status": "complete_observer_sequence"
+        },
+        "native_order_scope": {
+          "0": "complete native output journal",
+          "2": "complete native output journal",
+          "3": "complete native output journal"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 0,
+            "kind": "exact"
+          },
+          "2": {
+            "count": 0,
+            "kind": "exact"
+          },
+          "3": {
+            "count": 0,
+            "kind": "exact"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          0,
+          0,
+          0
+        ]
+      },
+      "native_output": null,
+      "silent_replicas": [
+        1
+      ],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "mysticeti-c-healthy",
+      "protocol": "mysticeti-c",
+      "case": "healthy",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/mysticeti-c-healthy/result.json",
+        "sha256": "135570fd91b4d38d3b038a18839a9066345c98c3d143bf9c2793bce0c7cd6104",
+        "bytes": 367038
+      },
+      "controller_wall_seconds": 142.695,
+      "outcome": "completed_workload",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 6000,
+        "completion_fraction": 1.0,
+        "goodput_tps": 99.21666666666667,
+        "p50_ms": 423.91,
+        "p95_ms": 550.611,
+        "p95_status": "observed",
+        "p99_ms": 591.484,
+        "pending_at_end": 47,
+        "scheduled": 6000,
+        "traffic_boundary": "native successful replica stream writes; scrape intervals host-local",
+        "traffic_measurement_written_bytes": 3595179,
+        "traffic_sampled_total_written_bytes": 4628094,
+        "traffic_window_quality": "sampled host-local scrape boundaries",
+        "unfinished": 0
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "1": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 6000,
+      "agreement": {
+        "common_prefix_length": 6000,
+        "common_prefix_sha256": "873df5857d911277e3ffa2275d1b7e6b1f70761ddaa48a51648d44fc7ed37736",
+        "native_order_fidelity": {
+          "reason": "filtered journal cannot authenticate unseen leading/trailing native payload order; independent signed WAL proof required",
+          "status": "incomplete"
+        },
+        "native_order_scope": {
+          "0": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "1": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "2": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "3": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 6000,
+            "kind": "lower_bound"
+          },
+          "1": {
+            "count": 6000,
+            "kind": "lower_bound"
+          },
+          "2": {
+            "count": 6000,
+            "kind": "lower_bound"
+          },
+          "3": {
+            "count": 6000,
+            "kind": "lower_bound"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          6000,
+          6000,
+          6000,
+          6000
+        ]
+      },
+      "native_output": null,
+      "silent_replicas": [],
+      "all_owned_supervisors_finished": true
+    },
+    {
+      "id": "mysticeti-c-silent-first-leader",
+      "protocol": "mysticeti-c",
+      "case": "silent-first-leader",
+      "harness_status": "completed",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/runs/mysticeti-c-silent-first-leader/result.json",
+        "sha256": "f0a90e7daa696041d95dd818f6e834ea6472341a3893fe1b875b59ce58ef734d",
+        "bytes": 254681
+      },
+      "controller_wall_seconds": 144.041,
+      "outcome": "completed_workload",
+      "metrics": {
+        "admission_fraction": 1.0,
+        "admitted": 6000,
+        "completed": 6000,
+        "completion_fraction": 1.0,
+        "goodput_tps": 99.06666666666666,
+        "p50_ms": 484.923,
+        "p95_ms": 667.346,
+        "p95_status": "observed",
+        "p99_ms": 696.655,
+        "pending_at_end": 56,
+        "scheduled": 6000,
+        "traffic_boundary": "native successful replica stream writes; scrape intervals host-local",
+        "traffic_measurement_written_bytes": 1669698,
+        "traffic_sampled_total_written_bytes": 2076108,
+        "traffic_window_quality": "sampled host-local scrape boundaries",
+        "unfinished": 0
+      },
+      "actual_origin_measurement_seconds": {
+        "0": 60.0,
+        "2": 60.0,
+        "3": 60.0
+      },
+      "all_correct_completed": 6000,
+      "agreement": {
+        "common_prefix_length": 6000,
+        "common_prefix_sha256": "f3b2734172e8df0e03f3b4817bd37c28e6ef019d3c08ef1aeed4663add950b37",
+        "native_order_fidelity": {
+          "reason": "filtered journal cannot authenticate unseen leading/trailing native payload order; independent signed WAL proof required",
+          "status": "incomplete"
+        },
+        "native_order_scope": {
+          "0": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "2": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay",
+          "3": "authenticated workload observations at actual native ordinals; full native-order fidelity requires signed WAL replay"
+        },
+        "native_terminal_prefix": {
+          "0": {
+            "count": 6000,
+            "kind": "lower_bound"
+          },
+          "2": {
+            "count": 6000,
+            "kind": "lower_bound"
+          },
+          "3": {
+            "count": 6000,
+            "kind": "lower_bound"
+          }
+        },
+        "replicas_agree_on_common_prefix": true,
+        "scope": "every correct-replica exact observed ordinal/request/batch overlapping prefix; streamed bounded pages",
+        "sequence_lengths": [
+          6000,
+          6000,
+          6000
+        ]
+      },
+      "native_output": null,
+      "silent_replicas": [
+        1
+      ],
+      "all_owned_supervisors_finished": true
+    }
+  ],
+  "limitations": [
+    "Functional deployment checks only; no throughput frontier or comparative latency claim.",
+    "Failed or early-terminated attempts count toward the two-attempt cap and are not replayed.",
+    "Native transaction encodings, batch policies and storage remain implementation-specific.",
+    "Existing Simple-IT certificate/fallback security and Mysticeti output-fidelity qualification gaps remain open.",
+    "Raptr stopped at approximately 55\u201358seconds because the transport failed; those attempts were not restarted. One Simple-IT pre-input setup failure was fixed and retried before any workload was armed."
+  ],
+  "findings": [
+    {
+      "id": "shared-wan-connect-timeout",
+      "implementations": [
+        "delugi",
+        "raptr"
+      ],
+      "status": "open",
+      "source": "shared/network/src/lib.rs:139",
+      "connect_timeout_ms": 100,
+      "maximum_observed_rtt_ms": 240,
+      "evidence": "Four directed edges below 100 ms connected; the eight directed edges above 100 ms repeatedly failed. No useful output in either case. Raptr additionally exhausted its retained outbound byte budget.",
+      "next_step": "Expose a WAN transport connection timeout in the shared settings and require peer connectivity before workload admission; preserve consensus timer semantics."
+    },
+    {
+      "id": "native-ceremony-key-mode",
+      "status": "fixed",
+      "commit": "6666b06",
+      "evidence": "Host0 TLS key became 0644 after unpacking its ceremony archive; no arm request or workload was issued. Four owned process groups confirmed empty. Apply mode 0600 as on other hosts.",
+      "tests": {
+        "remote_native_passed": 41,
+        "simpleit_auth_passed": 1,
+        "simpleit_auth_native_probe_skipped": 1
+      }
+    },
+    {
+      "id": "autobahn-silent-leader-zero-output",
+      "status": "open",
+      "healthy_completed": 6000,
+      "silent_leader_completed": 0,
+      "admitted_each_case": 6000,
+      "diagnosis": {
+        "path": "results/local/wan-qualification-20261028/autobahn-silent-diagnosis.json"
+      },
+      "detail": "Original pinned Autobahn repeats the local no-useful-output recovery failure. Native empty blocks are committed before measured arrivals, then timeout logs stop advancing. Preserve this artifact and diagnose its view/slot recovery before comparative fault claims."
+    },
+    {
+      "id": "simpleit-tiny-batch-backlog",
+      "status": "observed",
+      "evidence": {
+        "path": "results/local/wan-qualification-20261028/simpleit-mempool-batching-diagnosis.json",
+        "sha256": "25bb11373736ad5c1fed85f99ccd64bd0f9d93ae801bbfcc47f951b9e5efa6f8",
+        "bytes": 238
+      },
+      "detail": "Nonempty collected Mempool headers each contain one transaction. Both variants deliver agreeing output but do not keep up with 100 tx/s at this verification batch setting. Use a batching policy appropriate to the offered rate before capacity comparisons."
+    }
+  ],
+  "local_cleanup": {
+    "duplicate_build_source_bytes_removed": 263761920,
+    "raw_evidence_retained": true,
+    "remote_build_targets": "deleted during build cleanup; remaining VM intermediates removed with instance deletion"
+  },
+  "status": "completed_with_blockers",
+  "started_at": "2026-10-28T06:05:26.632726+00:00",
+  "finished_at": "2026-10-28T06:42:29.153866+00:00",
+  "workload_attempts": 12,
+  "pre_input_setup_failures": [
+    {
+      "id": "simpleit-mempool-healthy",
+      "workload_started": false,
+      "cleanup_reconciled": true,
+      "repair_commit": "6666b06",
+      "reason": "host0 TLS key permissions after ceremony archive unpack",
+      "result": {
+        "path": "results/local/wan-qualification-20261028/setup-failures/simpleit-mempool-healthy-1/result.json",
+        "sha256": "9fdb3867da418dd6ce1a0a3939b4ecdbbc29e869af07d183537c8e30e437f0e1",
+        "bytes": 13400
+      }
+    }
+  ],
+  "resource_cleanup": {
+    "instances_deleted": 4,
+    "owned_security_groups_deleted": 4,
+    "existing_vpcs_and_switches_retained": true,
+    "all_regions_closed": true,
+    "receipt": {
+      "path": "results/local/wan-qualification-20261028/cleanup-status.json",
+      "sha256": "b24b362d13a63715c1e8d8c92a4da627946282cddd1ee73dfab737393914c6f5",
+      "bytes": 378
+    },
+    "regions": {
+      "ap-northeast-2": {
+        "closed": true,
+        "confirmed_deleted_unix": 1793169786.1958542
+      },
+      "ap-southeast-1": {
+        "closed": true,
+        "confirmed_deleted_unix": 1793169792.823649
+      },
+      "eu-central-1": {
+        "closed": true,
+        "confirmed_deleted_unix": 1793169800.611904
+      },
+      "eu-west-1": {
+        "closed": true,
+        "confirmed_deleted_unix": 1793169808.9833212
+      }
+    }
+  },
+  "cost": {
+    "local_verification_cap_cny": 100,
+    "estimated_quote_times_elapsed_cny": 23.74,
+    "billing_status": "estimate from live hourly quotes and elapsed time; provider invoice not reconciled; no budget reservation released",
+    "regions": [
+      {
+        "region": "ap-northeast-2",
+        "quoted_hourly_cny": 5.79978,
+        "elapsed_hours_to_deletion_confirmation": 0.9517,
+        "estimated_cny": 5.52
+      },
+      {
+        "region": "ap-southeast-1",
+        "quoted_hourly_cny": 5.8333,
+        "elapsed_hours_to_deletion_confirmation": 1.5369,
+        "estimated_cny": 8.97
+      },
+      {
+        "region": "eu-central-1",
+        "quoted_hourly_cny": 5.74714,
+        "elapsed_hours_to_deletion_confirmation": 0.9557,
+        "estimated_cny": 5.49
+      },
+      {
+        "region": "eu-west-1",
+        "quoted_hourly_cny": 3.92384,
+        "elapsed_hours_to_deletion_confirmation": 0.9581,
+        "estimated_cny": 3.76
+      }
+    ]
+  }
+}
