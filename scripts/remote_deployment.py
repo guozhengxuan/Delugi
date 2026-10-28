@@ -79,10 +79,13 @@ def validate_inventory(data, nodes=None):
 
 
 def ssh_arguments(host):
+    compression = host.get('ssh_compression', False)
+    if type(compression) is not bool:
+        raise ValueError('SSH compression must be an explicit boolean')
     return ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes", "-o", "ConnectTimeout=15",
             "-o", "ServerAliveInterval=10", "-o", "ServerAliveCountMax=3",
             "-o", "UserKnownHostsFile=" + str(Path(host["known_hosts_file"]).expanduser()),
-            "-i", str(Path(host["identity_file"]).expanduser())]
+            "-i", str(Path(host["identity_file"]).expanduser())] + (["-C"] if compression else [])
 
 
 class RemoteProcess:
