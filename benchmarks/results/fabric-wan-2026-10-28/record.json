@@ -1,0 +1,480 @@
+{
+  "schema": 1,
+  "kind": "delugi-fabric-four-region-verification-v1",
+  "date": "2026-10-28",
+  "commands": [
+    "fab create",
+    "fab access --cidr=<verified controller /32>",
+    "fab build",
+    "fab build-status",
+    "fab build-collect",
+    "fab remote --name=delugi-raptr-wan-20261028",
+    "fab logs --name=delugi-raptr-wan-20261028",
+    "fab plot --name=delugi-raptr-wan-20261028",
+    "fab plot --name=delugi-raptr-wan-20261028 --endpoint=admission",
+    "fab download --name=delugi-raptr-wan-20261028"
+  ],
+  "scope": {
+    "workload_attempts": 4,
+    "extra_workload_attempts": 0,
+    "protocols": [
+      "delugi",
+      "raptr"
+    ],
+    "cases": [
+      "healthy",
+      "silent-first-leader"
+    ],
+    "nodes": 4,
+    "total_honest_input_tps": 100,
+    "useful_transaction_bytes": 1,
+    "measurement_seconds": 60,
+    "maximum_drain_seconds": 15,
+    "Delta_ms": 1000,
+    "added_delay_ms": 0,
+    "network": "natural four-region WAN with exact-peer WireGuard overlay",
+    "provider_public_egress_mbps": 20,
+    "connect_timeout_ms": 5000,
+    "ack_timeout_ms": 30000,
+    "io_timeout_ms": 1000,
+    "frame_read_timeout_ms": 30000,
+    "reconnect_delay_ms": 100
+  },
+  "artifact": {
+    "common_linux_revision": "e2d116419c685f0da4f6a3c9bfadd4f1efde3f8c",
+    "binary_sha256": "2740f0a95f7cebb0872f575da1352c0ca14b99e5cbe1de940d1bef12fa2a13b8",
+    "publication_sha256": "ce55301f6a3394d983c889508b0609e6461ad8b0211f5eab19e9c0f7b4cce510",
+    "controller_run_revision": "673e245",
+    "plan_sha256": "79cb3020f24323224f0f2115bb376a69cf243325e03ed4ab64eca4942d42ee33",
+    "postprocessor_sources": {
+      "benchmark/bench/logs.py": "59cc973fae8229a1c6a1acb76c1235189db28e92efc2260576fcd38e3e7eaf14",
+      "benchmark/bench/plot.py": "830e4fb2f2f354ebc15d28b558d3d8b11b461dfe712a70c41ed95540d18a756a",
+      "benchmark/fabfile.py": "7c04ca2db5b0270f2d72b5236a61436d5a387b004bdf22d20e565b2aed31b125"
+    }
+  },
+  "execution_status": "completed",
+  "qualification_status": "Delugi silent-leader sustained-load qualification failed at 100 tx/s; all four execution/agreement checks finished successfully",
+  "metrics": "summary.json",
+  "figures": [
+    "latency-throughput-end_to_end.pdf",
+    "latency-throughput-end_to_end.png",
+    "latency-throughput-admission.pdf"
+  ],
+  "endpoints": {
+    "latency": "planned arrival to origin-local payload-verified contiguous output, using each origin monotonic clock",
+    "secondary": "admission to the same output endpoint",
+    "throughput": "unique useful completions inside each exact 60-second origin-local measurement window; no drain credit",
+    "censoring": "unfinished requests remain in the denominator; censored quantiles are lower bounds, never completed-only latency"
+  },
+  "faults": {
+    "delugi": {
+      "replica": 0,
+      "region": "ap-southeast-1",
+      "hook": "native ordering/dissemination silence from first round; transport ACKs remain active"
+    },
+    "raptr": {
+      "replica": 1,
+      "region": "eu-central-1",
+      "hook": "process stopped after readiness before arm and held stopped through the trial"
+    }
+  },
+  "findings": {
+    "delugi_silent": {
+      "scheduled": 6000,
+      "admitted": 6000,
+      "completed_by_collection": 3918,
+      "unfinished": 2082,
+      "window_completed": 3021,
+      "goodput_tps": 50.35,
+      "end_to_end_p50_lower_bound_ms": 24795.54,
+      "end_to_end_p95_lower_bound_ms": 35084.889,
+      "pending_at_30s": 1772,
+      "pending_at_60s": 2979,
+      "honest_current_round_at_collection": 72,
+      "honest_last_delivered_at_collection": 40,
+      "transport_rejections_queue_full_and_resource_exhaustions": 0,
+      "cause": "not established; inspect existing round/HISTORY3/CLOSED/scanner evidence before another run"
+    }
+  },
+  "transport_checks": [
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "replica": 0,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "replica": 1,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "replica": 3,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "replica": 2,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "replica": 0,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 444,
+      "last_delivered": 442
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "replica": 1,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 445,
+      "last_delivered": 442
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "replica": 2,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 445,
+      "last_delivered": 442
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "replica": 3,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 444,
+      "last_delivered": 442
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "replica": 0,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "replica": 3,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "replica": 2,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": null,
+      "last_delivered": null
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "replica": 0,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 0,
+      "last_delivered": 0
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "replica": 1,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 72,
+      "last_delivered": 40
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "replica": 2,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 72,
+      "last_delivered": 40
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "replica": 3,
+      "connect_timeout_ms": 5000,
+      "rejected_frames": 0,
+      "queue_full_failures": 0,
+      "resource_exhaustions": 0,
+      "current_round": 72,
+      "last_delivered": 40
+    }
+  ],
+  "ring_rtt": [
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "source": 0,
+      "destination": 1,
+      "median_rtt_ms": 156.309579,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "source": 1,
+      "destination": 2,
+      "median_rtt_ms": 13.836878500000001,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "source": 2,
+      "destination": 3,
+      "median_rtt_ms": 239.7496875,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "source": 3,
+      "destination": 0,
+      "median_rtt_ms": 66.388739,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "source": 0,
+      "destination": 1,
+      "median_rtt_ms": 156.3394755,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "source": 1,
+      "destination": 2,
+      "median_rtt_ms": 13.830580000000001,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "source": 2,
+      "destination": 3,
+      "median_rtt_ms": 239.7454895,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "source": 3,
+      "destination": 0,
+      "median_rtt_ms": 66.379573,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "source": 0,
+      "destination": 1,
+      "median_rtt_ms": 156.3167785,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "source": 1,
+      "destination": 2,
+      "median_rtt_ms": 13.8322945,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "source": 2,
+      "destination": 3,
+      "median_rtt_ms": 239.7417135,
+      "samples": 20
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent-first-leader",
+      "source": 3,
+      "destination": 0,
+      "median_rtt_ms": 66.378417,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "source": 0,
+      "destination": 1,
+      "median_rtt_ms": 156.345937,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "source": 1,
+      "destination": 2,
+      "median_rtt_ms": 13.835474000000001,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "source": 2,
+      "destination": 3,
+      "median_rtt_ms": 239.7431785,
+      "samples": 20
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent-first-leader",
+      "source": 3,
+      "destination": 0,
+      "median_rtt_ms": 66.375576,
+      "samples": 20
+    }
+  ],
+  "cleanup": [
+    {
+      "region": "ap-southeast-1",
+      "instance_type": "ecs.g9i.xlarge",
+      "disk_gib": 200,
+      "provider_egress_mbps": 20,
+      "closed": true,
+      "owned_security_group_deleted": true,
+      "hourly_quote_cny": 5.8333,
+      "lease_started_utc": "2026-10-28T08:29:50+00:00",
+      "cleanup_finished_utc": "2026-10-28T09:27:45.463416+00:00",
+      "estimated_cost_cny": 5.6315
+    },
+    {
+      "region": "eu-central-1",
+      "instance_type": "ecs.g9i.xlarge",
+      "disk_gib": 200,
+      "provider_egress_mbps": 20,
+      "closed": true,
+      "owned_security_group_deleted": true,
+      "hourly_quote_cny": 5.74714,
+      "lease_started_utc": "2026-10-28T08:30:26+00:00",
+      "cleanup_finished_utc": "2026-10-28T09:27:54.107119+00:00",
+      "estimated_cost_cny": 5.5047
+    },
+    {
+      "region": "eu-west-1",
+      "instance_type": "ecs.g9i.xlarge",
+      "disk_gib": 200,
+      "provider_egress_mbps": 20,
+      "closed": true,
+      "owned_security_group_deleted": true,
+      "hourly_quote_cny": 3.92384,
+      "lease_started_utc": "2026-10-28T08:31:00+00:00",
+      "cleanup_finished_utc": "2026-10-28T09:28:02.174619+00:00",
+      "estimated_cost_cny": 3.73
+    },
+    {
+      "region": "ap-northeast-2",
+      "instance_type": "ecs.g9i.xlarge",
+      "disk_gib": 200,
+      "provider_egress_mbps": 20,
+      "closed": true,
+      "owned_security_group_deleted": true,
+      "hourly_quote_cny": 5.79978,
+      "lease_started_utc": "2026-10-28T08:31:36+00:00",
+      "cleanup_finished_utc": "2026-10-28T09:28:09.048888+00:00",
+      "estimated_cost_cny": 5.4664
+    }
+  ],
+  "cost": {
+    "additional_reserved_cny": 100,
+    "aggregate_ledger_ceiling_cny": 200,
+    "previous_unsettled_reservations_preserved": true,
+    "estimated_current_run_cny": 20.33,
+    "basis": "live full-profile hourly quote multiplied by time from lease start to owned group deletion; provider billing is not reconciled",
+    "new_reservations_released": false
+  },
+  "build_cleanup": {
+    "cargo_target_removed": true,
+    "all_build_process_groups_stopped": true,
+    "raw_build_evidence_retained": true
+  },
+  "raw_logs": {
+    "local_path": "benchmark/.state/runs/delugi-raptr-wan-20261028/downloaded-logs.tar.gz",
+    "sha256": "e9f875869b703aeb3ca1a4b51e1e6c884fb7ccec2e6d63e764e26e0908a0acfe",
+    "bytes": 136261750,
+    "scope": "downloaded raw journals, stdout/stderr, receipts and results; private key directories and build snapshots excluded"
+  },
+  "validation": {
+    "controller_regressions_before_dispatch": 196,
+    "linux_release_tests": 24,
+    "local_core_implementation_changes": false,
+    "postprocess_tests": "fabric suite; censored/failed rows, frozen hashes, archive exclusions and logarithmic rendering"
+  },
+  "limitations": [
+    "one offered rate and one run per case; no capacity curve or repetition confidence interval",
+    "native first-leader hooks differ in replica placement and transport-ACK behavior",
+    "provider egress cap is declared; no aggregate bandwidth calibration in this natural-WAN check"
+  ],
+  "references": [
+    "https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/logs.py",
+    "https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/plot.py"
+  ]
+}

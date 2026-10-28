@@ -59,5 +59,20 @@ class FabricLogs(unittest.TestCase):
         self.state['rows'].append(self.state['rows'][1]);self.save()
         with self.assertRaisesRegex(ParseError,'duplicate'):LogParser(self.root)
 
+    def test_wide_latency_range_uses_log_scale_and_retains_unfinished_cohort(self):
+        parser=LogParser(self.root)
+        slow=parser.rows[0]
+        slow.update(case='silent-first-leader',end_to_end_p50_lower_bound_ms=25000,
+                    end_to_end_p95_lower_bound_ms=35000)
+        fast=dict(slow,protocol='raptr',case='healthy',completed=100,cohort_status='all_completed',
+                  end_to_end_p50_ms=450,end_to_end_p95_ms=650,end_to_end_p50_status='observed',end_to_end_p95_status='observed')
+        parser.rows=[fast,slow]
+        out=parser.export();result=render(out['summary'],self.root/'figures')
+        self.assertEqual(result['scale'],'log')
+        svg=Path(next(p for p in result['files'] if p.endswith('.svg'))).read_text()
+        self.assertIn('70/100 unfinished at collection',svg)
+        self.assertIn('INCOMPLETE',out['text'])
+        with self.assertRaises(ValueError):render(out['summary'],self.root/'figures',scale='unknown')
+
 
 if __name__=='__main__':unittest.main()

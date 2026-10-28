@@ -25,7 +25,7 @@ class LogParser:
         self.plan=read(self.directory/'plan.json')
         if self.state['identity']['plan_sha256']!=self.plan['plan_sha256']:
             raise ParseError('logs and campaign plan differ')
-        self.rows=[]
+        self.rows=[];self.network_modes=set()
         for record in self.state['rows']:
             row={k:record.get(k) for k in ('trial_id','protocol','nodes','case','rate','status','error')}
             resolved_path=self.directory/'resolved'/(record['trial_id']+'.json')
@@ -40,9 +40,13 @@ class LogParser:
                 with path.open('rb') as stream:digest=hashlib.file_digest(stream,'sha256').hexdigest()
                 if digest!=binding['sha256']:raise ParseError('frozen trial result changed')
                 result=read(path)
+                network=result.get('network',result.get('network_shaping',{}))
+                self.network_modes.add(network.get('settings',{}).get('mode','controlled'))
                 metrics=campaign_execute.metrics(result,row['protocol'])
                 if metrics!=record.get('metrics'):raise ParseError('summary metrics differ from retained trial evidence')
                 row.update(metrics or {})
+                if metrics:
+                    row['cohort_status']='all_completed' if metrics['completed']==metrics['scheduled'] else 'unfinished_requests'
                 reduced=result.get('reduction',result);cohort=reduced.get('cohort',{})
                 if cohort:
                     row['endpoint_contract']=cohort['endpoint_contract']
@@ -74,7 +78,11 @@ class LogParser:
             lines.append(f"{r['protocol']:<14} {r['case']:<21} {r['status']:<12} {str(r['rate']):>5} tx/s {number(r.get('goodput_tps')):>7}  {latency:>10} ms  {r.get('completed','?')}/{r.get('scheduled','?')}")
         lines+=['Goodput: exact useful completions inside the measurement window.',
                 'End-to-end: intended arrival to origin-local payload-verified contiguous output; cohort observed through drain.',
+                'Status describes execution/agreement checks; the completed count reports workload completion.',
                 'Censored latency is a lower bound. One run is not a confidence interval.']
+        for r in self.rows:
+            if r.get('cohort_status')=='unfinished_requests':
+                lines.append(f"INCOMPLETE: {r['protocol']}/{r['case']}: {r.get('scheduled',0)-r.get('completed',0)} requests unfinished at collection.")
         return '\n'.join(lines)
 
     def export(self, output=None):
@@ -86,7 +94,13 @@ class LogParser:
         data={'schema':1,'plan_sha256':self.plan['plan_sha256'],'status':self.state['status'],
               'rows':self.rows,'source':'hash-checked trial results and retained per-replica journals',
               'measurement_duration_s':self.plan['config']['duration']['measure_s'],
-              'drain_s':self.plan['config']['duration']['drain_s']}
+              'drain_s':self.plan['config']['duration']['drain_s'],
+              'parameters':{'nodes':sorted({r['nodes'] for r in self.rows}),
+                  'tx_bytes':self.plan['config']['useful_transaction_bytes'],
+                  'Delta_ms':self.plan['config'].get('timing',{}).get('Delta_ms'),
+                  'egress_mbps':self.plan['config'].get('network',{}).get('validator_egress_mbps'),
+                  'added_delay_ms':self.plan['config'].get('network',{}).get('added_one_way_delay_ms'),
+                  'network_modes':sorted(self.network_modes)}}
         (output/'summary.json').write_text(json.dumps(data,indent=2,allow_nan=False)+'\n')
         return {'directory':str(output),'csv':str(output/'summary.csv'),'summary':str(output/'summary.json'),'text':self.result()}
 

@@ -64,10 +64,12 @@ prepares these binaries once per source revision. Runs never compile code during
 measurement. A changed source/runtime requires a rebuilt common Linux publication;
 stale artifacts fail **before** fleet acquisition.
 
-The current private setup has imported the four regional lease templates and
-preserved native artifact references. Its common Linux archive predates the new
-transport configuration and must be rebuilt; its local verifier has already been
-rebuilt and tested. No new cloud resources were created for this redesign.
+The current private setup retains the four regional templates and native artifact
+references. The rebuilt common Linux archive and local verifier have completed
+the four-region Fabric rerun. Its [record](../benchmarks/results/fabric-wan-2026-10-28/record.json)
+and [figure](../benchmarks/results/fabric-wan-2026-10-28/latency-throughput-end_to_end.pdf)
+include Delugi's incomplete silent-leader cohort. The fleet has been deleted;
+future creation needs enough remaining aggregate budget reservation.
 
 ## Run and reuse
 
@@ -191,6 +193,11 @@ percentiles, not repetition confidence intervals. At one configured input rate,
 the figure contains one measured point per protocol/case, not a capacity curve.
 Throughput counts exact useful completions inside the measurement window;
 latency follows the planned request cohort through its bounded drain.
+The execution status `passed`/`completed` is distinct from the exported
+`cohort_status`: unfinished requests remain an unsuccessful load qualification
+even when agreement checks pass. `fab plot --scale=auto` uses a labeled logarithmic
+latency axis when the range spans at least 20×; `linear` and `log` are explicit
+overrides. Unfinished counts are printed on the figure.
 
 If the controller's public address changes, `fab access --cidr=A.B.C.D/32`
 updates only port 22 on the exact tagged security groups and removes the old

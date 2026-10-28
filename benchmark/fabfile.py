@@ -53,11 +53,11 @@ def download(ctx, settings='settings.json', params='parameters.json', name=None,
 
 
 @task
-def plot(ctx, settings='settings.json', params='parameters.json', name=None, endpoint='end_to_end'):
+def plot(ctx, settings='settings.json', params='parameters.json', name=None, endpoint='end_to_end', scale='auto'):
     """Plot every selected healthy/fault case, including censoring and failures."""
     from bench.plot import render
     b=Bench(settings,params);parsed=b.logs(name)
-    show(render(parsed['summary'],b.run_directory(name)/'figures',endpoint=endpoint))
+    show(render(parsed['summary'],b.run_directory(name)/'figures',endpoint=endpoint,scale=scale))
 
 
 @task

@@ -1,12 +1,25 @@
 # Delugi implementation and evaluation plan
 
-Updated **28 October 2026**. Last WAN checkpoint: `137c364`; configurable transport/Fabric follow-up below.
-The implementation has reached four-region, four-replica deployment
-qualification. All six Linux implementations build and deploy. The WAN checks
-exposed a shared transport connection-timeout bug in Delugi/Raptr and reproduced
-Autobahn's silent-leader recovery failure. The transport is now configurable and
-passes local functional checks; its updated Linux/WAN qualification and the
-counterpart gaps still precede the main comparison.
+Updated **28 October 2026**. The common Linux release `e2d1164` has now run through
+the saved Fabric deployment in Singapore, Frankfurt, London and Seoul.
+**Shared WAN connectivity is repaired; Delugi's sustained silent-leader case is
+the immediate blocker.** Both healthy runs and Raptr's silent-leader run completed
+all 6,000 requests. Delugi's silent-leader run completed 3,918/6,000, achieved
+50.35 tx/s at 100 offered tx/s, and has a censored median latency of at least
+24.796 seconds. Its honest replicas reached current round 72 but delivered only
+through round 40. All agreement checks passed; this does not qualify its
+sustained fault-case performance.
+
+The [Fabric WAN record](benchmarks/results/fabric-wan-2026-10-28/record.json),
+[CSV](benchmarks/results/fabric-wan-2026-10-28/summary.csv) and
+[latency-throughput figure](benchmarks/results/fabric-wan-2026-10-28/latency-throughput-end_to_end.pdf)
+retain exactly four one-minute runs at one input rate. All four instances and
+owned security groups are deleted, and the remote Cargo target was removed.
+The new quote-based cost estimate is CNY 20.33, pending final provider billing.
+No consensus implementation code changed for this rerun.
+
+All six Linux implementations build and deploy. Counterpart gaps, including
+Autobahn's silent-leader recovery failure, still precede the main comparison.
 The [WAN verification record](benchmarks/results/wan-verification-2026-10-28.json)
 contains the bounded run matrix, artifact identities, outcomes and resource cleanup.
 All four instances and their owned security groups have been deleted. Raw
@@ -22,8 +35,9 @@ retain the rationale and paper figure counts. Their former implementation
 pending statements are superseded by this plan and its evidence.
 
 The [configurable transport/Fabric checkpoint](benchmarks/results/configurable-transport-fabric-2026-10-28.json)
-records the local follow-up: 189 controller regressions, shared TCP tests and
-four successful common-core process checks. No new paid operations occurred.
+records the earlier local follow-up: 189 controller regressions, shared TCP tests
+and four successful common-core process checks. The later Fabric rerun is recorded
+separately above.
 
 ## 1. Scope fixed by the author
 
@@ -34,7 +48,7 @@ implementations use pinned author sources, recorded patches and native
 services behind the same campaign controller. Shoal, Vantage and Mysticeti-FPC
 are outside this matrix.
 
-The current verification uses **two workload attempts per implementation**:
+The original six-implementation verification used **two workload attempts per implementation**:
 healthy and silent first leader, each configured for 60 seconds, with one
 100 tx/s total honest input rate, one useful byte per transaction and at most
 15 seconds of drain. The four hosts are in Singapore, Frankfurt, London and
@@ -110,7 +124,7 @@ Evidence:
 
 ## 3. Qualification findings that determine the next work
 
-1. **The WAN transport failure is parameterized and locally repaired.** The
+1. **The WAN transport failure is repaired and remotely verified.** The
    tested Linux release (`5bb8899`) used a 100 ms TCP connection timeout; only
    four directed edges connected and eight longer edges failed. Both Delugi
    cases delivered zero transactions; Raptr also exhausted its outbound budget.
@@ -119,8 +133,21 @@ Evidence:
    connection default is 5,000 ms; Δ and consensus transitions are unchanged.
    Both common cores passed healthy/silent-leader local process checks with an
    explicit 5,678 ms connection timeout and 80/80 completions in each run.
-   The old Linux publication is rejected as stale. Rebuild it and check actual
-   peer connectivity on WAN before admitting the next remote workload.
+   The rebuilt Linux publication passed 24 release tests. All 15 collected
+   replica journals across the new four runs show a 5,000 ms connect timeout
+   and zero rejected frames. Healthy end-to-end medians were 527.216 ms for
+   Delugi and 455.189 ms for Raptr. The fault runs use their native first-leader
+   hooks: Delugi replica 0 in Singapore retains transport ACKs; Raptr replica 1
+   in Frankfurt is process-paused before arm. This is one load point, not a
+   capacity curve or a statistically replicated comparison.
+
+   **Delugi fault-case backlog remains open.** Pending requests grew from
+   1,772 at 30 seconds to 2,979 at 60 seconds; 2,082 remained unfinished at
+   collection. All honest nodes were at current round 72 / delivered round 40,
+   with zero transport rejections, queue-full failures or resource exhaustions.
+   Its p50/p95 end-to-end latencies are lower bounds of 24.796/35.085 seconds.
+   Trace the existing round/HISTORY3/CLOSED/scanner evidence before attributing
+   a cause or scheduling another paid workload.
 2. **n=50 at Δ=100 ms remains open.** The local shared-machine Raptr empty test
    stalled before round 4. Δ=1,000 ms reached round 4 but qualifies only that
    diagnostic. Preserve 100 ms for the main series and resolve the failure on
@@ -161,11 +188,12 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Finish WAN qualification of the configurable transport.** The code and
-   local regression checks are complete. Rebuild the common Linux publication,
-   check actual peer connectivity before admission, and use the saved Fabric
-   deployment/settings for a new bounded matrix. Keep the two failed attempts
-   for each core as evidence; no new paid trials ran during this follow-up.
+1. **Diagnose Delugi's silent-leader backlog from the collected WAN logs.**
+   Connectivity and healthy progress now pass. Start from the gap between
+   current round 72 and delivered round 40, then locate the first delayed
+   certificate/history/scan decision. Separate recurring fault timeout cost
+   from accumulating lag before changing code. Keep all four completed attempts,
+   including the incomplete cohort; do not silently rerun or drop it.
 2. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.
