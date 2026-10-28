@@ -191,3 +191,9 @@ percentiles, not repetition confidence intervals. At one configured input rate,
 the figure contains one measured point per protocol/case, not a capacity curve.
 Throughput counts exact useful completions inside the measurement window;
 latency follows the planned request cohort through its bounded drain.
+
+If the controller's public address changes, `fab access --cidr=A.B.C.D/32`
+updates only port 22 on the exact tagged security groups and removes the old
+controller rule. It records the effective address separately from the immutable
+paid lease plan. It never opens a subnet or changes protocol peer rules. Then
+`fab create` resumes setup on the same machines without another paid allocation.

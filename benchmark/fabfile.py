@@ -82,6 +82,13 @@ def build_collect(ctx, settings='settings.json'):
 
 
 @task
+def access(ctx, cidr, settings='settings.json', nodes=4):
+    """Replace only the owned testbed's controller SSH /32 after an IP change."""
+    from bench.access import update
+    show(update(settings,cidr,nodes))
+
+
+@task
 def info(ctx, settings='settings.json', params='parameters.json'):
     """Show saved exact instance ownership and lease expiry."""
     show(manage(settings,'info'))
