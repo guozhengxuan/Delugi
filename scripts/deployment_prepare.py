@@ -90,6 +90,12 @@ def recipe(protocol, jobs=1, toolchain=None):
     selected = {"protocol": protocol, "toolchain": toolchain, "jobs": jobs, "commands": commands,
             "binaries": binaries, "release_debug": "0" if protocol in ("shoal", "mysticeti") or protocol.startswith('simpleit') else None,
             "packages": PACKAGES, "native_remote_runner_supported": protocol == "delugi"}
+    if protocol.startswith('autobahn'):
+        # Upstream RocksDB6.20 uses bindgen0.59, which rejects the anonymous-enum
+        # names emitted by Clang16+. Keep native sources/lock unchanged and pin
+        # the binding generator's compiler separately from the Rust toolchain.
+        selected['packages'] = PACKAGES + ['libclang-14-dev']
+        selected['environment'] = {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib'}
     if protocol == "shoal":
         # Native framework generation invokes rustfmt while rewriting tracked
         # SDK sources. The minimal Rust profile does not install this component.
@@ -524,13 +530,14 @@ def worker(request):
             env = os.environ.copy()
             env.update(CARGO_TARGET_DIR=str(root / "target"), CARGO_HOME=str(root / "cargo"),
                        RUSTUP_HOME=str(root / "rustup"), CARGO_INCREMENTAL="0", CARGO_BUILD_JOBS=str(plan["jobs"]))
+            env.update(plan.get('environment', {}))
             if plan["release_debug"] is not None:
                 env["CARGO_PROFILE_RELEASE_DEBUG"] = plan["release_debug"]
             if request.get("install_system_packages"):
                 prefix = [] if os.getuid() == 0 else ["sudo", "-n"]
                 run_logged(prefix + ["apt-get", "update"], root, env, root / "logs/apt-update.log", commands)
                 env["DEBIAN_FRONTEND"] = "noninteractive"
-                run_logged(prefix + ["apt-get", "install", "-y"] + PACKAGES, root, env, root / "logs/apt-install.log", commands)
+                run_logged(prefix + ["apt-get", "install", "-y"] + plan['packages'], root, env, root / "logs/apt-install.log", commands)
             rustup = shutil.which("rustup")
             if rustup is None:
                 installer = root / "assets/rustup-init"
@@ -591,7 +598,7 @@ def worker(request):
                 if linked.returncode != 0 or "not found" in linked.stdout + linked.stderr:
                     raise ValueError("built binary dynamic-library check failed")
                 dynamic_libraries[name] = linked.stdout
-            packages = subprocess.run(["dpkg-query", "-W", "-f=${binary:Package}\t${Version}\n"] + PACKAGES,
+            packages = subprocess.run(["dpkg-query", "-W", "-f=${binary:Package}\t${Version}\n"] + plan['packages'],
                                       capture_output=True, text=True)
             receipt = {"schema": 1, "protocol": plan["protocol"], "native_remote_runner_supported": plan["native_remote_runner_supported"],
                        "source_bundle_sha256": request["archive_sha256"], "binaries": outputs, "compiler": compiler,

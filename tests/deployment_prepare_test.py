@@ -17,6 +17,13 @@ import deployment_prepare as prepare
 
 
 class DeploymentPreparation(unittest.TestCase):
+    def test_autobahn_pins_compatible_binding_compiler_only_in_its_recipe(self):
+        recipe = prepare.recipe('autobahn')
+        self.assertEqual(recipe['environment'], {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib'})
+        self.assertIn('libclang-14-dev', recipe['packages'])
+        self.assertNotIn('environment', prepare.recipe('simpleit-mempool'))
+        self.assertNotIn('libclang-14-dev', prepare.recipe('mysticeti')['packages'])
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name)
