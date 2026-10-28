@@ -1,0 +1,3852 @@
+{
+  "schema": "delugi-latency-decomposition-v1",
+  "scheduled": 3000,
+  "completed": 3000,
+  "covered": 3000,
+  "excluded": {},
+  "by_replica": {
+    "1": {
+      "scheduled": 1000,
+      "completed": 1000,
+      "covered": 1000
+    },
+    "2": {
+      "scheduled": 1000,
+      "completed": 1000,
+      "covered": 1000
+    },
+    "3": {
+      "scheduled": 1000,
+      "completed": 1000,
+      "covered": 1000
+    }
+  },
+  "stages": [
+    {
+      "stage": "Batch formation",
+      "mean_ms": 0.6647556666666666
+    },
+    {
+      "stage": "Await execution proposal",
+      "mean_ms": 3472.675354
+    },
+    {
+      "stage": "Agreement",
+      "mean_ms": 242.196391
+    },
+    {
+      "stage": "Contiguous prefix wait",
+      "mean_ms": 462.063325
+    },
+    {
+      "stage": "Payload wait",
+      "mean_ms": 1.0515856666666665
+    },
+    {
+      "stage": "Application append",
+      "mean_ms": 1.7943826666666667
+    }
+  ],
+  "mean_admission_to_append_ms": 4180.445794,
+  "mean_schedule_to_admission_ms": 0.05504066666666667,
+  "leader_rounds": [
+    {
+      "replica": 1,
+      "round": 2,
+      "admission_us": 600170,
+      "history_quorum_us": null,
+      "input_fixed_us": 930939,
+      "proposal_us": 931049,
+      "report_us": 600293,
+      "frozen_input_age_ms": 0.11,
+      "admission_to_proposal_ms": 330.879,
+      "report_to_input_ms": 330.646,
+      "history_assembly_ms": 0.001,
+      "history_detail": {
+        "reports": 0,
+        "local_proofs": 0,
+        "encoded_history_bytes": 4
+      },
+      "leader_outbox_to_direct_ms": 423.887,
+      "first_history_report_to_quorum_ms": null
+    },
+    {
+      "replica": 1,
+      "round": 6,
+      "admission_us": 2632787,
+      "history_quorum_us": 8151423,
+      "input_fixed_us": 8336470,
+      "proposal_us": 8336705,
+      "report_us": 8151653,
+      "frozen_input_age_ms": 0.235,
+      "admission_to_proposal_ms": 5703.918,
+      "report_to_input_ms": 184.817,
+      "history_assembly_ms": 0.08,
+      "history_detail": {
+        "reports": 3,
+        "local_proofs": 2,
+        "encoded_history_bytes": 2251
+      },
+      "leader_outbox_to_direct_ms": 220.092,
+      "first_history_report_to_quorum_ms": 37.062
+    },
+    {
+      "replica": 1,
+      "round": 10,
+      "admission_us": 7112066,
+      "history_quorum_us": 15357422,
+      "input_fixed_us": 15543887,
+      "proposal_us": 15544166,
+      "report_us": 15357597,
+      "frozen_input_age_ms": 0.279,
+      "admission_to_proposal_ms": 8432.1,
+      "report_to_input_ms": 186.29,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 221.094,
+      "first_history_report_to_quorum_ms": 205.308
+    },
+    {
+      "replica": 1,
+      "round": 14,
+      "admission_us": 11591493,
+      "history_quorum_us": 22393900,
+      "input_fixed_us": 22580231,
+      "proposal_us": 22580522,
+      "report_us": 22394087,
+      "frozen_input_age_ms": 0.291,
+      "admission_to_proposal_ms": 10989.029,
+      "report_to_input_ms": 186.144,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 220.766,
+      "first_history_report_to_quorum_ms": 35.845
+    },
+    {
+      "replica": 1,
+      "round": 18,
+      "admission_us": 16072955,
+      "history_quorum_us": 29600148,
+      "input_fixed_us": 29787170,
+      "proposal_us": 29787474,
+      "report_us": 29600320,
+      "frozen_input_age_ms": 0.304,
+      "admission_to_proposal_ms": 13714.519,
+      "report_to_input_ms": 186.85,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 220.947,
+      "first_history_report_to_quorum_ms": 206.177
+    },
+    {
+      "replica": 1,
+      "round": 22,
+      "admission_us": 20556461,
+      "history_quorum_us": 36637323,
+      "input_fixed_us": 36822536,
+      "proposal_us": 36822823,
+      "report_us": 36637520,
+      "frozen_input_age_ms": 0.287,
+      "admission_to_proposal_ms": 16266.362,
+      "report_to_input_ms": 185.016,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 221.395,
+      "first_history_report_to_quorum_ms": 36.118
+    },
+    {
+      "replica": 2,
+      "round": 3,
+      "admission_us": 2130193,
+      "history_quorum_us": null,
+      "input_fixed_us": 2371455,
+      "proposal_us": 2371549,
+      "report_us": 2130450,
+      "frozen_input_age_ms": 0.094,
+      "admission_to_proposal_ms": 241.356,
+      "report_to_input_ms": 241.005,
+      "history_assembly_ms": 0.001,
+      "history_detail": {
+        "reports": 0,
+        "local_proofs": 0,
+        "encoded_history_bytes": 4
+      },
+      "leader_outbox_to_direct_ms": 242.591,
+      "first_history_report_to_quorum_ms": null
+    },
+    {
+      "replica": 2,
+      "round": 7,
+      "admission_us": 4852867,
+      "history_quorum_us": 9862287,
+      "input_fixed_us": 10104222,
+      "proposal_us": 10104512,
+      "report_us": 9862470,
+      "frozen_input_age_ms": 0.29,
+      "admission_to_proposal_ms": 5251.645,
+      "report_to_input_ms": 241.752,
+      "history_assembly_ms": 0.108,
+      "history_detail": {
+        "reports": 3,
+        "local_proofs": 3,
+        "encoded_history_bytes": 3119
+      },
+      "leader_outbox_to_direct_ms": 242.211,
+      "first_history_report_to_quorum_ms": 245.981
+    },
+    {
+      "replica": 2,
+      "round": 11,
+      "admission_us": 9331772,
+      "history_quorum_us": 16905773,
+      "input_fixed_us": 17147703,
+      "proposal_us": 17147980,
+      "report_us": 16905930,
+      "frozen_input_age_ms": 0.277,
+      "admission_to_proposal_ms": 7816.208,
+      "report_to_input_ms": 241.773,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 244.091,
+      "first_history_report_to_quorum_ms": 247.217
+    },
+    {
+      "replica": 2,
+      "round": 15,
+      "admission_us": 13813900,
+      "history_quorum_us": 24112939,
+      "input_fixed_us": 24355413,
+      "proposal_us": 24355699,
+      "report_us": 24113094,
+      "frozen_input_age_ms": 0.286,
+      "admission_to_proposal_ms": 10541.799,
+      "report_to_input_ms": 242.319,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 243.889,
+      "first_history_report_to_quorum_ms": 250.466
+    },
+    {
+      "replica": 2,
+      "round": 19,
+      "admission_us": 18296016,
+      "history_quorum_us": 31144678,
+      "input_fixed_us": 31387628,
+      "proposal_us": 31387895,
+      "report_us": 31144836,
+      "frozen_input_age_ms": 0.267,
+      "admission_to_proposal_ms": 13091.879,
+      "report_to_input_ms": 242.792,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 244.755,
+      "first_history_report_to_quorum_ms": 247.718
+    },
+    {
+      "replica": 2,
+      "round": 23,
+      "admission_us": 22776580,
+      "history_quorum_us": 38351237,
+      "input_fixed_us": 38593233,
+      "proposal_us": 38593492,
+      "report_us": 38351395,
+      "frozen_input_age_ms": 0.259,
+      "admission_to_proposal_ms": 15816.912,
+      "report_to_input_ms": 241.838,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 241.955,
+      "first_history_report_to_quorum_ms": 244.701
+    },
+    {
+      "replica": 3,
+      "round": 4,
+      "admission_us": 3164335,
+      "history_quorum_us": 10164746,
+      "input_fixed_us": 10408602,
+      "proposal_us": 10408784,
+      "report_us": 10165041,
+      "frozen_input_age_ms": 0.182,
+      "admission_to_proposal_ms": 7244.449,
+      "report_to_input_ms": 243.561,
+      "history_assembly_ms": 0.016,
+      "history_detail": {
+        "reports": 3,
+        "local_proofs": 0,
+        "encoded_history_bytes": 497
+      },
+      "leader_outbox_to_direct_ms": 241.251,
+      "first_history_report_to_quorum_ms": 204.675
+    },
+    {
+      "replica": 3,
+      "round": 8,
+      "admission_us": 6886527,
+      "history_quorum_us": 17200594,
+      "input_fixed_us": 17444763,
+      "proposal_us": 17445045,
+      "report_us": 17200763,
+      "frozen_input_age_ms": 0.282,
+      "admission_to_proposal_ms": 10558.518,
+      "report_to_input_ms": 244.0,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 247.605,
+      "first_history_report_to_quorum_ms": 53.597
+    },
+    {
+      "replica": 3,
+      "round": 12,
+      "admission_us": 11365790,
+      "history_quorum_us": 24407725,
+      "input_fixed_us": 24652079,
+      "proposal_us": 24652550,
+      "report_us": 24407892,
+      "frozen_input_age_ms": 0.471,
+      "admission_to_proposal_ms": 13286.76,
+      "report_to_input_ms": 244.187,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 244.628,
+      "first_history_report_to_quorum_ms": 206.083
+    },
+    {
+      "replica": 3,
+      "round": 16,
+      "admission_us": 15847367,
+      "history_quorum_us": 31442485,
+      "input_fixed_us": 31687675,
+      "proposal_us": 31688081,
+      "report_us": 31442674,
+      "frozen_input_age_ms": 0.406,
+      "admission_to_proposal_ms": 15840.714,
+      "report_to_input_ms": 245.001,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 242.808,
+      "first_history_report_to_quorum_ms": 56.394
+    },
+    {
+      "replica": 3,
+      "round": 20,
+      "admission_us": 20329595,
+      "history_quorum_us": 38651171,
+      "input_fixed_us": 38896652,
+      "proposal_us": 38896930,
+      "report_us": 38651356,
+      "frozen_input_age_ms": 0.278,
+      "admission_to_proposal_ms": 18567.335,
+      "report_to_input_ms": 245.296,
+      "history_assembly_ms": null,
+      "history_detail": null,
+      "leader_outbox_to_direct_ms": 243.662,
+      "first_history_report_to_quorum_ms": 207.142
+    }
+  ],
+  "history_generation": [
+    {
+      "replica": 1,
+      "horizon": 1,
+      "generation_ms": 0.07,
+      "encoded_message_bytes": 168
+    },
+    {
+      "replica": 1,
+      "horizon": 2,
+      "generation_ms": 0.079,
+      "encoded_message_bytes": 956
+    },
+    {
+      "replica": 1,
+      "horizon": 3,
+      "generation_ms": 0.081,
+      "encoded_message_bytes": 1744
+    },
+    {
+      "replica": 1,
+      "horizon": 4,
+      "generation_ms": 0.095,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 5,
+      "generation_ms": 0.11,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 6,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 7,
+      "generation_ms": 0.084,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 8,
+      "generation_ms": 0.09,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 9,
+      "generation_ms": 0.108,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 10,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 11,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 12,
+      "generation_ms": 0.089,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 13,
+      "generation_ms": 0.113,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 14,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 15,
+      "generation_ms": 0.095,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 16,
+      "generation_ms": 0.089,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 17,
+      "generation_ms": 0.132,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 18,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 19,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 1,
+      "horizon": 20,
+      "generation_ms": 0.097,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 1,
+      "generation_ms": 0.067,
+      "encoded_message_bytes": 168
+    },
+    {
+      "replica": 2,
+      "horizon": 2,
+      "generation_ms": 0.075,
+      "encoded_message_bytes": 956
+    },
+    {
+      "replica": 2,
+      "horizon": 3,
+      "generation_ms": 0.074,
+      "encoded_message_bytes": 1744
+    },
+    {
+      "replica": 2,
+      "horizon": 4,
+      "generation_ms": 0.088,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 5,
+      "generation_ms": 0.097,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 6,
+      "generation_ms": 0.081,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 7,
+      "generation_ms": 0.081,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 8,
+      "generation_ms": 0.088,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 9,
+      "generation_ms": 0.091,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 10,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 11,
+      "generation_ms": 0.081,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 12,
+      "generation_ms": 0.081,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 13,
+      "generation_ms": 0.1,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 14,
+      "generation_ms": 0.089,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 15,
+      "generation_ms": 0.082,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 16,
+      "generation_ms": 0.086,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 17,
+      "generation_ms": 0.097,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 18,
+      "generation_ms": 0.087,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 19,
+      "generation_ms": 0.079,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 2,
+      "horizon": 20,
+      "generation_ms": 0.093,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 1,
+      "generation_ms": 0.075,
+      "encoded_message_bytes": 168
+    },
+    {
+      "replica": 3,
+      "horizon": 2,
+      "generation_ms": 0.073,
+      "encoded_message_bytes": 956
+    },
+    {
+      "replica": 3,
+      "horizon": 3,
+      "generation_ms": 0.075,
+      "encoded_message_bytes": 1744
+    },
+    {
+      "replica": 3,
+      "horizon": 4,
+      "generation_ms": 0.09,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 5,
+      "generation_ms": 0.155,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 6,
+      "generation_ms": 0.087,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 7,
+      "generation_ms": 0.092,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 8,
+      "generation_ms": 0.133,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 9,
+      "generation_ms": 0.163,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 10,
+      "generation_ms": 0.132,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 11,
+      "generation_ms": 0.125,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 12,
+      "generation_ms": 0.135,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 13,
+      "generation_ms": 0.131,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 14,
+      "generation_ms": 0.122,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 15,
+      "generation_ms": 0.12,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 16,
+      "generation_ms": 0.148,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 17,
+      "generation_ms": 0.125,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 18,
+      "generation_ms": 0.098,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 19,
+      "generation_ms": 0.081,
+      "encoded_message_bytes": 2532
+    },
+    {
+      "replica": 3,
+      "horizon": 20,
+      "generation_ms": 0.119,
+      "encoded_message_bytes": 2532
+    }
+  ],
+  "timer_events": [
+    {
+      "replica": 1,
+      "at_us": 1114048,
+      "event": "main_timer_arm",
+      "round": 1,
+      "detail": {
+        "protocol_now_ms": 1113,
+        "deadline_ms": 8113,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 1150664,
+      "event": "main_timer_arm",
+      "round": 2,
+      "detail": {
+        "protocol_now_ms": 1150,
+        "deadline_ms": 8150,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 1598015,
+      "event": "main_timer_arm",
+      "round": 3,
+      "detail": {
+        "protocol_now_ms": 1597,
+        "deadline_ms": 8597,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8113950,
+      "event": "main_timer_expiry",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 8113953,
+      "event": "no_cer",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 8113955,
+      "event": "history_ready",
+      "round": 1,
+      "detail": {
+        "next_proposal_round": 4,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8114047,
+      "event": "history_ready",
+      "round": 2,
+      "detail": {
+        "next_proposal_round": 5,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8114148,
+      "event": "history_ready",
+      "round": 3,
+      "detail": {
+        "next_proposal_round": 6,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8150581,
+      "event": "main_timer_expiry",
+      "round": 2,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 8150702,
+      "event": "catchup_timer_arm",
+      "round": 1,
+      "detail": {
+        "protocol_now_ms": 8150,
+        "deadline_ms": 11150,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8150767,
+      "event": "catchup_timer_arm",
+      "round": 2,
+      "detail": {
+        "protocol_now_ms": 8150,
+        "deadline_ms": 11150,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8150905,
+      "event": "catchup_timer_arm",
+      "round": 3,
+      "detail": {
+        "protocol_now_ms": 8150,
+        "deadline_ms": 11150,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8151061,
+      "event": "main_timer_arm",
+      "round": 4,
+      "detail": {
+        "protocol_now_ms": 8150,
+        "deadline_ms": 15150,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8151334,
+      "event": "main_timer_arm",
+      "round": 5,
+      "detail": {
+        "protocol_now_ms": 8151,
+        "deadline_ms": 15151,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8152268,
+      "event": "main_timer_arm",
+      "round": 6,
+      "detail": {
+        "protocol_now_ms": 8152,
+        "deadline_ms": 15152,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8597830,
+      "event": "main_timer_expiry",
+      "round": 3,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 8636260,
+      "event": "history_ready",
+      "round": 4,
+      "detail": {
+        "next_proposal_round": 7,
+        "admitted": 11
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8636662,
+      "event": "catchup_timer_arm",
+      "round": 4,
+      "detail": {
+        "protocol_now_ms": 8636,
+        "deadline_ms": 11636,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8840481,
+      "event": "prefix_advance",
+      "round": 4,
+      "detail": {
+        "previous_cursor": 0,
+        "admitted": 11,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 8846878,
+      "event": "main_timer_arm",
+      "round": 7,
+      "detail": {
+        "protocol_now_ms": 8846,
+        "deadline_ms": 15846,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 11150573,
+      "event": "catchup_timer_expiry",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 11150575,
+      "event": "catchup_timer_expiry",
+      "round": 2,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 11150575,
+      "event": "catchup_timer_expiry",
+      "round": 3,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 11636190,
+      "event": "catchup_timer_expiry",
+      "round": 4,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 15150571,
+      "event": "main_timer_expiry",
+      "round": 4,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 15151639,
+      "event": "main_timer_expiry",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 15151641,
+      "event": "no_cer",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 15151643,
+      "event": "history_ready",
+      "round": 5,
+      "detail": {
+        "next_proposal_round": 8,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15151777,
+      "event": "history_ready",
+      "round": 6,
+      "detail": {
+        "next_proposal_round": 9,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15151890,
+      "event": "history_ready",
+      "round": 7,
+      "detail": {
+        "next_proposal_round": 10,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15152302,
+      "event": "main_timer_expiry",
+      "round": 6,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 15186608,
+      "event": "catchup_timer_arm",
+      "round": 5,
+      "detail": {
+        "protocol_now_ms": 15186,
+        "deadline_ms": 18186,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15186675,
+      "event": "catchup_timer_arm",
+      "round": 6,
+      "detail": {
+        "protocol_now_ms": 15186,
+        "deadline_ms": 18186,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15186825,
+      "event": "catchup_timer_arm",
+      "round": 7,
+      "detail": {
+        "protocol_now_ms": 15186,
+        "deadline_ms": 18186,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15357233,
+      "event": "main_timer_arm",
+      "round": 8,
+      "detail": {
+        "protocol_now_ms": 15357,
+        "deadline_ms": 22357,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15357307,
+      "event": "main_timer_arm",
+      "round": 9,
+      "detail": {
+        "protocol_now_ms": 15357,
+        "deadline_ms": 22357,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15358453,
+      "event": "main_timer_arm",
+      "round": 10,
+      "detail": {
+        "protocol_now_ms": 15358,
+        "deadline_ms": 22358,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15678602,
+      "event": "history_ready",
+      "round": 8,
+      "detail": {
+        "next_proposal_round": 11,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15678964,
+      "event": "catchup_timer_arm",
+      "round": 8,
+      "detail": {
+        "protocol_now_ms": 15678,
+        "deadline_ms": 18678,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15846221,
+      "event": "main_timer_expiry",
+      "round": 7,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 15882755,
+      "event": "prefix_advance",
+      "round": 8,
+      "detail": {
+        "previous_cursor": 4,
+        "admitted": 17,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 15890992,
+      "event": "main_timer_arm",
+      "round": 11,
+      "detail": {
+        "protocol_now_ms": 15890,
+        "deadline_ms": 22890,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 18186404,
+      "event": "catchup_timer_expiry",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 18186406,
+      "event": "catchup_timer_expiry",
+      "round": 6,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 18186406,
+      "event": "catchup_timer_expiry",
+      "round": 7,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 18678095,
+      "event": "catchup_timer_expiry",
+      "round": 8,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 22357577,
+      "event": "main_timer_expiry",
+      "round": 8,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 22357579,
+      "event": "main_timer_expiry",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 22357581,
+      "event": "no_cer",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 22357583,
+      "event": "history_ready",
+      "round": 9,
+      "detail": {
+        "next_proposal_round": 12,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22357713,
+      "event": "history_ready",
+      "round": 10,
+      "detail": {
+        "next_proposal_round": 13,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22357822,
+      "event": "history_ready",
+      "round": 11,
+      "detail": {
+        "next_proposal_round": 14,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22358210,
+      "event": "main_timer_expiry",
+      "round": 10,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 22392466,
+      "event": "catchup_timer_arm",
+      "round": 9,
+      "detail": {
+        "protocol_now_ms": 22392,
+        "deadline_ms": 25392,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22392522,
+      "event": "catchup_timer_arm",
+      "round": 10,
+      "detail": {
+        "protocol_now_ms": 22392,
+        "deadline_ms": 25392,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22392669,
+      "event": "catchup_timer_arm",
+      "round": 11,
+      "detail": {
+        "protocol_now_ms": 22392,
+        "deadline_ms": 25392,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22393768,
+      "event": "main_timer_arm",
+      "round": 12,
+      "detail": {
+        "protocol_now_ms": 22393,
+        "deadline_ms": 29393,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22393820,
+      "event": "main_timer_arm",
+      "round": 13,
+      "detail": {
+        "protocol_now_ms": 22393,
+        "deadline_ms": 29393,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22395025,
+      "event": "main_timer_arm",
+      "round": 14,
+      "detail": {
+        "protocol_now_ms": 22394,
+        "deadline_ms": 29394,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22882152,
+      "event": "history_ready",
+      "round": 12,
+      "detail": {
+        "next_proposal_round": 15,
+        "admitted": 24
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22882522,
+      "event": "catchup_timer_arm",
+      "round": 12,
+      "detail": {
+        "protocol_now_ms": 22882,
+        "deadline_ms": 25882,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 22890975,
+      "event": "main_timer_expiry",
+      "round": 11,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 23087527,
+      "event": "prefix_advance",
+      "round": 12,
+      "detail": {
+        "previous_cursor": 8,
+        "admitted": 24,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 23095724,
+      "event": "main_timer_arm",
+      "round": 15,
+      "detail": {
+        "protocol_now_ms": 23095,
+        "deadline_ms": 30095,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 25392584,
+      "event": "catchup_timer_expiry",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 25392585,
+      "event": "catchup_timer_expiry",
+      "round": 10,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 25392586,
+      "event": "catchup_timer_expiry",
+      "round": 11,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 25882479,
+      "event": "catchup_timer_expiry",
+      "round": 12,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 29393467,
+      "event": "main_timer_expiry",
+      "round": 12,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 29393470,
+      "event": "main_timer_expiry",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 29393473,
+      "event": "no_cer",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 29393475,
+      "event": "history_ready",
+      "round": 13,
+      "detail": {
+        "next_proposal_round": 16,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29393614,
+      "event": "history_ready",
+      "round": 14,
+      "detail": {
+        "next_proposal_round": 17,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29393719,
+      "event": "history_ready",
+      "round": 15,
+      "detail": {
+        "next_proposal_round": 18,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29394129,
+      "event": "main_timer_expiry",
+      "round": 14,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 29428716,
+      "event": "catchup_timer_arm",
+      "round": 13,
+      "detail": {
+        "protocol_now_ms": 29428,
+        "deadline_ms": 32428,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29428780,
+      "event": "catchup_timer_arm",
+      "round": 14,
+      "detail": {
+        "protocol_now_ms": 29428,
+        "deadline_ms": 32428,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29428921,
+      "event": "catchup_timer_arm",
+      "round": 15,
+      "detail": {
+        "protocol_now_ms": 29428,
+        "deadline_ms": 32428,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29599997,
+      "event": "main_timer_arm",
+      "round": 16,
+      "detail": {
+        "protocol_now_ms": 29599,
+        "deadline_ms": 36599,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29600054,
+      "event": "main_timer_arm",
+      "round": 17,
+      "detail": {
+        "protocol_now_ms": 29600,
+        "deadline_ms": 36600,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29601525,
+      "event": "main_timer_arm",
+      "round": 18,
+      "detail": {
+        "protocol_now_ms": 29601,
+        "deadline_ms": 36601,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29918029,
+      "event": "history_ready",
+      "round": 16,
+      "detail": {
+        "next_proposal_round": 19,
+        "admitted": 30
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 29918524,
+      "event": "catchup_timer_arm",
+      "round": 16,
+      "detail": {
+        "protocol_now_ms": 29918,
+        "deadline_ms": 32918,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 30095297,
+      "event": "main_timer_expiry",
+      "round": 15,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 30121201,
+      "event": "prefix_advance",
+      "round": 16,
+      "detail": {
+        "previous_cursor": 12,
+        "admitted": 30,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 30128451,
+      "event": "main_timer_arm",
+      "round": 19,
+      "detail": {
+        "protocol_now_ms": 30128,
+        "deadline_ms": 37128,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 32428866,
+      "event": "catchup_timer_expiry",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 32428872,
+      "event": "catchup_timer_expiry",
+      "round": 14,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 32428872,
+      "event": "catchup_timer_expiry",
+      "round": 15,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 32918641,
+      "event": "catchup_timer_expiry",
+      "round": 16,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 36599630,
+      "event": "main_timer_expiry",
+      "round": 16,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 36600706,
+      "event": "main_timer_expiry",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 36600709,
+      "event": "no_cer",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 36600710,
+      "event": "history_ready",
+      "round": 17,
+      "detail": {
+        "next_proposal_round": 20,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36600865,
+      "event": "history_ready",
+      "round": 18,
+      "detail": {
+        "next_proposal_round": 21,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36600971,
+      "event": "history_ready",
+      "round": 19,
+      "detail": {
+        "next_proposal_round": 22,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36601364,
+      "event": "main_timer_expiry",
+      "round": 18,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 36635638,
+      "event": "catchup_timer_arm",
+      "round": 17,
+      "detail": {
+        "protocol_now_ms": 36635,
+        "deadline_ms": 39635,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36635700,
+      "event": "catchup_timer_arm",
+      "round": 18,
+      "detail": {
+        "protocol_now_ms": 36635,
+        "deadline_ms": 39635,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36635854,
+      "event": "catchup_timer_arm",
+      "round": 19,
+      "detail": {
+        "protocol_now_ms": 36635,
+        "deadline_ms": 39635,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36637195,
+      "event": "main_timer_arm",
+      "round": 20,
+      "detail": {
+        "protocol_now_ms": 36637,
+        "deadline_ms": 43637,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36637246,
+      "event": "main_timer_arm",
+      "round": 21,
+      "detail": {
+        "protocol_now_ms": 36637,
+        "deadline_ms": 43637,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 36638339,
+      "event": "main_timer_arm",
+      "round": 22,
+      "detail": {
+        "protocol_now_ms": 36638,
+        "deadline_ms": 43638,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 37126827,
+      "event": "history_ready",
+      "round": 20,
+      "detail": {
+        "next_proposal_round": 23,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 37127186,
+      "event": "catchup_timer_arm",
+      "round": 20,
+      "detail": {
+        "protocol_now_ms": 37127,
+        "deadline_ms": 40127,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 37128248,
+      "event": "main_timer_expiry",
+      "round": 19,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 37330602,
+      "event": "prefix_advance",
+      "round": 20,
+      "detail": {
+        "previous_cursor": 16,
+        "admitted": 36,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 37333266,
+      "event": "main_timer_arm",
+      "round": 23,
+      "detail": {
+        "protocol_now_ms": 37333,
+        "deadline_ms": 44333,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 1,
+      "at_us": 39635847,
+      "event": "catchup_timer_expiry",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 39635851,
+      "event": "catchup_timer_expiry",
+      "round": 18,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 39635851,
+      "event": "catchup_timer_expiry",
+      "round": 19,
+      "detail": {}
+    },
+    {
+      "replica": 1,
+      "at_us": 40127407,
+      "event": "catchup_timer_expiry",
+      "round": 20,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 2130223,
+      "event": "main_timer_arm",
+      "round": 1,
+      "detail": {
+        "protocol_now_ms": 2130,
+        "deadline_ms": 9130,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 2166572,
+      "event": "main_timer_arm",
+      "round": 2,
+      "detail": {
+        "protocol_now_ms": 2166,
+        "deadline_ms": 9166,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 2613838,
+      "event": "main_timer_arm",
+      "round": 3,
+      "detail": {
+        "protocol_now_ms": 2613,
+        "deadline_ms": 9613,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9130683,
+      "event": "main_timer_expiry",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 9130687,
+      "event": "no_cer",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 9130689,
+      "event": "history_ready",
+      "round": 1,
+      "detail": {
+        "next_proposal_round": 4,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9130777,
+      "event": "history_ready",
+      "round": 2,
+      "detail": {
+        "next_proposal_round": 5,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9130873,
+      "event": "history_ready",
+      "round": 3,
+      "detail": {
+        "next_proposal_round": 6,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9131103,
+      "event": "catchup_timer_arm",
+      "round": 1,
+      "detail": {
+        "protocol_now_ms": 9130,
+        "deadline_ms": 12130,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9131105,
+      "event": "catchup_timer_arm",
+      "round": 2,
+      "detail": {
+        "protocol_now_ms": 9130,
+        "deadline_ms": 12130,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9131105,
+      "event": "catchup_timer_arm",
+      "round": 3,
+      "detail": {
+        "protocol_now_ms": 9130,
+        "deadline_ms": 12130,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9166252,
+      "event": "main_timer_expiry",
+      "round": 2,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 9166739,
+      "event": "main_timer_arm",
+      "round": 4,
+      "detail": {
+        "protocol_now_ms": 9166,
+        "deadline_ms": 16166,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9166792,
+      "event": "main_timer_arm",
+      "round": 5,
+      "detail": {
+        "protocol_now_ms": 9166,
+        "deadline_ms": 16166,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9166841,
+      "event": "main_timer_arm",
+      "round": 6,
+      "detail": {
+        "protocol_now_ms": 9166,
+        "deadline_ms": 16166,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9613881,
+      "event": "main_timer_expiry",
+      "round": 3,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 9616178,
+      "event": "history_ready",
+      "round": 4,
+      "detail": {
+        "next_proposal_round": 7,
+        "admitted": 11
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9631084,
+      "event": "catchup_timer_arm",
+      "round": 4,
+      "detail": {
+        "protocol_now_ms": 9631,
+        "deadline_ms": 12631,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9856586,
+      "event": "prefix_advance",
+      "round": 4,
+      "detail": {
+        "previous_cursor": 0,
+        "admitted": 11,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 9862935,
+      "event": "main_timer_arm",
+      "round": 7,
+      "detail": {
+        "protocol_now_ms": 9862,
+        "deadline_ms": 16862,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 12130158,
+      "event": "catchup_timer_expiry",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 12130159,
+      "event": "catchup_timer_expiry",
+      "round": 2,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 12130159,
+      "event": "catchup_timer_expiry",
+      "round": 3,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 12631838,
+      "event": "catchup_timer_expiry",
+      "round": 4,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 16166365,
+      "event": "main_timer_expiry",
+      "round": 4,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 16166365,
+      "event": "main_timer_expiry",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 16166367,
+      "event": "no_cer",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 16166367,
+      "event": "main_timer_expiry",
+      "round": 6,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 16166369,
+      "event": "history_ready",
+      "round": 5,
+      "detail": {
+        "next_proposal_round": 8,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16166493,
+      "event": "history_ready",
+      "round": 6,
+      "detail": {
+        "next_proposal_round": 9,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16166594,
+      "event": "history_ready",
+      "round": 7,
+      "detail": {
+        "next_proposal_round": 10,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16166829,
+      "event": "catchup_timer_arm",
+      "round": 5,
+      "detail": {
+        "protocol_now_ms": 16166,
+        "deadline_ms": 19166,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16166830,
+      "event": "catchup_timer_arm",
+      "round": 6,
+      "detail": {
+        "protocol_now_ms": 16166,
+        "deadline_ms": 19166,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16166830,
+      "event": "catchup_timer_arm",
+      "round": 7,
+      "detail": {
+        "protocol_now_ms": 16166,
+        "deadline_ms": 19166,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16373261,
+      "event": "main_timer_arm",
+      "round": 8,
+      "detail": {
+        "protocol_now_ms": 16373,
+        "deadline_ms": 23373,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16373322,
+      "event": "main_timer_arm",
+      "round": 9,
+      "detail": {
+        "protocol_now_ms": 16373,
+        "deadline_ms": 23373,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16373372,
+      "event": "main_timer_arm",
+      "round": 10,
+      "detail": {
+        "protocol_now_ms": 16373,
+        "deadline_ms": 23373,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16658427,
+      "event": "history_ready",
+      "round": 8,
+      "detail": {
+        "next_proposal_round": 11,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16673552,
+      "event": "catchup_timer_arm",
+      "round": 8,
+      "detail": {
+        "protocol_now_ms": 16673,
+        "deadline_ms": 19673,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16862831,
+      "event": "main_timer_expiry",
+      "round": 7,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 16899046,
+      "event": "prefix_advance",
+      "round": 8,
+      "detail": {
+        "previous_cursor": 4,
+        "admitted": 17,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 16906400,
+      "event": "main_timer_arm",
+      "round": 11,
+      "detail": {
+        "protocol_now_ms": 16906,
+        "deadline_ms": 23906,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 19166015,
+      "event": "catchup_timer_expiry",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 19166016,
+      "event": "catchup_timer_expiry",
+      "round": 6,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 19166016,
+      "event": "catchup_timer_expiry",
+      "round": 7,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 19673839,
+      "event": "catchup_timer_expiry",
+      "round": 8,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 23373558,
+      "event": "main_timer_expiry",
+      "round": 8,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 23373559,
+      "event": "main_timer_expiry",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 23373561,
+      "event": "no_cer",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 23373561,
+      "event": "main_timer_expiry",
+      "round": 10,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 23373562,
+      "event": "history_ready",
+      "round": 9,
+      "detail": {
+        "next_proposal_round": 12,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23373675,
+      "event": "history_ready",
+      "round": 10,
+      "detail": {
+        "next_proposal_round": 13,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23373779,
+      "event": "history_ready",
+      "round": 11,
+      "detail": {
+        "next_proposal_round": 14,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23374015,
+      "event": "catchup_timer_arm",
+      "round": 9,
+      "detail": {
+        "protocol_now_ms": 23373,
+        "deadline_ms": 26373,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23374016,
+      "event": "catchup_timer_arm",
+      "round": 10,
+      "detail": {
+        "protocol_now_ms": 23373,
+        "deadline_ms": 26373,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23374016,
+      "event": "catchup_timer_arm",
+      "round": 11,
+      "detail": {
+        "protocol_now_ms": 23373,
+        "deadline_ms": 26373,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23408417,
+      "event": "main_timer_arm",
+      "round": 12,
+      "detail": {
+        "protocol_now_ms": 23408,
+        "deadline_ms": 30408,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23408479,
+      "event": "main_timer_arm",
+      "round": 13,
+      "detail": {
+        "protocol_now_ms": 23408,
+        "deadline_ms": 30408,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23408527,
+      "event": "main_timer_arm",
+      "round": 14,
+      "detail": {
+        "protocol_now_ms": 23408,
+        "deadline_ms": 30408,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23862344,
+      "event": "history_ready",
+      "round": 12,
+      "detail": {
+        "next_proposal_round": 15,
+        "admitted": 24
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23876912,
+      "event": "catchup_timer_arm",
+      "round": 12,
+      "detail": {
+        "protocol_now_ms": 23876,
+        "deadline_ms": 26876,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 23906453,
+      "event": "main_timer_expiry",
+      "round": 11,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 24105715,
+      "event": "prefix_advance",
+      "round": 12,
+      "detail": {
+        "previous_cursor": 8,
+        "admitted": 24,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 24113672,
+      "event": "main_timer_arm",
+      "round": 15,
+      "detail": {
+        "protocol_now_ms": 24113,
+        "deadline_ms": 31113,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 26373389,
+      "event": "catchup_timer_expiry",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 26373390,
+      "event": "catchup_timer_expiry",
+      "round": 10,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 26373390,
+      "event": "catchup_timer_expiry",
+      "round": 11,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 26876885,
+      "event": "catchup_timer_expiry",
+      "round": 12,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 30408293,
+      "event": "main_timer_expiry",
+      "round": 12,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 30408297,
+      "event": "main_timer_expiry",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 30408299,
+      "event": "no_cer",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 30408300,
+      "event": "main_timer_expiry",
+      "round": 14,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 30408301,
+      "event": "history_ready",
+      "round": 13,
+      "detail": {
+        "next_proposal_round": 16,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30408425,
+      "event": "history_ready",
+      "round": 14,
+      "detail": {
+        "next_proposal_round": 17,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30408533,
+      "event": "history_ready",
+      "round": 15,
+      "detail": {
+        "next_proposal_round": 18,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30408769,
+      "event": "catchup_timer_arm",
+      "round": 13,
+      "detail": {
+        "protocol_now_ms": 30408,
+        "deadline_ms": 33408,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30408769,
+      "event": "catchup_timer_arm",
+      "round": 14,
+      "detail": {
+        "protocol_now_ms": 30408,
+        "deadline_ms": 33408,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30408770,
+      "event": "catchup_timer_arm",
+      "round": 15,
+      "detail": {
+        "protocol_now_ms": 30408,
+        "deadline_ms": 33408,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30616030,
+      "event": "main_timer_arm",
+      "round": 16,
+      "detail": {
+        "protocol_now_ms": 30615,
+        "deadline_ms": 37615,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30616080,
+      "event": "main_timer_arm",
+      "round": 17,
+      "detail": {
+        "protocol_now_ms": 30616,
+        "deadline_ms": 37616,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30616126,
+      "event": "main_timer_arm",
+      "round": 18,
+      "detail": {
+        "protocol_now_ms": 30616,
+        "deadline_ms": 37616,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30896834,
+      "event": "history_ready",
+      "round": 16,
+      "detail": {
+        "next_proposal_round": 19,
+        "admitted": 30
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 30913834,
+      "event": "catchup_timer_arm",
+      "round": 16,
+      "detail": {
+        "protocol_now_ms": 30913,
+        "deadline_ms": 33913,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 31113442,
+      "event": "main_timer_expiry",
+      "round": 15,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 31137715,
+      "event": "prefix_advance",
+      "round": 16,
+      "detail": {
+        "previous_cursor": 12,
+        "admitted": 30,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 31145412,
+      "event": "main_timer_arm",
+      "round": 19,
+      "detail": {
+        "protocol_now_ms": 31145,
+        "deadline_ms": 38145,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 33408894,
+      "event": "catchup_timer_expiry",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 33408898,
+      "event": "catchup_timer_expiry",
+      "round": 14,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 33408898,
+      "event": "catchup_timer_expiry",
+      "round": 15,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 33913834,
+      "event": "catchup_timer_expiry",
+      "round": 16,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 37615890,
+      "event": "main_timer_expiry",
+      "round": 16,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 37616952,
+      "event": "main_timer_expiry",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 37616955,
+      "event": "no_cer",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 37616956,
+      "event": "main_timer_expiry",
+      "round": 18,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 37616956,
+      "event": "history_ready",
+      "round": 17,
+      "detail": {
+        "next_proposal_round": 20,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37617076,
+      "event": "history_ready",
+      "round": 18,
+      "detail": {
+        "next_proposal_round": 21,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37617182,
+      "event": "history_ready",
+      "round": 19,
+      "detail": {
+        "next_proposal_round": 22,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37617420,
+      "event": "catchup_timer_arm",
+      "round": 17,
+      "detail": {
+        "protocol_now_ms": 37616,
+        "deadline_ms": 40616,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37617421,
+      "event": "catchup_timer_arm",
+      "round": 18,
+      "detail": {
+        "protocol_now_ms": 37616,
+        "deadline_ms": 40616,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37617422,
+      "event": "catchup_timer_arm",
+      "round": 19,
+      "detail": {
+        "protocol_now_ms": 37616,
+        "deadline_ms": 40616,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37650759,
+      "event": "main_timer_arm",
+      "round": 20,
+      "detail": {
+        "protocol_now_ms": 37650,
+        "deadline_ms": 44650,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37650811,
+      "event": "main_timer_arm",
+      "round": 21,
+      "detail": {
+        "protocol_now_ms": 37650,
+        "deadline_ms": 44650,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 37650858,
+      "event": "main_timer_arm",
+      "round": 22,
+      "detail": {
+        "protocol_now_ms": 37650,
+        "deadline_ms": 44650,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 38106401,
+      "event": "history_ready",
+      "round": 20,
+      "detail": {
+        "next_proposal_round": 23,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 38122843,
+      "event": "catchup_timer_arm",
+      "round": 20,
+      "detail": {
+        "protocol_now_ms": 38122,
+        "deadline_ms": 41122,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 38145016,
+      "event": "main_timer_expiry",
+      "round": 19,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 38348710,
+      "event": "prefix_advance",
+      "round": 20,
+      "detail": {
+        "previous_cursor": 16,
+        "admitted": 36,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 38351923,
+      "event": "main_timer_arm",
+      "round": 23,
+      "detail": {
+        "protocol_now_ms": 38351,
+        "deadline_ms": 45351,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 2,
+      "at_us": 40616060,
+      "event": "catchup_timer_expiry",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 40616063,
+      "event": "catchup_timer_expiry",
+      "round": 18,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 40616063,
+      "event": "catchup_timer_expiry",
+      "round": 19,
+      "detail": {}
+    },
+    {
+      "replica": 2,
+      "at_us": 41122507,
+      "event": "catchup_timer_expiry",
+      "round": 20,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 2959750,
+      "event": "main_timer_arm",
+      "round": 1,
+      "detail": {
+        "protocol_now_ms": 2959,
+        "deadline_ms": 9959,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 3164454,
+      "event": "main_timer_arm",
+      "round": 2,
+      "detail": {
+        "protocol_now_ms": 3164,
+        "deadline_ms": 10164,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 3407137,
+      "event": "main_timer_arm",
+      "round": 3,
+      "detail": {
+        "protocol_now_ms": 3407,
+        "deadline_ms": 10407,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 9959775,
+      "event": "main_timer_expiry",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 9959780,
+      "event": "no_cer",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 9959782,
+      "event": "history_ready",
+      "round": 1,
+      "detail": {
+        "next_proposal_round": 4,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 9959879,
+      "event": "history_ready",
+      "round": 2,
+      "detail": {
+        "next_proposal_round": 5,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 9959972,
+      "event": "history_ready",
+      "round": 3,
+      "detail": {
+        "next_proposal_round": 6,
+        "admitted": 10
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10106439,
+      "event": "catchup_timer_arm",
+      "round": 1,
+      "detail": {
+        "protocol_now_ms": 10106,
+        "deadline_ms": 13106,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10106495,
+      "event": "catchup_timer_arm",
+      "round": 2,
+      "detail": {
+        "protocol_now_ms": 10106,
+        "deadline_ms": 13106,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10106582,
+      "event": "catchup_timer_arm",
+      "round": 3,
+      "detail": {
+        "protocol_now_ms": 10106,
+        "deadline_ms": 13106,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10164538,
+      "event": "main_timer_expiry",
+      "round": 2,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 10165810,
+      "event": "main_timer_arm",
+      "round": 4,
+      "detail": {
+        "protocol_now_ms": 10165,
+        "deadline_ms": 17165,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10165890,
+      "event": "main_timer_arm",
+      "round": 5,
+      "detail": {
+        "protocol_now_ms": 10165,
+        "deadline_ms": 17165,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10165972,
+      "event": "main_timer_arm",
+      "round": 6,
+      "detail": {
+        "protocol_now_ms": 10165,
+        "deadline_ms": 17165,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10409099,
+      "event": "main_timer_expiry",
+      "round": 3,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 10649679,
+      "event": "history_ready",
+      "round": 4,
+      "detail": {
+        "next_proposal_round": 7,
+        "admitted": 11
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10649868,
+      "event": "catchup_timer_arm",
+      "round": 4,
+      "detail": {
+        "protocol_now_ms": 10649,
+        "deadline_ms": 13649,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10650064,
+      "event": "prefix_advance",
+      "round": 4,
+      "detail": {
+        "previous_cursor": 0,
+        "admitted": 11,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 10655835,
+      "event": "main_timer_arm",
+      "round": 7,
+      "detail": {
+        "protocol_now_ms": 10655,
+        "deadline_ms": 17655,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 13106208,
+      "event": "catchup_timer_expiry",
+      "round": 1,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 13106210,
+      "event": "catchup_timer_expiry",
+      "round": 2,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 13106210,
+      "event": "catchup_timer_expiry",
+      "round": 3,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 13649506,
+      "event": "catchup_timer_expiry",
+      "round": 4,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 17166036,
+      "event": "main_timer_expiry",
+      "round": 4,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 17166040,
+      "event": "main_timer_expiry",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 17166043,
+      "event": "no_cer",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 17166043,
+      "event": "main_timer_expiry",
+      "round": 6,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 17166047,
+      "event": "history_ready",
+      "round": 5,
+      "detail": {
+        "next_proposal_round": 8,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17166244,
+      "event": "history_ready",
+      "round": 6,
+      "detail": {
+        "next_proposal_round": 9,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17166351,
+      "event": "history_ready",
+      "round": 7,
+      "detail": {
+        "next_proposal_round": 10,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17166714,
+      "event": "catchup_timer_arm",
+      "round": 5,
+      "detail": {
+        "protocol_now_ms": 17166,
+        "deadline_ms": 20166,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17166717,
+      "event": "catchup_timer_arm",
+      "round": 6,
+      "detail": {
+        "protocol_now_ms": 17166,
+        "deadline_ms": 20166,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17166718,
+      "event": "catchup_timer_arm",
+      "round": 7,
+      "detail": {
+        "protocol_now_ms": 17166,
+        "deadline_ms": 20166,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17201515,
+      "event": "main_timer_arm",
+      "round": 8,
+      "detail": {
+        "protocol_now_ms": 17201,
+        "deadline_ms": 24201,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17201567,
+      "event": "main_timer_arm",
+      "round": 9,
+      "detail": {
+        "protocol_now_ms": 17201,
+        "deadline_ms": 24201,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17201616,
+      "event": "main_timer_arm",
+      "round": 10,
+      "detail": {
+        "protocol_now_ms": 17201,
+        "deadline_ms": 24201,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17655285,
+      "event": "main_timer_expiry",
+      "round": 7,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 17692028,
+      "event": "history_ready",
+      "round": 8,
+      "detail": {
+        "next_proposal_round": 11,
+        "admitted": 17
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17692271,
+      "event": "catchup_timer_arm",
+      "round": 8,
+      "detail": {
+        "protocol_now_ms": 17691,
+        "deadline_ms": 20691,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17692684,
+      "event": "prefix_advance",
+      "round": 8,
+      "detail": {
+        "previous_cursor": 4,
+        "admitted": 17,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 17700989,
+      "event": "main_timer_arm",
+      "round": 11,
+      "detail": {
+        "protocol_now_ms": 17700,
+        "deadline_ms": 24700,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 20166662,
+      "event": "catchup_timer_expiry",
+      "round": 5,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 20166668,
+      "event": "catchup_timer_expiry",
+      "round": 6,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 20166668,
+      "event": "catchup_timer_expiry",
+      "round": 7,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 20691621,
+      "event": "catchup_timer_expiry",
+      "round": 8,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 24201085,
+      "event": "main_timer_expiry",
+      "round": 8,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 24201086,
+      "event": "main_timer_expiry",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 24201090,
+      "event": "no_cer",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 24201090,
+      "event": "main_timer_expiry",
+      "round": 10,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 24201092,
+      "event": "history_ready",
+      "round": 9,
+      "detail": {
+        "next_proposal_round": 12,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24201289,
+      "event": "history_ready",
+      "round": 10,
+      "detail": {
+        "next_proposal_round": 13,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24201449,
+      "event": "history_ready",
+      "round": 11,
+      "detail": {
+        "next_proposal_round": 14,
+        "admitted": 23
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24350423,
+      "event": "catchup_timer_arm",
+      "round": 9,
+      "detail": {
+        "protocol_now_ms": 24350,
+        "deadline_ms": 27350,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24350472,
+      "event": "catchup_timer_arm",
+      "round": 10,
+      "detail": {
+        "protocol_now_ms": 24350,
+        "deadline_ms": 27350,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24350525,
+      "event": "catchup_timer_arm",
+      "round": 11,
+      "detail": {
+        "protocol_now_ms": 24350,
+        "deadline_ms": 27350,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24408702,
+      "event": "main_timer_arm",
+      "round": 12,
+      "detail": {
+        "protocol_now_ms": 24408,
+        "deadline_ms": 31408,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24408752,
+      "event": "main_timer_arm",
+      "round": 13,
+      "detail": {
+        "protocol_now_ms": 24408,
+        "deadline_ms": 31408,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24408800,
+      "event": "main_timer_arm",
+      "round": 14,
+      "detail": {
+        "protocol_now_ms": 24408,
+        "deadline_ms": 31408,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24700283,
+      "event": "main_timer_expiry",
+      "round": 11,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 24896725,
+      "event": "history_ready",
+      "round": 12,
+      "detail": {
+        "next_proposal_round": 15,
+        "admitted": 24
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24896969,
+      "event": "catchup_timer_arm",
+      "round": 12,
+      "detail": {
+        "protocol_now_ms": 24896,
+        "deadline_ms": 27896,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24897229,
+      "event": "prefix_advance",
+      "round": 12,
+      "detail": {
+        "previous_cursor": 8,
+        "admitted": 24,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 24907483,
+      "event": "main_timer_arm",
+      "round": 15,
+      "detail": {
+        "protocol_now_ms": 24907,
+        "deadline_ms": 31907,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 27350234,
+      "event": "catchup_timer_expiry",
+      "round": 9,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 27350236,
+      "event": "catchup_timer_expiry",
+      "round": 10,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 27350236,
+      "event": "catchup_timer_expiry",
+      "round": 11,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 27896679,
+      "event": "catchup_timer_expiry",
+      "round": 12,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 31408764,
+      "event": "main_timer_expiry",
+      "round": 12,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 31408767,
+      "event": "main_timer_expiry",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 31408771,
+      "event": "no_cer",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 31408771,
+      "event": "main_timer_expiry",
+      "round": 14,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 31408774,
+      "event": "history_ready",
+      "round": 13,
+      "detail": {
+        "next_proposal_round": 16,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31408933,
+      "event": "history_ready",
+      "round": 14,
+      "detail": {
+        "next_proposal_round": 17,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31409081,
+      "event": "history_ready",
+      "round": 15,
+      "detail": {
+        "next_proposal_round": 18,
+        "admitted": 29
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31409470,
+      "event": "catchup_timer_arm",
+      "round": 13,
+      "detail": {
+        "protocol_now_ms": 31408,
+        "deadline_ms": 34408,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31409471,
+      "event": "catchup_timer_arm",
+      "round": 14,
+      "detail": {
+        "protocol_now_ms": 31408,
+        "deadline_ms": 34408,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31409471,
+      "event": "catchup_timer_arm",
+      "round": 15,
+      "detail": {
+        "protocol_now_ms": 31408,
+        "deadline_ms": 34408,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31443635,
+      "event": "main_timer_arm",
+      "round": 16,
+      "detail": {
+        "protocol_now_ms": 31443,
+        "deadline_ms": 38443,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31443684,
+      "event": "main_timer_arm",
+      "round": 17,
+      "detail": {
+        "protocol_now_ms": 31443,
+        "deadline_ms": 38443,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31443731,
+      "event": "main_timer_arm",
+      "round": 18,
+      "detail": {
+        "protocol_now_ms": 31443,
+        "deadline_ms": 38443,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31908049,
+      "event": "main_timer_expiry",
+      "round": 15,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 31930413,
+      "event": "history_ready",
+      "round": 16,
+      "detail": {
+        "next_proposal_round": 19,
+        "admitted": 30
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31930674,
+      "event": "catchup_timer_arm",
+      "round": 16,
+      "detail": {
+        "protocol_now_ms": 31930,
+        "deadline_ms": 34930,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31930924,
+      "event": "prefix_advance",
+      "round": 16,
+      "detail": {
+        "previous_cursor": 12,
+        "admitted": 30,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 31940365,
+      "event": "main_timer_arm",
+      "round": 19,
+      "detail": {
+        "protocol_now_ms": 31940,
+        "deadline_ms": 38940,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 34408305,
+      "event": "catchup_timer_expiry",
+      "round": 13,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 34408311,
+      "event": "catchup_timer_expiry",
+      "round": 14,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 34408311,
+      "event": "catchup_timer_expiry",
+      "round": 15,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 34930399,
+      "event": "catchup_timer_expiry",
+      "round": 16,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 38443616,
+      "event": "main_timer_expiry",
+      "round": 16,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 38443620,
+      "event": "main_timer_expiry",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 38443623,
+      "event": "no_cer",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 38443624,
+      "event": "main_timer_expiry",
+      "round": 18,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 38443628,
+      "event": "history_ready",
+      "round": 17,
+      "detail": {
+        "next_proposal_round": 20,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38443776,
+      "event": "history_ready",
+      "round": 18,
+      "detail": {
+        "next_proposal_round": 21,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38443894,
+      "event": "history_ready",
+      "round": 19,
+      "detail": {
+        "next_proposal_round": 22,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38593549,
+      "event": "catchup_timer_arm",
+      "round": 17,
+      "detail": {
+        "protocol_now_ms": 38593,
+        "deadline_ms": 41593,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38593643,
+      "event": "catchup_timer_arm",
+      "round": 18,
+      "detail": {
+        "protocol_now_ms": 38593,
+        "deadline_ms": 41593,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38593719,
+      "event": "catchup_timer_arm",
+      "round": 19,
+      "detail": {
+        "protocol_now_ms": 38593,
+        "deadline_ms": 41593,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38652053,
+      "event": "main_timer_arm",
+      "round": 20,
+      "detail": {
+        "protocol_now_ms": 38652,
+        "deadline_ms": 45652,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38652102,
+      "event": "main_timer_arm",
+      "round": 21,
+      "detail": {
+        "protocol_now_ms": 38652,
+        "deadline_ms": 45652,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38652151,
+      "event": "main_timer_arm",
+      "round": 22,
+      "detail": {
+        "protocol_now_ms": 38652,
+        "deadline_ms": 45652,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 38940397,
+      "event": "main_timer_expiry",
+      "round": 19,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 39139864,
+      "event": "history_ready",
+      "round": 20,
+      "detail": {
+        "next_proposal_round": 23,
+        "admitted": 36
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 39140055,
+      "event": "catchup_timer_arm",
+      "round": 20,
+      "detail": {
+        "protocol_now_ms": 39139,
+        "deadline_ms": 42139,
+        "duration_ms": 3000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 39140621,
+      "event": "prefix_advance",
+      "round": 20,
+      "detail": {
+        "previous_cursor": 16,
+        "admitted": 36,
+        "next_status": "Undecided"
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 39143129,
+      "event": "main_timer_arm",
+      "round": 23,
+      "detail": {
+        "protocol_now_ms": 39143,
+        "deadline_ms": 46143,
+        "duration_ms": 7000
+      }
+    },
+    {
+      "replica": 3,
+      "at_us": 41593800,
+      "event": "catchup_timer_expiry",
+      "round": 17,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 41593803,
+      "event": "catchup_timer_expiry",
+      "round": 18,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 41593803,
+      "event": "catchup_timer_expiry",
+      "round": 19,
+      "detail": {}
+    },
+    {
+      "replica": 3,
+      "at_us": 42139859,
+      "event": "catchup_timer_expiry",
+      "round": 20,
+      "detail": {}
+    }
+  ],
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-1.json",
+      "sha256": "69da976df5711f2daa9b865c5f7558661750afe4259aefee9301ddefb985285b",
+      "events": 5606,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-2.json",
+      "sha256": "78b779ec5ea9797c51f4b1dd3b7bd438010d30989b50348a464bf762974bdf7c",
+      "events": 5593,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-3.json",
+      "sha256": "f18f1f1b4d4fa707bc492854918921da73e3fcdb9780993cf96352c2a231424b",
+      "events": 5576,
+      "dropped": 0,
+      "run_bound": true
+    }
+  ],
+  "cohort_index_sha256": "48a674f27c7fa77255f97bfa974c668afc7b3ae6b776647395a67114448ab795",
+  "contract": [
+    "Origin-local monotonic timestamps only; no subtraction across replicas.",
+    "Arithmetic transaction-weighted means on one identical completed and instrumented cohort.",
+    "Await execution proposal includes dissemination and inclusion waits, which run in parallel.",
+    "Proposal boundary is local full validation of the exact proposal whose round releases the batch.",
+    "Agreement ends at the first final scanner classification; indirect commits remain identifiable in raw traces.",
+    "The agreement bar starts after local full validation, so proposal transit belongs to the preceding stage; leader outbox-to-direct spans separately measure the complete logical PROPOSE-to-CER-quorum cycle.",
+    "Unfinished or missing boundaries are counted separately, never converted to zero latency.",
+    "Leader history/report spans are diagnostics and overlap the request stages."
+  ]
+}

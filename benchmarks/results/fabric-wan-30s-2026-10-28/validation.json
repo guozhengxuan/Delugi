@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "trial_count": 4,
+  "measurement_seconds": 30,
+  "exact_origin_windows_verified": true,
+  "exact_goodput_counts_verified": true,
+  "scheduled_populations_verified": true,
+  "all_6000_delugi_requests_have_complete_additive_stages": true,
+  "zero_dropped_trace_events": true,
+  "raw_archive_hash_verified": true,
+  "all_owned_cloud_resources_deleted": true,
+  "pdf_exports_rendered_and_visually_checked": 3
+}

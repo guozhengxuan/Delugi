@@ -65,11 +65,14 @@ measurement. A changed source/runtime requires a rebuilt common Linux publicatio
 stale artifacts fail **before** fleet acquisition.
 
 The current private setup retains the four regional templates and native artifact
-references. The rebuilt common Linux archive and local verifier have completed
-the four-region Fabric rerun. Its [record](../benchmarks/results/fabric-wan-2026-10-28/record.json)
-and [figure](../benchmarks/results/fabric-wan-2026-10-28/latency-throughput-end_to_end.pdf)
-include Delugi's incomplete silent-leader cohort. The fleet has been deleted;
-future creation needs enough remaining aggregate budget reservation.
+references. Common release `cef4e22` and its matching local verifier completed
+the [four-run, 30-second Fabric rerun](../benchmarks/results/fabric-wan-30s-2026-10-28/README.md).
+Both Delugi cases completed 3,000/3,000 requests, with complete stage traces;
+Raptr's silent case completed all 2,984 admitted requests and cancelled 16 before
+admission at the cutoff. The [comparison](../benchmarks/results/fabric-wan-30s-2026-10-28/latency-throughput-end_to_end.pdf)
+and [decomposition](../benchmarks/results/fabric-wan-30s-2026-10-28/latency-decomposition.pdf)
+are retained alongside the original pre-fix one-minute results. The fleet has
+been deleted; future creation needs enough remaining aggregate budget reservation.
 
 ## Run and reuse
 

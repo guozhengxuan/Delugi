@@ -1,0 +1,219 @@
+{
+  "healthy": {
+    "scheduled": 3000,
+    "completed": 3000,
+    "covered": 3000,
+    "excluded": {},
+    "mean_admission_to_append_ms": 519.4023053333333,
+    "mean_schedule_to_admission_ms": 0.04411633333333333,
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "mean_ms": 0.6341950000000001
+      },
+      {
+        "stage": "Await execution proposal",
+        "mean_ms": 336.2064226666667
+      },
+      {
+        "stage": "Agreement",
+        "mean_ms": 182.44426433333334
+      },
+      {
+        "stage": "Contiguous prefix wait",
+        "mean_ms": 0.008617333333333333
+      },
+      {
+        "stage": "Payload wait",
+        "mean_ms": 0.03272866666666667
+      },
+      {
+        "stage": "Application append",
+        "mean_ms": 0.07607733333333333
+      }
+    ],
+    "frozen_input_age_ms": {
+      "count": 244,
+      "mean": 0.2978196721311475,
+      "median": 0.298,
+      "max": 0.413
+    },
+    "admission_to_proposal_ms": {
+      "count": 244,
+      "mean": 181.0469180327869,
+      "median": 183.647,
+      "max": 528.168
+    },
+    "report_to_input_ms": {
+      "count": 244,
+      "mean": 180.19685245901638,
+      "median": 183.223,
+      "max": 527.871
+    },
+    "history_assembly_ms": {
+      "count": 31,
+      "mean": 0.11954838709677419,
+      "median": 0.131,
+      "max": 0.171
+    },
+    "leader_outbox_to_direct_ms": {
+      "count": 243,
+      "mean": 203.8912757201646,
+      "median": 201.823,
+      "max": 219.337
+    },
+    "first_history_report_to_quorum_ms": {
+      "count": 241,
+      "mean": 93.76414107883818,
+      "median": 36.508,
+      "max": 169.945
+    },
+    "history_generation_ms": {
+      "count": 974,
+      "mean": 0.08742402464065709,
+      "median": 0.085,
+      "max": 0.141
+    },
+    "history_encoded_message_bytes": {
+      "count": 974,
+      "mean": 2522.2915811088296,
+      "median": 2532.0,
+      "max": 2532
+    },
+    "trace_sources": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-0.json",
+        "sha256": "04439f5d654a25f815ec00562f8eccd51a17fb90730030d8deb6946e0ea42754",
+        "events": 13291,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-1.json",
+        "sha256": "fc29072b3816545fd1556beea322b9d79c72d2da6dea22d7cd3a218f4aac67f0",
+        "events": 13289,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-2.json",
+        "sha256": "632f8cbccde19051770dc0529e2eb137fefe6726066c0c6987921b1cc17f850b",
+        "events": 13280,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-3.json",
+        "sha256": "615d156eae1996aaab6132799bbbe91b394831ef0812ceb35ddecadaa03440b5",
+        "events": 13246,
+        "dropped": 0,
+        "run_bound": true
+      }
+    ]
+  },
+  "silent-first-leader": {
+    "scheduled": 3000,
+    "completed": 3000,
+    "covered": 3000,
+    "excluded": {},
+    "mean_admission_to_append_ms": 4180.445794,
+    "mean_schedule_to_admission_ms": 0.05504066666666667,
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "mean_ms": 0.6647556666666666
+      },
+      {
+        "stage": "Await execution proposal",
+        "mean_ms": 3472.675354
+      },
+      {
+        "stage": "Agreement",
+        "mean_ms": 242.196391
+      },
+      {
+        "stage": "Contiguous prefix wait",
+        "mean_ms": 462.063325
+      },
+      {
+        "stage": "Payload wait",
+        "mean_ms": 1.0515856666666665
+      },
+      {
+        "stage": "Application append",
+        "mean_ms": 1.7943826666666667
+      }
+    ],
+    "frozen_input_age_ms": {
+      "count": 17,
+      "mean": 0.27047058823529413,
+      "median": 0.279,
+      "max": 0.471
+    },
+    "admission_to_proposal_ms": {
+      "count": 17,
+      "mean": 10217.316588235295,
+      "median": 10558.518,
+      "max": 18567.335
+    },
+    "report_to_input_ms": {
+      "count": 17,
+      "mean": 231.36982352941178,
+      "median": 241.838,
+      "max": 330.646
+    },
+    "history_assembly_ms": {
+      "count": 5,
+      "mean": 0.0412,
+      "median": 0.016,
+      "max": 0.108
+    },
+    "leader_outbox_to_direct_ms": {
+      "count": 17,
+      "mean": 247.5074705882353,
+      "median": 242.591,
+      "max": 423.887
+    },
+    "first_history_report_to_quorum_ms": {
+      "count": 15,
+      "mean": 165.63226666666665,
+      "median": 206.083,
+      "max": 250.466
+    },
+    "history_generation_ms": {
+      "count": 60,
+      "mean": 0.09716666666666667,
+      "median": 0.089,
+      "max": 0.163
+    },
+    "history_encoded_message_bytes": {
+      "count": 60,
+      "mean": 2295.6,
+      "median": 2532.0,
+      "max": 2532
+    },
+    "trace_sources": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-1.json",
+        "sha256": "69da976df5711f2daa9b865c5f7558661750afe4259aefee9301ddefb985285b",
+        "events": 5606,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-2.json",
+        "sha256": "78b779ec5ea9797c51f4b1dd3b7bd438010d30989b50348a464bf762974bdf7c",
+        "events": 5593,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-3.json",
+        "sha256": "f18f1f1b4d4fa707bc492854918921da73e3fcdb9780993cf96352c2a231424b",
+        "events": 5576,
+        "dropped": 0,
+        "run_bound": true
+      }
+    ]
+  }
+}

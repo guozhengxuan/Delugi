@@ -1,7 +1,40 @@
 # Delugi implementation and evaluation plan
 
-Updated **28 October 2026**. The silent-leader backlog is now **reproduced and
-corrected locally**. Leaders froze availability inputs at admission, then held
+Updated **28 October 2026**. The modified common Linux release **`cef4e22` has
+completed four-region verification** through Fabric: exactly four **30-second**
+runs, one healthy and one silent-first-leader case per protocol, at 100 tx/s,
+one useful byte and Δ=1,000 ms. Singapore, Frankfurt, London and Seoul used
+natural WAN delay and the saved 20 Mbps egress profile.
+
+| Protocol / case | Completed / scheduled | Window goodput | End-to-end p50 / p95 |
+|---|---:|---:|---:|
+| Raptr healthy | 3,000 / 3,000 | 98.37 tx/s | 453 / 612 ms |
+| Delugi healthy | 3,000 / 3,000 | 98.23 tx/s | 519 / 668 ms |
+| Raptr silent leader | 2,984 / 3,000 | 81.80 tx/s | 3,077 / 5,380 ms |
+| Delugi silent leader | 3,000 / 3,000 | 93.03 tx/s | 4,250 / 7,248 ms |
+
+All execution/agreement checks passed. Raptr's 16 missing scheduled requests
+were cancelled before admission at the finite cutoff; all 2,984 admitted
+requests completed. They remain in the scheduled-cohort statistics. Delugi's
+two decompositions cover all 3,000 requests each with zero dropped trace events.
+Its silent-case mean is 4,180 ms: 3,473 ms awaiting the execution proposal,
+242 ms in agreement and 462 ms awaiting contiguous prefix release. Frozen-input
+age stayed below 0.48 ms. The honest nodes still reached admission round 39
+while delivery reached round 20: the correction removes stale payload snapshots,
+not the recurring timeout or admission/delivery round gap.
+
+See the [30-second verification report](benchmarks/results/fabric-wan-30s-2026-10-28/README.md),
+[record](benchmarks/results/fabric-wan-30s-2026-10-28/record.json),
+[comparison](benchmarks/results/fabric-wan-30s-2026-10-28/latency-throughput-end_to_end.pdf)
+and [decomposition](benchmarks/results/fabric-wan-30s-2026-10-28/latency-decomposition.pdf).
+All four instances and owned security groups are deleted. The fleet cost estimate
+is **CNY 17.51**, including preparation/build time, pending provider billing.
+The release suite passed 24 tests; remote build intermediates and approximately
+2 GiB of local build intermediates were cleared. This is a four-node verification
+checkpoint; the 10/50-node formal comparison remains ahead.
+
+The silent-leader backlog was first reproduced and corrected locally. Leaders
+froze availability inputs at admission, then held
 those stale inputs while waiting for HISTORY3. The new default opens the one
 REPORT after admission and exact history readiness; `admission` remains available
 for comparison. This is an explicit composition schedule revision to the pinned
@@ -12,9 +45,8 @@ most 15 seconds of drain, the old silent case completed **3,407/6,000** and the
 fixed case **6,000/6,000**. Window goodput rose from **43.43 to 91.75 tx/s**.
 Frozen-input age reached **34.97 s** before the fix and stayed below **0.9 ms**
 after it. The fixed healthy control completed all 6,000 requests at 100 tx/s.
-These are unshaped loopback correctness/causality checks with in-memory custody,
-not replacement WAN or capacity measurements. No additional Aliyun operation
-was performed. The residual silent-case latency follows recurring 7Δ windows;
+These were unshaped loopback correctness/causality checks with in-memory custody,
+performed before the latest WAN rerun. The residual silent-case latency follows recurring 7Δ windows;
 the fault silences the same replica on every fourth leadership opportunity.
 
 See the [diagnostic record](benchmarks/results/silent-leader-fix-2026-10-28/record.json)
@@ -24,11 +56,11 @@ append events. Fabric downloads their control pages and `fab decompose` produces
 the additive means offline. The one-minute healthy trace hit its configured cap;
 its decomposition was rejected. A separate five-second capture covered all
 500 requests without dropped events. Before formal evaluation, review the paper's
-REPORT trigger and qualify instrumentation overhead and the revised WAN behavior.
+REPORT trigger and qualify instrumentation overhead and larger-committee behavior.
 
 The prior common Linux release `e2d1164` ran through
 the saved Fabric deployment in Singapore, Frankfurt, London and Seoul.
-**Shared WAN connectivity is repaired; the local fix has not been deployed.**
+**This was the pre-fix WAN baseline; the latest rerun is recorded above.**
 Both healthy runs and Raptr's silent-leader run completed
 all 6,000 requests. Delugi's silent-leader run completed 3,918/6,000, achieved
 50.35 tx/s at 100 offered tx/s, and has a censored median latency of at least
@@ -167,13 +199,16 @@ Evidence:
    in Frankfurt is process-paused before arm. This is one load point, not a
    capacity curve or a statistically replicated comparison.
 
-   **Delugi fault-case backlog remains open.** Pending requests grew from
+   **The pre-fix Delugi fault-case backlog was diagnosed and corrected.** Pending requests grew from
    1,772 at 30 seconds to 2,979 at 60 seconds; 2,082 remained unfinished at
    collection. All honest nodes were at current round 72 / delivered round 40,
    with zero transport rejections, queue-full failures or resource exhaustions.
    Its p50/p95 end-to-end latencies are lower bounds of 24.796/35.085 seconds.
-   Trace the existing round/HISTORY3/CLOSED/scanner evidence before attributing
-   a cause or scheduling another paid workload.
+   The later trace identified inputs frozen before HISTORY3 readiness. The
+   `history_ready` composition schedule passed the local 60-second regression
+   and the new 30-second WAN check, completing every scheduled request. Its
+   recurring 7Δ waits and admission/delivery round gap remain explicit; tracing
+   overhead and larger committees are not yet qualified.
 2. **n=50 at Δ=100 ms remains open.** The local shared-machine Raptr empty test
    stalled before round 4. Δ=1,000 ms reached round 4 but qualifies only that
    diagnostic. Preserve 100 ms for the main series and resolve the failure on
@@ -214,17 +249,20 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Review the REPORT-trigger revision and its local evidence.** The stale-input
+1. **Review the REPORT-trigger revision and its local/WAN evidence.** The stale-input
    cause is fixed; the recurring 7Δ timeout cost remains explicit. Align the paper's
    entry-trigger wording with the selected composition schedule before a formal
    evaluation. Qualify tracing overhead and choose trace caps for the expected round
-   rate. Preserve all prior WAN attempts and incomplete cohorts. Current work is
-   local only; the corrected common binary has not been deployed to Aliyun.
+   rate. Preserve all prior WAN attempts and incomplete cohorts. The corrected
+   common binary has now passed the bounded four-region check above; this does
+   not establish the canonical paper's timing claim or larger-scale performance.
 2. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.
-3. **Requalify with a new bounded plan.** The current two-attempt allowance is
-   exhausted. Agree on the next finite matrix after the fixes; do not silently
+3. **Choose the next bounded qualification plan.** The additional authorized
+   Delugi/Raptr matrix is complete: four runs of 30 seconds, with no repeat attempts.
+   Diagnose Raptr's 16 cancelled tail arrivals from the retained evidence and
+   agree on the next finite matrix after the counterpart fixes; do not silently
    turn this smoke check into a rate sweep. Reuse exact native publications
    while their source and recipe identities match, and retain all failed runs.
 4. **Qualify the intended 10/50 profiles and network.** Resolve the n=50 nominal

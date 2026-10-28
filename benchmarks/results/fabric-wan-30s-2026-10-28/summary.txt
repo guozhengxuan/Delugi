@@ -1,0 +1,10 @@
+Protocol       Case                  Status       Input      Goodput   p50 end-to-end   Completed
+raptr          healthy               completed      100 tx/s   98.37      453.32 ms  3000/3000
+delugi         healthy               passed         100 tx/s   98.23      518.83 ms  3000/3000
+raptr          silent-first-leader   completed      100 tx/s   81.80     3076.61 ms  2984/3000
+delugi         silent-first-leader   passed         100 tx/s   93.03     4250.20 ms  3000/3000
+Goodput: exact useful completions inside the measurement window.
+End-to-end: intended arrival to origin-local payload-verified contiguous output; cohort observed through drain.
+Status describes execution/agreement checks; the completed count reports workload completion.
+Censored latency is a lower bound. One run is not a confidence interval.
+INCOMPLETE: raptr/silent-first-leader: 16 requests unfinished at collection.

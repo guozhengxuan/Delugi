@@ -73,8 +73,18 @@ can set the same options under `protocol_options.delugi`:
 ```
 
 The existing remote control connection downloads bounded pages; no extra port,
-SSH step or manual remote path is needed. This wiring is implemented and tested
-locally; no new cloud deployment was performed for this change.
+SSH step or manual remote path is needed. The
+[28 October four-region rerun](../../benchmarks/results/fabric-wan-30s-2026-10-28/README.md)
+verified this collection path for healthy and silent-leader Delugi. Each 30-second,
+100 tx/s case covered all 3,000 requests with zero dropped events. The fault case
+averaged 4,180 ms admission-to-append, dominated by 3,473 ms awaiting the execution
+proposal and 462 ms awaiting contiguous prefix release; agreement averaged 242 ms.
+Frozen inputs remained younger than 0.48 ms. Instrumentation overhead remains
+unmeasured, so these are causal diagnostics and deployment verification evidence.
+
+Timer-expiry events include callbacks for already-decided rounds. Count `no_cer`
+or the associated state transition when diagnosing actual timeout-dependent
+progress; a raw expiry count alone does not mean a request waited for that timer.
 
 Once logs are present, from `benchmark/`:
 
