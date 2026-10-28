@@ -22,9 +22,9 @@ class WanTests(unittest.TestCase):
     def test_timeout_uses_slowest_measured_path_and_rejects_missing_or_loss(self):
         rows = [{'source': i, 'target': j, 'rtt_ms': [240.0]*20, 'loss_percent': 0}
                 for i in range(4) for j in range(4) if i != j]
-        self.assertEqual(wan.timeout_from_rtt(rows)['Delta_ms'], 400)
-        rows[-1]['rtt_ms'][-1] = 301.0
-        self.assertEqual(wan.timeout_from_rtt(rows)['Delta_ms'], 500)
+        self.assertEqual(wan.timeout_from_rtt(rows)['Delta_ms'], 1000)
+        rows[-1]['rtt_ms'][-1] = 801.0
+        self.assertEqual(wan.timeout_from_rtt(rows)['Delta_ms'], 1300)
         with self.assertRaises(ValueError):
             wan.timeout_from_rtt(rows[:-1])
         rows[-1]['loss_percent'] = 5

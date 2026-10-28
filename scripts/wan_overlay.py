@@ -68,11 +68,13 @@ def timeout_from_rtt(rows):
         if row.get('loss_percent') != 0:
             raise ValueError('resolve calibration packet loss before choosing the timeout')
         maxima.append(max(samples))
-    delta = max(100, math.ceil(1.5 * max(maxima) / 100) * 100)
+    # Simple-IT's pinned default is a 1000ms round timeout (500ms fast path).
+    # Preserve that WAN-friendly floor, increasing it if measured paths need it.
+    delta = max(1000, math.ceil(1.5 * max(maxima) / 100) * 100)
     if delta > 60000:
         raise ValueError('observed path exceeds the supported timeout envelope')
     return {'Delta_ms': delta, 'maximum_observed_rtt_ms': max(maxima),
-            'rule': 'ceil(1.5 * maximum observed RTT / 100 ms) * 100 ms; minimum 100 ms',
+            'rule': 'ceil(1.5 * maximum observed RTT / 100 ms) * 100 ms; minimum 1000 ms from pinned Simple-IT',
             'added_delay_ms': 0, 'native_timer_multipliers_preserved': True}
 
 
