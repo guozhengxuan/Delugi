@@ -113,6 +113,31 @@ class Ledger:
     def snapshot(self):
         with self.locked(): return self.summary(self._load())
 
+    def authorize_ceiling(self, ceiling_fen, authorization_sha256):
+        """Record an explicit additional authorization without erasing charges.
+
+        The original authorization remains the ledger identity used by existing
+        leases. Each increase records its separate evidence and is idempotent.
+        This method does not infer permission or settle any outstanding bill.
+        """
+        money(ceiling_fen); identity(authorization_sha256)
+        with self.locked():
+            value = self._load()
+            amendments = value.setdefault('authorization_amendments', [])
+            previous = next((a for a in amendments if a['authorization_sha256'] == authorization_sha256), None)
+            if previous:
+                if previous['ceiling_fen'] != ceiling_fen:
+                    raise ValueError('authorization evidence reused for a different ceiling')
+                return self.summary(value)
+            if ceiling_fen <= value['ceiling_fen']:
+                raise ValueError('additional authorization must increase the ceiling')
+            if authorization_sha256 == value['authorization_sha256']:
+                raise ValueError('additional authorization requires new evidence')
+            amendments.append({'previous_ceiling_fen': value['ceiling_fen'],
+                               'ceiling_fen': ceiling_fen, 'authorization_sha256': authorization_sha256})
+            value['ceiling_fen'] = ceiling_fen
+            return self._save(value)
+
     def reserve(self, lease_id, upper_cost_fen, plan_sha256):
         if not isinstance(lease_id, str) or not re.fullmatch('[a-z0-9][a-z0-9-]{0,63}', lease_id):
             raise ValueError('invalid owned lease identity')

@@ -150,10 +150,12 @@ class Bench:
                 'results':str(output/'results.csv'),'error':state.get('error')}
 
     def logs(self,name=None):
+        from .logs import LogParser
+        return LogParser(self.run_directory(name)).export()
+
+    def run_directory(self,name=None):
         if name is not None and not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,79}',name):raise ValueError('invalid run name')
-        root=self.settings.root/'runs'/(name or self.plan['plan_sha256'][:24])
-        state=read(root/'state.json')
-        return {'status':state['status'],'rows':state['rows'],'csv':str(root/'results.csv'),'figures':state.get('plots')}
+        return self.settings.root/'runs'/(name or self.plan['plan_sha256'][:24])
 
 
 def manage(settings, action):

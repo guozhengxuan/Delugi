@@ -41,8 +41,44 @@ def remote(ctx, settings='settings.json', params='parameters.json', name=None):
 
 @task
 def logs(ctx, settings='settings.json', params='parameters.json', name=None):
-    """Read retained results and log/figure paths without contacting the fleet."""
+    """Parse hash-checked downloaded logs into CSV/JSON/text (Narwhal style)."""
     show(Bench(settings,params).logs(name))
+
+
+@task
+def download(ctx, settings='settings.json', params='parameters.json', name=None, output=None):
+    """Bundle downloaded raw logs and results; never re-execute a trial."""
+    from bench.logs import LogParser
+    show(LogParser(Bench(settings,params).run_directory(name)).download(output))
+
+
+@task
+def plot(ctx, settings='settings.json', params='parameters.json', name=None, endpoint='end_to_end'):
+    """Plot every selected healthy/fault case, including censoring and failures."""
+    from bench.plot import render
+    b=Bench(settings,params);parsed=b.logs(name)
+    show(render(parsed['summary'],b.run_directory(name)/'figures',endpoint=endpoint))
+
+
+@task
+def build(ctx, settings='settings.json', nodes=4, revision=None):
+    """Dispatch one pinned common Linux build on the saved fleet."""
+    from bench.build import execute
+    show(execute(settings,'dispatch',nodes,revision))
+
+
+@task
+def build_status(ctx, settings='settings.json'):
+    """Read the saved Linux build status without starting another build."""
+    from bench.build import execute
+    show(execute(settings,'status'))
+
+
+@task
+def build_collect(ctx, settings='settings.json'):
+    """Download build evidence and update the common artifact in the catalog."""
+    from bench.build import execute
+    show(execute(settings,'collect'))
 
 
 @task

@@ -155,3 +155,39 @@ artifact rejection before paid operations, publication reuse, repeat-command
 idempotency, failure cleanup, and adjustable SSH/overlay parameters. The old WAN
 results remain unchanged. The two-attempt allowance for that verification has
 been exhausted; a new bounded remote matrix must be selected before more runs.
+
+## Build, download, parse and plot with Fabric
+
+`bench/logs.py` and `bench/plot.py` adopt Narwhal's separation of per-run parsing,
+summary export and publication figures ([logs.py](https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/logs.py),
+[plot.py](https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/plot.py)).
+Here the parser checks frozen result hashes and derives metrics from verified
+request identities. Missing completions remain censored; missing latency is never
+zero. Both protocols use origin-local monotonic clocks and contiguous,
+payload-verified output. No remote clock is subtracted from an origin clock.
+
+```sh
+fab create                        # reuse the saved regional deployment
+fab build                         # committed/pushed common sources, asynchronous
+fab build-status                  # inspect progress, no repeated dispatch
+fab build-collect                 # collect and select the completed Linux archive
+fab remote --name=wan-check        # all selected configurations, once each
+fab logs --name=wan-check          # CSV, JSON and text summary
+fab download --name=wan-check      # bundle the raw logs already fetched by remote
+fab plot --name=wan-check          # scheduled-arrival → verified-output latency
+fab plot --name=wan-check --endpoint=admission
+fab destroy                       # needed if keep_alive=true
+```
+
+Use `keep_alive=true` during build preparation and `false` before `remote` for
+automatic teardown after collection. Build dispatch never starts validators.
+The remote build runs the pinned release tests and removes its Cargo target.
+`build-collect` updates only the common publication in the reusable catalog;
+native archives and the local verifier are preserved.
+
+Figures show median points and p95 whiskers separately for healthy and fault
+cases. A censored percentile is an upward lower-bound arrow. These are request
+percentiles, not repetition confidence intervals. At one configured input rate,
+the figure contains one measured point per protocol/case, not a capacity curve.
+Throughput counts exact useful completions inside the measurement window;
+latency follows the planned request cohort through its bounded drain.

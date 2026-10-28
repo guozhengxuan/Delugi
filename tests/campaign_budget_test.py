@@ -72,5 +72,16 @@ class CampaignBudgetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'symlink'):
             Ledger(link)
 
+    def test_new_authorization_preserves_unsettled_reservations(self):
+        self.ledger.reserve('first', 100_000, 'b'*64); self.ledger.dispatch('first')
+        old = self.ledger.snapshot()['leases']
+        result = self.ledger.authorize_ceiling(120_000, 'c'*64)
+        self.assertEqual(result['leases'], old)
+        self.assertEqual(result['available_fen'], 20_000)
+        self.assertEqual(result, self.ledger.authorize_ceiling(120_000, 'c'*64))
+        self.assertEqual(json.loads(self.path.read_text())['authorization_sha256'], 'a'*64)
+        for ceiling, evidence in [(130_000, 'c'*64), (100_000, 'd'*64), (130_000, 'a'*64)]:
+            with self.assertRaises(ValueError): self.ledger.authorize_ceiling(ceiling, evidence)
+
 
 if __name__ == '__main__': unittest.main()
