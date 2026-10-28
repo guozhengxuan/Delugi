@@ -9,6 +9,18 @@ sys.path.insert(0,str(ROOT/'scripts'))
 import campaign_adapters as adapters
 
 class Adapters(unittest.TestCase):
+    def test_report_schedule_and_trace_settings_are_resolved_and_validated(self):
+        config=json.loads((ROOT/'benchmarks/configs/compact-campaign.native-services.json').read_text())
+        config['protocol_options']['delugi'].update(report_schedule='admission',
+            causal_trace={'detail_stride':1,'max_events':200000})
+        result=adapters.resolve(config,'delugi',10,100)
+        self.assertEqual(result['effective']['report_schedule'],'admission')
+        self.assertEqual(result['effective']['causal_trace']['detail_stride'],1)
+        command=adapters.local_command(result,{'binary':'/fixed/node','build_receipt':'/fixed/receipt'},'/tmp/diagnostic')
+        self.assertIn('--causal-trace',command)
+        self.assertIn('admission',command)
+        config['protocol_options']['delugi']['causal_trace']['max_events']=0
+        with self.assertRaises(ValueError):adapters.resolve(config,'delugi',10,100)
     def setUp(self):self.config=json.loads((ROOT/'benchmarks/configs/compact-campaign.native-services.json').read_text())
     def test_all_native_profiles_have_identical_honest_population_and_windows(self):
         for n in (10,50):

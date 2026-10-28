@@ -61,6 +61,19 @@ def plot(ctx, settings='settings.json', params='parameters.json', name=None, end
 
 
 @task
+def decompose(ctx, cohorts, traces, output='latency-decomposition'):
+    """Offline stage reduction and figure from already downloaded Delugi logs."""
+    from pathlib import Path
+    from latency_decomposition import analyze, render
+    report=analyze(cohorts,traces)
+    root=Path(output);root.mkdir(parents=True,exist_ok=True)
+    (root/'decomposition.json').write_text(json.dumps(report,indent=2)+'\n')
+    show({'report':str(root/'decomposition.json'),
+          'figure':render({'Delugi':report},root/'decomposition.png'),
+          'covered':report['covered'],'scheduled':report['scheduled'],'no_cloud_calls':True})
+
+
+@task
 def build(ctx, settings='settings.json', nodes=4, revision=None):
     """Dispatch one pinned common Linux build on the saved fleet."""
     from bench.build import execute

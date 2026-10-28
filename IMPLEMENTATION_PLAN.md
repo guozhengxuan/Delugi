@@ -1,9 +1,35 @@
 # Delugi implementation and evaluation plan
 
-Updated **28 October 2026**. The common Linux release `e2d1164` has now run through
+Updated **28 October 2026**. The silent-leader backlog is now **reproduced and
+corrected locally**. Leaders froze availability inputs at admission, then held
+those stale inputs while waiting for HISTORY3. The new default opens the one
+REPORT after admission and exact history readiness; `admission` remains available
+for comparison. This is an explicit composition schedule revision to the pinned
+paper's entry trigger. Ordering rules, timers and the scanner are unchanged.
+
+At four local processes, 100 tx/s, Δ=1,000 ms, one useful byte, 60 seconds and at
+most 15 seconds of drain, the old silent case completed **3,407/6,000** and the
+fixed case **6,000/6,000**. Window goodput rose from **43.43 to 91.75 tx/s**.
+Frozen-input age reached **34.97 s** before the fix and stayed below **0.9 ms**
+after it. The fixed healthy control completed all 6,000 requests at 100 tx/s.
+These are unshaped loopback correctness/causality checks with in-memory custody,
+not replacement WAN or capacity measurements. No additional Aliyun operation
+was performed. The residual silent-case latency follows recurring 7Δ windows;
+the fault silences the same replica on every fourth leadership opportunity.
+
+See the [diagnostic record](benchmarks/results/silent-leader-fix-2026-10-28/record.json)
+and [stage definitions and trace collection](docs/evaluation/latency-decomposition.md).
+Bounded traces now join exact batches to proposal, classification, prefix and
+append events. Fabric downloads their control pages and `fab decompose` produces
+the additive means offline. The one-minute healthy trace hit its configured cap;
+its decomposition was rejected. A separate five-second capture covered all
+500 requests without dropped events. Before formal evaluation, review the paper's
+REPORT trigger and qualify instrumentation overhead and the revised WAN behavior.
+
+The prior common Linux release `e2d1164` ran through
 the saved Fabric deployment in Singapore, Frankfurt, London and Seoul.
-**Shared WAN connectivity is repaired; Delugi's sustained silent-leader case is
-the immediate blocker.** Both healthy runs and Raptr's silent-leader run completed
+**Shared WAN connectivity is repaired; the local fix has not been deployed.**
+Both healthy runs and Raptr's silent-leader run completed
 all 6,000 requests. Delugi's silent-leader run completed 3,918/6,000, achieved
 50.35 tx/s at 100 offered tx/s, and has a censored median latency of at least
 24.796 seconds. Its honest replicas reached current round 72 but delivered only
@@ -188,12 +214,12 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Diagnose Delugi's silent-leader backlog from the collected WAN logs.**
-   Connectivity and healthy progress now pass. Start from the gap between
-   current round 72 and delivered round 40, then locate the first delayed
-   certificate/history/scan decision. Separate recurring fault timeout cost
-   from accumulating lag before changing code. Keep all four completed attempts,
-   including the incomplete cohort; do not silently rerun or drop it.
+1. **Review the REPORT-trigger revision and its local evidence.** The stale-input
+   cause is fixed; the recurring 7Δ timeout cost remains explicit. Align the paper's
+   entry-trigger wording with the selected composition schedule before a formal
+   evaluation. Qualify tracing overhead and choose trace caps for the expected round
+   rate. Preserve all prior WAN attempts and incomplete cohorts. Current work is
+   local only; the corrected common binary has not been deployed to Aliyun.
 2. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.

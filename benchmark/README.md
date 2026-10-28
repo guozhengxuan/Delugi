@@ -160,6 +160,11 @@ been exhausted; a new bounded remote matrix must be selected before more runs.
 
 ## Build, download, parse and plot with Fabric
 
+Delugi also supports bounded latency-stage tracing and offline `fab decompose`.
+See [the stage boundaries, trace settings and REPORT scheduling revision](../docs/evaluation/latency-decomposition.md).
+The `history_ready` REPORT schedule is the default; `admission` retains the old
+composition schedule for explicit comparisons. Both are recorded in results.
+
 `bench/logs.py` and `bench/plot.py` adopt Narwhal's separation of per-run parsing,
 summary export and publication figures ([logs.py](https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/logs.py),
 [plot.py](https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/plot.py)).

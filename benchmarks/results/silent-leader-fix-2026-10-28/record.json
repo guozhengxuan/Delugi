@@ -1,0 +1,454 @@
+{
+  "schema": 1,
+  "date": "2026-10-28",
+  "classification": "local_real_process_correctness_and_causal_diagnostic",
+  "cloud_operations": 0,
+  "parameters": {
+    "nodes": 4,
+    "rate_tx_s": 100,
+    "useful_transaction_bytes": 1,
+    "Delta_ms": 1000,
+    "network": "unshaped loopback TCP; actual local delay, no injected delta",
+    "max_drain_s": 15,
+    "storage": "memory-visible-v1",
+    "cryptography": "real Ed25519 / SHA-256; no mock transport or signature path"
+  },
+  "root_cause": "REPORT at admission froze observations and immutable inputs ahead of exact HISTORY3 readiness; recurring silent leadership made snapshot age accumulate.",
+  "fix": "Open REPORT after both leader admission and exact HISTORY3 quorum; once only; preserve immutable Q and all ordering guards, timers and scanner rules.",
+  "specification_change": "Composition scheduling revision from pinned entry-triggered REPORT; history_ready default, admission comparison retained. Paper snapshot unchanged; no canonical timing theorem claimed.",
+  "fault": "replica 0 remains protocol-silent throughout; leadership fails in rounds 1,5,9,...; transport ACKs stay active",
+  "remaining_cost": "recurring 7*Delta main timers and contiguous-prefix dependencies; admission-delivery round gap is not eliminated",
+  "runs": [
+    {
+      "name": "before-net",
+      "status": "passed",
+      "duration_s": 60,
+      "manifest_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/before-net/manifest.json",
+      "manifest_sha256": "9b37114ae354cccb871f9024514dd821b0c8ac2281314bfdc4d338b5c0bfbb11",
+      "binary_sha256": "3246c5fd48790c877a263fc43dfb51214d6280a5b4928f2c05f8ab8431d7204f",
+      "scheduled": 6000,
+      "completed_by_collection": 3407,
+      "unfinished": 2593,
+      "window_goodput_tps": 43.43333333333333,
+      "completed_only_mean_admission_ms": 25644.236289110653,
+      "admission_latency": {
+        "population": 6000,
+        "completed": 3407,
+        "unfinished": 2593,
+        "p50": {
+          "value_ms": null,
+          "lower_bound_ms": 26688.263,
+          "status": "censored"
+        },
+        "p95": {
+          "value_ms": null,
+          "lower_bound_ms": 38508.321,
+          "status": "censored"
+        },
+        "p99": {
+          "value_ms": null,
+          "lower_bound_ms": 40428.305,
+          "status": "censored"
+        }
+      },
+      "drain_complete": false,
+      "drain_seconds": 14.768684375099838,
+      "trace_collection_complete": null,
+      "replicas": [
+        {
+          "id": 0,
+          "current_round": 0,
+          "delivered_round": 0,
+          "executed": 0,
+          "report_schedule": "admission (pre-fix)",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 1,
+          "current_round": 80,
+          "delivered_round": 40,
+          "executed": 3407,
+          "report_schedule": "admission (pre-fix)",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 2,
+          "current_round": 80,
+          "delivered_round": 40,
+          "executed": 3407,
+          "report_schedule": "admission (pre-fix)",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 3,
+          "current_round": 80,
+          "delivered_round": 40,
+          "executed": 3407,
+          "report_schedule": "admission (pre-fix)",
+          "rejected_protocol_messages": 0
+        }
+      ]
+    },
+    {
+      "name": "after-silent",
+      "status": "passed",
+      "duration_s": 60,
+      "manifest_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/after-silent/manifest.json",
+      "manifest_sha256": "e88e486c0c3f9a092dfeac86bab20669ff2f2da33dd76a03a545bab7dea4afae",
+      "binary_sha256": "a4ac1daf8a6160c5f33d321b6f5c0b73b9da4000f040d55878e77181347a5cce",
+      "scheduled": 6000,
+      "completed_by_collection": 6000,
+      "unfinished": 0,
+      "window_goodput_tps": 91.75,
+      "completed_only_mean_admission_ms": 3553.1004566666666,
+      "admission_latency": {
+        "population": 6000,
+        "completed": 6000,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 3575.89,
+          "lower_bound_ms": 3575.89,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 6645.21,
+          "lower_bound_ms": 6645.21,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 6944.833,
+          "lower_bound_ms": 6944.833,
+          "status": "observed"
+        }
+      },
+      "drain_complete": true,
+      "drain_seconds": 1.632454166188836,
+      "trace_collection_complete": true,
+      "replicas": [
+        {
+          "id": 0,
+          "current_round": 0,
+          "delivered_round": 0,
+          "executed": 0,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 1,
+          "current_round": 67,
+          "delivered_round": 36,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 2,
+          "current_round": 67,
+          "delivered_round": 36,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 3,
+          "current_round": 67,
+          "delivered_round": 36,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        }
+      ]
+    },
+    {
+      "name": "after-healthy",
+      "status": "passed",
+      "duration_s": 60,
+      "manifest_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/after-healthy/manifest.json",
+      "manifest_sha256": "b6c7b05597104ff1f416bf5190f97b2ec7815f423153ea2351bf0aab93e953d8",
+      "binary_sha256": "a4ac1daf8a6160c5f33d321b6f5c0b73b9da4000f040d55878e77181347a5cce",
+      "scheduled": 6000,
+      "completed_by_collection": 6000,
+      "unfinished": 0,
+      "window_goodput_tps": 100.0,
+      "completed_only_mean_admission_ms": 5.103358,
+      "admission_latency": {
+        "population": 6000,
+        "completed": 6000,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 5.018,
+          "lower_bound_ms": 5.018,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 6.485,
+          "lower_bound_ms": 6.485,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 6.995,
+          "lower_bound_ms": 6.995,
+          "status": "observed"
+        }
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.004699750803411007,
+      "trace_collection_complete": false,
+      "replicas": [
+        {
+          "id": 0,
+          "current_round": 36397,
+          "delivered_round": 36393,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 1,
+          "current_round": 36396,
+          "delivered_round": 36393,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 2,
+          "current_round": 36397,
+          "delivered_round": 36394,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 3,
+          "current_round": 36396,
+          "delivered_round": 36394,
+          "executed": 6000,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        }
+      ]
+    },
+    {
+      "name": "healthy-stages",
+      "status": "passed",
+      "duration_s": 5,
+      "manifest_path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/healthy-stages/manifest.json",
+      "manifest_sha256": "eee642da25258cd9963a790fb6b0b69d5f67959c786254565aed4470419db6d8",
+      "binary_sha256": "a4ac1daf8a6160c5f33d321b6f5c0b73b9da4000f040d55878e77181347a5cce",
+      "scheduled": 500,
+      "completed_by_collection": 500,
+      "unfinished": 0,
+      "window_goodput_tps": 100.0,
+      "completed_only_mean_admission_ms": 5.151376,
+      "admission_latency": {
+        "population": 500,
+        "completed": 500,
+        "unfinished": 0,
+        "p50": {
+          "value_ms": 5.013,
+          "lower_bound_ms": 5.013,
+          "status": "observed"
+        },
+        "p95": {
+          "value_ms": 6.703,
+          "lower_bound_ms": 6.703,
+          "status": "observed"
+        },
+        "p99": {
+          "value_ms": 7.208,
+          "lower_bound_ms": 7.208,
+          "status": "observed"
+        }
+      },
+      "drain_complete": true,
+      "drain_seconds": 0.004431290552020073,
+      "trace_collection_complete": true,
+      "replicas": [
+        {
+          "id": 0,
+          "current_round": 3521,
+          "delivered_round": 3519,
+          "executed": 500,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 1,
+          "current_round": 3521,
+          "delivered_round": 3519,
+          "executed": 500,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 2,
+          "current_round": 3521,
+          "delivered_round": 3519,
+          "executed": 500,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        },
+        {
+          "id": 3,
+          "current_round": 3521,
+          "delivered_round": 3519,
+          "executed": 500,
+          "report_schedule": "history_ready",
+          "rejected_protocol_messages": 0
+        }
+      ]
+    }
+  ],
+  "leader_statistics": {
+    "before": {
+      "frozen_input_age_ms": {
+        "count": 32,
+        "mean": 18548.9850625,
+        "min": 0.076,
+        "max": 34969.929
+      },
+      "leader_outbox_to_direct_ms": {
+        "count": 32,
+        "mean": 6.95515625,
+        "min": 1.123,
+        "max": 19.592
+      },
+      "first_history_report_to_quorum_ms": {
+        "count": 0,
+        "mean": null,
+        "min": null,
+        "max": null
+      },
+      "history_assembly_ms": {
+        "count": 32,
+        "mean": 0.21659375,
+        "min": 0.0,
+        "max": 0.598
+      },
+      "history_generation_ms": {
+        "count": 120,
+        "mean": 0.22649166666666667,
+        "min": 0.116,
+        "max": 0.701
+      },
+      "history_encoded_message_bytes": {
+        "count": 0,
+        "mean": null,
+        "min": null,
+        "max": null
+      }
+    },
+    "after-silent": {
+      "frozen_input_age_ms": {
+        "count": 29,
+        "mean": 0.6328620689655172,
+        "min": 0.137,
+        "max": 0.871
+      },
+      "leader_outbox_to_direct_ms": {
+        "count": 29,
+        "mean": 4.432620689655172,
+        "min": 1.536,
+        "max": 14.053
+      },
+      "first_history_report_to_quorum_ms": {
+        "count": 27,
+        "mean": 5.227592592592592,
+        "min": 1.58,
+        "max": 10.477
+      },
+      "history_assembly_ms": {
+        "count": 29,
+        "mean": 0.2160344827586207,
+        "min": 0.001,
+        "max": 0.313
+      },
+      "history_generation_ms": {
+        "count": 108,
+        "mean": 0.2569444444444444,
+        "min": 0.109,
+        "max": 0.489
+      },
+      "history_encoded_message_bytes": {
+        "count": 108,
+        "mean": 2400.6666666666665,
+        "min": 168,
+        "max": 2532
+      }
+    },
+    "healthy-stages": {
+      "frozen_input_age_ms": {
+        "count": 3521,
+        "mean": 0.29397642715137745,
+        "min": 0.082,
+        "max": 0.367
+      },
+      "leader_outbox_to_direct_ms": {
+        "count": 3519,
+        "mean": 2.012425689116226,
+        "min": 1.537,
+        "max": 3.044
+      },
+      "first_history_report_to_quorum_ms": {
+        "count": 3518,
+        "mean": 0.7065662308129619,
+        "min": 0.365,
+        "max": 1.532
+      },
+      "history_assembly_ms": {
+        "count": 441,
+        "mean": 0.13464399092970522,
+        "min": 0.0,
+        "max": 0.172
+      },
+      "history_generation_ms": {
+        "count": 14076,
+        "mean": 0.060745666382495025,
+        "min": 0.042,
+        "max": 0.202
+      },
+      "history_encoded_message_bytes": {
+        "count": 14076,
+        "mean": 2531.3282182438193,
+        "min": 956,
+        "max": 2532
+      }
+    }
+  },
+  "decomposition_contract": [
+    "Origin-local monotonic timestamps only; no subtraction across replicas.",
+    "Arithmetic transaction-weighted means on one identical completed and instrumented cohort.",
+    "Await execution proposal includes dissemination and inclusion waits, which run in parallel.",
+    "Proposal boundary is local full validation of the exact proposal whose round releases the batch.",
+    "Agreement ends at the first final scanner classification; indirect commits remain identifiable in raw traces.",
+    "The agreement bar starts after local full validation, so proposal transit belongs to the preceding stage; leader outbox-to-direct spans separately measure the complete logical PROPOSE-to-CER-quorum cycle.",
+    "Unfinished or missing boundaries are counted separately, never converted to zero latency.",
+    "Leader history/report spans are diagnostics and overlap the request stages."
+  ],
+  "limitations": [
+    "Single local runs; not WAN or capacity measurements. Before-fix mean covers only 3407 completions; cohort quantiles retain 2593 unfinished requests.",
+    "The one-minute healthy trace exceeded its configured event cap and was rejected for decomposition. Its verified cohort remains valid. A separate 5-second healthy trace covers 500/500 requests without dropped events.",
+    "Pre-fix trace predates run_context binding; explicitly selected legacy mode, with original file and cohort hashes retained.",
+    "Trace instrumentation is opt-in; final evaluation requires observer-overhead qualification."
+  ],
+  "verification": {
+    "rust_workspace_passed": 268,
+    "rust_workspace_failed": 0,
+    "rust_existing_opt_in_ignored": 20,
+    "python_checks_passed": 107,
+    "regressions": [
+      "fresh inputs with streamed late batches across three recurring silent turns",
+      "exact history horizon and signer quorum; either readiness arrival order; once-only REPORT",
+      "trace cap, pagination, mixed-run rejection, incomplete cohort coverage, nonsequential boundaries, additive endpoint sum",
+      "Fabric adapter settings and offline decompose; existing round-4, silent-anchor, Byzantine-fork and deduplication suites"
+    ]
+  },
+  "reducer_sha256": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+  "runtime_sources": {
+    "core/delugi/src/replica.rs": "cdec5d17feb854531f9b31d0964702d00ae6aa633687a7b135037a29460f3a3f",
+    "core/delugi/src/composed.rs": "2d67c5f610a4d1a54a6cc33598bde1e577639e5c76e6de1ba816a3f825c062ed",
+    "core/delugi/src/process.rs": "3039f400215db5c3d6e187672b062d845a97c0f61905c78d652dea4d2bafc350",
+    "core/delugi/src/causal.rs": "4c836b825e2487422b90dbc0ea52fac2bd5c73448da80415b38461c8fff29735"
+  }
+}

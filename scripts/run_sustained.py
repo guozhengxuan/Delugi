@@ -274,7 +274,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
               fault_replica=None, fault_scope="payload", fault_after=0, fault_duration=0, fault_peers=None,
               measure_costs=False, deployment=None, fault_batches=0, fault_batch_transactions=64, fault_payload_bytes=472,
               cohort_observer="full", storage_profile=STORAGE_PROFILES[0], global_arrivals=False,
-              silent_first_leader=False, transport=None):
+              silent_first_leader=False, transport=None, report_schedule="history_ready", causal_trace=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
     if deployment is not None and storage_profile != STORAGE_PROFILES[0] and not getattr(deployment,'shared_storage',False):
@@ -320,7 +320,8 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
                             "arrival_queue_capacity": arrival_queue_capacity,
                             "batch_ms": batch_ms, "warmup_ms": round(warmup_seconds * 1000),
                             "measurement_ms": round(measurement_seconds * 1000)},
-              **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
+              **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode),
+              "report_schedule":report_schedule,"causal_trace":causal_trace}
     from evaluation_parameters import transport as validate_transport
     config["transport"] = validate_transport(transport or {})
     config["measure_costs"] = measure_costs
@@ -608,6 +609,9 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
             if any(any(value for value in snapshot.get("detailed_observer_storage", {}).values()) for snapshot in snapshots.values()):
                 raise AssertionError("compact mode retained detailed observer storage")
         result["fault_accounting"] = {i: s.get("fault_omitted", {}) for i, s in snapshots.items()}
+        if causal_trace is not None:
+            from latency_decomposition import collect
+            result['causal_trace'] = collect(controller, range(nodes), directory/'causal-traces')
         if fault_replica is not None:
             omitted = sum(row["messages"] for rows in result["fault_accounting"].values() for row in rows.values())
             result["fault"]["omitted_messages"] = omitted
@@ -698,6 +702,9 @@ def main():
     parser.add_argument('--silent-first-leader',action='store_true',help='suppress native protocol participation by leader0 from startup')
     parser.add_argument("--cohort-observer", choices=("full", "compact"), default="full", help="detailed timing or compact finite receipts; compact has no request latency metrics")
     parser.add_argument("--measure-costs", action="store_true", help="enable optional crypto/proof resource counters; use paired runs to quantify observer overhead")
+    parser.add_argument("--causal-trace", action="store_true", help="collect bounded stage events after quiescence, locally or remotely")
+    parser.add_argument("--trace-stride", type=int, default=64)
+    parser.add_argument("--trace-max-events", type=int, default=100000)
     parser.add_argument("--transaction-size", type=int, help="legacy actual encoded transaction size; includes 60 bytes of ID, workload identity and encoding")
     parser.add_argument("--useful-bytes", type=int, help="useful application bytes per request (default472); independent of native encoding")
     parser.add_argument("--warmup", type=float, default=10)
@@ -761,7 +768,7 @@ def main():
         manifest["specification"] = archive_spec(args.spec_snapshot, output / "snapshot", args.paper_repository)
         sources = [ROOT / p for p in ("Cargo.toml", "Cargo.lock", "scripts/run_sustained.py", "scripts/evaluation_parameters.py", "scripts/run_network.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/spec_provenance.py", "scripts/remote_deployment.py", "scripts/remote_worker.py", "scripts/linux_netem.py", "tests/sustained_runner_test.py", "tests/cohort_metrics_test.py", "tests/cohort_store_test.py", "tests/shared_delugi_artifact_test.py")]
         from shared_core_conformance import source_inventory
-        sources += [ROOT / "scripts/shared_core_conformance.py"]
+        sources += [ROOT / "scripts/shared_core_conformance.py", ROOT / "scripts/latency_decomposition.py"]
         sources = sorted(set(sources) | {ROOT / name for name in source_inventory(ROOT)})
         for source in sources:
             relative, data = source.relative_to(ROOT), source.read_bytes()
@@ -819,6 +826,8 @@ def main():
                                fault_batches=args.fault_batches, fault_batch_transactions=args.fault_batch_transactions,
                                fault_payload_bytes=args.fault_payload_bytes, storage_profile=args.storage_profile,
                                global_arrivals=args.global_arrivals,silent_first_leader=args.silent_first_leader,
+                               report_schedule=args.report_schedule,
+                               causal_trace={"detail_stride":args.trace_stride,"max_events":args.trace_max_events} if args.causal_trace else None,
                                transport=args.transport_json if args.transport_json is not None else __import__('evaluation_parameters').load_transport(args.transport_config))
             manifest["trial"] = result
             manifest["status"] = result["status"]

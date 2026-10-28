@@ -1,7 +1,7 @@
 //! Opt-in local causal diagnostics. This is never part of protocol state or wire.
 //! Events use one process-local monotonic origin; no event performs file I/O.
 use crate::wire::{Id, Message};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 use std::fs::{self, OpenOptions};
@@ -13,6 +13,21 @@ use std::time::Instant;
 const MAX_EVENTS: usize = 100_000;
 const DEFAULT_STRIDE: u64 = 64;
 const DETAIL_WIDTH: u64 = 8;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Settings {
+    pub detail_stride: u64,
+    pub max_events: usize,
+}
+impl Settings {
+    pub fn validate(&self) -> Result<(), String> {
+        if self.detail_stride == 0 || self.max_events == 0 || self.max_events > 10_000_000 {
+            return Err("trace requires positive stride and event cap in 1..=10000000".into());
+        }
+        Ok(())
+    }
+}
 
 #[derive(Serialize)]
 struct Event {
@@ -44,6 +59,42 @@ struct Shared {
 pub(crate) struct Trace(Arc<Shared>);
 
 impl Trace {
+    pub(crate) fn configured(
+        origin: Instant,
+        wall_origin_us: u64,
+        replica: Id,
+        settings: &Settings,
+    ) -> Result<Self, String> {
+        settings.validate()?;
+        Ok(Self::new(
+            origin,
+            wall_origin_us,
+            replica,
+            settings.detail_stride,
+            settings.max_events,
+        ))
+    }
+
+    /// Called only after protocol quiescence by the bounded control collector.
+    pub(crate) fn page(&self, offset: usize, limit: usize) -> Result<Value, String> {
+        if limit == 0 || limit > 1024 {
+            return Err("trace page limit must be in 1..=1024".into());
+        }
+        let state = self.0.state.lock().unwrap();
+        if offset > state.events.len() {
+            return Err("trace offset exceeds events".into());
+        }
+        let end = offset.saturating_add(limit).min(state.events.len());
+        Ok(
+            json!({"schema":"delugi-causal-trace-v1","replica":self.0.replica,
+            "clock":"microseconds from this replica's monotonic Runtime origin",
+            "wall_origin_us":self.0.wall_origin_us,"detail_stride":self.0.stride,
+            "detail_width":DETAIL_WIDTH.min(self.0.stride),"max_events":self.0.cap,
+            "dropped":state.dropped,"counts":state.counts,"run_error":null,
+            "offset":offset,"total":state.events.len(),"events":&state.events[offset..end],
+            "next_offset":if end<state.events.len(){Some(end)}else{None}}),
+        )
+    }
     pub(crate) fn from_environment(
         origin: Instant,
         wall_origin_us: u64,
@@ -65,6 +116,15 @@ impl Trace {
         if stride == 0 {
             return Err("causal trace stride must be positive".into());
         }
+        let cap = std::env::var("DELUGI_CAUSAL_TRACE_MAX_EVENTS")
+            .map(|s| {
+                s.parse::<usize>()
+                    .map_err(|_| "invalid causal trace event cap".to_string())
+            })
+            .unwrap_or(Ok(MAX_EVENTS))?;
+        if cap == 0 || cap > 10_000_000 {
+            return Err("causal trace event cap must be in 1..=10000000".into());
+        }
         fs::create_dir_all(&directory).map_err(|e| e.to_string())?;
         let path = directory.join(format!("replica-{replica}.json"));
         if path.exists() {
@@ -74,7 +134,7 @@ impl Trace {
             ));
         }
         Ok(Some((
-            Self::new(origin, wall_origin_us, replica, stride, MAX_EVENTS),
+            Self::new(origin, wall_origin_us, replica, stride, cap),
             path,
         )))
     }
@@ -229,6 +289,39 @@ mod tests {
         assert_eq!(summary["counts"]["input_fixed"], 5);
         let state = trace.0.state.lock().unwrap();
         assert!(state.events.windows(2).all(|w| w[0].at_us <= w[1].at_us));
+    }
+
+    #[test]
+    fn configured_trace_pages_are_bounded_and_report_truncation() {
+        let settings = Settings {
+            detail_stride: 1,
+            max_events: 2,
+        };
+        let trace = Trace::configured(Instant::now(), 123, 2, &settings).unwrap();
+        for round in 1..=3 {
+            trace.mark("classified", round, json!({}));
+        }
+        let first = trace.page(0, 1).unwrap();
+        let second = trace.page(1, 1).unwrap();
+        assert_eq!(first["total"], 2);
+        assert_eq!(first["dropped"], 1);
+        assert_eq!(first["next_offset"], 1);
+        assert_eq!(second["events"][0]["round"], 2);
+        assert_eq!(second["next_offset"], Value::Null);
+        assert!(trace.page(3, 1).is_err());
+        assert!(trace.page(0, 1025).is_err());
+        assert!(Settings {
+            detail_stride: 0,
+            max_events: 2
+        }
+        .validate()
+        .is_err());
+        assert!(Settings {
+            detail_stride: 1,
+            max_events: 10_000_001
+        }
+        .validate()
+        .is_err());
     }
 
     #[test]

@@ -33,7 +33,7 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
     contract.integer(rate,1,80000,'total honest tx/s')
     cap=capabilities(protocol);batch=config['batching'];proposal=config['proposal_budget']
     options=config['protocol_options'][protocol]
-    allowed={'transport','arrival_queue_capacity','resource_profile'} if protocol=='delugi' else {'transport','limits','consensus','quorum_store'} if protocol=='raptr' else {'batching','startup_seconds'}
+    allowed={'transport','arrival_queue_capacity','resource_profile','report_schedule','causal_trace'} if protocol=='delugi' else {'transport','limits','consensus','quorum_store'} if protocol=='raptr' else {'batching','startup_seconds'}
     if set(options)-allowed:raise ValueError('unreviewed or unsupported protocol option: '+str(sorted(set(options)-allowed)))
     from evaluation_parameters import transport
     if 'batching' in options:
@@ -59,6 +59,14 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
         'timing':{'Delta_ms':delta},'faulty_identities':[] if faulty is None else [faulty]}
     if selected_transport is not None:effective['transport']=selected_transport
     if protocol=='delugi':
+        effective['report_schedule']=options.get('report_schedule','history_ready')
+        if effective['report_schedule'] not in ('history_ready','admission'):raise ValueError('unknown Delugi REPORT schedule')
+        effective['causal_trace']=options.get('causal_trace')
+        if effective['causal_trace'] is not None:
+            trace=effective['causal_trace']
+            if not isinstance(trace,dict) or set(trace)!={'detail_stride','max_events'}:raise ValueError('invalid causal trace settings')
+            contract.integer(trace['detail_stride'],1,2**64-1,'trace stride')
+            contract.integer(trace['max_events'],1,10000000,'trace event cap')
         count=(batch['useful_bytes_target']//useful if batch['useful_bytes_target'] is not None else min(128,(256*1024-8)//(useful+60)))
         if not 1<=count<=65536 or count*(useful+60)+8>256*1024:raise ValueError('Delugi batch target exceeds the native256KiB batch envelope')
         effective['batching']={'max_transactions':count,'useful_bytes_target':count*useful,'max_wait_ms':batch['max_wait_ms'] or 10}
@@ -133,6 +141,7 @@ def local_command(resolved,artifacts,output,*,nodes=None,seconds=60,drain=15,rat
                 '--nodes',str(n),'--rate',str(r),'--duration-ms',str(seconds*1000),'--drain-ms',str(drain*1000),
                 '--useful-bytes',str(u),'--delta-ms',str(d),'--case',{'missing-data':'missing-payload-recovery'}.get(case,case),'--output',out]
         args=base+['--binary',artifacts['binary'],'--shared-build-receipt',artifacts['build_receipt'],'--skip-build',
+            '--report-schedule',e['report_schedule'],
             '--global-arrivals','--nodes',str(n),'--rate',str(r),'--warmup','0','--duration',str(seconds),'--drain',str(drain),
             '--useful-bytes',str(u),'--batch-ms',str(e['batching']['max_wait_ms']),
             '--max-batch-transactions',str(e['batching']['max_transactions']),'--bound-ms',str(d),'--output',out,
@@ -140,6 +149,9 @@ def local_command(resolved,artifacts,output,*,nodes=None,seconds=60,drain=15,rat
             '--storage-profile','shared-rocksdb-written-v1',
             '--resource-profile',e['resource_profile'],'--arrival-queue-capacity',str(e['arrival_queue_capacity']),
             '--paper-repository',str(ROOT/resolved['requested']['specification']['paper_repository'])]
+        if e.get('causal_trace') is not None:
+            args+=['--causal-trace','--trace-stride',str(e['causal_trace']['detail_stride']),
+                   '--trace-max-events',str(e['causal_trace']['max_events'])]
         if case=='silent-first-leader':args+=['--silent-first-leader']
         elif case=='missing-data':args+=['--fault-replica','0','--fault-after','0','--fault-duration',str(seconds),
             '--fault-peers','1','--fault-batches','3','--fault-payload-bytes',str(u)]

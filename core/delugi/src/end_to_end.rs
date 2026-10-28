@@ -106,6 +106,75 @@ pub struct Run {
 }
 
 pub fn run(config: Config) -> Result<Run, String> {
+    run_with_production_interval(config, 0)
+}
+
+#[cfg(test)]
+mod streaming_regression {
+    use super::*;
+
+    #[test]
+    fn repeated_silence_keeps_inputs_fresh_and_covers_batches_arriving_after_admission() {
+        let run = run_with_production_interval(
+            Config {
+                rounds: 12,
+                silent: Some(0),
+                until: 3000,
+                ..Config::default()
+            },
+            100,
+        )
+        .unwrap();
+        assert_eq!(run.summary()["pass"], true);
+        for (&round, &proposed_at) in &run.proposals {
+            let leader = ((round - 1) % 4) as usize;
+            let ready = run.nodes[leader].input_ready[&round];
+            assert_eq!(
+                proposed_at, ready,
+                "an immutable input aged waiting for history at round {round}"
+            );
+            if round > 3 {
+                let history_ready = run
+                    .trace
+                    .iter()
+                    .find(|e| {
+                        e["event"] == "proposal_history_ready"
+                            && e["replica"] == leader
+                            && e["round"] == round
+                    })
+                    .unwrap()["at"]
+                    .as_u64()
+                    .unwrap();
+                let report = run
+                    .sends
+                    .iter()
+                    .find(|e| e.kind == "REPORT" && e.index == round)
+                    .unwrap();
+                assert!(report.at >= history_ready);
+            }
+        }
+        // Round 8 is admitted long before the late stream finishes. Its fresh
+        // REPORT must nevertheless cover every batch at height 12 (t=1100).
+        for node in run.nodes.iter().filter(|n| n.id != 0) {
+            for producer in 1..4 {
+                let last = node
+                    .executed
+                    .iter()
+                    .filter(|e| e.producer == producer && e.height == 12)
+                    .map(|e| e.round)
+                    .max()
+                    .unwrap();
+                assert!(
+                    last <= 8,
+                    "new batches waited for obsolete future snapshots: round {last}"
+                );
+            }
+            assert_eq!(node.ordering.last_delivered(), 12);
+        }
+    }
+}
+
+fn run_with_production_interval(config: Config, production_interval: u64) -> Result<Run, String> {
     if !matches!(config.nodes, 4 | 7)
         || config.rounds == 0
         || config.rounds > 32
@@ -177,7 +246,7 @@ pub fn run(config: Config) -> Result<Run, String> {
         now: 0,
     };
     for r in 1..=run.config.rounds {
-        let at = 0;
+        let at = (r - 1) * production_interval;
         for id in 0..run.config.nodes {
             run.schedule(
                 at,

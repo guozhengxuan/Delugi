@@ -66,6 +66,17 @@ pub struct MaterializedBatch {
     pub payload: Vec<u8>,
 }
 
+/// Availability opportunity scheduling; neither variant changes ordering guards.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ReportSchedule {
+    /// Historical paper/implementation schedule, retained for explicit ablations.
+    Admission,
+    /// Freeze observations only after the exact ordering history is available.
+    #[default]
+    HistoryReady,
+}
+
 pub struct Node {
     pub id: Id,
     pub ordering: Replica,
@@ -93,6 +104,7 @@ pub struct Node {
     pending_input_rounds: BTreeSet<u64>,
     bindings: BTreeMap<u64, NamedBase>,
     report_sent: BTreeSet<u64>,
+    report_schedule: ReportSchedule,
     opportunity_limit: u64,
     delivered_descriptors: BTreeMap<u64, Digest>,
     pending_ordered: delugi_shared_output::OrderedQueue<(u64, Descriptor)>,
@@ -177,6 +189,7 @@ impl Node {
             pending_input_rounds: BTreeSet::new(),
             bindings: BTreeMap::new(),
             report_sent: BTreeSet::new(),
+            report_schedule: ReportSchedule::default(),
             opportunity_limit: wire::MAX_ROUND,
             delivered_descriptors: BTreeMap::new(),
             pending_ordered: delugi_shared_output::OrderedQueue::new(),
@@ -197,6 +210,13 @@ impl Node {
     pub(crate) fn enable_causal_trace(&mut self, trace: CausalTrace) {
         self.ordering.enable_causal_trace(trace.clone());
         self.causal = Some(trace);
+    }
+    pub fn configure_report_schedule(&mut self, schedule: ReportSchedule) -> Result<(), String> {
+        if self.ordering.current_round() != 0 || !self.report_sent.is_empty() {
+            return Err("report schedule must be selected before start".into());
+        }
+        self.report_schedule = schedule;
+        Ok(())
     }
     /// Limit autonomous input opportunities in finite experiments. Ordering
     /// progress remains independent; honest nodes still answer valid REPORTs.
@@ -241,6 +261,10 @@ impl Node {
     }
     pub fn produce(&mut self, now: u64, payload: Vec<u8>) -> Result<Vec<Effect>, String> {
         let record = self.store.produce(&self.key, self.id, payload)?;
+        if let Some(trace) = &self.causal {
+            trace.mark("batch_sealed", 0, json!({"exact_batch_id":record_digest(&record),
+                "producer":self.id,"height":record.header.body.height,"payload_bytes":record.payload.len()}));
+        }
         let mut effects = vec![Effect::Send {
             to: None,
             message: Message::Batch(record),
@@ -273,8 +297,9 @@ impl Node {
             self.committee.keys.len(),
         ))
     }
-    /// Compatibility hook for callers: only an admitted scheduled leader can
-    /// initiate its one signed REPORT. Observations always follow that request.
+    /// Open one signed REPORT once admission and exact HISTORY3 readiness both
+    /// hold. Freezing OBS on admission alone lets future inputs age behind a
+    /// silent leader's timeout chain. No already fixed input is ever refreshed.
     pub fn report(&mut self, now: u64, round: u64) -> Result<Vec<Effect>, String> {
         if round == 0 || round > wire::MAX_ROUND {
             return Err("invalid reporting opportunity".into());
@@ -282,6 +307,8 @@ impl Node {
         if round > self.opportunity_limit
             || self.leader(round) != self.id
             || round > self.ordering.current_round()
+            || (self.report_schedule == ReportSchedule::HistoryReady
+                && !self.ordering.input_preparation_ready(round))
             || self.report_sent.contains(&round)
         {
             return Ok(Vec::new());
@@ -535,7 +562,7 @@ impl Node {
         effects: Vec<OrderingEffect>,
     ) -> Result<Vec<Effect>, String> {
         let mut result = Vec::new();
-        let mut admissions = Vec::new();
+        let mut ready_opportunities = BTreeSet::new();
         for effect in effects {
             if let OrderingEffect::Deliver(delivery) = &effect {
                 let descriptor = self.availability.decode_descriptor(&delivery.value)?;
@@ -559,14 +586,14 @@ impl Node {
                 self.pending_ordered.push_back((delivery.round, descriptor));
             }
             if let OrderingEffect::Notice { kind, round } = &effect {
-                if kind == "admission" {
-                    admissions.push(*round);
+                if kind == "admission" || kind == "proposal_history_ready" {
+                    ready_opportunities.insert(*round);
                 }
             }
             result.push(Effect::Ordering(effect));
         }
         result.extend(self.materialize(now)?);
-        for round in admissions {
+        for round in ready_opportunities {
             result.extend(self.report(now, round)?);
         }
         Ok(result)
@@ -598,7 +625,19 @@ impl Node {
                 }
             }
             if missing {
+                if let Some(trace) = &self.causal {
+                    if trace.sampled(round) {
+                        trace.mark(
+                            "payload_wait",
+                            round,
+                            json!({"requested_suffixes":self.requested.len()}),
+                        );
+                    }
+                }
                 break;
+            }
+            if let Some(trace) = &self.causal {
+                trace.mark("payload_ready", round, json!({}));
             }
             // Expand each descriptor's own exact named suffixes in producer then
             // height order. No relation to a previous raw target is required.
@@ -630,6 +669,14 @@ impl Node {
                     header: record.header.body.clone(),
                     payload: record.payload.clone(),
                 });
+                if let Some(trace) = &self.causal {
+                    trace.mark(
+                        "batch_materialized",
+                        round,
+                        json!({"exact_batch_id":digest,
+                        "producer":identity.0,"height":identity.1}),
+                    );
+                }
                 for tx in transactions {
                     // Application convention: unique transaction IDs execute once;
                     // repeated IDs are deterministic no-ops, even in other batches.
@@ -911,6 +958,8 @@ mod tests {
         let mut pair = pool_pair();
         let mut admissions = Vec::new();
         for n in &mut pair {
+            n.configure_report_schedule(ReportSchedule::Admission)
+                .unwrap();
             n.set_opportunity_limit(13).unwrap();
             freeze_pool(n, 13);
             freeze_pool(n, 1);
@@ -974,6 +1023,71 @@ mod tests {
             n.input_ready.remove(&5);
         }
         assert_eq!(ready_rounds(&paired_retry(&mut pair, 2).unwrap()), [5]);
+    }
+    #[test]
+    fn exact_history_quorum_and_admission_open_one_report_in_either_arrival_order() {
+        for history_first in [true, false] {
+            let mut n = node(0);
+            n.set_opportunity_limit(9).unwrap();
+            n.start(0).unwrap();
+            let history = |n: &mut Node, horizon, signer| {
+                let report = crate::history::Report {
+                    header: wire::sign(
+                        &wire::fixture_key(signer),
+                        signer,
+                        crate::history::ReportHeader {
+                            context: n.committee.context.clone(),
+                            horizon,
+                            positives: vec![],
+                        },
+                    ),
+                    proofs: vec![],
+                };
+                n.receive_ordering(1, wire::Message::History3(report))
+                    .unwrap()
+            };
+            let admit = |n: &mut Node| {
+                for signer in [1, 2] {
+                    n.receive_ordering(
+                        1,
+                        wire::Message::Prog(wire::sign(
+                            &wire::fixture_key(signer),
+                            signer,
+                            wire::Statement {
+                                context: n.committee.context.clone(),
+                                kind: wire::Kind::Prog,
+                                round: 5,
+                                digest: None,
+                            },
+                        )),
+                    )
+                    .unwrap();
+                }
+            };
+            if !history_first {
+                admit(&mut n);
+            }
+            // Wrong horizon and repeated signer cannot open opportunity 5.
+            for signer in [1, 2, 3] {
+                history(&mut n, 6, signer);
+            }
+            history(&mut n, 2, 1);
+            history(&mut n, 2, 1);
+            history(&mut n, 2, 2);
+            assert!(!n.report_sent.contains(&5));
+            history(&mut n, 2, 3);
+            if history_first {
+                assert!(!n.report_sent.contains(&5));
+                admit(&mut n);
+            }
+            assert!(n.report_sent.contains(&5));
+            let original = n.observations[&5].clone();
+            assert!(n.report(2, 5).unwrap().is_empty());
+            assert_eq!(n.observations[&5], original);
+            assert!(n
+                .configure_report_schedule(ReportSchedule::Admission)
+                .is_err());
+        }
     }
     #[test]
     fn incoming_size_guard_matches_bounded_encoding_before_mutation() {

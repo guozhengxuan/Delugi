@@ -2335,6 +2335,16 @@ impl Replica {
     pub fn current_round(&self) -> u64 {
         self.current
     }
+    /// The composition layer may open its one reporting opportunity when the
+    /// scheduled leader is admitted and has the exact history needed to propose.
+    /// This is a readiness query, not a change to admission or outcome timers.
+    pub fn input_preparation_ready(&self, round: u64) -> bool {
+        round > 0
+            && round <= self.current
+            && self.leader(round) == self.id
+            && (round <= 3
+                || self.reports.get(&(round - 3)).map_or(0, BTreeMap::len) >= self.quorum())
+    }
     pub fn last_delivered(&self) -> u64 {
         self.cursor
     }
@@ -2485,7 +2495,8 @@ impl Replica {
                 trace.mark(
                     "ordering_outbox",
                     round,
-                    json!({"kind":kind,"signer":signer,"to":to}),
+                    json!({"kind":kind,"signer":signer,"to":to,
+                        "encoded_message_bytes":self.committee.encoded_size(&wire::MessageRef::from(message)).ok()}),
                 );
             }
         }
@@ -2798,6 +2809,16 @@ impl Replica {
                 }
                 Kind::Closed => {
                     let count = self.closed[&r].len();
+                    if let Some(trace) = &self.causal {
+                        if count == self.amplification() || count == self.quorum() {
+                            trace.mark(
+                                "closed_threshold",
+                                r,
+                                json!({"signers":count,
+                                "admitted":self.current,"main_round":r+3}),
+                            );
+                        }
+                    }
                     if count >= self.quorum() && !self.main_timers.contains_key(&(r + 3)) {
                         self.main_arm_ready.insert(r + 3);
                     }
@@ -2880,6 +2901,14 @@ impl Replica {
         self.retain_header(r, d, p.header.clone(), Some(p.value.clone()));
         self.retain_history(&p.history);
         if !self.proposals.contains_key(&(r, d)) {
+            if let Some(trace) = &self.causal {
+                trace.mark(
+                    "proposal_validated",
+                    r,
+                    json!({"digest":d,
+                    "value_bytes":p.value.len(),"witness_bytes":p.witness.len()}),
+                );
+            }
             self.slot(r).validate(d);
             self.dirty_slots.insert(r);
             self.proposals.insert((r, d), p);
@@ -2956,15 +2985,28 @@ impl Replica {
                 }
                 if self.leader(h + 3) == self.id {
                     let sender = report.header.signer;
+                    let report_bytes = self
+                        .causal
+                        .as_ref()
+                        .map(|_| self.committee.encoded_size(&report).ok());
                     if let std::collections::btree_map::Entry::Vacant(e) =
                         self.reports.entry(h).or_default().entry(sender)
                     {
                         e.insert(report);
                         self.version += 1;
+                        if let Some(trace) = &self.causal {
+                            trace.mark(
+                                "history_report_received",
+                                h + 3,
+                                json!({"horizon":h,
+                                "sender":sender,"encoded_report_bytes":report_bytes}),
+                            );
+                        }
                         if self.reports[&h].len() == self.quorum() {
                             if let Some(trace) = &self.causal {
                                 trace.mark("history_quorum", h + 3, json!({"horizon":h}));
                             }
+                            self.notice("proposal_history_ready", h + 3);
                         }
                     }
                 }
@@ -3219,7 +3261,8 @@ impl Replica {
                     "history_build",
                     r,
                     start,
-                    json!({"reports":reports.len(),"local_proofs":proofs.len()}),
+                    json!({"reports":reports.len(),"local_proofs":proofs.len(),
+                        "encoded_history_bytes":self.committee.encoded_size(&history).ok()}),
                 );
             }
             let header = Header {
@@ -3286,6 +3329,14 @@ impl Replica {
                 self.main_arm_ready.remove(&r);
                 self.outbox.push(Effect::Wake { at: deadline });
                 self.notice("main_timer_arm", r);
+                if let Some(trace) = &self.causal {
+                    trace.mark(
+                        "main_timer_arm",
+                        r,
+                        json!({"protocol_now_ms":self.now,
+                        "deadline_ms":deadline,"duration_ms":7*self.bound}),
+                    );
+                }
                 self.version += 1;
             }
         }
@@ -3313,6 +3364,14 @@ impl Replica {
                 self.catchup_arm_ready.remove(&h);
                 self.outbox.push(Effect::Wake { at: deadline });
                 self.notice("catchup_timer_arm", h);
+                if let Some(trace) = &self.causal {
+                    trace.mark(
+                        "catchup_timer_arm",
+                        h,
+                        json!({"protocol_now_ms":self.now,
+                        "deadline_ms":deadline,"duration_ms":3*self.bound}),
+                    );
+                }
                 self.version += 1;
             }
         }
@@ -3510,7 +3569,25 @@ impl Replica {
         // direct commitment. Following the former strictly upward must end at
         // the latter, which apply_actions rejects. The live suffix still gets
         // the original monotonicity assertion, including commits lacking data.
+        if let Some(trace) = &self.causal {
+            for (r, status) in &statuses {
+                if *status != Status::Undecided
+                    && self
+                        .statuses
+                        .get(r)
+                        .map_or(true, |old| *old == Status::Undecided)
+                {
+                    trace.mark(
+                        "classified",
+                        *r,
+                        json!({"status":status,
+                        "direct":self.direct.contains_key(r)}),
+                    );
+                }
+            }
+        }
         self.statuses.extend(statuses);
+        let previous_cursor = self.cursor;
         let delivered = scanner::release_with_committee(
             &self.committee,
             &self.statuses,
@@ -3519,8 +3596,21 @@ impl Replica {
             &mut self.cursor,
         );
         for d in delivered {
+            if let Some(trace) = &self.causal {
+                trace.mark("prefix_release", d.round, json!({"digest":d.digest}));
+            }
             self.deliveries.push(d.clone());
             self.outbox.push(Effect::Deliver(d));
+        }
+        if self.cursor != previous_cursor {
+            if let Some(trace) = &self.causal {
+                trace.mark(
+                    "prefix_advance",
+                    self.cursor,
+                    json!({"previous_cursor":previous_cursor,
+                    "admitted":self.current,"next_status":self.statuses.get(&(self.cursor+1))}),
+                );
+            }
         }
     }
     #[cfg(test)]

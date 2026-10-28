@@ -4,6 +4,7 @@
 //! fresh RocksDB record mirror adds a Written barrier before local visibility.
 use crate::availability::AvailabilityConfig;
 pub use crate::batch::StorageProfile;
+pub use crate::causal::Settings as CausalTraceSettings;
 use crate::causal::{self, Trace as CausalTrace};
 use crate::composed::{self, Effect, Node};
 use crate::end_to_end::transactions;
@@ -88,6 +89,12 @@ pub struct Config {
     /// Origin-PROG release deadline; defaults to bound_ms in progress mode.
     #[serde(default)]
     pub progress_pacing_ms: Option<u64>,
+    /// Availability REPORT trigger; admission is retained for historical ablations.
+    #[serde(default)]
+    pub report_schedule: composed::ReportSchedule,
+    /// Optional bounded diagnostics, collected through control after quiescence.
+    #[serde(default)]
+    pub causal_trace: Option<CausalTraceSettings>,
 }
 /// Independent open-loop ingress, followed by protocol-thread batching.
 /// Useful application bytes exclude the request identity and native encoding.
@@ -281,6 +288,9 @@ impl Config {
     }
 
     pub fn validate(&self, id: Id) -> Result<Committee, String> {
+        if let Some(settings) = &self.causal_trace {
+            settings.validate()?;
+        }
         self.ordering_schedule()?;
         match (self.storage_profile, &self.storage_directory) {
             (StorageProfile::MemoryVisible, None) => {}
@@ -1445,6 +1455,7 @@ impl Runtime {
             "output_rows":self.load.outputs.len(),"batch_rows":self.load.batches.len(),"pending_timestamps":self.load.pending.len(),
             "output_timestamps":self.node.output_observed_us.len(),"batch_timestamps":self.node.batch_observed_us.len()});
         snapshot["ordering_mode"] = json!(self.config.ordering_mode);
+        snapshot["report_schedule"] = json!(self.config.report_schedule);
         snapshot["protocol_counter_boundary"] = json!("accepted into bounded transport including deferred FIFO; actual writer enqueues are transport layer enqueued_* counters");
         if let Some(trace) = &self.causal {
             snapshot["causal_trace"] = trace.summary();
@@ -1753,6 +1764,15 @@ impl Runtime {
                 self.load.observed_prefix = count;
                 Ok(json!({"count":count,"observed_us":observed}))
             }
+            "causal_trace" => {
+                if !self.quiesced {
+                    return Err("causal trace collection requires quiescence".into());
+                }
+                self.causal
+                    .as_ref()
+                    .ok_or("causal trace is disabled")?
+                    .page(c.offset.unwrap_or(0), c.limit.unwrap_or(256))
+            }
             "cohort" | "outputs" | "batches" => {
                 if self.config.observer_mode != workload::ObserverMode::Full {
                     return Err("detailed ledger is unavailable in compact observer mode".into());
@@ -1968,6 +1988,7 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
         config.chunk_capacity,
     )?;
     node.ordering.configure_ordering(schedule)?;
+    node.configure_report_schedule(config.report_schedule)?;
     if config.storage_profile == StorageProfile::SharedRocksdbWritten {
         let parent = config
             .storage_directory
@@ -2042,7 +2063,24 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
         workload_key,
     };
     let causal_output = CausalTrace::from_environment(rt.origin, rt.wall_origin, id)?;
-    if let Some((trace, _)) = &causal_output {
+    if causal_output.is_some() && rt.config.causal_trace.is_some() {
+        return Err("select configured tracing or environment tracing, not both".into());
+    }
+    let configured_trace = rt
+        .config
+        .causal_trace
+        .as_ref()
+        .map(|settings| CausalTrace::configured(rt.origin, rt.wall_origin, id, settings))
+        .transpose()?;
+    let trace = configured_trace.or_else(|| causal_output.as_ref().map(|(trace, _)| trace.clone()));
+    if let Some(trace) = trace {
+        trace.mark(
+            "run_context",
+            0,
+            json!({"instance":rt.config.instance,
+            "bound_ms":rt.config.bound_ms,"silent":rt.config.silent,"report_schedule":rt.config.report_schedule,
+            "protocol":"delugi","endpoint":"origin-local verified contiguous append"}),
+        );
         rt.causal = Some(trace.clone());
         rt.node.enable_causal_trace(trace.clone());
     }

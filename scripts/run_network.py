@@ -740,6 +740,8 @@ def ordering_options(bound_ms, ordering_batch=True, round_barrier_ms=None, progr
 
 
 def add_ordering_arguments(parser):
+    parser.add_argument("--report-schedule", choices=("history_ready", "admission"), default="history_ready",
+                        help="availability REPORT trigger; admission retains the historical schedule for ablations")
     parser.add_argument("--ordering-mode", choices=("progress", "canonical", "barrier"),
                         help="ordering schedule (default: progress; a barrier deadline selects barrier)")
     batching = parser.add_mutually_exclusive_group()
@@ -755,7 +757,7 @@ def add_ordering_arguments(parser):
 
 def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
               ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None, ordering_mode=None,
-              storage_profile=STORAGE_PROFILES[0]):
+              storage_profile=STORAGE_PROFILES[0], report_schedule="history_ready"):
     directory.mkdir(parents=True, exist_ok=False)
     result = {"label": directory.name, "scenario": scenario, "status": "incomplete", "pass": False}
     children = []
@@ -775,7 +777,8 @@ def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
                   "public_keys": key_data["public_keys"], "key_files": key_data["key_files"],
                   "bound_ms": bound_ms, "chunk_capacity": 4, "workload_rounds": 4,
                   "silent": scenario.get("silent"), "max_runtime_ms": int((timeout + 5) * 1000),
-                  **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
+                  **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode),
+                  "report_schedule":report_schedule}
         config.update(storage_options(directory, storage_profile))
         config_path = directory / "config.json"
         config_path.write_text(json.dumps(config, indent=2) + "\n")
@@ -898,8 +901,8 @@ def main():
                 "scope": "Four independent replica processes, authenticated framed loopback TCP, real Ed25519/MMR/Option A availability/ordering/materialization; optional protocol-silent process; signed leader REPORT requests, authenticated earlier bases, all-current construction and exact-batch output. This network fixture uses nonforking producers; Byzantine forks and non-genesis base validation are exercised separately by Rust tests",
                 "machine": machine_metadata(),
                 "gate": "real_process_correctness_integration_not_capacity",
-                "scheduling": scheduling_provenance(ordering_options(args.bound_ms, args.ordering_batch,
-                    args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode)),
+                "scheduling": scheduling_provenance({**ordering_options(args.bound_ms, args.ordering_batch,
+                    args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode), "report_schedule":args.report_schedule}),
                 "method": {"workload": "4 finite batch waves preloaded before ordering starts, 2 distinct transactions per honest producer per wave; no warmup; not saturation throughput",
                            "preload_gate": "Prepare enables dissemination without ordering; harness waits until all correct replicas hold each wave, then starts ordering after wave four. Leaders issue signed REPORTs and replicas answer automatically. There are no controller report commands. Preload gates are fixture coordination, not protocol rules",
                            "traffic": "Separate logical protocol bytes, authenticated envelope/framing bytes, actual successful TCP stream reads/writes, and client control bytes; excludes TCP/IP/link overhead and kernel retransmissions",
@@ -964,7 +967,7 @@ def main():
                 label = f"{scenario['label']}-repeat-{repeat}"
                 trial = run_trial(binary, run / label, scenario, args.bound_ms, args.timeout, args.transaction_bytes,
                                   args.ordering_batch, args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode,
-                                  storage_profile=args.storage_profile)
+                                  storage_profile=args.storage_profile, report_schedule=args.report_schedule)
                 manifest["trials"].append(trial)
                 print(json.dumps({"trial": label, "status": trial["status"], "error": trial.get("error")}), flush=True)
                 if not trial["pass"]:

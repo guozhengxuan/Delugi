@@ -1,0 +1,99 @@
+{
+  "schema": "delugi-latency-decomposition-v1",
+  "scheduled": 500,
+  "completed": 500,
+  "covered": 500,
+  "excluded": {},
+  "by_replica": {
+    "0": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    },
+    "1": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    },
+    "2": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    },
+    "3": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    }
+  },
+  "stages": [
+    {
+      "stage": "Batch formation",
+      "mean_ms": 0.313536
+    },
+    {
+      "stage": "Await execution proposal",
+      "mean_ms": 3.204666
+    },
+    {
+      "stage": "Agreement",
+      "mean_ms": 1.6051300000000002
+    },
+    {
+      "stage": "Contiguous prefix wait",
+      "mean_ms": 0.006592
+    },
+    {
+      "stage": "Payload wait",
+      "mean_ms": 0.015424
+    },
+    {
+      "stage": "Application append",
+      "mean_ms": 0.0060279999999999995
+    }
+  ],
+  "mean_admission_to_append_ms": 5.151376,
+  "mean_schedule_to_admission_ms": 0.220708,
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/healthy-stages/trial/causal-traces/replica-0.json",
+      "sha256": "edc4900b46f286d090d11d88b875ce3f2d77ab446690101bfe20b36e42e8dcf1",
+      "events": 120737,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/healthy-stages/trial/causal-traces/replica-1.json",
+      "sha256": "19dcd0016cca271a8add564ba81cd6ea7ff6674f3d467aa8138e70f3aa664887",
+      "events": 120741,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/healthy-stages/trial/causal-traces/replica-2.json",
+      "sha256": "9842537f75edcb58d4e2177b627d8985a30519ff3fd87eb858fc4fe6b070c35e",
+      "events": 120717,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/healthy-stages/trial/causal-traces/replica-3.json",
+      "sha256": "521572451f70f2bf21d6ad10739d890f7d06bb545a3ccc860c44a15722232819",
+      "events": 120744,
+      "dropped": 0,
+      "run_bound": true
+    }
+  ],
+  "cohort_index_sha256": "5e26cc14261760568d5af4b9d47e2604779a96550b3bfe8aab34e71f2c1f415f",
+  "contract": [
+    "Origin-local monotonic timestamps only; no subtraction across replicas.",
+    "Arithmetic transaction-weighted means on one identical completed and instrumented cohort.",
+    "Await execution proposal includes dissemination and inclusion waits, which run in parallel.",
+    "Proposal boundary is local full validation of the exact proposal whose round releases the batch.",
+    "Agreement ends at the first final scanner classification; indirect commits remain identifiable in raw traces.",
+    "The agreement bar starts after local full validation, so proposal transit belongs to the preceding stage; leader outbox-to-direct spans separately measure the complete logical PROPOSE-to-CER-quorum cycle.",
+    "Unfinished or missing boundaries are counted separately, never converted to zero latency.",
+    "Leader history/report spans are diagnostics and overlap the request stages."
+  ],
+  "detail_archive": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/silent-diagnostics-20261028/healthy-stages-decomposition.json"
+}
