@@ -69,15 +69,18 @@ def validate_plan(plan):
                ('lifetime_hours', 'budget_cny', 'hourly_quote_cny', 'cost_margin_cny')):
         raise ValueError('finite numeric budget limits required')
     compact = plan.get('profile') == 'compact-n10-n50-v1'
-    if plan.get('profile') not in (None, 'compact-n10-n50-v1'):
+    wan = plan.get('profile') == 'wan-n4-verification-v1'
+    if plan.get('profile') not in (None, 'compact-n10-n50-v1', 'wan-n4-verification-v1'):
         raise ValueError('unknown lease profile')
     if (plan.get('schema') != 1 or type(plan.get('maximum_instances')) is not int
             or not 1 <= plan['maximum_instances'] <= (50 if compact else 31)):
         raise ValueError('explicit maximum of 1..31 instances required')
-    if compact:
+    if compact or wan:
         import campaign_budget
-        if plan['maximum_instances'] not in (4, 10, 50) or not 0 < plan['lifetime_hours'] <= 3:
+        if compact and (plan['maximum_instances'] not in (4, 10, 50) or not 0 < plan['lifetime_hours'] <= 3):
             raise ValueError('compact leases permit 4/10/50 validators and at most three hours')
+        if wan and (plan['maximum_instances'] != 1 or not 0 < plan['lifetime_hours'] <= 6):
+            raise ValueError('WAN verification permits one host per regional lease for at most six hours')
         budget = plan.get('campaign_budget')
         if not isinstance(budget, dict) or set(budget) != {'path', 'authorization_sha256'}:
             raise ValueError('compact leases require a persistent aggregate budget')
@@ -91,8 +94,9 @@ def validate_plan(plan):
         raise ValueError('positive budget at most CNY500 and at most seven-hour lease required')
     if plan['hourly_quote_cny'] <= 0 or not 0 < plan['cost_margin_cny'] < plan['budget_cny']:
         raise ValueError('positive live quote and cost margin required')
-    if plan.get('internet_charge_type') != 'PayByBandwidth' or plan.get('internet_max_bandwidth_out') != 5:
-        raise ValueError('reviewed profile requires fixed PayByBandwidth public egress at 5 Mbps')
+    bandwidth = 20 if wan else 5
+    if plan.get('internet_charge_type') != 'PayByBandwidth' or plan.get('internet_max_bandwidth_out') != bandwidth:
+        raise ValueError(f'reviewed profile requires fixed PayByBandwidth public egress at {bandwidth} Mbps')
     maximum_compute = plan['maximum_instances'] * plan['lifetime_hours'] * plan['hourly_quote_cny']
     if maximum_compute + plan['cost_margin_cny'] > plan['budget_cny']:
         raise ValueError('worst-case instance/disk/fixed-bandwidth quote exceeds budget after margin')
@@ -183,7 +187,7 @@ class Lease:
         reservation; an identical provider token may recover the original batch.
         Destroying instances never releases money before bill reconciliation.
         """
-        if self.plan.get('profile') != 'compact-n10-n50-v1':
+        if self.plan.get('profile') not in ('compact-n10-n50-v1', 'wan-n4-verification-v1'):
             return None
         import campaign_budget
         from decimal import Decimal, ROUND_CEILING
@@ -288,7 +292,7 @@ class Lease:
             return []
         # Recover a crash between saving RunInstances IDs and updating the
         # aggregate ledger. This never releases a reservation or creates a lease.
-        if self.plan.get('profile') == 'compact-n10-n50-v1':
+        if self.plan.get('profile') in ('compact-n10-n50-v1', 'wan-n4-verification-v1'):
             import campaign_budget
             selected = self.plan['campaign_budget']
             ledger = campaign_budget.Ledger(selected['path'])

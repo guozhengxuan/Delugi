@@ -71,6 +71,26 @@ class LeaseBoundTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             owned_instances([changed], 'run1', ['i-owned'])
 
+    def test_wan_regional_lease_reserves_shared_budget_and_bounds_bandwidth(self):
+        from campaign_budget import Ledger
+        with tempfile.TemporaryDirectory() as directory:
+            ledger = Ledger(Path(directory) / 'budget.json')
+            ledger.initialize(10_000, 'b' * 64)
+            plan = dict(self.plan, profile='wan-n4-verification-v1', maximum_instances=1,
+                        lifetime_hours=6, budget_cny=40, hourly_quote_cny=5.84,
+                        cost_margin_cny=4, internet_max_bandwidth_out=20,
+                        campaign_budget={'path': str(ledger.path), 'authorization_sha256': 'b' * 64})
+            validate_plan(plan)
+            lease = object.__new__(Lease)
+            lease.plan, lease.state = plan, {'run_id': 'wan-build'}
+            lease._reserve_campaign(1)
+            lease._reserve_campaign(1)
+            self.assertEqual(ledger.snapshot()['reserved_fen'], 4000)
+            for changes in ({'maximum_instances': 4}, {'lifetime_hours': 7},
+                            {'internet_max_bandwidth_out': 100}, {'campaign_budget': {}}):
+                with self.subTest(changes=changes), self.assertRaises(ValueError):
+                    validate_plan(dict(plan, **changes))
+
     def test_security_group_cleanup_requires_exact_id_name_and_tag(self):
         item = {'SecurityGroupId': 'sg-owned', 'SecurityGroupName': 'Delugi-run1',
                 'Tags': {'Tag': [{'TagKey': 'DelugiRun', 'TagValue': 'run1'}]}}
