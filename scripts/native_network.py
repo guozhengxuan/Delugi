@@ -6,6 +6,20 @@ import timing_calibration
 from remote_deployment import RemoteDeployment
 
 
+def observed_wan(settings):
+    """An explicit provider-capped WAN is measured, never treated as netem."""
+    mode = (settings or {}).get('mode', 'controlled')
+    if mode not in ('controlled', 'observed-wan-v1'):
+        raise ValueError('unknown network execution mode')
+    if mode == 'observed-wan-v1':
+        rate = settings.get('rate_mbps')
+        if (settings.get('delay_ms', 0) != 0 or settings.get('loss_percent', 0) != 0 or
+                type(rate) is not int or not 1 <= rate <= 1000):
+            raise ValueError('observed WAN requires zero injected delay/loss and an explicit provider bandwidth cap')
+        return True
+    return False
+
+
 class NativeNetwork(RemoteDeployment):
     def __init__(self, plan, root, connections):
         hosts=copy.deepcopy(plan["hosts"])
@@ -27,6 +41,19 @@ class NativeNetwork(RemoteDeployment):
         return reply['result']
 
     def configure_network(self):
+        if observed_wan(self.inventory.get('netem')):
+            echoes = []
+            try:
+                echoes = self.start_echoes('observed-wan')
+                measured = self.calibrate_ring()
+                self.calibration_records(measured)  # Complete raw peer/role observations.
+                self.network_evidence.update(backend='observed-provider-wan-v1',
+                    settings=self.inventory['netem'], observed_rtt=measured,
+                    synthetic_network_changes=False, bandwidth_calibrated=False,
+                    bandwidth_scope='declared provider public-egress cap; includes overlay overhead and host traffic')
+                return self.network_evidence
+            finally:
+                self.stop_echoes(echoes)
         if self.aggregate is None:return super().configure_network()
         settings=self.inventory['netem'];echoes=[]
         try:
@@ -55,6 +82,11 @@ class NativeNetwork(RemoteDeployment):
         finally:self.stop_echoes(echoes)
 
     def clear_network(self,verify_after=True):
+        if observed_wan(self.inventory.get('netem')):
+            if self.netem_hosts:
+                raise RuntimeError('observed WAN unexpectedly owns synthetic queues')
+            self.network_evidence['cleanup'] = {'synthetic_network_changes': False}
+            return self.network_evidence['cleanup']
         if self.aggregate is None:return super().clear_network(verify_after)
         results={};errors=[];had=bool(self.netem_hosts)
         for host in self.netem_hosts:

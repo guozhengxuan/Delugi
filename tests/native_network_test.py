@@ -3,7 +3,7 @@ from pathlib import Path
 import unittest
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
-from native_network import NativeNetwork
+from native_network import NativeNetwork, observed_wan
 
 
 class AggregateController(unittest.TestCase):
@@ -46,5 +46,20 @@ class AggregateController(unittest.TestCase):
         n.egress_rpc=lambda h,r:({'phase':'cleared','cleanup':{'restored_default':False}} if r['action']=='clear' else old(h,r))
         with self.assertRaisesRegex(RuntimeError,'restoration unconfirmed'):n.clear_network()
         self.assertEqual(len(n.netem_hosts),4)
+
+    def test_observed_wan_records_rtt_without_mutating_queues_or_demanding_fixed_delay(self):
+        n=self.fixture();n.inventory['netem']={'mode':'observed-wan-v1','delay_ms':0,'rate_mbps':20}
+        n.calibrate_ring=lambda:{(0,1,0):{'median':317.8}}
+        result=n.configure_network();self.assertEqual(result['backend'],'observed-provider-wan-v1')
+        self.assertFalse(result['synthetic_network_changes'])
+        self.assertEqual([e[0] for e in n.events],['echo','stop_echo'])
+        n.clear_network();self.assertEqual(n.netem_hosts,[])
+        self.assertFalse(n.network_evidence['cleanup']['synthetic_network_changes'])
+
+    def test_wan_mode_never_silently_ignores_requested_impairments(self):
+        for settings in ({'mode':'unknown'}, {'mode':'observed-wan-v1','delay_ms':10,'rate_mbps':20},
+                         {'mode':'observed-wan-v1','loss_percent':1,'rate_mbps':20},
+                         {'mode':'observed-wan-v1'}):
+            with self.subTest(settings=settings),self.assertRaises(ValueError):observed_wan(settings)
 
 if __name__=='__main__':unittest.main()

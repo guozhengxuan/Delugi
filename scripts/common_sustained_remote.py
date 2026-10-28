@@ -19,7 +19,16 @@ import deployment_prepare as prep
 import run_raptr_sustained as raptr
 import run_sustained as delugi
 from remote_deployment import RemoteDeployment
-from native_network import NativeNetwork
+from native_network import NativeNetwork, observed_wan
+
+
+def network_settings(effective, mode='controlled'):
+    result = {'delay_ms': effective['network']['added_one_way_delay_ms'],
+              'rate_mbps': effective['network']['validator_egress_mbps']}
+    if mode != 'controlled':
+        result['mode'] = mode
+    observed_wan(result)  # Reject unknown modes or a silently ignored delay.
+    return result
 
 
 def every(hosts, function):
@@ -51,7 +60,7 @@ class DelugiDeployment(RemoteDeployment):
     clear_network=NativeNetwork.clear_network
 
 
-def run_delugi(resolved, inventory, verifier, output):
+def run_delugi(resolved, inventory, verifier, output, *, network_mode='controlled'):
     from run_network import verify_shared_delugi_build, archive_shared_delugi_build
     from spec_provenance import archive_spec, verify_spec_unchanged
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
@@ -62,7 +71,7 @@ def run_delugi(resolved, inventory, verifier, output):
     # This is the selected archived specification, not the current paper draft.
     selected=archive_spec(prep.ROOT/spec['manifest'],output/'specification',prep.ROOT/spec['paper_repository'])
     e=resolved['effective'];hosts=copy.deepcopy(inventory)
-    hosts['netem']={'delay_ms':e['network']['added_one_way_delay_ms'],'rate_mbps':e['network']['validator_egress_mbps']}
+    hosts['netem']=network_settings(e, network_mode)
     for h in hosts['hosts']:
         h['binary']={'path':h['artifact']['directory']+'/node','sha256':h['artifact']['binary_sha256']}
     case=resolved['case'];fault={}
@@ -84,10 +93,10 @@ def run_delugi(resolved, inventory, verifier, output):
     return result
 
 
-def run_raptr(resolved, inventory, output, connection_factory=cloud.Connection):
+def run_raptr(resolved, inventory, output, connection_factory=cloud.Connection, *, network_mode='controlled'):
     if connection_factory is cloud.Connection:
         with cloud.campaign_connections() as factory:
-            return run_raptr(resolved, inventory, output, factory)
+            return run_raptr(resolved, inventory, output, factory, network_mode=network_mode)
     output=Path(output);output.mkdir(parents=True,exist_ok=False)
     hosts=copy.deepcopy(inventory['hosts']);n=resolved['nodes'];e=resolved['effective']
     if len(hosts)!=n or n not in (4,10,50):raise ValueError('exact sustained committee required')
@@ -131,8 +140,8 @@ def run_raptr(resolved, inventory, output, connection_factory=cloud.Connection):
             'port':int(h['advertised'].rsplit(':',1)[1])}]} for h in hosts]
         # NativeNetwork requires declared binary metadata for inventory validation.
         for h in hosts:h['binary']={'path':h['artifact']['directory']+'/node','sha256':h['artifact']['binary_sha256']}
-        network=NativeNetwork({'hosts':hosts,'nonce':nonce,'endpoints':endpoints,'network':{
-            'delay_ms':e['network']['added_one_way_delay_ms'],'rate_mbps':e['network']['validator_egress_mbps']}},root,connections)
+        network=NativeNetwork({'hosts':hosts,'nonce':nonce,'endpoints':endpoints,
+            'network':network_settings(e, network_mode)},root,connections)
         result['network']=network.configure_network()
         result['prepared']=all_ok(hosts,lambda h:rpc(h,'prepare',**requests[h['replica']]),'prepare')
         # Do not retain controller copies of private ceremony keys in any receipt.

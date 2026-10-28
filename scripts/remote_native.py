@@ -25,7 +25,7 @@ import remote_worker
 import linux_netem
 import linux_egress
 import runtime_evidence
-from native_network import NativeNetwork
+from native_network import NativeNetwork, observed_wan
 sys.path.insert(0,str(Path(__file__).with_name("baselines")))
 import native_placement as native
 
@@ -96,7 +96,8 @@ def copy_json(value):return json.loads(json.dumps(value))
 def validate_network(selected):
     network=selected.get("network")
     if network is None:return
-    if set(network)-{"delay_ms","loss_percent","rate_mbps"}:raise ValueError("unknown native network setting")
+    if set(network)-{"delay_ms","loss_percent","rate_mbps","mode"}:raise ValueError("unknown native network setting")
+    observed_wan(network)
     if 'rate_mbps' in network and network.get('loss_percent',0)!=0:raise ValueError('aggregate egress profile does not silently combine ingress loss')
     for host in selected["hosts"]:
         i=host["replica"]
