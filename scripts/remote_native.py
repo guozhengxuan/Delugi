@@ -295,6 +295,11 @@ def rpc(request):
         manifest=prep.unpack_verified(archive,own,expected)
         if manifest.get('metadata')!={'replica':0,'nonce':request['nonce']}:raise ValueError('wrong ceremony owner')
         shutil.rmtree(root/'fixture');(own/'fixture').rename(root/'fixture')
+        # Archive extraction normalizes files to0644. Apply the same private
+        # configuration permissions as install before launching host0; the
+        # native TLS implementation correctly refuses a world-readable key.
+        for path in (root/'fixture').rglob('*'):
+            if path.is_file():path.chmod(0o600)
         for path in root.glob('configuration-*.tar'):
             if path.is_symlink():raise ValueError('linked ceremony archive refused')
             path.unlink()

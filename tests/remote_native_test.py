@@ -188,6 +188,23 @@ class NativePlacement(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "build recipe differs from publication"):
             remote.check_artifacts(request)
 
+    def test_ceremony_seal_restores_private_key_permissions_after_unpack(self):
+        root=self.root/'ceremony';fixture=root/'fixture'
+        fixture.mkdir(parents=True)
+        own=fixture/'private-tls'/'node-0'/'key.pem'
+        own.parent.mkdir(parents=True);own.write_text('own fixture key');own.chmod(0o600)
+        other=fixture/'other-key.pem';other.write_text('another validator fixture key')
+        nonce='a'*32
+        archive=remote.archive_selected(root,[str(own.relative_to(root))],
+            root/'configuration-0.tar','native-configuration',{'replica':0,'nonce':nonce})
+        with patch.object(remote,'checked_root',return_value=root):
+            reply=remote.rpc({'action':'seal_configuration','nonce':nonce,'sha256':archive['sha256']})
+        self.assertTrue(reply['sealed'])
+        self.assertEqual(own.read_text(),'own fixture key')
+        self.assertEqual(own.stat().st_mode&0o777,0o600)
+        self.assertFalse(other.exists())
+        self.assertFalse((root/'configuration-0.tar').exists())
+
     def test_configuration_generator_routes_one_private_key_per_validator(self):
         import base64
         names=[base64.b64encode(bytes([i])*32).decode() for i in range(4)]
