@@ -22,7 +22,7 @@ CASES = ('healthy', 'empty', 'silent-first-leader', 'missing-payload-recovery')
 
 
 def make_config(output, *, nodes=4, rate=1000, duration_ms=60_000, drain_ms=15_000,
-                useful_bytes=128, case='healthy', delta_ms=100, ingress_capacity=4096, addresses=None):
+                useful_bytes=128, case='healthy', delta_ms=100, ingress_capacity=4096, addresses=None, transport=None, node_options=None):
     if nodes not in (4, 10, 50) or case not in CASES:
         raise ValueError('choose a supported committee and qualification case')
     contract.integer(duration_ms, 1, 60_000, 'measurement ms')
@@ -41,7 +41,8 @@ def make_config(output, *, nodes=4, rate=1000, duration_ms=60_000, drain_ms=15_0
     spool = max(64*1024**2, max(allocation['counts'])*(3*useful_bytes+8192))
     if spool > 16*1024**3:
         raise ValueError('requested preparation exceeds the per-origin spool envelope')
-    return {'schema':2, 'epoch':1, 'run_id':secrets.token_hex(32),
+    from evaluation_parameters import transport as validate_transport, raptr_options
+    result = {'schema':2, 'epoch':1, 'run_id':secrets.token_hex(32),
             'key_directory':str(output/'private-keys'), 'addresses':list(addresses) if addresses is not None else native.unused_addresses(nodes),
             'output_directory':str(output/'replicas'), 'arm_path':str(output/'arm.json'),
             'delta_ms':delta_ms, 'measurement_duration_ms':duration_ms, 'drain_ms':drain_ms,
@@ -53,6 +54,11 @@ def make_config(output, *, nodes=4, rate=1000, duration_ms=60_000, drain_ms=15_0
                           ingress_capacity=ingress_capacity, max_journal_bytes=4*1024**3),
             'materialization_delay_ms':0,
             'payload_fault':{'node':0,'drop_initial_batch_messages':3} if case == 'missing-payload-recovery' else None}
+    result['transport']=validate_transport(transport or {})
+    for k,v in raptr_options(node_options or {}).items():
+        result[k]=dict(result.get(k) or {},**v)
+    return result
+
 
 
 def journal(path, *, max_bytes=4*1024**3, max_rows=4_800_000, max_line=64*1024**2):
@@ -284,6 +290,8 @@ def execute(binary, receipt, output, **settings):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__)
+    tg=p.add_mutually_exclusive_group();tg.add_argument('--transport-config',type=Path);tg.add_argument('--transport-json',type=json.loads)
+    ng=p.add_mutually_exclusive_group();ng.add_argument('--node-options',type=Path);ng.add_argument('--node-options-json',type=json.loads)
     p.add_argument('--binary',type=Path,required=True);p.add_argument('--build-receipt',type=Path,required=True)
     p.add_argument('--output',type=Path,required=True);p.add_argument('--case',choices=CASES,default='healthy')
     p.add_argument('--nodes',type=int,choices=(4,10,50),default=4)
@@ -291,6 +299,9 @@ def main():
     p.add_argument('--drain-ms',type=int,default=15_000);p.add_argument('--useful-bytes',type=int,default=128)
     p.add_argument('--delta-ms',type=int,default=100);p.add_argument('--ingress-capacity',type=int,default=4096)
     a=vars(p.parse_args());binary=a.pop('binary');receipt=a.pop('build_receipt');output=a.pop('output')
+    from evaluation_parameters import load_transport,raptr_options
+    tj=a.pop('transport_json');tp=a.pop('transport_config');a['transport']=load_transport(tp) if tj is None else tj
+    options=a.pop('node_options');nj=a.pop('node_options_json');a['node_options']=raptr_options(nj if nj is not None else json.loads(options.read_text()) if options else {})
     r=execute(binary,receipt,output,**a)
     print(json.dumps({'status':r['status'],'manifest':str(output/'manifest.json'),'error':r.get('error')}))
     return 0 if r['status']=='completed' else 1

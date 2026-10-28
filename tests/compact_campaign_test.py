@@ -60,7 +60,7 @@ class CompactCampaignTests(unittest.TestCase):
         mutations = [
             lambda c: c.update(committees=[10, 20, 50]),
             lambda c: c.update(committees=[49]),
-            lambda c: c.update(repeats=3),
+            lambda c: c.update(repeats=11),
             lambda c: c.update(repeats=True),
             lambda c: c['duration'].update(measure_s=300),
             lambda c: c['duration'].update(warmup_s=10),

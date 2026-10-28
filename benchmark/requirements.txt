@@ -1,0 +1,2 @@
+-r ../benchmarks/requirements-campaign.txt
+fabric==3.2.2

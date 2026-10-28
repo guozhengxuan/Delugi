@@ -169,6 +169,10 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let mut settings = shared_network::TransportSettings::default();
     settings.inbox_capacity = limits.inbox_frames;
     settings.max_inbox_bytes = limits.inbox_bytes;
+    let settings = config
+        .transport
+        .apply(settings)
+        .map_err(anyhow::Error::msg)?;
     let transport = shared_network::Transport::bind(id, auth, config.addresses.clone(), settings)
         .map_err(anyhow::Error::msg)?;
     let (mut service, shared_tx, shared_rx) = Service::start(

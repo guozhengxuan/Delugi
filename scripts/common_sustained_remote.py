@@ -75,15 +75,16 @@ def run_delugi(resolved, inventory, verifier, output, *, network_mode='controlle
     for h in hosts['hosts']:
         h['binary']={'path':h['artifact']['directory']+'/node','sha256':h['artifact']['binary_sha256']}
     case=resolved['case'];fault={}
-    if case=='missing-data':fault=dict(fault_replica=0,fault_after=0,fault_duration=60,fault_peers=[1],
+    if case=='missing-data':fault=dict(fault_replica=0,fault_after=0,fault_duration=e['duration']['measure_s'],fault_peers=[1],
         fault_batches=3,fault_batch_transactions=1,fault_payload_bytes=e['useful_transaction_bytes'])
-    result=delugi.run_trial(binary,output/'trial',e['total_honest_input_tps'],0,60,
+    result=delugi.run_trial(binary,output/'trial',e['total_honest_input_tps'],0,e['duration']['measure_s'],
         useful_bytes=e['useful_transaction_bytes'],batch_ms=e['batching']['max_wait_ms'],
         max_batch_transactions=e['batching']['max_transactions'],bound_ms=e['timing']['Delta_ms'],
         drain_seconds=e['duration']['drain_s'],nodes=resolved['nodes'],resource_profile=e['resource_profile'],
         global_arrivals=True,silent_first_leader=case=='silent-first-leader',
         storage_profile=delugi.STORAGE_PROFILES[1],
-        deployment=DelugiDeployment(hosts),**fault)
+        deployment=DelugiDeployment(hosts),transport=e.get("transport"),
+        arrival_queue_capacity=e.get("arrival_queue_capacity",65536),**fault)
     result['artifact']=artifact;result['specification']=selected
     verify_shared_delugi_build(binary,receipt,delugi.STORAGE_PROFILES[1])
     verify_spec_unchanged(selected)
@@ -102,9 +103,10 @@ def run_raptr(resolved, inventory, output, connection_factory=cloud.Connection, 
     if len(hosts)!=n or n not in (4,10,50):raise ValueError('exact sustained committee required')
     nonce=uuid.uuid4().hex;root=worker.root_for(nonce)
     case={'missing-data':'missing-payload-recovery'}.get(resolved['case'],resolved['case'])
-    config=raptr.make_config(root,nodes=n,rate=e['total_honest_input_tps'],duration_ms=60000,
+    config=raptr.make_config(root,nodes=n,rate=e['total_honest_input_tps'],duration_ms=e['duration']['measure_s']*1000,
         drain_ms=e['duration']['drain_s']*1000,useful_bytes=e['useful_transaction_bytes'],
-        delta_ms=e['timing']['Delta_ms'],case=case,addresses=[h['advertised'] for h in hosts])
+        delta_ms=e['timing']['Delta_ms'],case=case,addresses=[h['advertised'] for h in hosts],
+        transport=e.get('transport'),node_options=e.get('node_options'))
     config.update(run_id=nonce+nonce,key_directory=str(root/'keys'),output_directory=str(root/'replicas'),
         arm_path=str(root/'arm.json'),addresses=[h['advertised'] for h in hosts],
         deployment_profile='private-ipv4-n4-v1' if n==4 else 'private-ipv4-n10-n50-v1')

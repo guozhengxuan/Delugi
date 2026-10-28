@@ -487,6 +487,13 @@ fn independent_policy_uses_shared_pipeline_and_exact_accounting() {
         max_deferred_frames_per_peer: 64,
         ..Default::default()
     };
+    let settings = TransportConfig {
+        connect_timeout_ms: Some(5678),
+        io_timeout_ms: Some(700),
+        ..Default::default()
+    }
+    .apply(settings)
+    .unwrap();
     let mut sender = Transport::bind(
         0,
         TestPolicy { local: 0 },
@@ -521,6 +528,8 @@ fn independent_policy_uses_shared_pipeline_and_exact_accounting() {
     let a = sender.snapshot();
     let b = receiver.snapshot();
     assert_eq!(a.resource_profile, "independent-test-policy-v1");
+    assert_eq!(a.limits["connect_timeout_ms"], 5678);
+    assert_eq!(a.limits["io_timeout_ms"], 700);
     assert_eq!(
         a.peers[&1].layers[&Layer::Dissemination].acknowledged_frames,
         32
@@ -532,4 +541,53 @@ fn independent_policy_uses_shared_pipeline_and_exact_accounting() {
     );
     sender.shutdown();
     receiver.shutdown();
+}
+
+#[test]
+fn transport_overrides_preserve_profile_and_apply_every_explicit_knob() {
+    let base = TransportSettings {
+        max_inbox_bytes: 77 * 1024 * 1024,
+        ..Default::default()
+    };
+    let config: TransportConfig = serde_json::from_value(serde_json::json!({
+        "connect_timeout_ms": 5678, "ack_timeout_ms": 30000,
+        "io_timeout_ms": 700, "frame_read_timeout_ms": 9000,
+        "reconnect_delay_ms": 111, "max_inflight_frames": 99
+    }))
+    .unwrap();
+    let resolved = config.apply(base).unwrap();
+    assert_eq!(resolved.max_inbox_bytes, 77 * 1024 * 1024);
+    assert_eq!(resolved.max_inflight_frames, 99);
+    assert_eq!(resolved.connect_timeout, Duration::from_millis(5678));
+    assert_eq!(resolved.ack_timeout, Duration::from_millis(30000));
+    assert_eq!(resolved.io_timeout, Duration::from_millis(700));
+    assert_eq!(resolved.frame_read_timeout, Duration::from_millis(9000));
+    assert_eq!(resolved.reconnect_delay, Duration::from_millis(111));
+    assert!(TransportConfig::default().is_empty());
+    assert_eq!(
+        serde_json::to_string(&TransportConfig::default()).unwrap(),
+        "{}"
+    );
+    assert_eq!(
+        TransportSettings::default().connect_timeout,
+        Duration::from_secs(5)
+    );
+}
+
+#[test]
+fn transport_rejects_typos_units_and_unbounded_deadlines() {
+    for value in [
+        serde_json::json!({"connect_timeout": 5}),
+        serde_json::json!({"connect_timeout_ms": true}),
+    ] {
+        assert!(serde_json::from_value::<TransportConfig>(value).is_err());
+    }
+    for value in [
+        serde_json::json!({"connect_timeout_ms": 0}),
+        serde_json::json!({"ack_timeout_ms": 300001}),
+        serde_json::json!({"inbox_capacity":0}),
+    ] {
+        let config: TransportConfig = serde_json::from_value(value).unwrap();
+        assert!(config.apply(TransportSettings::default()).is_err());
+    }
 }

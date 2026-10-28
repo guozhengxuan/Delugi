@@ -274,7 +274,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
               fault_replica=None, fault_scope="payload", fault_after=0, fault_duration=0, fault_peers=None,
               measure_costs=False, deployment=None, fault_batches=0, fault_batch_transactions=64, fault_payload_bytes=472,
               cohort_observer="full", storage_profile=STORAGE_PROFILES[0], global_arrivals=False,
-              silent_first_leader=False):
+              silent_first_leader=False, transport=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
     if deployment is not None and storage_profile != STORAGE_PROFILES[0] and not getattr(deployment,'shared_storage',False):
@@ -321,6 +321,8 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
                             "batch_ms": batch_ms, "warmup_ms": round(warmup_seconds * 1000),
                             "measurement_ms": round(measurement_seconds * 1000)},
               **ordering_options(bound_ms, ordering_batch, round_barrier_ms, progress_pacing_ms, ordering_mode)}
+    from evaluation_parameters import transport as validate_transport
+    config["transport"] = validate_transport(transport or {})
     config["measure_costs"] = measure_costs
     if global_arrivals:
         config["sustained"]["global_arrivals"] = True
@@ -685,6 +687,9 @@ def verify_build_stamp(binary, compiler):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    transport_group=parser.add_mutually_exclusive_group()
+    transport_group.add_argument("--transport-config", type=Path)
+    transport_group.add_argument("--transport-json", type=json.loads)
     parser.add_argument("--rate", type=int, default=1000)
     parser.add_argument("--nodes", type=int, choices=(4, 7, 10, 31, 50), default=4)
     parser.add_argument("--inventory", type=Path, help="explicit existing-host SSH inventory; no cloud provisioning")
@@ -754,7 +759,7 @@ def main():
     shared_validation = None
     try:
         manifest["specification"] = archive_spec(args.spec_snapshot, output / "snapshot", args.paper_repository)
-        sources = [ROOT / p for p in ("Cargo.toml", "Cargo.lock", "scripts/run_sustained.py", "scripts/run_network.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/spec_provenance.py", "scripts/remote_deployment.py", "scripts/remote_worker.py", "scripts/linux_netem.py", "tests/sustained_runner_test.py", "tests/cohort_metrics_test.py", "tests/cohort_store_test.py", "tests/shared_delugi_artifact_test.py")]
+        sources = [ROOT / p for p in ("Cargo.toml", "Cargo.lock", "scripts/run_sustained.py", "scripts/evaluation_parameters.py", "scripts/run_network.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/spec_provenance.py", "scripts/remote_deployment.py", "scripts/remote_worker.py", "scripts/linux_netem.py", "tests/sustained_runner_test.py", "tests/cohort_metrics_test.py", "tests/cohort_store_test.py", "tests/shared_delugi_artifact_test.py")]
         from shared_core_conformance import source_inventory
         sources += [ROOT / "scripts/shared_core_conformance.py"]
         sources = sorted(set(sources) | {ROOT / name for name in source_inventory(ROOT)})
@@ -813,7 +818,8 @@ def main():
                                measure_costs=args.measure_costs, deployment=deployment, cohort_observer=args.cohort_observer,
                                fault_batches=args.fault_batches, fault_batch_transactions=args.fault_batch_transactions,
                                fault_payload_bytes=args.fault_payload_bytes, storage_profile=args.storage_profile,
-                               global_arrivals=args.global_arrivals,silent_first_leader=args.silent_first_leader)
+                               global_arrivals=args.global_arrivals,silent_first_leader=args.silent_first_leader,
+                               transport=args.transport_json if args.transport_json is not None else __import__('evaluation_parameters').load_transport(args.transport_config))
             manifest["trial"] = result
             manifest["status"] = result["status"]
             for key in ("network_shaping", "network_shaping_cleanup", "network_shaping_cleanup_error",

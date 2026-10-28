@@ -124,6 +124,136 @@ pub struct TransportSettings {
     pub max_reader_connections: usize,
 }
 
+/// JSON overrides for the shared transport. Durations are explicitly milliseconds.
+/// Missing fields preserve the protocol's selected resource profile. Consensus
+/// timers are separate and are never changed by these connection/I/O settings.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct TransportConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub inbox_capacity: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub outbox_capacity: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_deferred_frames_per_peer: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_inflight_frames: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_inflight_bytes: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_outstanding_bytes: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_inbox_bytes: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_read_buffer_bytes: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_reader_connections: Option<usize>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ack_timeout_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub connect_timeout_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub io_timeout_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub frame_read_timeout_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reconnect_delay_ms: Option<u64>,
+}
+
+impl TransportConfig {
+    pub fn is_empty(&self) -> bool {
+        self == &Self::default()
+    }
+
+    pub fn apply(&self, mut base: TransportSettings) -> Result<TransportSettings, String> {
+        if let Some(value) = self.inbox_capacity {
+            if value == 0 {
+                return Err("transport.inbox_capacity must be positive".into());
+            }
+            base.inbox_capacity = value;
+        }
+        if let Some(value) = self.outbox_capacity {
+            if value == 0 {
+                return Err("transport.outbox_capacity must be positive".into());
+            }
+            base.outbox_capacity = value;
+        }
+        if let Some(value) = self.max_deferred_frames_per_peer {
+            if value == 0 {
+                return Err("transport.max_deferred_frames_per_peer must be positive".into());
+            }
+            base.max_deferred_frames_per_peer = value;
+        }
+        if let Some(value) = self.max_inflight_frames {
+            if value == 0 {
+                return Err("transport.max_inflight_frames must be positive".into());
+            }
+            base.max_inflight_frames = value;
+        }
+        if let Some(value) = self.max_inflight_bytes {
+            if value == 0 {
+                return Err("transport.max_inflight_bytes must be positive".into());
+            }
+            base.max_inflight_bytes = value;
+        }
+        if let Some(value) = self.max_outstanding_bytes {
+            if value == 0 {
+                return Err("transport.max_outstanding_bytes must be positive".into());
+            }
+            base.max_outstanding_bytes = value;
+        }
+        if let Some(value) = self.max_inbox_bytes {
+            if value == 0 {
+                return Err("transport.max_inbox_bytes must be positive".into());
+            }
+            base.max_inbox_bytes = value;
+        }
+        if let Some(value) = self.max_read_buffer_bytes {
+            if value == 0 {
+                return Err("transport.max_read_buffer_bytes must be positive".into());
+            }
+            base.max_read_buffer_bytes = value;
+        }
+        if let Some(value) = self.max_reader_connections {
+            if value == 0 {
+                return Err("transport.max_reader_connections must be positive".into());
+            }
+            base.max_reader_connections = value;
+        }
+        if let Some(value) = self.ack_timeout_ms {
+            if value == 0 || value > 300_000 {
+                return Err("transport.ack_timeout_ms must be in1..300000".into());
+            }
+            base.ack_timeout = Duration::from_millis(value);
+        }
+        if let Some(value) = self.connect_timeout_ms {
+            if value == 0 || value > 300_000 {
+                return Err("transport.connect_timeout_ms must be in1..300000".into());
+            }
+            base.connect_timeout = Duration::from_millis(value);
+        }
+        if let Some(value) = self.io_timeout_ms {
+            if value == 0 || value > 300_000 {
+                return Err("transport.io_timeout_ms must be in1..300000".into());
+            }
+            base.io_timeout = Duration::from_millis(value);
+        }
+        if let Some(value) = self.frame_read_timeout_ms {
+            if value == 0 || value > 300_000 {
+                return Err("transport.frame_read_timeout_ms must be in1..300000".into());
+            }
+            base.frame_read_timeout = Duration::from_millis(value);
+        }
+        if let Some(value) = self.reconnect_delay_ms {
+            if value == 0 || value > 300_000 {
+                return Err("transport.reconnect_delay_ms must be in1..300000".into());
+            }
+            base.reconnect_delay = Duration::from_millis(value);
+        }
+        Ok(base)
+    }
+}
+
 impl Default for TransportSettings {
     fn default() -> Self {
         Self {
@@ -136,7 +266,7 @@ impl Default for TransportSettings {
             max_inbox_bytes: 32 * 1024 * 1024,
             max_read_buffer_bytes: 32 * 1024 * 1024,
             ack_timeout: Duration::from_secs(2),
-            connect_timeout: Duration::from_millis(100),
+            connect_timeout: Duration::from_secs(5),
             io_timeout: Duration::from_millis(250),
             frame_read_timeout: Duration::from_secs(2),
             reconnect_delay: Duration::from_millis(20),
@@ -347,8 +477,12 @@ pub struct Transport<P: Authentication> {
 
 impl<P: Authentication> Transport<P> {
     /// Read-only facade identity; does not alter transport scheduling or wire data.
-    pub fn local_id(&self) -> Id { self.id }
-    pub fn max_wire_bytes(&self) -> usize { self.policy.max_wire_bytes() }
+    pub fn local_id(&self) -> Id {
+        self.id
+    }
+    pub fn max_wire_bytes(&self) -> usize {
+        self.policy.max_wire_bytes()
+    }
 
     pub fn bind(
         id: Id,
@@ -438,6 +572,15 @@ impl<P: Authentication> Transport<P> {
                     settings.frame_read_timeout.as_millis() as u64,
                 ),
                 ("ack_timeout_ms", settings.ack_timeout.as_millis() as u64),
+                (
+                    "connect_timeout_ms",
+                    settings.connect_timeout.as_millis() as u64,
+                ),
+                ("io_timeout_ms", settings.io_timeout.as_millis() as u64),
+                (
+                    "reconnect_delay_ms",
+                    settings.reconnect_delay.as_millis() as u64,
+                ),
             ]
             .into_iter()
             .map(|(name, value)| (name.to_string(), value))

@@ -9,3 +9,6 @@ test-support = []
 
 [dependencies]
 serde = { version = ">=1.0.190, <1.1", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = ">=1.0.108, <1.1"

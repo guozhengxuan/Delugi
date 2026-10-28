@@ -37,7 +37,7 @@ CONTROLLER_COMMON = ("scripts/deployment_prepare.py", "scripts/remote_deployment
                      "scripts/network_delay.py", "scripts/timing_calibration.py",
                      "scripts/spec_provenance.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py",
                      "scripts/shared_core_conformance.py",
-                     "scripts/compact_campaign.py",
+                     "scripts/compact_campaign.py", "scripts/evaluation_parameters.py",
                      "provenance/spec-2026-10-19.json", "provenance/baselines.json")
 CONTROLLER_NATIVE = ("scripts/baselines/native_artifacts.py", "scripts/baselines/native_faults.py",
                      "scripts/baselines/native_receipts.py", "scripts/baselines/mysticeti_wal.py",

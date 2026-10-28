@@ -6,6 +6,15 @@ Read [the active plan](../../IMPLEMENTATION_PLAN.md) for remaining Linux,
 security, recovery and n=50 gates. No paid resources were launched while
 implementing this controller.
 
+## Fabric entry point
+
+Use [`benchmark/README.md`](../../benchmark/README.md) for new runs. It imports
+Loom's settings once, retains testbeds/publications, and exposes `fab plan`,
+`fab remote`, `fab logs` and exact-instance lifecycle tasks. The commands below
+remain the lower-level build/provenance interface. The campaign also accepts
+n=4, explicit shared transport overrides, 1–60 second finite measurements,
+explicit repetition counts and a fixed `fault_input_tps` for verification.
+
 ## One settings file
 
 Start with

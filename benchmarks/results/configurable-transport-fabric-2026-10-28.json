@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "kind": "delugi-configurable-transport-fabric-checkpoint-v1",
+  "date": "2026-10-28",
+  "base_commit": "137c364",
+  "source_state": "working tree; exact common core files bound by the build receipt",
+  "references": {
+    "narwhal": "https://github.com/asonnino/narwhal/tree/master/benchmark",
+    "loom": "../Loom/benchmark"
+  },
+  "implementation": {
+    "fabric_entrypoint": "benchmark/fabfile.py",
+    "parameters": "benchmark/parameters.example.json",
+    "deployment": "benchmark/settings.example.json",
+    "shared_transport": "shared/network/src/lib.rs",
+    "default_tcp_connect_timeout_ms": 5000,
+    "consensus_semantics_changed": false
+  },
+  "tests": {
+    "delugi_unit": {
+      "passed": 223,
+      "ignored": 6
+    },
+    "shared_network_unit": {
+      "passed": 9
+    },
+    "shared_network_real_tcp_pipeline": {
+      "passed": 1
+    },
+    "python_controller_regressions": {
+      "passed": 187
+    },
+    "fabric_cli": [
+      "list",
+      "init (offline Loom/lease import)",
+      "plan (12 resolved trials)",
+      "info (no new fleet)"
+    ]
+  },
+  "build": {
+    "status": "completed",
+    "profile": "dev",
+    "protocols": [
+      "delugi",
+      "raptr"
+    ],
+    "binary_sha256": "4d55c10b5944f68d7e9ae2ff8de0949655086203c2edc890af67e10f6841cea7",
+    "receipt": "results/local/parameterized-transport-build-20261028-b/build-receipt.json",
+    "receipt_sha256": "74a9dcfefe294141d53bd76739573f5c2b753f401c1a5742cef914a9eccaebdb"
+  },
+  "process_smoke": {
+    "nodes": 4,
+    "measurement_seconds": 4,
+    "drain_seconds": 10,
+    "total_honest_input_tps": 20,
+    "useful_transaction_bytes": 1,
+    "Delta_ms": 100,
+    "added_network_delay_ms": 0,
+    "rows": [
+      {
+        "protocol": "delugi",
+        "case": "healthy",
+        "status": "passed",
+        "scheduled": 80,
+        "completed": 80,
+        "unfinished": 0,
+        "configured_and_observed_connect_timeout_ms": 5678,
+        "manifest": "results/local/parameterized-transport-smoke-20261028/delugi-healthy/manifest.json",
+        "manifest_sha256": "a974bf4240eed6c890e06df4ad7a15ad943e483fb6e8fedbfed1c3cbdae73c90"
+      },
+      {
+        "protocol": "delugi",
+        "case": "silent-first-leader",
+        "status": "passed",
+        "scheduled": 80,
+        "completed": 80,
+        "unfinished": 0,
+        "configured_and_observed_connect_timeout_ms": 5678,
+        "manifest": "results/local/parameterized-transport-smoke-20261028/delugi-silent-first-leader/manifest.json",
+        "manifest_sha256": "9bf6773ce98663f6da627c8db79648f3ae60f5d5a91922609ebf0c7d9ed67987"
+      },
+      {
+        "protocol": "raptr",
+        "case": "healthy",
+        "status": "completed",
+        "scheduled": 80,
+        "completed": 80,
+        "unfinished": 0,
+        "configured_and_observed_connect_timeout_ms": 5678,
+        "manifest": "results/local/parameterized-transport-smoke-20261028/raptr-healthy/manifest.json",
+        "manifest_sha256": "c776c80491bfd0e3403bc00c7d6982ba9a735a770521f3567d70062e4878ac22"
+      },
+      {
+        "protocol": "raptr",
+        "case": "silent-first-leader",
+        "status": "completed",
+        "scheduled": 80,
+        "completed": 80,
+        "unfinished": 0,
+        "configured_and_observed_connect_timeout_ms": 5678,
+        "manifest": "results/local/parameterized-transport-smoke-20261028/raptr-silent-first-leader/manifest.json",
+        "manifest_sha256": "bfd202dedeabb37854608abb1b3d2eaf50e338fa84be29c7f7decca6d412bdf7"
+      }
+    ],
+    "scope": "configuration wiring and local functional progress; development build; not a WAN/performance comparison"
+  },
+  "cloud": {
+    "new_paid_operations": 0,
+    "new_workload_runs": 0,
+    "prior_two_attempt_limit_unchanged": true,
+    "remaining": "rebuild current common Linux artifact; qualify transport connectivity and rerun only a newly selected bounded matrix"
+  },
+  "unsupported_common_parameters": {
+    "proposal_caps": "rejected; no change to Delugi all-current construction",
+    "fault_counts_above_one": "rejected; current hooks use one fixed faulty identity"
+  }
+}

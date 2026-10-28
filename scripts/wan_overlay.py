@@ -28,17 +28,36 @@ def identity(nonce):
     return 'dgw' + nonce[:12], Path('/run/delugi-wan-' + nonce)
 
 
-def address(replica):
-    if type(replica) is not int or not 0 <= replica < 4:
-        raise ValueError('four explicit replica identities required')
-    return f'10.231.0.{replica+1}'
+def settings(value=None, nodes=4):
+    value = value or {}
+    defaults = {'nodes':nodes,'subnet':'10.231.0.0/24','port':PORT,'mtu':MTU,'keepalive_s':15}
+    if not isinstance(value,dict) or set(value)-set(defaults):
+        raise ValueError('unknown overlay setting')
+    result = dict(defaults,**value)
+    if type(result['nodes']) is not int or result['nodes'] != nodes or not 4<=nodes<=50:
+        raise ValueError('overlay must cover the exact committee')
+    for key,low,high in [('port',1024,65535),('mtu',576,9000),('keepalive_s',1,300)]:
+        if type(result[key]) is not int or not low<=result[key]<=high:
+            raise ValueError('invalid overlay '+key)
+    net=ipaddress.ip_network(result['subnet'],strict=True)
+    private=[ipaddress.ip_network(x) for x in ('10.0.0.0/8','172.16.0.0/12','192.168.0.0/16')]
+    if net.version!=4 or not any(net.subnet_of(x) for x in private) or net.num_addresses<nodes+2:
+        raise ValueError('overlay requires an RFC1918 subnet with space for all members')
+    return result
 
 
-def peers_for(replica, peers):
-    address(replica)
-    if (not isinstance(peers, list) or len(peers) != 3 or
-            {p.get('replica') for p in peers} != set(range(4)) - {replica}):
-        raise ValueError('exactly the three other replica identities required')
+def address(replica, config=None):
+    c=settings(config,(config or {}).get('nodes',4))
+    if type(replica) is not int or not 0 <= replica < c['nodes']:
+        raise ValueError('explicit replica identity outside the committee')
+    return str(ipaddress.ip_network(c['subnet'])[replica+1])
+
+
+def peers_for(replica, peers, config=None):
+    c=settings(config,(config or {}).get('nodes',4));address(replica,c)
+    if (not isinstance(peers, list) or len(peers) != c['nodes']-1 or
+            {p.get('replica') for p in peers} != set(range(c['nodes'])) - {replica}):
+        raise ValueError('exactly the other replica identities required')
     result = []
     for p in peers:
         if set(p) != {'replica', 'public_ipv4', 'public_key'}:
@@ -49,8 +68,8 @@ def peers_for(replica, peers):
         if len(base64.b64decode(p['public_key'], validate=True)) != 32:
             raise ValueError('invalid WireGuard public key')
         result.append({'replica': p['replica'], 'public_ipv4': str(ip),
-                       'public_key': p['public_key'], 'overlay_ipv4': address(p['replica'])})
-    if len({p['public_ipv4'] for p in result}) != 3 or len({p['public_key'] for p in result}) != 3:
+                       'public_key': p['public_key'], 'overlay_ipv4': address(p['replica'],c)})
+    if len({p['public_ipv4'] for p in result}) != c['nodes']-1 or len({p['public_key'] for p in result}) != c['nodes']-1:
         raise ValueError('distinct peer endpoints and keys required')
     return sorted(result, key=lambda p: p['replica'])
 
@@ -87,8 +106,10 @@ def guest(request):
         raise ValueError('dedicated-host root required')
     action, nonce = request['action'], request['nonce']
     iface, root = identity(nonce)
+    c=settings(request.get('settings'),request.get('settings',{}).get('nodes',4))
     expected = {'nonce': nonce, 'replica': request['replica']}
-    address(request['replica'])
+    if 'settings' in request:expected['settings']=c
+    address(request['replica'],c)
     if root.exists():
         if root.is_symlink() or root.stat().st_uid != os.geteuid() or json.loads((root/'owner.json').read_text()) != expected:
             raise ValueError('overlay directory ownership differs')
@@ -121,8 +142,8 @@ def guest(request):
         return {'status': 'removed', 'interface': iface}
     if action != 'configure':
         raise ValueError('unsupported overlay action')
-    peers = peers_for(request['replica'], request['peers'])
-    selected = {'peers': peers, 'MTU': MTU, 'port': PORT}
+    peers = peers_for(request['replica'], request['peers'],c)
+    selected = {'peers': peers, 'MTU': c['mtu'], 'port': c['port'], 'keepalive_s':c['keepalive_s']}
     marker = root/'configuration.json'
     if marker.exists() and json.loads(marker.read_text()) != selected:
         raise ValueError('overlay peers changed after preparation')
@@ -131,15 +152,15 @@ def guest(request):
         command(['ip', 'link', 'add', iface, 'type', 'wireguard'])
         command(['ip', 'link', 'set', 'dev', iface, 'alias', 'delugi-wan:' + nonce])
     # wg reads the key from a file; no private key appears in process arguments.
-    command(['wg', 'set', iface, 'listen-port', str(PORT), 'private-key', str(root/'private.key')])
+    command(['wg', 'set', iface, 'listen-port', str(c['port']), 'private-key', str(root/'private.key')])
     for p in peers:
         command(['wg', 'set', iface, 'peer', p['public_key'], 'allowed-ips', p['overlay_ipv4']+'/32',
-                 'endpoint', p['public_ipv4']+':'+str(PORT), 'persistent-keepalive', '15'])
-    command(['ip', 'address', 'replace', address(request['replica'])+'/32', 'dev', iface])
-    command(['ip', 'link', 'set', 'dev', iface, 'mtu', str(MTU), 'up'])
+                 'endpoint', p['public_ipv4']+':'+str(c['port']), 'persistent-keepalive', str(c['keepalive_s'])])
+    command(['ip', 'address', 'replace', address(request['replica'],c)+'/32', 'dev', iface])
+    command(['ip', 'link', 'set', 'dev', iface, 'mtu', str(c['mtu']), 'up'])
     for p in peers:
         command(['ip', 'route', 'replace', p['overlay_ipv4']+'/32', 'dev', iface])
-    return {'status': 'configured', 'interface': iface, 'address': address(request['replica']), **selected}
+    return {'status': 'configured', 'interface': iface, 'address': address(request['replica'],c), **selected}
 
 
 if __name__ == '__main__':

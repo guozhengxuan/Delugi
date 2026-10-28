@@ -53,7 +53,7 @@ def file_binding(path):
 def native_settings(resolved):
     e=resolved['effective'];p=resolved['protocol'];case=resolved['case'];n=resolved['nodes']
     result={'rate':e['total_honest_input_tps'],'useful_bytes':e['useful_transaction_bytes'],
-        'warmup':0,'duration':60,'drain':e['duration']['drain_s'],'bound_ms':e['timing']['Delta_ms'],
+        'warmup':0,'duration':e['duration']['measure_s'],'drain':e['duration']['drain_s'],'bound_ms':e['timing']['Delta_ms'],
         'population_profile':adapters.NATIVE,'faulty':e['faulty_identities'],
         'network':{'delay_ms':e['network']['added_one_way_delay_ms'],'rate_mbps':e['network']['validator_egress_mbps']}}
     if p.startswith('simpleit'):
@@ -62,7 +62,8 @@ def native_settings(resolved):
     else:result['batch_ms']=e['batching']['ingress_wakeup_ms']
     if case=='silent-first-leader':result['case']=case
     elif case=='missing-data' and not p.startswith('simpleit'):
-        result.update(omit_replica=0,omission_after=0,omission_seconds=60,publish_to_replica=list(range(2,n)))
+        result.update(omit_replica=0,omission_after=0,omission_seconds=e['duration']['measure_s'],publish_to_replica=list(range(2,n)))
+    if 'startup_seconds' in e:result['startup_seconds']=e['startup_seconds']
     remote_native.native.settings({k:v for k,v in result.items() if k!='network'},n,NATIVE[p])
     return result
 
@@ -300,7 +301,7 @@ class Backend:
         raise TimeoutError('owned instance deletion is not confirmed; auto-release lease remains in force')
 
 
-def execute(plan,authorization,output,*,backend_factory=Backend,validate=validate_authorization):
+def execute(plan,authorization,output,*,backend_factory=Backend,validate=validate_authorization,minimum_remaining_s=1800):
     contract.validate_plan(plan);bindings=validate(plan,authorization)
     output=Path(output).resolve();output.mkdir(parents=True,exist_ok=True,mode=0o700)
     identity={'plan_sha256':plan['plan_sha256'],'authorization_sha256':contract.digest(authorization),'bindings':bindings}
@@ -338,7 +339,7 @@ def execute(plan,authorization,output,*,backend_factory=Backend,validate=validat
                     # Publish once, before any measurement, then reuse artifacts.
                     for p in plan['config']['protocols']:backend.publish(n,p)
                     for trial in pending:
-                        if backend.remaining(n)<1800:raise TimeoutError('lease has less than30minutes for preparation, verification, export and cleanup')
+                        if backend.remaining(n)<minimum_remaining_s:raise TimeoutError('lease has insufficient remaining time for preparation, verification, export and cleanup')
                         rate=trial['total_honest_input_tps'] or fault_rate(state['rows'],plan['config'],n)
                         row={'trial_id':trial['id'],'protocol':trial['protocol'],'nodes':n,'case':trial['case'],'rate':rate}
                         if rate is None:

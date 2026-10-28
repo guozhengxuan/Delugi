@@ -45,7 +45,10 @@ def integer(value, low, high, label):
 
 
 def validate(config):
-    fields(config, FIELDS, 'campaign')
+    if not isinstance(config, dict) or set(config)-FIELDS-{'shared_transport','fault_input_tps'} or FIELDS-set(config):
+        raise ValueError('campaign has missing or unknown fields')
+    from evaluation_parameters import transport
+    transport(config.get('shared_transport', {}))
     if config['schema'] != 1 or type(config['schema']) is not int or config['kind'] != KIND:
         raise ValueError('unsupported compact campaign schema/kind')
     protocols = config['protocols']
@@ -55,9 +58,9 @@ def validate(config):
         raise ValueError('choose distinct principal protocol implementations')
     committees = config['committees']
     if (not isinstance(committees, list) or not committees or
-            any(type(n) is not int or n not in (10, 50) for n in committees) or
+            any(type(n) is not int or n not in (4, 10, 50) for n in committees) or
             len(set(committees)) != len(committees)):
-        raise ValueError('formal committee sizes are exactly 10 and/or 50')
+        raise ValueError('committee sizes are 4 (qualification), 10 and/or 50')
     rates = config['total_honest_input_tps']
     if not isinstance(rates, list) or not 1 <= len(rates) <= 6:
         raise ValueError('initial coarse sweep contains at most six rates')
@@ -69,9 +72,11 @@ def validate(config):
     fields(config['duration'], ('warmup_s', 'measure_s', 'drain_s'), 'duration')
     for key, value in config['duration'].items():
         integer(value, 0, 60, key)
-    if config['duration']['warmup_s'] != 0 or config['duration']['measure_s'] != 60 or config['duration']['drain_s'] > 15:
-        raise ValueError('compact run requires 60s measurement, no offered warmup, and at most 15s drain')
-    integer(config['repeats'], 1, 1, 'default repeats')
+    if config['duration']['warmup_s'] != 0 or not 1 <= config['duration']['measure_s'] <= 60 or config['duration']['drain_s'] > 15:
+        raise ValueError('finite run requires 1..60s measurement, no offered warmup, and at most 15s drain')
+    integer(config['repeats'], 1, 10, 'repeats')
+    if config.get('fault_input_tps') is not None:
+        integer(config['fault_input_tps'],1,80000,'fixed fault input rate')
     integer(config['supplemental_points_or_reruns_per_curve'], 0, 2, 'supplemental allowance')
     integer(config['seed'], 0, 2**32 - 1, 'seed')
     fields(config['network'], ('added_one_way_delay_ms', 'validator_egress_mbps'), 'network')
@@ -153,8 +158,9 @@ def create_plan(config, *, root=spec_provenance.ROOT):
             protocols = list(config['protocols']); rng.shuffle(protocols)
             for protocol in protocols:
                 trials.append({'protocol': protocol, 'nodes': n, 'case': case,
-                               'total_honest_input_tps': None, 'repeat': 0,
-                               'load_selection': 'common accepted rate below all selected healthy frontiers'})
+                               'total_honest_input_tps': config.get('fault_input_tps'), 'repeat': 0,
+                               'load_selection': 'fixed explicit verification load' if config.get('fault_input_tps') else 'common accepted rate below all selected healthy frontiers'})
+    trials=[dict(trial,repeat=repeat) for trial in trials for repeat in range(config['repeats'])]
     for ordinal, trial in enumerate(trials):
         trial['ordinal'] = ordinal
         trial['id'] = digest(trial)[:24]

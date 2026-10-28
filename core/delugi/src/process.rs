@@ -42,6 +42,11 @@ fn default_ordering_batch() -> bool {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
+    #[serde(
+        default,
+        skip_serializing_if = "shared_network::TransportConfig::is_empty"
+    )]
+    pub transport: shared_network::TransportConfig,
     pub instance: Digest,
     pub addresses: Vec<SocketAddr>,
     /// Listener interfaces can differ from routable peer addresses.
@@ -179,7 +184,7 @@ impl SustainedConfig {
             count: self.arrival_count(id, members),
             useful_bytes: self.useful_bytes(),
             start_elapsed_us: start,
-            identity_version: if self.global_arrivals {3} else {2},
+            identity_version: if self.global_arrivals { 3 } else { 2 },
             total_rate: self.total_rate,
             origins: self.origin_ids(members),
         }
@@ -199,7 +204,9 @@ impl SustainedConfig {
             .map_or(true, |origins| origins.contains(&id))
     }
     fn validate(&self) -> Result<(), String> {
-        if self.global_arrivals && self.total_rate.is_none() {return Err("global arrivals require an explicit total rate".into());}
+        if self.global_arrivals && self.total_rate.is_none() {
+            return Err("global arrivals require an explicit total rate".into());
+        }
         if self.rate_per_replica == 0
             || self.rate_per_replica > 25_000
             || self
@@ -1517,12 +1524,14 @@ impl Runtime {
         self.load.next_batch_us = (elapsed / (config.batch_ms * 1000) + 1) * config.batch_ms * 1000;
         let mut arrivals = std::mem::take(&mut self.load.batch);
         if config.global_arrivals {
-            let membership=ingress.receipt.lock().unwrap();
+            let membership = ingress.receipt.lock().unwrap();
             // An enqueue crossing the offer cutoff was tentative. Its explicit
             // rejected receipt prevents a native batch or useful output credit.
-            arrivals.retain(|a|!membership.rejected.contains(a.sequence));
+            arrivals.retain(|a| !membership.rejected.contains(a.sequence));
         }
-        if arrivals.is_empty() {return Ok(false);}
+        if arrivals.is_empty() {
+            return Ok(false);
+        }
 
         let mut txs = Vec::with_capacity(arrivals.len());
         {
@@ -1612,7 +1621,10 @@ impl Runtime {
                         self.origin,
                         config.arrival_queue_capacity,
                         self.config.observer_mode,
-                        config.global_arrivals.then_some(self.load.start_us.unwrap()+(config.warmup_ms+config.measurement_ms)*1000),
+                        config.global_arrivals.then_some(
+                            self.load.start_us.unwrap()
+                                + (config.warmup_ms + config.measurement_ms) * 1000,
+                        ),
                     ));
                     let ingress = self.load.ingress.as_ref().unwrap();
                     let membership = ingress.receipt.clone();
@@ -1973,7 +1985,9 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
         transport_key,
         config.addresses.clone(),
         config.bind_addresses.as_ref().unwrap_or(&config.addresses)[id as usize],
-        TransportSettings::for_committee(&committee),
+        config
+            .transport
+            .apply(TransportSettings::for_committee(&committee))?,
     )?;
     let control = Control::bind(
         config.control_addresses[id as usize],

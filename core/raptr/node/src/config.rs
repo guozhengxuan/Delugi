@@ -79,6 +79,11 @@ impl Default for Limits {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Config {
+    #[serde(
+        default,
+        skip_serializing_if = "shared_network::TransportConfig::is_empty"
+    )]
+    pub transport: shared_network::TransportConfig,
     pub schema: u32,
     pub epoch: u64,
     pub run_id: String,

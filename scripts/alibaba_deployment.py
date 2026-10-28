@@ -14,6 +14,7 @@ import ipaddress
 import json
 import math
 import os
+import re
 from pathlib import Path
 import uuid
 
@@ -68,14 +69,15 @@ def validate_plan(plan):
     if not all(type(plan.get(k)) in (int, float) and math.isfinite(plan[k]) for k in
                ('lifetime_hours', 'budget_cny', 'hourly_quote_cny', 'cost_margin_cny')):
         raise ValueError('finite numeric budget limits required')
+    configurable = plan.get('profile') == 'configured-evaluation-v1'
     compact = plan.get('profile') == 'compact-n10-n50-v1'
     wan = plan.get('profile') == 'wan-n4-verification-v1'
-    if plan.get('profile') not in (None, 'compact-n10-n50-v1', 'wan-n4-verification-v1'):
+    if plan.get('profile') not in (None, 'compact-n10-n50-v1', 'wan-n4-verification-v1', 'configured-evaluation-v1'):
         raise ValueError('unknown lease profile')
     if (plan.get('schema') != 1 or type(plan.get('maximum_instances')) is not int
-            or not 1 <= plan['maximum_instances'] <= (50 if compact else 31)):
-        raise ValueError('explicit maximum of 1..31 instances required')
-    if compact or wan:
+            or not 1 <= plan['maximum_instances'] <= (50 if compact or configurable else 31)):
+        raise ValueError('explicit instance count exceeds the selected lease profile')
+    if compact or wan or configurable:
         import campaign_budget
         if compact and (plan['maximum_instances'] not in (4, 10, 50) or not 0 < plan['lifetime_hours'] <= 3):
             raise ValueError('compact leases permit 4/10/50 validators and at most three hours')
@@ -95,16 +97,28 @@ def validate_plan(plan):
     if plan['hourly_quote_cny'] <= 0 or not 0 < plan['cost_margin_cny'] < plan['budget_cny']:
         raise ValueError('positive live quote and cost margin required')
     bandwidth = 20 if wan else 5
-    if plan.get('internet_charge_type') != 'PayByBandwidth' or plan.get('internet_max_bandwidth_out') != bandwidth:
-        raise ValueError(f'reviewed profile requires fixed PayByBandwidth public egress at {bandwidth} Mbps')
+    selected_bandwidth=plan.get('internet_max_bandwidth_out')
+    valid_bandwidth=(type(selected_bandwidth) is int and 1<=selected_bandwidth<=1000) if configurable else selected_bandwidth==bandwidth
+    if plan.get('internet_charge_type') != 'PayByBandwidth' or not valid_bandwidth:
+        raise ValueError('fixed PayByBandwidth egress must match the selected profile (configured range1..1000Mbps)')
     maximum_compute = plan['maximum_instances'] * plan['lifetime_hours'] * plan['hourly_quote_cny']
     if maximum_compute + plan['cost_margin_cny'] > plan['budget_cny']:
         raise ValueError('worst-case instance/disk/fixed-bandwidth quote exceeds budget after margin')
     controller = ipaddress.ip_network(plan['controller_cidr'])
     if controller.version != 4 or controller.prefixlen != 32:
         raise ValueError('SSH must be restricted to the controller IPv4 /32')
-    if plan['instance_type'] != 'ecs.g9i.xlarge' or plan['system_disk_gib'] != 200:
+    if configurable:
+        if not isinstance(plan.get('instance_type'),str) or not re.fullmatch(r'ecs\.[A-Za-z0-9.-]+',plan['instance_type']):raise ValueError('explicit ECS instance type required')
+        if type(plan.get('system_disk_gib')) is not int or not 20<=plan['system_disk_gib']<=2048:raise ValueError('disk size must be20..2048GiB')
+    elif plan['instance_type'] != 'ecs.g9i.xlarge' or plan['system_disk_gib'] != 200:
         raise ValueError('this reviewed profile requires Loom type and quoted 200 GiB ESSD')
+    if 'peer_port_ranges' in plan:
+        ports=plan['peer_port_ranges']
+        if not isinstance(ports,list) or not ports or len(ports)>20:raise ValueError('bounded peer port ranges required')
+        for value in ports:
+            if not isinstance(value,str) or not re.fullmatch(r'[0-9]+/[0-9]+',value):raise ValueError('invalid peer port range')
+            low,high=map(int,value.split('/'))
+            if not 1024<=low<=high<=65535:raise ValueError('peer port range outside1024..65535')
     if not plan.get('user_authorization'):
         raise ValueError('user spending authorization must be recorded before provisioning')
     return plan
@@ -187,7 +201,7 @@ class Lease:
         reservation; an identical provider token may recover the original batch.
         Destroying instances never releases money before bill reconciliation.
         """
-        if self.plan.get('profile') not in ('compact-n10-n50-v1', 'wan-n4-verification-v1'):
+        if self.plan.get('profile') not in ('compact-n10-n50-v1', 'wan-n4-verification-v1', 'configured-evaluation-v1'):
             return None
         import campaign_budget
         from decimal import Decimal, ROUND_CEILING
@@ -292,7 +306,7 @@ class Lease:
             return []
         # Recover a crash between saving RunInstances IDs and updating the
         # aggregate ledger. This never releases a reservation or creates a lease.
-        if self.plan.get('profile') in ('compact-n10-n50-v1', 'wan-n4-verification-v1'):
+        if self.plan.get('profile') in ('compact-n10-n50-v1', 'wan-n4-verification-v1', 'configured-evaluation-v1'):
             import campaign_budget
             selected = self.plan['campaign_budget']
             ledger = campaign_budget.Ledger(selected['path'])
@@ -342,6 +356,7 @@ class Lease:
         if len(set(addresses))!=len(addresses):raise ValueError('distinct private peer addresses required')
         port_ranges = (['1500/1599','8000/8099','9000/9299']
                        if self.plan.get('profile')=='compact-n10-n50-v1' else ['8000/8099'])
+        port_ranges=self.plan.get('peer_port_ranges',port_ranges)
         old=self.state.get('peer_ips')
         if old is not None and old!=addresses:
             raise ValueError('peer placement changed; reconcile existing firewall rules explicitly')

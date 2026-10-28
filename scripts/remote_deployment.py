@@ -82,8 +82,11 @@ def ssh_arguments(host):
     compression = host.get('ssh_compression', False)
     if type(compression) is not bool:
         raise ValueError('SSH compression must be an explicit boolean')
-    return ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes", "-o", "ConnectTimeout=15",
-            "-o", "ServerAliveInterval=10", "-o", "ServerAliveCountMax=3",
+    values={k:host.get(k,d) for k,d in [('ssh_connect_timeout_s',15),('ssh_keepalive_s',10),('ssh_keepalive_count',3)]}
+    if any(type(v) is not int or not 1<=v<=300 for v in values.values()):
+        raise ValueError('SSH timeouts/count must be integers in 1..300')
+    return ["ssh", "-o", "BatchMode=yes", "-o", "StrictHostKeyChecking=yes", "-o", "ConnectTimeout="+str(values['ssh_connect_timeout_s']),
+            "-o", "ServerAliveInterval="+str(values['ssh_keepalive_s']), "-o", "ServerAliveCountMax="+str(values['ssh_keepalive_count']),
             "-o", "UserKnownHostsFile=" + str(Path(host["known_hosts_file"]).expanduser()),
             "-i", str(Path(host["identity_file"]).expanduser())] + (["-C"] if compression else [])
 

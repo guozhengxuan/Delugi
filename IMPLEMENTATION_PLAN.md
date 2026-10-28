@@ -1,21 +1,29 @@
 # Delugi implementation and evaluation plan
 
-Updated **28 October 2026**. Controller checkpoint: `6666b06`.
+Updated **28 October 2026**. Last WAN checkpoint: `137c364`; configurable transport/Fabric follow-up below.
 The implementation has reached four-region, four-replica deployment
 qualification. All six Linux implementations build and deploy. The WAN checks
 exposed a shared transport connection-timeout bug in Delugi/Raptr and reproduced
-Autobahn's silent-leader recovery failure. These block the main comparison.
+Autobahn's silent-leader recovery failure. The transport is now configurable and
+passes local functional checks; its updated Linux/WAN qualification and the
+counterpart gaps still precede the main comparison.
 The [WAN verification record](benchmarks/results/wan-verification-2026-10-28.json)
 contains the bounded run matrix, artifact identities, outcomes and resource cleanup.
 All four instances and their owned security groups have been deleted. Raw
 results are retained locally; the record contains a quote-based cost estimate
 and does not present it as a reconciled provider bill.
 
-Working commands are in the [compact campaign runbook](docs/evaluation/compact-campaign.md).
+The reusable entry point is now [`benchmark/fabfile.py`](benchmark/fabfile.py),
+with [saved settings and one parameter file](benchmark/README.md). The lower-level
+[compact campaign runbook](docs/evaluation/compact-campaign.md) remains the artifact-build reference.
 The [counterpart proposal](benchmarks/plans/2026-10-27-counterparts-and-aliyun.txt)
 and [budget/load-point audit](benchmarks/plans/2026-10-27-aliyun-budget.txt)
 retain the rationale and paper figure counts. Their former implementation
 pending statements are superseded by this plan and its evidence.
+
+The [configurable transport/Fabric checkpoint](benchmarks/results/configurable-transport-fabric-2026-10-28.json)
+records the local follow-up: 187 controller regressions, shared TCP tests and
+four successful common-core process checks. No new paid operations occurred.
 
 ## 1. Scope fixed by the author
 
@@ -102,16 +110,17 @@ Evidence:
 
 ## 3. Qualification findings that determine the next work
 
-1. **The shared transport cannot yet span these WAN paths.** The final common
-   Linux release was built at `5bb8899`, with Delugi RocksDB enabled; all four
-   native Linux archives also built and were published on all hosts. However,
-   `shared/network` hardcodes a 100 ms TCP connection timeout. Only the four
-   directed edges below 100 ms connected; the eight longer edges repeatedly
-   failed. Both Delugi cases delivered zero transactions. Integrated Raptr
-   shares this setting and additionally exhausted its retained outbound byte
-   budget. Delta=1,000 ms does not change the transport timeout. Expose a WAN
-   connection budget and verify actual peer connectivity before admission,
-   preserving consensus timer semantics.
+1. **The WAN transport failure is parameterized and locally repaired.** The
+   tested Linux release (`5bb8899`) used a 100 ms TCP connection timeout; only
+   four directed edges connected and eight longer edges failed. Both Delugi
+   cases delivered zero transactions; Raptr also exhausted its outbound budget.
+   A shared JSON `TransportConfig` now reaches both factories and records the
+   effective connect/ACK/I/O/frame/reconnect timers and resource budgets. The
+   connection default is 5,000 ms; Δ and consensus transitions are unchanged.
+   Both common cores passed healthy/silent-leader local process checks with an
+   explicit 5,678 ms connection timeout and 80/80 completions in each run.
+   The old Linux publication is rejected as stale. Rebuild it and check actual
+   peer connectivity on WAN before admitting the next remote workload.
 2. **n=50 at Δ=100 ms remains open.** The local shared-machine Raptr empty test
    stalled before round 4. Δ=1,000 ms reached round 4 but qualifies only that
    diagnostic. Preserve 100 ms for the main series and resolve the failure on
@@ -152,10 +161,11 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Fix shared WAN connection establishment.** Parameterize the transport
-   connection timeout separately from Delta, add a readiness check that uses
-   the actual transport, and rebuild the common Linux publication. Keep the
-   two failed attempts for each core as evidence.
+1. **Finish WAN qualification of the configurable transport.** The code and
+   local regression checks are complete. Rebuild the common Linux publication,
+   check actual peer connectivity before admission, and use the saved Fabric
+   deployment/settings for a new bounded matrix. Keep the two failed attempts
+   for each core as evidence; no new paid trials ran during this follow-up.
 2. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.
@@ -171,6 +181,8 @@ skipped before measured arrivals begin; record that fault interval explicitly.
    collection remain outside the one-minute measurement; release owned resources
    after collection and reconcile actual billing before releasing reservations.
 
+`benchmark/parameters.json` now supports an explicit common `fault_rate`, as
+used by the 100 tx/s verification preset. A null value retains the selector below.
 The controller's fault-rate selector is diagnostic: at least 99% admission and
 by-drain completion, and second-half pending growth at most 1% of that half's
 offered population. It chooses below the largest jointly accepted point when

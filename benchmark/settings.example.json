@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "loom_settings": "../../Loom/benchmark/settings.json",
+  "state_directory": ".state",
+  "artifacts": ".state/artifacts.json",
+  "testbeds": {
+    "4": {
+      "lease_plans": [],
+      "inventory": "../results/local/selected-hosts.json",
+      "network_mode": "observed-wan-v1",
+      "overlay": null
+    }
+  },
+  "ssh": {
+    "user": "root",
+    "python": "/usr/bin/python3",
+    "interface": "eth0",
+    "connect_timeout_s": 60,
+    "keepalive_s": 10,
+    "keepalive_count": 3
+  },
+  "ports": {
+    "consensus": 8000,
+    "control": 8001
+  },
+  "resources": {
+    "cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "memory_bytes": 17179869184
+  },
+  "timeouts": {
+    "provision_s": 600,
+    "poll_s": 5,
+    "install_s": 900,
+    "minimum_remaining_s": 1800
+  },
+  "keep_alive": true
+}

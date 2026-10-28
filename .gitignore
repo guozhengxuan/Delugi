@@ -7,3 +7,6 @@ __pycache__/
 /benchmarks/baselines/
 /benchmarks/.cache/
 /benchmarks/toolchains/
+/benchmark/settings.json
+/benchmark/parameters.json
+/benchmark/.state/
