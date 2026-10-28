@@ -643,7 +643,7 @@ class Connection:
         return subprocess.run(ssh_arguments(self.host) + options + [self.host["ssh"], shlex.join(arguments)], **kwargs)
 
     def upload(self, source, remote):
-        code = """import hashlib,os,shutil,sys
+        code = """import hashlib,os,shutil,sys,uuid
 from pathlib import Path
 p=Path(sys.argv[1]); expected=sys.argv[2]
 def digest(path):
@@ -655,11 +655,18 @@ if p.is_symlink(): raise ValueError('upload destination is a symlink')
 if p.exists():
  if digest(p)!=expected: raise ValueError('existing upload differs')
 else:
- with os.fdopen(os.open(p,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600),'wb') as s: shutil.copyfileobj(sys.stdin.buffer,s,1048576)
- if digest(p)!=expected: raise ValueError('upload checksum mismatch')
+ temporary=p.with_name(p.name+'.upload-'+uuid.uuid4().hex)
+ try:
+  with os.fdopen(os.open(temporary,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600),'wb') as s: shutil.copyfileobj(sys.stdin.buffer,s,1048576)
+  if digest(temporary)!=expected: raise ValueError('upload checksum mismatch')
+  try: os.link(temporary,p)
+  except FileExistsError:
+   if p.is_symlink() or digest(p)!=expected: raise ValueError('concurrent destination differs')
+ finally: temporary.unlink(missing_ok=True)
 """
         with Path(source).open("rb") as stream:
-            self.command([self.python(), "-c", code, remote, sha(source)], stdin=stream, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.command([self.python(), "-c", code, remote, sha(source)], stdin=stream,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=900)
 
     def prepare(self, nonce, archive_hash):
         code = """import json,os,re,sys

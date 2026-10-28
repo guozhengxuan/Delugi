@@ -17,6 +17,30 @@ import deployment_prepare as prepare
 
 
 class DeploymentPreparation(unittest.TestCase):
+    def test_interrupted_upload_never_publishes_partial_destination_and_can_retry(self):
+        class LocalPipe(prepare.Connection):
+            truncate = True
+            def command(self, arguments, **kwargs):
+                data = kwargs.pop('stdin').read()
+                self.timeout = kwargs['timeout']
+                return subprocess.run(arguments, input=data[:100] if self.truncate else data,
+                                      check=True, **kwargs)
+        source, destination = self.root/'source.bin', self.root/'remote.bin'
+        source.write_bytes(b'bounded upload test\n' * 1000)
+        connection = LocalPipe({'python_executable': sys.executable})
+        with self.assertRaises(subprocess.CalledProcessError):
+            connection.upload(source, str(destination))
+        self.assertFalse(destination.exists())
+        self.assertEqual(list(self.root.glob('remote.bin.upload-*')), [])
+        connection.truncate = False
+        connection.upload(source, str(destination))
+        self.assertEqual(destination.read_bytes(), source.read_bytes())
+        self.assertEqual(connection.timeout, 900)
+        source.write_bytes(b'changed')
+        with self.assertRaises(subprocess.CalledProcessError):
+            connection.upload(source, str(destination))
+        self.assertNotEqual(destination.read_bytes(), source.read_bytes())
+
     def test_autobahn_pins_compatible_binding_compiler_only_in_its_recipe(self):
         recipe = prepare.recipe('autobahn')
         self.assertEqual(recipe['environment'], {'LIBCLANG_PATH': '/usr/lib/llvm-14/lib',
