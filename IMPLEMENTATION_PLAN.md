@@ -1,6 +1,46 @@
 # Delugi implementation and evaluation plan
 
-Updated **29 October 2026**. The intended one-δ Delugi proposal pipeline is
+Updated **29 October 2026**. The premature REPORT preparation exposed by the
+WAN rerun is corrected in **8d84dec**. Speculative preparation for opportunity
+`k` now requires both own completed prefix `k-4` and **full validation of
+PROPOSE(k-3)**. Round 4 uses the completed genesis prefix plus valid PROPOSE(1).
+Startup is unconditional only through round 3. Own prefix
+`k-3`, authenticated CLOSED and exact HISTORY3 independently enable recovery.
+The fixed base, signed observations, immutable input, Q, quorums and timers
+remain unchanged. Both evidence arrival orders wake the opportunity.
+
+Matched local runs use the preserved before/after release executables, four
+independent processes, 100 tx/s, one useful byte, 2 s warmup, 10 s measurement
+and up to 15 s drain. All eight runs complete **1,000/1,000** requests with
+correct output agreement, complete stage coverage and no proxy byte loss.
+
+| Local topology / case | Before mean, ms | Corrected mean, ms |
+|---|---:|---:|
+| Uniform δ=10 ms, Δ=100 ms / healthy | 61.54 | 61.36 |
+| Uniform δ=10 ms, Δ=100 ms / silent leader | 1,083.18 | 423.13 |
+| Synthetic WAN-like matrix, Δ=1,000 ms / healthy | 635.09 | 560.38 |
+| Synthetic WAN-like matrix, Δ=1,000 ms / silent leader | 10,607.02 | 3,866.22 |
+
+The synthetic matrix approximates the four-region ring and estimates the two
+unmeasured links. These are local userspace TCP-delay diagnostics with memory
+record storage, not new Aliyun measurements or a complete WAN replay. The
+silent-case prefix wait drops from 6,704.82 to 170.04 ms in that matrix. Healthy
+inclusion wait drops from 452.40 to 369.14 ms; residual latency remains.
+The corrected signed-core test places a timeout-period batch into recovery
+anchor 4 and outputs it at 790 ms, instead of round 6 at 1,490 ms. Exact healthy
+δ cadence / 3δ direct commitment, Byzantine forks, authenticated fallback,
+and δ=99 ms / Δ=100 ms recovery remain passing. **276 Rust tests** pass (20
+explicitly ignored), together with **58 relevant Python checks**.
+See the [fix and matched local evidence](benchmarks/results/freshness-fix-2026-10-29/README.md).
+
+No cloud workload was run for this correction. A fresh shared Linux build is
+required before the next requested WAN check; the previous publication is
+source-stale and must remain historical evidence. Selective Byzantine delivery
+of a valid predecessor can still trigger early preparation before a later
+timeout, so the correction is not a universal transaction-freshness bound.
+
+The following is the preceding pipeline implementation and WAN checkpoint.
+The intended one-δ Delugi proposal pipeline is
 implemented and validated locally and in two four-region WAN runs. Commit **360d9f7** restores immediate
 canonical PROG and adds bounded, two-position-ahead REPORT preparation;
 immediate ordering bundling remains enabled. All default local/campaign
@@ -32,7 +72,7 @@ are complete, and the delay proxy discarded no bytes. Finite healthy round-4
 and silent-leader/three-anchor TCP checks also passed. Those checks were local.
 See the [measurement report and figure](benchmarks/results/pipeline-2026-10-29/README.md).
 
-The new Delugi-only WAN check is complete: four saved regions, **30 seconds at
+The preceding Delugi-only WAN check completed: four saved regions, **30 seconds at
 100 tx/s** per healthy/silent case, one useful byte, Δ=1,000 ms and 20 Mbps.
 Both cases completed and fully traced **3,000/3,000** requests, with correct
 output agreement. The unchanged Linux executable was built from **59daec8**.
@@ -61,7 +101,7 @@ All eight instances across the initial build/startup fleet and retry fleet,
 and their security groups, are deleted. Combined quote-based cost is **CNY
 19.33**, pending billing. Local compiler cleanup reclaimed 2.18 GB.
 
-The correction bounds future **input preparation** by the greatest correct
+That earlier pipeline change bounds future **input preparation** by the greatest correct
 completed outcome prefix plus four. Admission can still advance independently
 during faults. The two-delay input-readiness contract now starts at the bounded
 evidence trigger, not arbitrary admission; the historical pinned paper sources
@@ -72,10 +112,10 @@ records that diagnosis.
 
 Next evaluation work:
 
-1. Resolve input freshness under persistent silent leaders without rewriting
-   immutable signed observations or fixed inputs. Reproduce the extra-cycle
-   wait locally and evaluate composition-trigger alternatives before more WAN
-   spending. Keep the pipeline cadence regression checks and prior baselines.
+1. Qualify the corrected preparation guard under selective valid-proposal
+   withholding and asymmetric message schedules. Preserve the passing silent
+   freshness and healthy cadence regressions. Rebuild the shared release before
+   a separately requested WAN comparison; do not reuse the stale publication.
 2. Align both protocols' primary transaction split at **first valid leader
    proposal finalization/handoff**, with exact batch membership. The new
    leader-local PROPOSE→CER measurement proves Delugi's pipeline but is not
@@ -389,11 +429,11 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Resolve the measured pipeline/freshness tradeoff.** The restored pipeline
-   passes the signed-core δ-spacing and local process checks, and the new WAN
-   cadence is faster. Its early immutable inputs nevertheless miss timeout-period
-   arrivals, creating an extra recovery cycle for most silent-case transactions.
-   Reproduce and evaluate a composition correction locally while preserving
+1. **Qualify the corrected pipeline guard.** Full predecessor validation now
+   prevents speculative preparation across a missing proposal. The repeated
+   silent-leader extra-cycle regression and healthy δ cadence pass locally,
+   including independent-process asymmetric-delay checks. Continue selective
+   Byzantine-proposal and residual healthy-inclusion investigation, preserving
    authenticated bases, immutable signed observations, fixed inputs, evidence
    guards and timers. Retain canonical/paced and pipeline/history-ready controls.
 2. **Instrument productive readiness and proposal eligibility locally.** The
@@ -414,8 +454,9 @@ skipped before measured arrivals begin; record that fault interval explicitly.
    a named comparison; preserve fixed snapshots and
    n−f/f+1 thresholds; the sampled third-response wait is not a safe optimization.
 3. **Review the REPORT-trigger revision and its local/WAN evidence.** The earlier
-   history-ready fix reduced stale inputs; the new pipeline reintroduces a
-   measurable freshness cost despite bounded lookahead. Keep the recurring 7Δ
+   history-ready fix reduced stale inputs; the first pipeline revision reintroduced
+   a freshness cost despite bounded lookahead. The validated-predecessor correction
+   removes that extra-cycle mechanism in the measured local silent cases. Keep the recurring 7Δ
    timeout and the extra-cycle prefix wait distinct. Align the paper's
    entry-trigger wording with the selected composition schedule before a formal
    evaluation. Qualify tracing overhead and choose trace caps for the expected round

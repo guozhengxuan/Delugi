@@ -83,7 +83,7 @@ requests; all completed requests have full stage coverage. Native timeout,
 batching and fault-placement differences remain explicit. The new fleet and
 security groups are deleted; its quote-based cost estimate is CNY 14.07.
 
-The current publication uses the pipeline Delugi executable built from
+The retained WAN publication uses the pipeline Delugi executable built from
 `59daec8`, with the controller-only clock-start fix from `20f4d64`. The
 [pipeline Delugi WAN rerun](../benchmarks/results/delugi-pipeline-wan-2026-10-29/README.md)
 completed exactly two 30-second healthy/silent workloads at 100 tx/s, with
@@ -101,6 +101,15 @@ epoch to each host's realtime clock using bounded start-reply samples.
 and acknowledgments. Each origin still runs its own exact measurement interval
 and calculates latency with its own monotonic clock. The initial rejected
 zero-input attempt is retained; it is not included in the performance bars.
+
+The subsequent [REPORT freshness correction](../benchmarks/results/freshness-fix-2026-10-29/README.md)
+is committed in `8d84dec` and validated locally. Under the synthetic WAN-like
+delay matrix, healthy mean latency changes from 635.09 to 560.38 ms and silent
+latency from 10,607.02 to 3,866.22 ms. All eight paired uniform/asymmetric
+healthy/silent runs complete 1,000/1,000 requests. These memory-storage,
+userspace-delay diagnostics do not replace WAN results. The saved cloud
+publication predates this core change and is rejected by source validation;
+build a new shared Linux publication before another deployment.
 
 ## Run and reuse
 

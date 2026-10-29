@@ -1,0 +1,3872 @@
+{
+  "schema": 1,
+  "scope": "four independent local release processes; paired old/new executables; userspace pipelined TCP delay; memory records; no cloud or kernel/bandwidth shaping",
+  "settings": {
+    "nodes": 4,
+    "rate": 100,
+    "useful_bytes": 1,
+    "encoded_bytes": 61,
+    "warmup_s": 2,
+    "duration_s": 10,
+    "drain_s": 15,
+    "batch_ms": 10,
+    "batch_max_transactions": 128,
+    "trace_stride": 1,
+    "trace_max_events": 500000
+  },
+  "delay_model": {
+    "description": "Synthetic WAN-like topology in replica order Singapore, Frankfurt, London, Seoul. Symmetric one-way values approximately halve four measured ring RTTs; Singapore-London (85 ms) and Frankfurt-Seoul (115 ms) are estimates. This is not a measured all-pairs WAN replay.",
+    "matrix_ms": [
+      [
+        0,
+        80,
+        85,
+        31
+      ],
+      [
+        80,
+        0,
+        7,
+        115
+      ],
+      [
+        85,
+        7,
+        0,
+        120
+      ],
+      [
+        31,
+        115,
+        120,
+        0
+      ]
+    ]
+  },
+  "calibration_added_rtt_ms": 24.048666499999996,
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/matched-index.json",
+      "sha256": "ddbbada10a002d35d0beaa5ed4c59cd8b6310c67467e2635c2c5b976af9b7825",
+      "bytes": 19935
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+      "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+      "bytes": 3213008
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+      "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+      "bytes": 3218912
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/pipeline-tcp-20261029-healthy-run/manifest.json",
+      "sha256": "f92066b354bb51c76c70cfd56b8932087c696a8d814c989f149a1e10179600da",
+      "bytes": 534234
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/after-build/manifest.json",
+      "sha256": "90af59a1c512bb4493430ebb8e4b5457e3c9d3c1afee182e793136748ca8e67a",
+      "bytes": 21973
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/run_tcp_delay.py",
+      "sha256": "35483f8bff3f46be264bf186ee87bb323d402ec236650bc420963943d15e3cba",
+      "bytes": 32871
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/run_sustained.py",
+      "sha256": "7a030da6c6535dc2d62d1ee7913e88f8b493abf219a324f46976fa39bd651c55",
+      "bytes": 68078
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/spec_provenance.py",
+      "sha256": "d24a399d2d89494615a8e9bf20f799439a140b5b009510256326d693de824a4b",
+      "bytes": 7899
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/run_network.py",
+      "sha256": "4f354b68b8f1123ff60535efb79a8c30d630a3ef1b64c0c4dbb3c9649274ac67",
+      "bytes": 64405
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/latency_decomposition.py",
+      "sha256": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+      "bytes": 14765
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/core/delugi/src/replica.rs",
+      "sha256": "fb3b9ab7e0b87fbffa7d99979b5bc0d1ad846ccfb118993664db21d83651c694",
+      "bytes": 154084
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/core/delugi/src/composed.rs",
+      "sha256": "47c164d69f0b070b067cf9e89762c677168d0f501db2abca41ac000c9218056f",
+      "bytes": 82921
+    }
+  ],
+  "analysis_script": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/freshness-fix-2026-10-29/plot_results.py",
+    "sha256": "382ee25a645b58d29ba6d022451060b10169c1da4321be84143293e43a925272",
+    "bytes": 17419
+  },
+  "runs": [
+    {
+      "name": "uniform-healthy-before",
+      "topology": "uniform",
+      "case": "healthy",
+      "version": "before",
+      "bound_ms": 100,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/diagnostic-result.json",
+          "sha256": "508ec19d7e48c6f9ada640b7b0d247bc7fb1033f9a815ca14f4cf6a1ef43f2f4",
+          "bytes": 67740
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/decomposition.json",
+          "sha256": "ec1f04384cad559335309c6b56d15c1ffa96ba8974d6742837b93e2c7fd615b8",
+          "bytes": 6602423
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/config.json",
+          "sha256": "a7c1d7b7e81bc8c6a342781776efa900408691fce7eef5d10198cd9b7b934dcc",
+          "bytes": 3256
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/cohorts/index.json",
+          "sha256": "68d39881bbe56f8f2b8cf2e137cb18b7c2f9fe42f9bf16e8b490825280b1324f",
+          "bytes": 12949
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/proxy.json",
+          "sha256": "e3d6967b5e85b6f3b6edd69a8e018e12b7809069ef7f15d5b9692f8412bce47e",
+          "bytes": 13944
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/causal-traces/replica-0.json",
+          "sha256": "c85b087f637e09360d94830a48d2855d644067aa053869e14c15c9e78ce35f16",
+          "bytes": 20491206
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/causal-traces/replica-1.json",
+          "sha256": "a523bb0d9ecf63572aeb1a5762d18c5f261ddee1491d58125077851cab44c4e3",
+          "bytes": 20489799
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/causal-traces/replica-2.json",
+          "sha256": "e97a2c4926b93181e5d360261e01f68367473ec78e0a64be9cb6c036bea34656",
+          "bytes": 20492183
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/causal-traces/replica-3.json",
+          "sha256": "e79a8a20c7b511d0cdea3b3f7b285a98db0c527184bdca663bbd8fbac2c9442c",
+          "bytes": 20487225
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 61.542472000000004,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.612909
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 36.913582000000005
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 23.972495
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.009367
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.016939
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.01718
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.612909
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 36.913582000000005
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 23.972495
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.009367
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 0.034119
+        }
+      ],
+      "window_goodput_tps": 99.9,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 887,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 887,
+          "mean": 21.72088162344983,
+          "median": 21.557,
+          "p95": 22.655,
+          "min": 21.14,
+          "max": 31.368
+        },
+        "pool_to_input_ms": {
+          "count": 887,
+          "mean": 0.5004611048478016,
+          "median": 0.477,
+          "p95": 0.694,
+          "min": 0.35,
+          "max": 1.296
+        },
+        "input_to_proposal_ms": {
+          "count": 887,
+          "mean": 0.9712728297632469,
+          "median": 0.799,
+          "p95": 1.993,
+          "min": 0.285,
+          "max": 6.031
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 887,
+          "mean": 32.12392446448703,
+          "median": 31.97,
+          "p95": 32.994,
+          "min": 31.466,
+          "max": 41.286
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 883,
+        "mean": 11.283014156285391,
+        "median": 11.259,
+        "p95": 11.59375,
+        "min": 10.90025,
+        "max": 13.535
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 296,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 295
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 295,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 294
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 295,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 294
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 295,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "old_prefix_plus_four": 294
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 4472,
+        "catchup_timer_expiry": 4600,
+        "no_cer": 0
+      },
+      "proxy": {
+        "delay_matrix_ms": null,
+        "scalar_delay_ms": 10,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4400,
+            "bytes": 9332223,
+            "mean_hold_ms": 10.200282444288447,
+            "min_hold_ms": 10.010000318288803,
+            "max_hold_ms": 13.800709508359432
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4366,
+            "bytes": 860928,
+            "mean_hold_ms": 10.304184468395658,
+            "min_hold_ms": 10.01241710036993,
+            "max_hold_ms": 13.775666244328022
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4400,
+            "bytes": 9338338,
+            "mean_hold_ms": 10.203993483869866,
+            "min_hold_ms": 10.011999867856503,
+            "max_hold_ms": 13.966875150799751
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4350,
+            "bytes": 860928,
+            "mean_hold_ms": 10.316557085633963,
+            "min_hold_ms": 10.012458078563213,
+            "max_hold_ms": 13.571707531809807
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4416,
+            "bytes": 9332939,
+            "mean_hold_ms": 10.203710423556386,
+            "min_hold_ms": 10.009207762777805,
+            "max_hold_ms": 13.952207751572132
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4366,
+            "bytes": 860928,
+            "mean_hold_ms": 10.297146186606291,
+            "min_hold_ms": 10.012292303144932,
+            "max_hold_ms": 13.749624602496624
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4393,
+            "bytes": 9339298,
+            "mean_hold_ms": 10.20271520813193,
+            "min_hold_ms": 10.006166994571686,
+            "max_hold_ms": 13.959500007331371
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4347,
+            "bytes": 860928,
+            "mean_hold_ms": 10.29895600454236,
+            "min_hold_ms": 10.013915598392487,
+            "max_hold_ms": 13.379791751503944
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4413,
+            "bytes": 9339658,
+            "mean_hold_ms": 10.204510989312126,
+            "min_hold_ms": 10.006417520344257,
+            "max_hold_ms": 13.973874971270561
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4345,
+            "bytes": 860928,
+            "mean_hold_ms": 10.304719297337519,
+            "min_hold_ms": 10.01724973320961,
+            "max_hold_ms": 13.197291642427444
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4410,
+            "bytes": 9340513,
+            "mean_hold_ms": 10.201522977621444,
+            "min_hold_ms": 10.016707703471184,
+            "max_hold_ms": 14.20520804822445
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4348,
+            "bytes": 861120,
+            "mean_hold_ms": 10.3147956823267,
+            "min_hold_ms": 10.01100055873394,
+            "max_hold_ms": 13.462625443935394
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4413,
+            "bytes": 9331895,
+            "mean_hold_ms": 10.207063763904891,
+            "min_hold_ms": 10.009707883000374,
+            "max_hold_ms": 13.95866647362709
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4370,
+            "bytes": 860928,
+            "mean_hold_ms": 10.305924937810996,
+            "min_hold_ms": 10.009417310357094,
+            "max_hold_ms": 13.712833635509014
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4388,
+            "bytes": 9339833,
+            "mean_hold_ms": 10.193008888952617,
+            "min_hold_ms": 10.009249672293663,
+            "max_hold_ms": 14.191375114023685
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4346,
+            "bytes": 861120,
+            "mean_hold_ms": 10.30934770671703,
+            "min_hold_ms": 10.013166815042496,
+            "max_hold_ms": 13.385457918047905
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4413,
+            "bytes": 9345630,
+            "mean_hold_ms": 10.204442642728758,
+            "min_hold_ms": 10.011833161115646,
+            "max_hold_ms": 13.941915705800056
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4361,
+            "bytes": 861120,
+            "mean_hold_ms": 10.313999250777215,
+            "min_hold_ms": 10.010000318288803,
+            "max_hold_ms": 13.737959787249565
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4404,
+            "bytes": 9340917,
+            "mean_hold_ms": 10.198481020168296,
+            "min_hold_ms": 10.008749552071095,
+            "max_hold_ms": 13.937167823314667
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4357,
+            "bytes": 861120,
+            "mean_hold_ms": 10.309758342397249,
+            "min_hold_ms": 10.016040876507759,
+            "max_hold_ms": 13.402290642261505
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4401,
+            "bytes": 9347010,
+            "mean_hold_ms": 10.201319325245516,
+            "min_hold_ms": 10.013915598392487,
+            "max_hold_ms": 14.22166544944048
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4350,
+            "bytes": 861120,
+            "mean_hold_ms": 10.29813859290604,
+            "min_hold_ms": 10.01204177737236,
+            "max_hold_ms": 13.60474992543459
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4418,
+            "bytes": 9345474,
+            "mean_hold_ms": 10.204718844739965,
+            "min_hold_ms": 10.011624544858932,
+            "max_hold_ms": 13.961167074739933
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4350,
+            "bytes": 861120,
+            "mean_hold_ms": 10.31693543553695,
+            "min_hold_ms": 10.009374469518661,
+            "max_hold_ms": 13.5514996945858
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 93359864
+    },
+    {
+      "name": "uniform-healthy-after",
+      "topology": "uniform",
+      "case": "healthy",
+      "version": "after",
+      "bound_ms": 100,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/diagnostic-result.json",
+          "sha256": "89317b1c4cb08bb24c3302332d37a9b9ed1d9129cbac3c640637428cf7e9e693",
+          "bytes": 67852
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/decomposition.json",
+          "sha256": "14bbf89fa759ae4fad63982d4295c883a1b0116397fe10359b979357466d2a0a",
+          "bytes": 6534598
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/config.json",
+          "sha256": "9cb131ba75e7d1418ac067bc6d4dfbe8c9dfed03e86071f85f93c2527231c47b",
+          "bytes": 3241
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/cohorts/index.json",
+          "sha256": "5b4976108e34118978437d2d9d297545c6724ea4279d4d8ed66e08799dcbd4e5",
+          "bytes": 12892
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/proxy.json",
+          "sha256": "61cb5c47600710e6f70d519dd75c0750303db71142ec3a9f60a09e6e35cc4e45",
+          "bytes": 13951
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/causal-traces/replica-0.json",
+          "sha256": "2b14deed51730905cf425015ac544c804aa8ac06b8f1c37df84ac73c53ae4c87",
+          "bytes": 20336195
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/causal-traces/replica-1.json",
+          "sha256": "f6433b124f497fc047bd25e614f930186f68fc1e649a605a1640120d886b6603",
+          "bytes": 20341291
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/causal-traces/replica-2.json",
+          "sha256": "219405f6c37674f22beed437a6e97762ade323a094341c094693275a34040f7e",
+          "bytes": 20334335
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/causal-traces/replica-3.json",
+          "sha256": "4fdc2158793f7017b878a138606decd363ba7eee70047489a36ca1d012780d78",
+          "bytes": 20336570
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 61.355593,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.648289
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 36.586356
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 24.077166000000002
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.009618
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.016998000000000003
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.017166
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.648289
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 36.586356
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 24.077166000000002
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.009618
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 0.034164
+        }
+      ],
+      "window_goodput_tps": 100.1,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 876,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 876,
+          "mean": 21.852885844748858,
+          "median": 21.747,
+          "p95": 22.852,
+          "min": 21.017,
+          "max": 24.162
+        },
+        "pool_to_input_ms": {
+          "count": 876,
+          "mean": 0.49767123287671233,
+          "median": 0.4775,
+          "p95": 0.681,
+          "min": 0.317,
+          "max": 1.022
+        },
+        "input_to_proposal_ms": {
+          "count": 876,
+          "mean": 0.4117522831050228,
+          "median": 0.413,
+          "p95": 0.462,
+          "min": 0.281,
+          "max": 0.612
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 876,
+          "mean": 32.3758105022831,
+          "median": 32.2825,
+          "p95": 33.495,
+          "min": 31.462,
+          "max": 35.114
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 872,
+        "mean": 11.41403755733945,
+        "median": 11.338125,
+        "p95": 11.953,
+        "min": 10.832,
+        "max": 12.29825
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 292,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 291
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 292,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 291
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 292,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 291
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 292,
+          "satisfied_branches": {
+            "validated_wave": 292
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 4428,
+        "catchup_timer_expiry": 4556,
+        "no_cer": 0
+      },
+      "proxy": {
+        "delay_matrix_ms": null,
+        "scalar_delay_ms": 10,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4424,
+            "bytes": 9254865,
+            "mean_hold_ms": 10.219774558629915,
+            "min_hold_ms": 10.008958168327808,
+            "max_hold_ms": 12.014917097985744
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4292,
+            "bytes": 855552,
+            "mean_hold_ms": 10.339462660289502,
+            "min_hold_ms": 10.013459250330925,
+            "max_hold_ms": 12.165499851107597
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4416,
+            "bytes": 9253041,
+            "mean_hold_ms": 10.216506081211476,
+            "min_hold_ms": 10.0102499127388,
+            "max_hold_ms": 12.030416168272495
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4321,
+            "bytes": 855552,
+            "mean_hold_ms": 10.330980979863124,
+            "min_hold_ms": 10.014333762228489,
+            "max_hold_ms": 12.523000128567219
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4422,
+            "bytes": 9254545,
+            "mean_hold_ms": 10.21616030711898,
+            "min_hold_ms": 10.008792392909527,
+            "max_hold_ms": 12.043333612382412
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4323,
+            "bytes": 855360,
+            "mean_hold_ms": 10.325896908300095,
+            "min_hold_ms": 10.011750273406506,
+            "max_hold_ms": 12.377000413835049
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4414,
+            "bytes": 9252426,
+            "mean_hold_ms": 10.212031045804533,
+            "min_hold_ms": 10.009167715907097,
+            "max_hold_ms": 12.262582778930664
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4324,
+            "bytes": 855552,
+            "mean_hold_ms": 10.3422037440384,
+            "min_hold_ms": 10.012333281338215,
+            "max_hold_ms": 13.046249747276306
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4408,
+            "bytes": 9250958,
+            "mean_hold_ms": 10.217832817405313,
+            "min_hold_ms": 10.010084137320518,
+            "max_hold_ms": 12.551957741379738
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4328,
+            "bytes": 855552,
+            "mean_hold_ms": 10.339339646552094,
+            "min_hold_ms": 10.014000348746777,
+            "max_hold_ms": 12.482250109314919
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4410,
+            "bytes": 9253162,
+            "mean_hold_ms": 10.212993025019461,
+            "min_hold_ms": 10.011209174990654,
+            "max_hold_ms": 12.288041412830353
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4321,
+            "bytes": 855552,
+            "mean_hold_ms": 10.332662340411362,
+            "min_hold_ms": 10.013625025749207,
+            "max_hold_ms": 12.995749711990356
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4402,
+            "bytes": 9253497,
+            "mean_hold_ms": 10.21884933963709,
+            "min_hold_ms": 10.008582845330238,
+            "max_hold_ms": 12.086457572877407
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4304,
+            "bytes": 855744,
+            "mean_hold_ms": 10.342826797595754,
+            "min_hold_ms": 10.009749792516232,
+            "max_hold_ms": 13.257250189781189
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4412,
+            "bytes": 9254545,
+            "mean_hold_ms": 10.222566143904263,
+            "min_hold_ms": 10.005208663642406,
+            "max_hold_ms": 12.457041069865227
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4305,
+            "bytes": 855744,
+            "mean_hold_ms": 10.338391875253253,
+            "min_hold_ms": 10.01262478530407,
+            "max_hold_ms": 13.18687479943037
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4404,
+            "bytes": 9254301,
+            "mean_hold_ms": 10.217600756686023,
+            "min_hold_ms": 10.009124875068665,
+            "max_hold_ms": 12.046374380588531
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4322,
+            "bytes": 855744,
+            "mean_hold_ms": 10.336628124895318,
+            "min_hold_ms": 10.009749792516232,
+            "max_hold_ms": 13.257792219519615
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4406,
+            "bytes": 9255636,
+            "mean_hold_ms": 10.214061718104348,
+            "min_hold_ms": 10.008917190134525,
+            "max_hold_ms": 12.106957845389843
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4332,
+            "bytes": 855552,
+            "mean_hold_ms": 10.347015462817483,
+            "min_hold_ms": 10.005833581089973,
+            "max_hold_ms": 12.447833083570004
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4409,
+            "bytes": 9258008,
+            "mean_hold_ms": 10.219682665804964,
+            "min_hold_ms": 10.010374709963799,
+            "max_hold_ms": 12.136083096265793
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4318,
+            "bytes": 855552,
+            "mean_hold_ms": 10.345935540928602,
+            "min_hold_ms": 10.010208003222942,
+            "max_hold_ms": 12.52949982881546
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 4408,
+            "bytes": 9257040,
+            "mean_hold_ms": 10.21695657998337,
+            "min_hold_ms": 10.008708573877811,
+            "max_hold_ms": 12.147583067417145
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 4307,
+            "bytes": 855360,
+            "mean_hold_ms": 10.340497778421119,
+            "min_hold_ms": 10.013374499976635,
+            "max_hold_ms": 12.57262472063303
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 92506334
+    },
+    {
+      "name": "uniform-silent-before",
+      "topology": "uniform",
+      "case": "silent",
+      "version": "before",
+      "bound_ms": 100,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/diagnostic-result.json",
+          "sha256": "9630888472581c38a7a0172652591fe0877d8eda8c0ea5cbb02f8edc2b568fb8",
+          "bytes": 73920
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/decomposition.json",
+          "sha256": "61cbf66d506eb87841832bd81b18c4b8f21f994779c9aa6f150f703af54ecbc5",
+          "bytes": 307098
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/config.json",
+          "sha256": "64b749708f6150c9b006cbe1fe95d082d05f5df32fe4080ec48693bb168d8937",
+          "bytes": 3232
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/cohorts/index.json",
+          "sha256": "f47b328e438a88a106b7df92e4a7b89082d6babe29259c39a65e3a4f8d6a2d6b",
+          "bytes": 10995
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/proxy.json",
+          "sha256": "c08351ae29c1af393ef8161c874ff65430d3f1899a30025ac3a9ce9c98523c66",
+          "bytes": 10699
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/causal-traces/replica-0.json",
+          "sha256": "12bcee9aa9e68b557ec210a0d22e00068ac71b5f471d0a001ee43de98a2c7ea3",
+          "bytes": 595
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/causal-traces/replica-1.json",
+          "sha256": "2192eeba09f3d4fd34cb08f6fc487e0b59e540709b8590c845893d15469a1856",
+          "bytes": 4271879
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/causal-traces/replica-2.json",
+          "sha256": "85de5f9393d357bbf105d772ab10c149a91b78a08da5d9e482ba7ffa8d585e51",
+          "bytes": 4271939
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/causal-traces/replica-3.json",
+          "sha256": "63cfd3237e3d547a9b4853574884c197cd692fecd21e7b53839ae7f6ddea06ae",
+          "bytes": 4271519
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 1083.17973,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.914665
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 394.337566
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 26.252478
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 661.2901400000001
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.14265899999999998
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.24222200000000002
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.914665
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 394.337566
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 26.252478
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 661.2901400000001
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 0.38488100000000003
+        }
+      ],
+      "window_goodput_tps": 100.1,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 42,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 42,
+          "mean": 25.96702380952381,
+          "median": 25.9525,
+          "p95": 29.014,
+          "min": 22.936,
+          "max": 29.195
+        },
+        "pool_to_input_ms": {
+          "count": 42,
+          "mean": 1.359,
+          "median": 1.2955,
+          "p95": 1.976,
+          "min": 0.835,
+          "max": 2.639
+        },
+        "input_to_proposal_ms": {
+          "count": 42,
+          "mean": 229.7774761904762,
+          "median": 25.012999999999998,
+          "p95": 666.063,
+          "min": 0.536,
+          "max": 668.874
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 42,
+          "mean": 33.98121428571429,
+          "median": 33.9405,
+          "p95": 35.673,
+          "min": 32.389,
+          "max": 37.572
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 39,
+        "mean": 178.7361923076923,
+        "median": 178.5755,
+        "p95": 180.3325,
+        "min": 177.32475,
+        "max": 180.8085
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 0,
+          "satisfied_branches": {},
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 21,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 20
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 21,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 20
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 21,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "old_prefix_plus_four": 20
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 237,
+        "catchup_timer_expiry": 228,
+        "no_cer": 60
+      },
+      "proxy": {
+        "delay_matrix_ms": null,
+        "scalar_delay_ms": 10,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1761,
+            "bytes": 1159965,
+            "mean_hold_ms": 10.403884401833686,
+            "min_hold_ms": 10.02470776438713,
+            "max_hold_ms": 13.97804170846939
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1748,
+            "bytes": 341568,
+            "mean_hold_ms": 10.573517653698984,
+            "min_hold_ms": 10.025625117123127,
+            "max_hold_ms": 14.565167017281055
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1779,
+            "bytes": 1197637,
+            "mean_hold_ms": 10.41009337570625,
+            "min_hold_ms": 10.028165765106678,
+            "max_hold_ms": 13.970708474516869
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1762,
+            "bytes": 345600,
+            "mean_hold_ms": 10.55466487980474,
+            "min_hold_ms": 10.029000230133533,
+            "max_hold_ms": 14.35366552323103
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1779,
+            "bytes": 1195329,
+            "mean_hold_ms": 10.422317987017882,
+            "min_hold_ms": 10.02916693687439,
+            "max_hold_ms": 13.943582773208618
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1759,
+            "bytes": 345600,
+            "mean_hold_ms": 10.542919996950083,
+            "min_hold_ms": 10.022083297371864,
+            "max_hold_ms": 14.09816648811102
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1753,
+            "bytes": 1175089,
+            "mean_hold_ms": 10.409430030646217,
+            "min_hold_ms": 10.018291883170605,
+            "max_hold_ms": 13.955583795905113
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1737,
+            "bytes": 341568,
+            "mean_hold_ms": 10.570329675642869,
+            "min_hold_ms": 10.016999207437038,
+            "max_hold_ms": 14.385458081960678
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1771,
+            "bytes": 1212069,
+            "mean_hold_ms": 10.42182806233509,
+            "min_hold_ms": 10.026749223470688,
+            "max_hold_ms": 13.91479093581438
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1755,
+            "bytes": 345600,
+            "mean_hold_ms": 10.55863469924003,
+            "min_hold_ms": 10.02679206430912,
+            "max_hold_ms": 14.394334517419338
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1769,
+            "bytes": 1210421,
+            "mean_hold_ms": 10.42829905339154,
+            "min_hold_ms": 10.028124786913395,
+            "max_hold_ms": 13.582457788288593
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1752,
+            "bytes": 345600,
+            "mean_hold_ms": 10.533544600656317,
+            "min_hold_ms": 10.023667477071285,
+            "max_hold_ms": 14.123165979981422
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1765,
+            "bytes": 1166230,
+            "mean_hold_ms": 10.416054990005392,
+            "min_hold_ms": 10.024459101259708,
+            "max_hold_ms": 14.120541512966156
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1750,
+            "bytes": 341568,
+            "mean_hold_ms": 10.556157039744514,
+            "min_hold_ms": 10.02225000411272,
+            "max_hold_ms": 14.51166719198227
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1783,
+            "bytes": 1203114,
+            "mean_hold_ms": 10.422638648796035,
+            "min_hold_ms": 10.01487486064434,
+            "max_hold_ms": 14.103083871304989
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1769,
+            "bytes": 345600,
+            "mean_hold_ms": 10.532635198290096,
+            "min_hold_ms": 10.02500019967556,
+            "max_hold_ms": 14.592333696782589
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1787,
+            "bytes": 1203902,
+            "mean_hold_ms": 10.430232315284117,
+            "min_hold_ms": 10.026666335761547,
+            "max_hold_ms": 14.085584320127964
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1759,
+            "bytes": 345600,
+            "mean_hold_ms": 10.515608508171615,
+            "min_hold_ms": 10.029000230133533,
+            "max_hold_ms": 14.427250251173973
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 10032100
+    },
+    {
+      "name": "uniform-silent-after",
+      "topology": "uniform",
+      "case": "silent",
+      "version": "after",
+      "bound_ms": 100,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/diagnostic-result.json",
+          "sha256": "44346807ca03c499512a5af56f278d36e298952779ca08dd24b8c456dbaa867e",
+          "bytes": 74635
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/decomposition.json",
+          "sha256": "f0bce139e4e43829758239fe5d9f4ebb85e527c5e882d4fbdcce4ba60723ea7a",
+          "bytes": 291779
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/config.json",
+          "sha256": "fcea75f3a7424e5d8306e064ed7329adf7089d42c8e537a5edc261b3b3587df2",
+          "bytes": 3227
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/cohorts/index.json",
+          "sha256": "13066537a9b4463b7ad460c441e3cd8b6ae874708dd655b7552412b970f8e5ff",
+          "bytes": 10989
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/proxy.json",
+          "sha256": "a909fe50e15e8c7e6fcc366b2cfde0f98f4b877a03afa44606d06c31743bd39b",
+          "bytes": 10706
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/causal-traces/replica-0.json",
+          "sha256": "b193ccfccc59c20d21bf0ae3b330783bab498314d3d4b54b3c72da76c38ae2c2",
+          "bytes": 590
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/causal-traces/replica-1.json",
+          "sha256": "0de27faf3e72434632396310f7f92828e79399848e39fc57f724037b0e2b619c",
+          "bytes": 4085432
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/causal-traces/replica-2.json",
+          "sha256": "fcb322390d1af4d183aca08d5ad9d0263bd0f5d70cfe5423a163c335f35fefce",
+          "bytes": 4085290
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/causal-traces/replica-3.json",
+          "sha256": "e154cc53488744aa9e4da8ce57099020bd20e15f52ed7a0dc6b2ae7ef22a396e",
+          "bytes": 4083223
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 423.134978,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.9328630000000001
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 353.848534
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 26.990543000000002
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 40.733798
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.43136599999999997
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.197874
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.9328630000000001
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 353.848534
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 26.990543000000002
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 40.733798
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 0.62924
+        }
+      ],
+      "window_goodput_tps": 100.1,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 42,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 42,
+          "mean": 25.037952380952383,
+          "median": 24.488,
+          "p95": 28.603,
+          "min": 22.661,
+          "max": 28.912
+        },
+        "pool_to_input_ms": {
+          "count": 42,
+          "mean": 1.4129285714285715,
+          "median": 1.4249999999999998,
+          "p95": 1.858,
+          "min": 0.928,
+          "max": 1.993
+        },
+        "input_to_proposal_ms": {
+          "count": 42,
+          "mean": 0.7100714285714286,
+          "median": 0.6964999999999999,
+          "p95": 0.878,
+          "min": 0.515,
+          "max": 0.972
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 42,
+          "mean": 34.525,
+          "median": 34.352000000000004,
+          "p95": 36.283,
+          "min": 32.69,
+          "max": 37.638
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 39,
+        "mean": 178.7279423076923,
+        "median": 178.6085,
+        "p95": 180.09475,
+        "min": 176.95175,
+        "max": 180.53825
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 0,
+          "satisfied_branches": {},
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 20,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "resolved_local_prefix": 19,
+            "validated_wave": 19
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 20,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 19
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 19,
+          "satisfied_branches": {
+            "resolved_local_prefix": 19
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 225,
+        "catchup_timer_expiry": 216,
+        "no_cer": 57
+      },
+      "proxy": {
+        "delay_matrix_ms": null,
+        "scalar_delay_ms": 10,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1695,
+            "bytes": 1128193,
+            "mean_hold_ms": 10.40093147011809,
+            "min_hold_ms": 10.022750124335289,
+            "max_hold_ms": 14.146000146865845
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1680,
+            "bytes": 327552,
+            "mean_hold_ms": 10.535664456186906,
+            "min_hold_ms": 10.021542198956013,
+            "max_hold_ms": 14.293458312749863
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1690,
+            "bytes": 1120078,
+            "mean_hold_ms": 10.404996905123166,
+            "min_hold_ms": 10.027207434177399,
+            "max_hold_ms": 14.136792160570621
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1659,
+            "bytes": 327360,
+            "mean_hold_ms": 10.538578323117218,
+            "min_hold_ms": 10.027874261140823,
+            "max_hold_ms": 14.481083489954472
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1714,
+            "bytes": 1163917,
+            "mean_hold_ms": 10.414885402121337,
+            "min_hold_ms": 10.026083327829838,
+            "max_hold_ms": 14.260082505643368
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1694,
+            "bytes": 331392,
+            "mean_hold_ms": 10.521466295655987,
+            "min_hold_ms": 10.028707794845104,
+            "max_hold_ms": 14.460999518632889
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1706,
+            "bytes": 1155802,
+            "mean_hold_ms": 10.415231003802694,
+            "min_hold_ms": 10.030458681285381,
+            "max_hold_ms": 14.155291952192783
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1673,
+            "bytes": 331200,
+            "mean_hold_ms": 10.525689927390145,
+            "min_hold_ms": 10.033625178039074,
+            "max_hold_ms": 14.34920821338892
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1709,
+            "bytes": 1161329,
+            "mean_hold_ms": 10.424109327842821,
+            "min_hold_ms": 10.031167417764664,
+            "max_hold_ms": 14.75950051099062
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1690,
+            "bytes": 331200,
+            "mean_hold_ms": 10.501236251979714,
+            "min_hold_ms": 10.028292424976826,
+            "max_hold_ms": 14.418499544262886
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1711,
+            "bytes": 1156594,
+            "mean_hold_ms": 10.420562576966319,
+            "min_hold_ms": 10.030792094767094,
+            "max_hold_ms": 14.245125465095043
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1670,
+            "bytes": 331200,
+            "mean_hold_ms": 10.503535987084318,
+            "min_hold_ms": 10.033916682004929,
+            "max_hold_ms": 14.356999658048153
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1691,
+            "bytes": 1112881,
+            "mean_hold_ms": 10.393470150679086,
+            "min_hold_ms": 10.019582696259022,
+            "max_hold_ms": 14.305208809673786
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1671,
+            "bytes": 327552,
+            "mean_hold_ms": 10.544049274343562,
+            "min_hold_ms": 10.034834034740925,
+            "max_hold_ms": 14.471500180661678
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1710,
+            "bytes": 1149449,
+            "mean_hold_ms": 10.403373604368047,
+            "min_hold_ms": 10.01779269427061,
+            "max_hold_ms": 14.132749289274216
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1684,
+            "bytes": 331392,
+            "mean_hold_ms": 10.528488991662613,
+            "min_hold_ms": 10.024083778262138,
+            "max_hold_ms": 14.424791559576988
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 10,
+            "chunks": 1709,
+            "bytes": 1146081,
+            "mean_hold_ms": 10.413576169250094,
+            "min_hold_ms": 10.02216711640358,
+            "max_hold_ms": 14.251874759793282
+          },
+          {
+            "source_replica": null,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 10,
+            "chunks": 1677,
+            "bytes": 331200,
+            "mean_hold_ms": 10.51519046658089,
+            "min_hold_ms": 10.023958049714565,
+            "max_hold_ms": 14.413832686841488
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 10009034
+    },
+    {
+      "name": "wan-like-healthy-before",
+      "topology": "wan-like",
+      "case": "healthy",
+      "version": "before",
+      "bound_ms": 1000,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/diagnostic-result.json",
+          "sha256": "b8893e778c0abff1113d7a4431736b9776db88d38381b7c299786bc191d0920e",
+          "bytes": 72412
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/decomposition.json",
+          "sha256": "95afdec72f965f0553065d2151ec4ead02bd7b6b3d6d932a5de09165b4336442",
+          "bytes": 576440
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/config.json",
+          "sha256": "e333daed8b4d4b8d76dc45ada1c9b39589b186c17394a1b975259dcc088f746c",
+          "bytes": 3247
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/cohorts/index.json",
+          "sha256": "73a17390f9ca77a349432da3f01e3cf2f40f2b5113389eeeb2c506b216211b8b",
+          "bytes": 12938
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/proxy.json",
+          "sha256": "4aa623106dff0047c4fa18a5960c389f2a2692a425ae53832b357752919af16d",
+          "bytes": 14379
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/causal-traces/replica-0.json",
+          "sha256": "743c82f513f12dfa449d6ac5a058d957b9a7c01c66e218a52ff185af074a8b41",
+          "bytes": 2865790
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/causal-traces/replica-1.json",
+          "sha256": "abeb13def5c07f300bead5a8bb478f2a47f76f0dfafdec2774f17ca79aebdd4b",
+          "bytes": 2869934
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/causal-traces/replica-2.json",
+          "sha256": "0d18e49f37d9e524a0b67405f59bcd9736b8bbaadda36bc5994829aaf8fff7c3",
+          "bytes": 2867560
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/causal-traces/replica-3.json",
+          "sha256": "07da1448b15cea7981917eea08e91cf49cf1e611ccc1cb29408415680937b09a",
+          "bytes": 2861031
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 635.090788,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.839409
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 452.404467
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 181.604106
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.025776
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.05949
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.15753999999999999
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.839409
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 452.404467
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 181.604106
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.025776
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 0.21703
+        }
+      ],
+      "window_goodput_tps": 101.0,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 85,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 85,
+          "mean": 182.6454705882353,
+          "median": 171.21,
+          "p95": 232.96,
+          "min": 161.567,
+          "max": 233.445
+        },
+        "pool_to_input_ms": {
+          "count": 85,
+          "mean": 1.8643058823529413,
+          "median": 1.838,
+          "p95": 2.762,
+          "min": 0.654,
+          "max": 2.981
+        },
+        "input_to_proposal_ms": {
+          "count": 85,
+          "mean": 66.11227058823529,
+          "median": 118.8,
+          "p95": 141.368,
+          "min": 0.349,
+          "max": 143.954
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 85,
+          "mean": 189.87384705882354,
+          "median": 175.668,
+          "p95": 235.357,
+          "min": 174.057,
+          "max": 236.107
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 81,
+        "mean": 116.86483024691358,
+        "median": 117.02325,
+        "p95": 117.536,
+        "min": 115.60325,
+        "max": 117.81675
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 30,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 29
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 31,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 30
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 30,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 29
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 29,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "old_prefix_plus_four": 28
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 232,
+        "catchup_timer_expiry": 364,
+        "no_cer": 0
+      },
+      "proxy": {
+        "delay_matrix_ms": [
+          [
+            0,
+            80,
+            85,
+            31
+          ],
+          [
+            80,
+            0,
+            7,
+            115
+          ],
+          [
+            85,
+            7,
+            0,
+            120
+          ],
+          [
+            31,
+            115,
+            120,
+            0
+          ]
+        ],
+        "scalar_delay_ms": null,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": 0,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 80,
+            "chunks": 765,
+            "bytes": 1132276,
+            "mean_hold_ms": 80.16668593425767,
+            "min_hold_ms": 80.01458272337914,
+            "max_hold_ms": 82.10666570812464
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 80,
+            "chunks": 761,
+            "bytes": 147264,
+            "mean_hold_ms": 80.18234109508458,
+            "min_hold_ms": 80.0222922116518,
+            "max_hold_ms": 82.71174971014261
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 85,
+            "chunks": 765,
+            "bytes": 1132268,
+            "mean_hold_ms": 85.17556350093845,
+            "min_hold_ms": 85.01833397895098,
+            "max_hold_ms": 86.20004076510668
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 85,
+            "chunks": 767,
+            "bytes": 147264,
+            "mean_hold_ms": 85.17115653615149,
+            "min_hold_ms": 85.02279128879309,
+            "max_hold_ms": 87.03037537634373
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 31,
+            "chunks": 764,
+            "bytes": 1129988,
+            "mean_hold_ms": 31.16651603474199,
+            "min_hold_ms": 31.025458127260208,
+            "max_hold_ms": 33.03437493741512
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 31,
+            "chunks": 765,
+            "bytes": 147072,
+            "mean_hold_ms": 31.21327649241959,
+            "min_hold_ms": 31.02458268404007,
+            "max_hold_ms": 33.156041987240314
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 80,
+            "chunks": 769,
+            "bytes": 1133537,
+            "mean_hold_ms": 80.16835321443367,
+            "min_hold_ms": 80.0234992057085,
+            "max_hold_ms": 82.28970784693956
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 80,
+            "chunks": 766,
+            "bytes": 147648,
+            "mean_hold_ms": 80.17700224112981,
+            "min_hold_ms": 80.02370968461037,
+            "max_hold_ms": 82.86183327436447
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 766,
+            "bytes": 1133513,
+            "mean_hold_ms": 7.194417835196223,
+            "min_hold_ms": 7.024792023003101,
+            "max_hold_ms": 8.422291837632656
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 769,
+            "bytes": 147648,
+            "mean_hold_ms": 7.17924472903748,
+            "min_hold_ms": 7.0229582488536835,
+            "max_hold_ms": 8.725292049348354
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 766,
+            "bytes": 1132213,
+            "mean_hold_ms": 115.18901751155407,
+            "min_hold_ms": 115.00962544232607,
+            "max_hold_ms": 116.8366251513362
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 765,
+            "bytes": 147456,
+            "mean_hold_ms": 115.17707405039687,
+            "min_hold_ms": 115.01616705209017,
+            "max_hold_ms": 118.14587470144033
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 31,
+            "chunks": 763,
+            "bytes": 1122565,
+            "mean_hold_ms": 31.154516222612106,
+            "min_hold_ms": 31.02279081940651,
+            "max_hold_ms": 32.70362503826618
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 31,
+            "chunks": 763,
+            "bytes": 146880,
+            "mean_hold_ms": 31.166721561369467,
+            "min_hold_ms": 31.018958427011967,
+            "max_hold_ms": 32.40412566810846
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 763,
+            "bytes": 1123769,
+            "mean_hold_ms": 115.14964173785943,
+            "min_hold_ms": 115.02520740032196,
+            "max_hold_ms": 116.75662454217672
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 763,
+            "bytes": 146880,
+            "mean_hold_ms": 115.17009276379177,
+            "min_hold_ms": 115.019166842103,
+            "max_hold_ms": 116.81345850229263
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 759,
+            "bytes": 1123545,
+            "mean_hold_ms": 120.17782537661718,
+            "min_hold_ms": 120.02229131758213,
+            "max_hold_ms": 122.07162566483021
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 764,
+            "bytes": 146880,
+            "mean_hold_ms": 120.15890795615604,
+            "min_hold_ms": 120.02037465572357,
+            "max_hold_ms": 121.56050000339746
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 85,
+            "chunks": 768,
+            "bytes": 1132761,
+            "mean_hold_ms": 85.14238363325906,
+            "min_hold_ms": 85.02362482249737,
+            "max_hold_ms": 86.21954172849655
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 85,
+            "chunks": 766,
+            "bytes": 147456,
+            "mean_hold_ms": 85.14877148799346,
+            "min_hold_ms": 85.01966763287783,
+            "max_hold_ms": 86.55458316206932
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 766,
+            "bytes": 1130801,
+            "mean_hold_ms": 7.17759245092307,
+            "min_hold_ms": 7.020999677479267,
+            "max_hold_ms": 8.126834407448769
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 767,
+            "bytes": 147648,
+            "mean_hold_ms": 7.2034520911832365,
+            "min_hold_ms": 7.017209194600582,
+            "max_hold_ms": 8.358749561011791
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 766,
+            "bytes": 1131245,
+            "mean_hold_ms": 120.17829600580562,
+            "min_hold_ms": 120.01524958759546,
+            "max_hold_ms": 121.72433268278837
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 765,
+            "bytes": 147264,
+            "mean_hold_ms": 120.1508370562901,
+            "min_hold_ms": 120.0158754363656,
+            "max_hold_ms": 122.10054229944944
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 11626040
+    },
+    {
+      "name": "wan-like-healthy-after",
+      "topology": "wan-like",
+      "case": "healthy",
+      "version": "after",
+      "bound_ms": 1000,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/diagnostic-result.json",
+          "sha256": "f8eefe1cfeeb6fc7fad2518d8848c5a49e2019dffd40db1d3f302498868f1b29",
+          "bytes": 73224
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/decomposition.json",
+          "sha256": "dd93114e0f0b7f5712960cf5a7aa25b04dadd53a963d81ab1b0c145b065938ae",
+          "bytes": 575874
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/config.json",
+          "sha256": "81dca09f2b75af70925f81c617c0886c4ab2f13d224abdfa76bcf181c61055fb",
+          "bytes": 3242
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/cohorts/index.json",
+          "sha256": "7719bf54ba12edc5d299c19fec315e6952d52f82f73e88be495a8459334e5d60",
+          "bytes": 12926
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/proxy.json",
+          "sha256": "0fbc7684a282b808f82e45e457246c44d775c351ab7565cf36c27ca8d7685fae",
+          "bytes": 14370
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/causal-traces/replica-0.json",
+          "sha256": "5bdc10914115bfd59ed0cabecc346625720ddc709bfcd97e5ea1f7ba44f3270f",
+          "bytes": 2865804
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/causal-traces/replica-1.json",
+          "sha256": "96ed1d14919bf1c6ac84c4865d850a3fe896c9e73c330e0b4b311d1312037162",
+          "bytes": 2867029
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/causal-traces/replica-2.json",
+          "sha256": "8f36553e9e1eb881375790a9f5ce33b6a858c538fce8caab2cf7d9a06358794a",
+          "bytes": 2863274
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/causal-traces/replica-3.json",
+          "sha256": "2ac9e8680cf709c1abbfbe87090fdeef74fff4124ac68d825c667a49c763a231",
+          "bytes": 2861406
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 560.380368,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.867949
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 369.143403
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 177.496881
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 12.616242
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.111464
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.144429
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.867949
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 369.143403
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 177.496881
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 12.616242
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 0.255893
+        }
+      ],
+      "window_goodput_tps": 99.7,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 84,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 84,
+          "mean": 183.1784761904762,
+          "median": 168.557,
+          "p95": 233.229,
+          "min": 162.482,
+          "max": 234.153
+        },
+        "pool_to_input_ms": {
+          "count": 84,
+          "mean": 1.9742857142857144,
+          "median": 1.8824999999999998,
+          "p95": 2.747,
+          "min": 0.963,
+          "max": 3.189
+        },
+        "input_to_proposal_ms": {
+          "count": 84,
+          "mean": 2.5401309523809523,
+          "median": 0.887,
+          "p95": 8.14,
+          "min": 0.395,
+          "max": 8.517
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 84,
+          "mean": 190.8385119047619,
+          "median": 176.2165,
+          "p95": 236.472,
+          "min": 174.101,
+          "max": 238.672
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 80,
+        "mean": 117.37133125,
+        "median": 117.31075,
+        "p95": 118.19075,
+        "min": 116.714,
+        "max": 118.37925
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 30,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 29,
+            "resolved_local_prefix": 28
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 30,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 29
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 30,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 29
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 29,
+          "satisfied_branches": {
+            "validated_wave": 29,
+            "resolved_local_prefix": 28
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 234,
+        "catchup_timer_expiry": 362,
+        "no_cer": 0
+      },
+      "proxy": {
+        "delay_matrix_ms": [
+          [
+            0,
+            80,
+            85,
+            31
+          ],
+          [
+            80,
+            0,
+            7,
+            115
+          ],
+          [
+            85,
+            7,
+            0,
+            120
+          ],
+          [
+            31,
+            115,
+            120,
+            0
+          ]
+        ],
+        "scalar_delay_ms": null,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 31,
+            "chunks": 765,
+            "bytes": 1121397,
+            "mean_hold_ms": 31.175718057194565,
+            "min_hold_ms": 31.0248751193285,
+            "max_hold_ms": 33.242457546293736
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 31,
+            "chunks": 763,
+            "bytes": 146880,
+            "mean_hold_ms": 31.184730818190005,
+            "min_hold_ms": 31.02758340537548,
+            "max_hold_ms": 32.42429252713919
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 764,
+            "bytes": 1122869,
+            "mean_hold_ms": 115.14961995130784,
+            "min_hold_ms": 115.01908302307129,
+            "max_hold_ms": 117.27608367800713
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 760,
+            "bytes": 146880,
+            "mean_hold_ms": 115.16952374704967,
+            "min_hold_ms": 115.019541233778,
+            "max_hold_ms": 117.26333294063807
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 762,
+            "bytes": 1119393,
+            "mean_hold_ms": 120.18766636859988,
+            "min_hold_ms": 120.0138758867979,
+            "max_hold_ms": 121.42837513238192
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 762,
+            "bytes": 146688,
+            "mean_hold_ms": 120.15103345267534,
+            "min_hold_ms": 120.0238335877657,
+            "max_hold_ms": 121.25783320516348
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 80,
+            "chunks": 766,
+            "bytes": 1131685,
+            "mean_hold_ms": 80.15358925604946,
+            "min_hold_ms": 80.02654183655977,
+            "max_hold_ms": 81.88733272254467
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 80,
+            "chunks": 767,
+            "bytes": 147456,
+            "mean_hold_ms": 80.1625435484629,
+            "min_hold_ms": 80.02312574535608,
+            "max_hold_ms": 82.44004100561142
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 764,
+            "bytes": 1130393,
+            "mean_hold_ms": 115.18813463425293,
+            "min_hold_ms": 115.02558272331953,
+            "max_hold_ms": 117.16304067522287
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 763,
+            "bytes": 147264,
+            "mean_hold_ms": 115.17416106519896,
+            "min_hold_ms": 115.02795852720737,
+            "max_hold_ms": 117.10595805197954
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 766,
+            "bytes": 1129309,
+            "mean_hold_ms": 7.208490220212205,
+            "min_hold_ms": 7.024125196039677,
+            "max_hold_ms": 8.63583292812109
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 768,
+            "bytes": 147456,
+            "mean_hold_ms": 7.176113025100979,
+            "min_hold_ms": 7.020874880254269,
+            "max_hold_ms": 8.699375204741955
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 80,
+            "chunks": 764,
+            "bytes": 1131316,
+            "mean_hold_ms": 80.14963176808472,
+            "min_hold_ms": 80.02187497913837,
+            "max_hold_ms": 81.75841718912125
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 80,
+            "chunks": 766,
+            "bytes": 147264,
+            "mean_hold_ms": 80.18663126790493,
+            "min_hold_ms": 80.01870941370726,
+            "max_hold_ms": 82.2591669857502
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 85,
+            "chunks": 763,
+            "bytes": 1128088,
+            "mean_hold_ms": 85.17520233432165,
+            "min_hold_ms": 85.02708282321692,
+            "max_hold_ms": 86.90233249217272
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 85,
+            "chunks": 764,
+            "bytes": 147072,
+            "mean_hold_ms": 85.16267092327992,
+            "min_hold_ms": 85.0241668522358,
+            "max_hold_ms": 86.57787460833788
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 31,
+            "chunks": 764,
+            "bytes": 1129120,
+            "mean_hold_ms": 31.171392596994785,
+            "min_hold_ms": 31.02295845746994,
+            "max_hold_ms": 32.59479068219662
+          },
+          {
+            "source_replica": 0,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 31,
+            "chunks": 765,
+            "bytes": 147072,
+            "mean_hold_ms": 31.20178071648077,
+            "min_hold_ms": 31.02308325469494,
+            "max_hold_ms": 33.03599916398525
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 85,
+            "chunks": 768,
+            "bytes": 1125265,
+            "mean_hold_ms": 85.15068173437612,
+            "min_hold_ms": 85.02195868641138,
+            "max_hold_ms": 86.99370827525854
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 85,
+            "chunks": 767,
+            "bytes": 147456,
+            "mean_hold_ms": 85.1585429691196,
+            "min_hold_ms": 85.02362482249737,
+            "max_hold_ms": 86.1476669088006
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 767,
+            "bytes": 1122841,
+            "mean_hold_ms": 7.187212298890136,
+            "min_hold_ms": 7.025540806353092,
+            "max_hold_ms": 8.760792203247547
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 767,
+            "bytes": 147456,
+            "mean_hold_ms": 7.198189322094796,
+            "min_hold_ms": 7.020415738224983,
+            "max_hold_ms": 9.911790490150452
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 765,
+            "bytes": 1123877,
+            "mean_hold_ms": 120.17405743229817,
+            "min_hold_ms": 120.01504190266132,
+            "max_hold_ms": 121.9107499346137
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 765,
+            "bytes": 147264,
+            "mean_hold_ms": 120.14236574493397,
+            "min_hold_ms": 120.01991644501686,
+            "max_hold_ms": 121.92929070442915
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 11523504
+    },
+    {
+      "name": "wan-like-silent-before",
+      "topology": "wan-like",
+      "case": "silent",
+      "version": "before",
+      "bound_ms": 1000,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/diagnostic-result.json",
+          "sha256": "6efd99bbd80be16c07d5ba39cd42a9eda16bb0f2184b7aeb9a1b410d39c655a9",
+          "bytes": 64703
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/decomposition.json",
+          "sha256": "196aba3c5581ece1493add62a5418106fcdaefc77fcd9d5e0775c4189ff7ce7e",
+          "bytes": 49670
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/config.json",
+          "sha256": "6665536e89bd9ccf081e9b2f50dcd0ed46fc969faf412082068d846c97a930b8",
+          "bytes": 3235
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/cohorts/index.json",
+          "sha256": "e83773bcbb821bf0f2de756b9eb3a08692effbcac9ac0fc7d149072f89e003f9",
+          "bytes": 10990
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/proxy.json",
+          "sha256": "fb6f1fcee0fa79b05cc696878790b59246dbf63c54b794491d9665c90a180b6e",
+          "bytes": 11139
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/causal-traces/replica-0.json",
+          "sha256": "873cc91f08b4a621bc31234a4154c1c885dbb4b32a9c89a2c1842ed81a087575",
+          "bytes": 591
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/causal-traces/replica-1.json",
+          "sha256": "37a79c1910841a1fda95dfe17ae10f95f6e24552035e903f67008fcda1276fc1",
+          "bytes": 1308743
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/causal-traces/replica-2.json",
+          "sha256": "902f8ca5f18d4c5173b17088ab693fc1f86d97b62de4ab672037b71f47748a9c",
+          "bytes": 1311357
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/causal-traces/replica-3.json",
+          "sha256": "c85a36a9896ff7e0db5ee5023d5dee08ba5b6621c8997d7358b7a6f99660d9f9",
+          "bytes": 1304800
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 10607.022036,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 1.020781
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 3648.581298
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 249.754885
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 6704.823768
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.581566
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 2.259738
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 1.020781
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 3648.581298
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 249.754885
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 6704.823768
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 2.841304
+        }
+      ],
+      "window_goodput_tps": 0.0,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 3,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 3,
+          "mean": 241.18866666666668,
+          "median": 242.813,
+          "p95": 245.71,
+          "min": 235.043,
+          "max": 245.71
+        },
+        "pool_to_input_ms": {
+          "count": 3,
+          "mean": 2.4913333333333334,
+          "median": 2.672,
+          "p95": 3.781,
+          "min": 1.021,
+          "max": 3.781
+        },
+        "input_to_proposal_ms": {
+          "count": 3,
+          "mean": 2332.9283333333333,
+          "median": 241.509,
+          "p95": 6756.669,
+          "min": 0.607,
+          "max": 6756.669
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 3,
+          "mean": 248.62166666666667,
+          "median": 247.713,
+          "p95": 250.515,
+          "min": 247.637,
+          "max": 250.515
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 0,
+          "satisfied_branches": {},
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 4,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 3
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 4,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "history_fallback": 1,
+            "old_prefix_plus_four": 3
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 4,
+          "satisfied_branches": {
+            "initial_four": 1,
+            "old_prefix_plus_four": 3
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 33,
+        "catchup_timer_expiry": 24,
+        "no_cer": 9
+      },
+      "proxy": {
+        "delay_matrix_ms": [
+          [
+            0,
+            80,
+            85,
+            31
+          ],
+          [
+            80,
+            0,
+            7,
+            115
+          ],
+          [
+            85,
+            7,
+            0,
+            120
+          ],
+          [
+            31,
+            115,
+            120,
+            0
+          ]
+        ],
+        "scalar_delay_ms": null,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 80,
+            "chunks": 608,
+            "bytes": 344441,
+            "mean_hold_ms": 80.42599676225922,
+            "min_hold_ms": 80.02525009214878,
+            "max_hold_ms": 82.72275049239397
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 80,
+            "chunks": 609,
+            "bytes": 116928,
+            "mean_hold_ms": 80.27740302442133,
+            "min_hold_ms": 80.02283237874508,
+            "max_hold_ms": 83.75195786356926
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 612,
+            "bytes": 351345,
+            "mean_hold_ms": 7.305610363426454,
+            "min_hold_ms": 7.035542279481888,
+            "max_hold_ms": 9.69233363866806
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 612,
+            "bytes": 117696,
+            "mean_hold_ms": 7.389288041071078,
+            "min_hold_ms": 7.034666836261749,
+            "max_hold_ms": 11.849707923829556
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 612,
+            "bytes": 348981,
+            "mean_hold_ms": 115.25919267852954,
+            "min_hold_ms": 115.03383424133062,
+            "max_hold_ms": 118.00320819020271
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 613,
+            "bytes": 117696,
+            "mean_hold_ms": 115.38364687785628,
+            "min_hold_ms": 115.02845864742994,
+            "max_hold_ms": 118.45358274877071
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 613,
+            "bytes": 355073,
+            "mean_hold_ms": 7.3213119752595714,
+            "min_hold_ms": 7.024708203971386,
+            "max_hold_ms": 9.699459187686443
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 614,
+            "bytes": 117888,
+            "mean_hold_ms": 7.350093348358276,
+            "min_hold_ms": 7.038875482976437,
+            "max_hold_ms": 9.89158358424902
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 612,
+            "bytes": 353497,
+            "mean_hold_ms": 120.23398718413185,
+            "min_hold_ms": 120.02187501639128,
+            "max_hold_ms": 124.99791663140059
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 613,
+            "bytes": 117888,
+            "mean_hold_ms": 120.25475394144824,
+            "min_hold_ms": 120.03254145383835,
+            "max_hold_ms": 122.6344583556056
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 85,
+            "chunks": 609,
+            "bytes": 348957,
+            "mean_hold_ms": 85.60061205961482,
+            "min_hold_ms": 85.04029177129269,
+            "max_hold_ms": 87.39150036126375
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 85,
+            "chunks": 610,
+            "bytes": 117120,
+            "mean_hold_ms": 85.50997087731957,
+            "min_hold_ms": 85.02708375453949,
+            "max_hold_ms": 89.55604210495949
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 612,
+            "bytes": 343738,
+            "mean_hold_ms": 115.36893109924897,
+            "min_hold_ms": 115.04537519067526,
+            "max_hold_ms": 117.04154219478369
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 611,
+            "bytes": 117696,
+            "mean_hold_ms": 115.29670278625578,
+            "min_hold_ms": 115.02362508326769,
+            "max_hold_ms": 120.24316750466824
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 31,
+            "chunks": 608,
+            "bytes": 337622,
+            "mean_hold_ms": 31.38139816521863,
+            "min_hold_ms": 31.025833450257778,
+            "max_hold_ms": 33.26999954879284
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 31,
+            "chunks": 609,
+            "bytes": 116928,
+            "mean_hold_ms": 31.411559900577824,
+            "min_hold_ms": 31.02958295494318,
+            "max_hold_ms": 33.53733289986849
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 611,
+            "bytes": 344526,
+            "mean_hold_ms": 120.19965150157284,
+            "min_hold_ms": 120.01475039869547,
+            "max_hold_ms": 122.84083385020494
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 611,
+            "bytes": 117696,
+            "mean_hold_ms": 120.23060369181847,
+            "min_hold_ms": 120.0158754363656,
+            "max_hold_ms": 123.4222911298275
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 2700200
+    },
+    {
+      "name": "wan-like-silent-after",
+      "topology": "wan-like",
+      "case": "silent",
+      "version": "after",
+      "bound_ms": 1000,
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/diagnostic-result.json",
+          "sha256": "42c5428a3d987d35df63902bcf3019895b8329754dc43f07311f12ca16d26181",
+          "bytes": 74749
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/decomposition.json",
+          "sha256": "f034c83cf76a9e3c059d4ab1cafe465a1318ac9ff91befb00d1bf4dc669a997d",
+          "bytes": 34405
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/config.json",
+          "sha256": "902ff3f7c308f44879a6ba25b8ff3220b65aa16fd2b170188417c7b202a10cbd",
+          "bytes": 3234
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/cohorts/index.json",
+          "sha256": "cfbdcbb6839e54f4c41013a79d03afbe94658ef60e1ba782d6703ba0d742e416",
+          "bytes": 10982
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/proxy.json",
+          "sha256": "62f5de0f5058f70e3df0c81b3b30a8579238074909f1b67b8a9201e50eca5d7c",
+          "bytes": 11144
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/causal-traces/replica-0.json",
+          "sha256": "68e4970093c73aebc2a121764e892507fafce681346d5bb0d9215503776274b5",
+          "bytes": 591
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/causal-traces/replica-1.json",
+          "sha256": "5d0b448d4f8378f56f5d08ef9bfbde318d2a65460e112c99e5ebed5bd8f05429",
+          "bytes": 1143431
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/causal-traces/replica-2.json",
+          "sha256": "33ddf880479e651c6883b08ea4468eeab4b8c4c18518f38bd1147b1300d46b7e",
+          "bytes": 1143505
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/causal-traces/replica-3.json",
+          "sha256": "2d8bcacc396e3f705b9553af7f96c79cc8a1192f98f48b05f92d1ece987d8a8d",
+          "bytes": 1138256
+        }
+      ],
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "stage_coverage": {
+        "covered": 1000,
+        "excluded": {}
+      },
+      "mean_ms": 3866.2202,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 1.01729
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 3447.08355
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 244.73833499999998
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 170.037841
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 1.870297
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 1.4728869999999998
+        }
+      ],
+      "plot_stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 1.01729
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 3447.08355
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 244.73833499999998
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 170.037841
+        },
+        {
+          "stage": "Payload + append",
+          "mean_ms": 3.343184
+        }
+      ],
+      "window_goodput_tps": 63.2,
+      "all_correct_collection": {
+        "completed": 1000,
+        "unfinished": 0,
+        "fraction": 1.0,
+        "boundary": "final exact output collection; not remote event latency"
+      },
+      "drain_complete": true,
+      "agreement_verified": true,
+      "leader_rounds_in_window": 3,
+      "leader_stage_ms": {
+        "report_to_pool_ms": {
+          "count": 3,
+          "mean": 243.08,
+          "median": 244.148,
+          "p95": 247.521,
+          "min": 237.571,
+          "max": 247.521
+        },
+        "pool_to_input_ms": {
+          "count": 3,
+          "mean": 2.8173333333333335,
+          "median": 1.934,
+          "p95": 5.036,
+          "min": 1.482,
+          "max": 5.036
+        },
+        "input_to_proposal_ms": {
+          "count": 3,
+          "mean": 0.4403333333333333,
+          "median": 0.388,
+          "p95": 0.588,
+          "min": 0.345,
+          "max": 0.588
+        },
+        "proposal_to_direct_commit_ms": {
+          "count": 3,
+          "mean": 245.1436666666667,
+          "median": 245.177,
+          "p95": 245.707,
+          "min": 244.547,
+          "max": 245.707
+        }
+      },
+      "cadence_ms_per_round": {
+        "count": 0,
+        "mean": null,
+        "median": null,
+        "p95": null,
+        "min": null,
+        "max": null
+      },
+      "cadence_scope": "successive own-leader proposals both inside own input window, divided by round-number gap; includes recovery in silent cases",
+      "guard_checks": [
+        {
+          "replica": 0,
+          "report_count": 0,
+          "satisfied_branches": {},
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 1,
+          "report_count": 3,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "resolved_local_prefix": 2,
+            "validated_wave": 2
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 2,
+          "report_count": 3,
+          "satisfied_branches": {
+            "initial_three": 1,
+            "history_fallback": 1,
+            "validated_wave": 2
+          },
+          "branch_counts_overlap": true
+        },
+        {
+          "replica": 3,
+          "report_count": 2,
+          "satisfied_branches": {
+            "resolved_local_prefix": 2
+          },
+          "branch_counts_overlap": true
+        }
+      ],
+      "timer_callbacks_whole_trace": {
+        "main_timer_expiry": 21,
+        "catchup_timer_expiry": 12,
+        "no_cer": 6
+      },
+      "proxy": {
+        "delay_matrix_ms": [
+          [
+            0,
+            80,
+            85,
+            31
+          ],
+          [
+            80,
+            0,
+            7,
+            115
+          ],
+          [
+            85,
+            7,
+            0,
+            120
+          ],
+          [
+            31,
+            115,
+            120,
+            0
+          ]
+        ],
+        "scalar_delay_ms": null,
+        "all_connections_closed": true,
+        "no_discarded_bytes": true,
+        "no_queue_saturation": true,
+        "scope": "proxy chunk read to forwarding; not measured network end-to-end latency",
+        "edges": [
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 80,
+            "chunks": 543,
+            "bytes": 303985,
+            "mean_hold_ms": 80.28779782245063,
+            "min_hold_ms": 80.02275042235851,
+            "max_hold_ms": 86.31216734647751
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 80,
+            "chunks": 545,
+            "bytes": 104640,
+            "mean_hold_ms": 80.2408174927765,
+            "min_hold_ms": 80.04020806401968,
+            "max_hold_ms": 82.12941698729992
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 546,
+            "bytes": 310057,
+            "mean_hold_ms": 7.282416706379408,
+            "min_hold_ms": 7.0313336327672005,
+            "max_hold_ms": 8.606416173279285
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 547,
+            "bytes": 105216,
+            "mean_hold_ms": 7.356982133342753,
+            "min_hold_ms": 7.027625106275082,
+            "max_hold_ms": 9.335624985396862
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 545,
+            "bytes": 306681,
+            "mean_hold_ms": 115.2647822018747,
+            "min_hold_ms": 115.03141652792692,
+            "max_hold_ms": 117.08933301270008
+          },
+          {
+            "source_replica": 1,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 547,
+            "bytes": 105024,
+            "mean_hold_ms": 115.26762251103709,
+            "min_hold_ms": 115.02641718834639,
+            "max_hold_ms": 119.84712537378073
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 31,
+            "chunks": 542,
+            "bytes": 295534,
+            "mean_hold_ms": 31.25553107493973,
+            "min_hold_ms": 31.02241735905409,
+            "max_hold_ms": 36.48774977773428
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 31,
+            "chunks": 543,
+            "bytes": 104256,
+            "mean_hold_ms": 31.315170638400435,
+            "min_hold_ms": 31.02958295494318,
+            "max_hold_ms": 36.49841621518135
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 7,
+            "chunks": 548,
+            "bytes": 310917,
+            "mean_hold_ms": 7.293159614595837,
+            "min_hold_ms": 7.0291245356202126,
+            "max_hold_ms": 8.537708781659603
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 7,
+            "chunks": 548,
+            "bytes": 105216,
+            "mean_hold_ms": 7.300886356129046,
+            "min_hold_ms": 7.020709104835987,
+            "max_hold_ms": 8.477374911308289
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "client_to_replica",
+            "requested_ms": 115,
+            "chunks": 545,
+            "bytes": 300818,
+            "mean_hold_ms": 115.32648368268659,
+            "min_hold_ms": 115.0271249935031,
+            "max_hold_ms": 117.50462558120489
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 1,
+            "direction": "replica_to_client",
+            "requested_ms": 115,
+            "chunks": 545,
+            "bytes": 104832,
+            "mean_hold_ms": 115.2392172502405,
+            "min_hold_ms": 115.02504162490368,
+            "max_hold_ms": 116.97345785796642
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 545,
+            "bytes": 308329,
+            "mean_hold_ms": 120.20956725907435,
+            "min_hold_ms": 120.01858279109001,
+            "max_hold_ms": 122.0331247895956
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 3,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 547,
+            "bytes": 105024,
+            "mean_hold_ms": 120.20877517174105,
+            "min_hold_ms": 120.02916634082794,
+            "max_hold_ms": 121.65091745555401
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "client_to_replica",
+            "requested_ms": 120,
+            "chunks": 545,
+            "bytes": 301606,
+            "mean_hold_ms": 120.20363492053856,
+            "min_hold_ms": 120.0292082503438,
+            "max_hold_ms": 125.15287566930056
+          },
+          {
+            "source_replica": 3,
+            "destination_replica": 2,
+            "direction": "replica_to_client",
+            "requested_ms": 120,
+            "chunks": 545,
+            "bytes": 104832,
+            "mean_hold_ms": 120.22132135654262,
+            "min_hold_ms": 120.02649996429682,
+            "max_hold_ms": 125.13658311218023
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "client_to_replica",
+            "requested_ms": 85,
+            "chunks": 545,
+            "bytes": 305633,
+            "mean_hold_ms": 85.4917772045923,
+            "min_hold_ms": 85.04675049334764,
+            "max_hold_ms": 87.03699987381697
+          },
+          {
+            "source_replica": 2,
+            "destination_replica": 0,
+            "direction": "replica_to_client",
+            "requested_ms": 85,
+            "chunks": 545,
+            "bytes": 104640,
+            "mean_hold_ms": 85.33797400807022,
+            "min_hold_ms": 85.02166625112295,
+            "max_hold_ms": 87.78379019349813
+          }
+        ]
+      },
+      "measurement_tcp_written_bytes": 2708912
+    }
+  ]
+}

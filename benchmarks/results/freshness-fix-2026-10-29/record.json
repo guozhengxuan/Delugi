@@ -1,0 +1,1166 @@
+{
+  "schema": 1,
+  "purpose": "Source and evidence bindings for the premature REPORT scheduling correction; local diagnostic only",
+  "source_fix_commit": "8d84dec1e1d424f0d87e408fdff7018ddc84760f",
+  "baseline_source_commit": "ec742d43d81f5bf532e5e2566574de3f69d5008b",
+  "build_source_audit": {
+    "before": {
+      "source_commit": "ec742d43d81f5bf532e5e2566574de3f69d5008b",
+      "manifest": {
+        "path": "results/local/pipeline-tcp-20261029-healthy-run/manifest.json",
+        "sha256": "f92066b354bb51c76c70cfd56b8932087c696a8d814c989f149a1e10179600da",
+        "bytes": 534234
+      },
+      "manifest_git_head": "360d9f75023f0dd16b27073a977616c15c2f599e",
+      "binary": {
+        "path": "results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "build_receipt": {
+        "path": "results/local/delugi-latency-debug-20261029/before/delugi-replica.build.json",
+        "sha256": "24a93f7e8b9feacc916d580b8bcec8778048b7e5d7e259f473030af58b1d14be",
+        "bytes": 6271
+      },
+      "all_stamped_sources_match_archived_snapshot_and_source_commit": true,
+      "source_count": 57,
+      "sources": [
+        {
+          "path": "Cargo.lock",
+          "sha256": "4550a30f34e6ca9633a66d7e6294e7d2b0532f99ac1cb81656fe7f7ee8c1f859"
+        },
+        {
+          "path": "Cargo.toml",
+          "sha256": "35921a9e28b20e0f34dde5159a440a55218b961dd731c1f8d3086d4bf8415fcd"
+        },
+        {
+          "path": "core-api/Cargo.toml",
+          "sha256": "bb709c2320d457667e5cae585f05865d0ec41009306f489efcdd840c985c7471"
+        },
+        {
+          "path": "core-api/src/lib.rs",
+          "sha256": "cfcb409507bcec60bd6b0c0907f212a67a62d0d809ba1c61e947b8d6ec0c277f"
+        },
+        {
+          "path": "core/delugi/Cargo.toml",
+          "sha256": "ff455677a0e00548100be8c02f11276c118a6ec9da1fc3fa24fc5f77b279f474"
+        },
+        {
+          "path": "core/delugi/src/availability.rs",
+          "sha256": "f25cad0531195716e10a8ed73c2d11c8171b4ef1aa0486d1cbde6c87914ba71e"
+        },
+        {
+          "path": "core/delugi/src/batch.rs",
+          "sha256": "9d434f1dc9a4df8f3006ce59b2b1a00ccec574e3c4df1f80d3402904e85a17e6"
+        },
+        {
+          "path": "core/delugi/src/causal.rs",
+          "sha256": "4c836b825e2487422b90dbc0ea52fac2bd5c73448da80415b38461c8fff29735"
+        },
+        {
+          "path": "core/delugi/src/composed.rs",
+          "sha256": "dfda7e87e67143941b3d48d099d505a137f15a70bf4aa9789d765f054bae7866"
+        },
+        {
+          "path": "core/delugi/src/end_to_end.rs",
+          "sha256": "eefc1eab69ead449b30551530ef44ac601dd917c59827452753c6a76242a674a"
+        },
+        {
+          "path": "core/delugi/src/factory.rs",
+          "sha256": "b59a75e23e2f44d145ca47628616a43d4b55461fa95c46219a488818b287da14"
+        },
+        {
+          "path": "core/delugi/src/history.rs",
+          "sha256": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8"
+        },
+        {
+          "path": "core/delugi/src/ledger.rs",
+          "sha256": "b4cfeb84caecae3923f3eeb9820d025a9ac86a5803035da0d88588ae3fb99339"
+        },
+        {
+          "path": "core/delugi/src/lib.rs",
+          "sha256": "eb868e4c4ba83e85d0c9d823aaba3231eeaf9f542567af15e7840fe4f424f20b"
+        },
+        {
+          "path": "core/delugi/src/mmr.rs",
+          "sha256": "5a6010fb1d59d0ea96c3bb1bc0a5f277e3987c0260246de4e9778ef8e291541f"
+        },
+        {
+          "path": "core/delugi/src/process.rs",
+          "sha256": "7b717983a23b97ef6cee63e0f77c31d736a486bb2cb912ea9b9b8b13313c2edc"
+        },
+        {
+          "path": "core/delugi/src/record_store.rs",
+          "sha256": "8ac4001f86f309ceefca00c860cc972007ceace6c8326712c26567d8ed2c2bd2"
+        },
+        {
+          "path": "core/delugi/src/replica.rs",
+          "sha256": "a2421edecce4b9022fb3c8066960e3ab57012f48e841b680e726ba7c03fe7d36"
+        },
+        {
+          "path": "core/delugi/src/scanner.rs",
+          "sha256": "f5e92967ceeec4b9d1504e74409e23ed8c40692fc45fe60400d716c2abc95ee9"
+        },
+        {
+          "path": "core/delugi/src/simulation.rs",
+          "sha256": "e8cb387871a8c135998d2bc035c77dce2df2df47b87f34e0342da52a9d8336f3"
+        },
+        {
+          "path": "core/delugi/src/slot.rs",
+          "sha256": "189cd88eead31697cc30db8094b24983f426aecd092639f7f97c519e76ef8335"
+        },
+        {
+          "path": "core/delugi/src/transport.rs",
+          "sha256": "d45aa933acc67355b5c6650c7f35ad1931c18ca2525f891790527c00698b82d1"
+        },
+        {
+          "path": "core/delugi/src/wire.rs",
+          "sha256": "5637cd816dc0a3d7ced69ceeb4abf3be84d9edd0db8c9b1fd7cc67b5798af39d"
+        },
+        {
+          "path": "core/delugi/src/workload.rs",
+          "sha256": "8b3bafd056d8567036b305e8c3780d310cbf2d4a70a34a5768eac4c91f574899"
+        },
+        {
+          "path": "core/delugi/tests/pipeline_composition.rs",
+          "sha256": "13f4ec149efc9bff8a6f7336a1433baf2e0c1a368b3de8f71aeccdb171f2c23a"
+        },
+        {
+          "path": "node/Cargo.toml",
+          "sha256": "483a8caa08abbcee1d545f65317a5e7cf510f5d9656fd9b407a74ddbc3f7872b"
+        },
+        {
+          "path": "node/src/lib.rs",
+          "sha256": "f9df8933a1f11d6a23aad472dba3d0e7968b25ed97c32e657ca899c7b58cfa00"
+        },
+        {
+          "path": "node/src/main.rs",
+          "sha256": "e356bc2dea770f4b04c7ca73d3404f56338f9ec2f0cb15bbba99879151bedce1"
+        },
+        {
+          "path": "node/src/shared_main.rs",
+          "sha256": "5c37d19e73cbdae5b61c8479a9cd506bc1847e26c9b77eb7521f387415a4042a"
+        },
+        {
+          "path": "shared/crypto/Cargo.toml",
+          "sha256": "e119b365a54d6429b7bbdea7a7515ea1f974fe9e90ad8bb62cd594ee4420b456"
+        },
+        {
+          "path": "shared/crypto/src/lib.rs",
+          "sha256": "b92c27b945f5e670f5dc6af1e4168ca5709005a71bf913e9d39abac26c55f289"
+        },
+        {
+          "path": "shared/mempool/Cargo.toml",
+          "sha256": "b7fd4216e35b5dbbe9ca5a23ab519b135709f9e6cd0cb974f6cd53acf09a3b7c"
+        },
+        {
+          "path": "shared/mempool/src/lib.rs",
+          "sha256": "0cae5dcc68d05d1209abf531d49329893629ae481fc30f138907394c78b5b930"
+        },
+        {
+          "path": "shared/metrics/Cargo.toml",
+          "sha256": "d00a855e3ce02ab1d70143ce2891ed9bb99bcb116c5d406df672311fe66b4ffe"
+        },
+        {
+          "path": "shared/metrics/src/lib.rs",
+          "sha256": "700471d3e31dde209907aab7a78011933cf37ba1ccc1ef8655c3ad89e9511274"
+        },
+        {
+          "path": "shared/network/Cargo.toml",
+          "sha256": "37e3c5fbdbd8200a3f7970b0f9162860ec7be23a90b1c704b9872bd36d0b37e7"
+        },
+        {
+          "path": "shared/network/src/lib.rs",
+          "sha256": "8ceaf08b93d0c251d70088005c041ccb0714c266482f3578816aa83b02599b7d"
+        },
+        {
+          "path": "shared/network/src/tests.rs",
+          "sha256": "dcb3be53c25322a652194344948d94d6f89140148367f2e6f4ddb3704edcd713"
+        },
+        {
+          "path": "shared/output/Cargo.toml",
+          "sha256": "b583670fd247cdf313a40c6cec3b667907a81473013cec80f4bf069d7a042a60"
+        },
+        {
+          "path": "shared/output/src/lib.rs",
+          "sha256": "b3c7b34001aec3770021747b2ac365021716cc1dffbde920bd5d031f054c1b2b"
+        },
+        {
+          "path": "shared/runtime/Cargo.toml",
+          "sha256": "536ec1798aee11b388eb8f736cc26ece59abe3779f4be7a8379afa0b8450a51e"
+        },
+        {
+          "path": "shared/runtime/src/lib.rs",
+          "sha256": "5923550ceb69993223e1746dc4f8580af291e2d1fa5cc20d2cd09c1c6ce56948"
+        },
+        {
+          "path": "shared/store-rocksdb/Cargo.toml",
+          "sha256": "613608fb675407052f809f4b54c5b302e493ad7823a27dd024a34bcf50906bf7"
+        },
+        {
+          "path": "shared/store-rocksdb/src/backend.rs",
+          "sha256": "d83454b8a50bfc8966374eee210c1447f25f0481fb8325390b0ce42e0d930ff9"
+        },
+        {
+          "path": "shared/store-rocksdb/src/lib.rs",
+          "sha256": "7a6cb2dfd5f93b14698b18d43a2493172ff543444de662b34623e9699b2e272f"
+        },
+        {
+          "path": "shared/store-rocksdb/tests/backend.rs",
+          "sha256": "d17e48ff23c0478d6f051cd9c7f8eb4c0161455a0816ab9152091272a92d0441"
+        },
+        {
+          "path": "shared/store/Cargo.toml",
+          "sha256": "7c30a4a50181638f6625e2f5201f4e7a4748e8ce335fe497b61e55ffb2dedef6"
+        },
+        {
+          "path": "shared/store/src/lib.rs",
+          "sha256": "893938da9b1f88b384d463067431876f4b957e7cb8258887c0f924fef3917007"
+        },
+        {
+          "path": "src/bin/delugi_replica.rs",
+          "sha256": "e356bc2dea770f4b04c7ca73d3404f56338f9ec2f0cb15bbba99879151bedce1"
+        },
+        {
+          "path": "src/bin/end_to_end_trace.rs",
+          "sha256": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2"
+        },
+        {
+          "path": "src/bin/ordering_trace.rs",
+          "sha256": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9"
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "a43d1ab27ec4280ede8f1a46f983770ee7a764628c6e648f179e6f0012bf5bb3"
+        },
+        {
+          "path": "tests/complete_witness.rs",
+          "sha256": "0348dc1b4684cbf07e9e04ddd25196d070d4dcf784b342d405ca10846cff5827"
+        },
+        {
+          "path": "tests/end_to_end_scenarios.rs",
+          "sha256": "ad5626ded65b653c6cb8df03f713aa4fa2014373b6f7f8d96af4344982213af1"
+        },
+        {
+          "path": "tests/network_processes.rs",
+          "sha256": "105e9fa547271cf25940b45ea12a1246182ad6f9f32a49fa6925fdb7fa4eb553"
+        },
+        {
+          "path": "tests/ordering_scenarios.rs",
+          "sha256": "970f444b8bd13ff7a15aba97f9ed32ec8b69bff450dcacbaaeeedb74374126a8"
+        },
+        {
+          "path": "tests/transport_pipeline.rs",
+          "sha256": "72cd52acdcb4b89605d9d6166e81b7650c0368c1aa29729ceb11132f5ad4575d"
+        }
+      ]
+    },
+    "after": {
+      "source_commit": "8d84dec1e1d424f0d87e408fdff7018ddc84760f",
+      "manifest": {
+        "path": "results/local/delugi-latency-debug-20261029/after-build/manifest.json",
+        "sha256": "90af59a1c512bb4493430ebb8e4b5457e3c9d3c1afee182e793136748ca8e67a",
+        "bytes": 21973
+      },
+      "manifest_git_head": "ec742d43d81f5bf532e5e2566574de3f69d5008b",
+      "binary": {
+        "path": "target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "build_receipt": {
+        "path": "target/release/delugi-replica.build.json",
+        "sha256": "984894c94b48294d2a67dda78cd29d565338a20e9ae46d085b5b7cd2c2b430c6",
+        "bytes": 6390
+      },
+      "all_stamped_sources_match_archived_snapshot_and_source_commit": true,
+      "source_count": 58,
+      "sources": [
+        {
+          "path": "Cargo.lock",
+          "sha256": "4550a30f34e6ca9633a66d7e6294e7d2b0532f99ac1cb81656fe7f7ee8c1f859"
+        },
+        {
+          "path": "Cargo.toml",
+          "sha256": "35921a9e28b20e0f34dde5159a440a55218b961dd731c1f8d3086d4bf8415fcd"
+        },
+        {
+          "path": "core-api/Cargo.toml",
+          "sha256": "bb709c2320d457667e5cae585f05865d0ec41009306f489efcdd840c985c7471"
+        },
+        {
+          "path": "core-api/src/lib.rs",
+          "sha256": "cfcb409507bcec60bd6b0c0907f212a67a62d0d809ba1c61e947b8d6ec0c277f"
+        },
+        {
+          "path": "core/delugi/Cargo.toml",
+          "sha256": "ff455677a0e00548100be8c02f11276c118a6ec9da1fc3fa24fc5f77b279f474"
+        },
+        {
+          "path": "core/delugi/src/availability.rs",
+          "sha256": "f25cad0531195716e10a8ed73c2d11c8171b4ef1aa0486d1cbde6c87914ba71e"
+        },
+        {
+          "path": "core/delugi/src/batch.rs",
+          "sha256": "9d434f1dc9a4df8f3006ce59b2b1a00ccec574e3c4df1f80d3402904e85a17e6"
+        },
+        {
+          "path": "core/delugi/src/causal.rs",
+          "sha256": "4c836b825e2487422b90dbc0ea52fac2bd5c73448da80415b38461c8fff29735"
+        },
+        {
+          "path": "core/delugi/src/composed.rs",
+          "sha256": "47c164d69f0b070b067cf9e89762c677168d0f501db2abca41ac000c9218056f"
+        },
+        {
+          "path": "core/delugi/src/end_to_end.rs",
+          "sha256": "eefc1eab69ead449b30551530ef44ac601dd917c59827452753c6a76242a674a"
+        },
+        {
+          "path": "core/delugi/src/factory.rs",
+          "sha256": "b59a75e23e2f44d145ca47628616a43d4b55461fa95c46219a488818b287da14"
+        },
+        {
+          "path": "core/delugi/src/history.rs",
+          "sha256": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8"
+        },
+        {
+          "path": "core/delugi/src/ledger.rs",
+          "sha256": "b4cfeb84caecae3923f3eeb9820d025a9ac86a5803035da0d88588ae3fb99339"
+        },
+        {
+          "path": "core/delugi/src/lib.rs",
+          "sha256": "eb868e4c4ba83e85d0c9d823aaba3231eeaf9f542567af15e7840fe4f424f20b"
+        },
+        {
+          "path": "core/delugi/src/mmr.rs",
+          "sha256": "5a6010fb1d59d0ea96c3bb1bc0a5f277e3987c0260246de4e9778ef8e291541f"
+        },
+        {
+          "path": "core/delugi/src/process.rs",
+          "sha256": "7b717983a23b97ef6cee63e0f77c31d736a486bb2cb912ea9b9b8b13313c2edc"
+        },
+        {
+          "path": "core/delugi/src/record_store.rs",
+          "sha256": "8ac4001f86f309ceefca00c860cc972007ceace6c8326712c26567d8ed2c2bd2"
+        },
+        {
+          "path": "core/delugi/src/replica.rs",
+          "sha256": "fb3b9ab7e0b87fbffa7d99979b5bc0d1ad846ccfb118993664db21d83651c694"
+        },
+        {
+          "path": "core/delugi/src/scanner.rs",
+          "sha256": "f5e92967ceeec4b9d1504e74409e23ed8c40692fc45fe60400d716c2abc95ee9"
+        },
+        {
+          "path": "core/delugi/src/simulation.rs",
+          "sha256": "e8cb387871a8c135998d2bc035c77dce2df2df47b87f34e0342da52a9d8336f3"
+        },
+        {
+          "path": "core/delugi/src/slot.rs",
+          "sha256": "189cd88eead31697cc30db8094b24983f426aecd092639f7f97c519e76ef8335"
+        },
+        {
+          "path": "core/delugi/src/transport.rs",
+          "sha256": "d45aa933acc67355b5c6650c7f35ad1931c18ca2525f891790527c00698b82d1"
+        },
+        {
+          "path": "core/delugi/src/wire.rs",
+          "sha256": "5637cd816dc0a3d7ced69ceeb4abf3be84d9edd0db8c9b1fd7cc67b5798af39d"
+        },
+        {
+          "path": "core/delugi/src/workload.rs",
+          "sha256": "8b3bafd056d8567036b305e8c3780d310cbf2d4a70a34a5768eac4c91f574899"
+        },
+        {
+          "path": "core/delugi/tests/freshness_regression.rs",
+          "sha256": "92079fec6e9e01a4a0328e8ce501eb2a371a974cc1fdaaf0a18e2d29881c4414"
+        },
+        {
+          "path": "core/delugi/tests/pipeline_composition.rs",
+          "sha256": "13f4ec149efc9bff8a6f7336a1433baf2e0c1a368b3de8f71aeccdb171f2c23a"
+        },
+        {
+          "path": "node/Cargo.toml",
+          "sha256": "483a8caa08abbcee1d545f65317a5e7cf510f5d9656fd9b407a74ddbc3f7872b"
+        },
+        {
+          "path": "node/src/lib.rs",
+          "sha256": "f9df8933a1f11d6a23aad472dba3d0e7968b25ed97c32e657ca899c7b58cfa00"
+        },
+        {
+          "path": "node/src/main.rs",
+          "sha256": "e356bc2dea770f4b04c7ca73d3404f56338f9ec2f0cb15bbba99879151bedce1"
+        },
+        {
+          "path": "node/src/shared_main.rs",
+          "sha256": "5c37d19e73cbdae5b61c8479a9cd506bc1847e26c9b77eb7521f387415a4042a"
+        },
+        {
+          "path": "shared/crypto/Cargo.toml",
+          "sha256": "e119b365a54d6429b7bbdea7a7515ea1f974fe9e90ad8bb62cd594ee4420b456"
+        },
+        {
+          "path": "shared/crypto/src/lib.rs",
+          "sha256": "b92c27b945f5e670f5dc6af1e4168ca5709005a71bf913e9d39abac26c55f289"
+        },
+        {
+          "path": "shared/mempool/Cargo.toml",
+          "sha256": "b7fd4216e35b5dbbe9ca5a23ab519b135709f9e6cd0cb974f6cd53acf09a3b7c"
+        },
+        {
+          "path": "shared/mempool/src/lib.rs",
+          "sha256": "0cae5dcc68d05d1209abf531d49329893629ae481fc30f138907394c78b5b930"
+        },
+        {
+          "path": "shared/metrics/Cargo.toml",
+          "sha256": "d00a855e3ce02ab1d70143ce2891ed9bb99bcb116c5d406df672311fe66b4ffe"
+        },
+        {
+          "path": "shared/metrics/src/lib.rs",
+          "sha256": "700471d3e31dde209907aab7a78011933cf37ba1ccc1ef8655c3ad89e9511274"
+        },
+        {
+          "path": "shared/network/Cargo.toml",
+          "sha256": "37e3c5fbdbd8200a3f7970b0f9162860ec7be23a90b1c704b9872bd36d0b37e7"
+        },
+        {
+          "path": "shared/network/src/lib.rs",
+          "sha256": "8ceaf08b93d0c251d70088005c041ccb0714c266482f3578816aa83b02599b7d"
+        },
+        {
+          "path": "shared/network/src/tests.rs",
+          "sha256": "dcb3be53c25322a652194344948d94d6f89140148367f2e6f4ddb3704edcd713"
+        },
+        {
+          "path": "shared/output/Cargo.toml",
+          "sha256": "b583670fd247cdf313a40c6cec3b667907a81473013cec80f4bf069d7a042a60"
+        },
+        {
+          "path": "shared/output/src/lib.rs",
+          "sha256": "b3c7b34001aec3770021747b2ac365021716cc1dffbde920bd5d031f054c1b2b"
+        },
+        {
+          "path": "shared/runtime/Cargo.toml",
+          "sha256": "536ec1798aee11b388eb8f736cc26ece59abe3779f4be7a8379afa0b8450a51e"
+        },
+        {
+          "path": "shared/runtime/src/lib.rs",
+          "sha256": "5923550ceb69993223e1746dc4f8580af291e2d1fa5cc20d2cd09c1c6ce56948"
+        },
+        {
+          "path": "shared/store-rocksdb/Cargo.toml",
+          "sha256": "613608fb675407052f809f4b54c5b302e493ad7823a27dd024a34bcf50906bf7"
+        },
+        {
+          "path": "shared/store-rocksdb/src/backend.rs",
+          "sha256": "d83454b8a50bfc8966374eee210c1447f25f0481fb8325390b0ce42e0d930ff9"
+        },
+        {
+          "path": "shared/store-rocksdb/src/lib.rs",
+          "sha256": "7a6cb2dfd5f93b14698b18d43a2493172ff543444de662b34623e9699b2e272f"
+        },
+        {
+          "path": "shared/store-rocksdb/tests/backend.rs",
+          "sha256": "d17e48ff23c0478d6f051cd9c7f8eb4c0161455a0816ab9152091272a92d0441"
+        },
+        {
+          "path": "shared/store/Cargo.toml",
+          "sha256": "7c30a4a50181638f6625e2f5201f4e7a4748e8ce335fe497b61e55ffb2dedef6"
+        },
+        {
+          "path": "shared/store/src/lib.rs",
+          "sha256": "893938da9b1f88b384d463067431876f4b957e7cb8258887c0f924fef3917007"
+        },
+        {
+          "path": "src/bin/delugi_replica.rs",
+          "sha256": "e356bc2dea770f4b04c7ca73d3404f56338f9ec2f0cb15bbba99879151bedce1"
+        },
+        {
+          "path": "src/bin/end_to_end_trace.rs",
+          "sha256": "11e08de9c147d80b9f3dd2f88500a07f3be6625c17885c2d032fc2cd9df135a2"
+        },
+        {
+          "path": "src/bin/ordering_trace.rs",
+          "sha256": "784710460b6b42350825cf351db60f4c2ca5184a4d4b603a565f475cc46565f9"
+        },
+        {
+          "path": "src/lib.rs",
+          "sha256": "a43d1ab27ec4280ede8f1a46f983770ee7a764628c6e648f179e6f0012bf5bb3"
+        },
+        {
+          "path": "tests/complete_witness.rs",
+          "sha256": "0348dc1b4684cbf07e9e04ddd25196d070d4dcf784b342d405ca10846cff5827"
+        },
+        {
+          "path": "tests/end_to_end_scenarios.rs",
+          "sha256": "ad5626ded65b653c6cb8df03f713aa4fa2014373b6f7f8d96af4344982213af1"
+        },
+        {
+          "path": "tests/network_processes.rs",
+          "sha256": "105e9fa547271cf25940b45ea12a1246182ad6f9f32a49fa6925fdb7fa4eb553"
+        },
+        {
+          "path": "tests/ordering_scenarios.rs",
+          "sha256": "970f444b8bd13ff7a15aba97f9ed32ec8b69bff450dcacbaaeeedb74374126a8"
+        },
+        {
+          "path": "tests/transport_pipeline.rs",
+          "sha256": "72cd52acdcb4b89605d9d6166e81b7650c0368c1aa29729ceb11132f5ad4575d"
+        }
+      ]
+    }
+  },
+  "build_provenance_note": "The after executable was built from a modified working tree while HEAD was ec742d4. Every stamped source is archived and hash-matches the later source-fix commit 8d84dec. Controller scheduling labels were updated after compilation and are independently bound by the run index.",
+  "run_index": {
+    "path": "results/local/delugi-latency-debug-20261029/matched-index.json",
+    "sha256": "ddbbada10a002d35d0beaa5ed4c59cd8b6310c67467e2635c2c5b976af9b7825",
+    "bytes": 19935
+  },
+  "execution_driver": {
+    "path": "results/local/delugi-latency-debug-20261029/run_matched.py",
+    "sha256": "9b806467fcea97c992decd14b3641befb2a1adf14ca574f26e4a9f4cb87983f8",
+    "bytes": 5201
+  },
+  "driver_note": "Exact executed diagnostic driver retained locally, not a general CLI; do not rerun in the same directory. Both versions use the same harness. The before run restores the archived scheduling metadata label only; protocol behavior comes from the preserved old executable.",
+  "configuration": {
+    "nodes": 4,
+    "rate": 100,
+    "useful_bytes": 1,
+    "encoded_bytes": 61,
+    "warmup_s": 2,
+    "duration_s": 10,
+    "drain_s": 15,
+    "batch_ms": 10,
+    "batch_max_transactions": 128,
+    "trace_stride": 1,
+    "trace_max_events": 500000
+  },
+  "delay_model": {
+    "description": "Synthetic WAN-like topology in replica order Singapore, Frankfurt, London, Seoul. Symmetric one-way values approximately halve four measured ring RTTs; Singapore-London (85 ms) and Frankfurt-Seoul (115 ms) are estimates. This is not a measured all-pairs WAN replay.",
+    "matrix_ms": [
+      [
+        0,
+        80,
+        85,
+        31
+      ],
+      [
+        80,
+        0,
+        7,
+        115
+      ],
+      [
+        85,
+        7,
+        0,
+        120
+      ],
+      [
+        31,
+        115,
+        120,
+        0
+      ]
+    ]
+  },
+  "runs": [
+    {
+      "name": "uniform-healthy-before",
+      "topology": "uniform",
+      "case": "healthy",
+      "version": "before",
+      "bound_ms": 100,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/diagnostic-result.json",
+        "sha256": "508ec19d7e48c6f9ada640b7b0d247bc7fb1033f9a815ca14f4cf6a1ef43f2f4",
+        "bytes": 67740
+      },
+      "elapsed_s": 18.536086999811232,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 61.542472000000004,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.612909
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 36.913582000000005
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 23.972495
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.009367
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.016939
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.01718
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-before/decomposition.json",
+        "sha256": "ec1f04384cad559335309c6b56d15c1ffa96ba8974d6742837b93e2c7fd615b8",
+        "bytes": 6602423
+      }
+    },
+    {
+      "name": "uniform-healthy-after",
+      "topology": "uniform",
+      "case": "healthy",
+      "version": "after",
+      "bound_ms": 100,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/diagnostic-result.json",
+        "sha256": "89317b1c4cb08bb24c3302332d37a9b9ed1d9129cbac3c640637428cf7e9e693",
+        "bytes": 67852
+      },
+      "elapsed_s": 17.865923499688506,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 61.355593,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.648289
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 36.586356
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 24.077166000000002
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.009618
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.016998000000000003
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.017166
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-healthy-after/decomposition.json",
+        "sha256": "14bbf89fa759ae4fad63982d4295c883a1b0116397fe10359b979357466d2a0a",
+        "bytes": 6534598
+      }
+    },
+    {
+      "name": "uniform-silent-before",
+      "topology": "uniform",
+      "case": "silent",
+      "version": "before",
+      "bound_ms": 100,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/diagnostic-result.json",
+        "sha256": "9630888472581c38a7a0172652591fe0877d8eda8c0ea5cbb02f8edc2b568fb8",
+        "bytes": 73920
+      },
+      "elapsed_s": 15.672896208241582,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 1083.17973,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.914665
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 394.337566
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 26.252478
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 661.2901400000001
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.14265899999999998
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.24222200000000002
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-before/decomposition.json",
+        "sha256": "61cbf66d506eb87841832bd81b18c4b8f21f994779c9aa6f150f703af54ecbc5",
+        "bytes": 307098
+      }
+    },
+    {
+      "name": "uniform-silent-after",
+      "topology": "uniform",
+      "case": "silent",
+      "version": "after",
+      "bound_ms": 100,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/diagnostic-result.json",
+        "sha256": "44346807ca03c499512a5af56f278d36e298952779ca08dd24b8c456dbaa867e",
+        "bytes": 74635
+      },
+      "elapsed_s": 14.876467333175242,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 423.134978,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.9328630000000001
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 353.848534
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 26.990543000000002
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 40.733798
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.43136599999999997
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.197874
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/uniform-silent-after/decomposition.json",
+        "sha256": "f0bce139e4e43829758239fe5d9f4ebb85e527c5e882d4fbdcce4ba60723ea7a",
+        "bytes": 291779
+      }
+    },
+    {
+      "name": "wan-like-healthy-before",
+      "topology": "wan-like",
+      "case": "healthy",
+      "version": "before",
+      "bound_ms": 1000,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/diagnostic-result.json",
+        "sha256": "b8893e778c0abff1113d7a4431736b9776db88d38381b7c299786bc191d0920e",
+        "bytes": 72412
+      },
+      "elapsed_s": 15.296725832857192,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 635.090788,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.839409
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 452.404467
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 181.604106
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 0.025776
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.05949
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.15753999999999999
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-before/decomposition.json",
+        "sha256": "95afdec72f965f0553065d2151ec4ead02bd7b6b3d6d932a5de09165b4336442",
+        "bytes": 576440
+      }
+    },
+    {
+      "name": "wan-like-healthy-after",
+      "topology": "wan-like",
+      "case": "healthy",
+      "version": "after",
+      "bound_ms": 1000,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/diagnostic-result.json",
+        "sha256": "f8eefe1cfeeb6fc7fad2518d8848c5a49e2019dffd40db1d3f302498868f1b29",
+        "bytes": 73224
+      },
+      "elapsed_s": 15.310309667140245,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 560.380368,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 0.867949
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 369.143403
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 177.496881
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 12.616242
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.111464
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 0.144429
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-healthy-after/decomposition.json",
+        "sha256": "dd93114e0f0b7f5712960cf5a7aa25b04dadd53a963d81ab1b0c145b065938ae",
+        "bytes": 575874
+      }
+    },
+    {
+      "name": "wan-like-silent-before",
+      "topology": "wan-like",
+      "case": "silent",
+      "version": "before",
+      "bound_ms": 1000,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/before/delugi-replica",
+        "sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+        "bytes": 3213008
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/diagnostic-result.json",
+        "sha256": "6efd99bbd80be16c07d5ba39cd42a9eda16bb0f2184b7aeb9a1b410d39c655a9",
+        "bytes": 64703
+      },
+      "elapsed_s": 23.06864204071462,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 10607.022036,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 1.020781
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 3648.581298
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 249.754885
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 6704.823768
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 0.581566
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 2.259738
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-before/decomposition.json",
+        "sha256": "196aba3c5581ece1493add62a5418106fcdaefc77fcd9d5e0775c4189ff7ce7e",
+        "bytes": 49670
+      }
+    },
+    {
+      "name": "wan-like-silent-after",
+      "topology": "wan-like",
+      "case": "silent",
+      "version": "after",
+      "bound_ms": 1000,
+      "status": "passed",
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/target/release/delugi-replica",
+        "sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+        "bytes": 3218912
+      },
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/diagnostic-result.json",
+        "sha256": "42c5428a3d987d35df63902bcf3019895b8329754dc43f07311f12ca16d26181",
+        "bytes": 74749
+      },
+      "elapsed_s": 16.125259624794126,
+      "cohort": {
+        "scheduled": 1000,
+        "admitted": 1000,
+        "completed": 1000,
+        "unfinished": 0
+      },
+      "mean_ms": 3866.2202,
+      "stages": [
+        {
+          "stage": "Batch formation",
+          "mean_ms": 1.01729
+        },
+        {
+          "stage": "Await execution proposal",
+          "mean_ms": 3447.08355
+        },
+        {
+          "stage": "Agreement",
+          "mean_ms": 244.73833499999998
+        },
+        {
+          "stage": "Contiguous prefix wait",
+          "mean_ms": 170.037841
+        },
+        {
+          "stage": "Payload wait",
+          "mean_ms": 1.870297
+        },
+        {
+          "stage": "Application append",
+          "mean_ms": 1.4728869999999998
+        }
+      ],
+      "decomposition": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-latency-debug-20261029/wan-like-silent-after/decomposition.json",
+        "sha256": "f034c83cf76a9e3c059d4ab1cafe465a1318ac9ff91befb00d1bf4dc669a997d",
+        "bytes": 34405
+      }
+    }
+  ],
+  "tests": {
+    "rust": {
+      "command": "cargo test --workspace --offline --locked",
+      "passed": 276,
+      "failed": 0,
+      "ignored": 20,
+      "log": {
+        "path": "results/local/delugi-latency-debug-20261029/workspace-tests.log",
+        "sha256": "f0ef4ab5c04d65e11e1336f3a45e28c840b723c7d4098b202e68df65e47fdaee",
+        "bytes": 35062
+      }
+    },
+    "python": {
+      "passed": 58,
+      "failed": 0,
+      "modules": {
+        "tests/tcp_delay_test.py": 14,
+        "tests/spec_provenance_test.py": 11,
+        "tests/sustained_runner_test.py": 24,
+        "tests/pipeline_analysis_test.py": 4,
+        "tests/latency_decomposition_test.py": 5
+      }
+    },
+    "directed_proxy_echo_validation": {
+      "path": "results/local/delugi-latency-debug-20261029/matrix-proxy-validation.json",
+      "sha256": "93f698a44efe75e011d25565887b730041055ac53fc0834d81112fcbfc3af535",
+      "bytes": 855
+    }
+  },
+  "earlier_wan_trace_audit": {
+    "path": "results/local/delugi-latency-debug-20261029/healthy-proposal-preparation-audit.json",
+    "sha256": "a49a1fd7d7215b9cd0c1911a2efd5b9912aa33df4a4b48cad29098ab2dcfefa0",
+    "bytes": 108473
+  },
+  "signed_core_regression": {
+    "path": "core/delugi/tests/freshness_regression.rs",
+    "delta_ms": 10,
+    "Delta_ms": 100,
+    "batch_arrival_ms": 250,
+    "before": {
+      "execution_round": 6,
+      "output_time_ms": 1490
+    },
+    "after": {
+      "execution_round": 4,
+      "output_time_ms": 790
+    },
+    "description": "A timeout-period batch missed the third recovery anchor with the earlier guard. The corrected regression and healthy live-arrival cadence/three-delta commitment tests pass."
+  },
+  "analysis_outputs": [
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/README.md",
+      "sha256": "1452597dff140df2c95857ca99e786634723d0ff18f0f31866f8eb8378a09206",
+      "bytes": 12487
+    },
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/plot_results.py",
+      "sha256": "382ee25a645b58d29ba6d022451060b10169c1da4321be84143293e43a925272",
+      "bytes": 17419
+    },
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/comparison.json",
+      "sha256": "64201470b20faa8b617dd83388f70e137af89839c63b1e0fc14ca835e40a4e42",
+      "bytes": 126482
+    },
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/stages.csv",
+      "sha256": "134a209cd28a6aa7545c8e7e96645d6be252b9322c4417d65073a437a805cc48",
+      "bytes": 1612
+    },
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/latency-before-after.png",
+      "sha256": "8a4e71cad9de437f54ef8f6a3ced7394c1c8bb3bd22e9d711ddff61cf4909f0f",
+      "bytes": 210407
+    },
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/latency-before-after.pdf",
+      "sha256": "3945b4b2b71c3e57259845b638da203750a6fc0c9d61308bfcd674072de6dbeb",
+      "bytes": 35949
+    },
+    {
+      "path": "benchmarks/results/freshness-fix-2026-10-29/latency-before-after.svg",
+      "sha256": "75ee14f279d85e6135009a99e6b94a1bde5e446d9211caae50e1c527e6b8b1cf",
+      "bytes": 36906
+    }
+  ],
+  "build_cleanup": {
+    "scope": "local task compiler intermediates only; source, logs, final executable and build receipt retained",
+    "before_logical_bytes": 466321598,
+    "after_logical_bytes": 9901213,
+    "removed": [
+      {
+        "path": "target/debug",
+        "logical_bytes": 354102340
+      },
+      {
+        "path": "target/tmp",
+        "logical_bytes": 0
+      },
+      {
+        "path": "target/release/deps",
+        "logical_bytes": 92072010
+      },
+      {
+        "path": "target/release/build",
+        "logical_bytes": 10203512
+      },
+      {
+        "path": "target/release/.fingerprint",
+        "logical_bytes": 42523
+      },
+      {
+        "path": "target/release/incremental",
+        "logical_bytes": 0
+      },
+      {
+        "path": "target/release/examples",
+        "logical_bytes": 0
+      }
+    ],
+    "retained_binary_sha256": "f8a6cdcdd76fc8a9dcb889b15a0764c1eb804d5a525bb7f5c23d8911640d758c",
+    "receipt_sha256": "984894c94b48294d2a67dda78cd29d565338a20e9ae46d085b5b7cd2c2b430c6",
+    "reclaimed_logical_bytes": 456420385
+  },
+  "scope": {
+    "cloud_runs": 0,
+    "new_cloud_resources": 0,
+    "processes_per_run": 4,
+    "storage": "memory",
+    "proxy": "userspace pipelined TCP delay; no kernel shaping or bandwidth cap",
+    "repetitions_per_cell": 1,
+    "limits": [
+      "Two asymmetric topology edges are estimates, not measured WAN links.",
+      "Admission-to-output stages use each transaction origin own monotonic clock.",
+      "Proposal acceptance, not leader handoff, is the current transaction decomposition midpoint.",
+      "The correction is not a universal freshness bound under selective Byzantine delivery.",
+      "Residual inclusion and fault-recovery latency remains.",
+      "Fresh shared Linux build needed before a subsequent cloud run."
+    ]
+  }
+}
