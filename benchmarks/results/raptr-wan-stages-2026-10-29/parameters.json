@@ -1,0 +1,74 @@
+{
+  "bench": {
+    "protocols": [
+      "raptr"
+    ],
+    "nodes": [
+      4
+    ],
+    "rate": [
+      100
+    ],
+    "tx_size": 1,
+    "duration": 30,
+    "drain": 15,
+    "runs": 1,
+    "faults": 1,
+    "cases": [
+      "healthy",
+      "silent-first-leader"
+    ],
+    "fault_rate": 100,
+    "seed": 1
+  },
+  "node": {
+    "Delta_ms": 1000,
+    "delay_ms": 0,
+    "egress_mbps": 20,
+    "batching": {
+      "useful_bytes_target": null,
+      "max_wait_ms": null
+    },
+    "proposal_budget": {
+      "useful_bytes": null,
+      "max_payload_refs": null
+    },
+    "transport": {
+      "connect_timeout_ms": 5000,
+      "ack_timeout_ms": 30000,
+      "io_timeout_ms": 1000,
+      "frame_read_timeout_ms": 30000,
+      "reconnect_delay_ms": 100
+    },
+    "protocol_options": {
+      "delugi": {
+        "report_schedule": "history_ready",
+        "causal_trace": {
+          "detail_stride": 64,
+          "max_events": 250000
+        }
+      },
+      "raptr": {
+        "latency_trace": {
+          "max_events": 250000
+        }
+      },
+      "simpleit-mempool": {
+        "startup_seconds": 10
+      },
+      "simpleit-dispersed": {
+        "startup_seconds": 10
+      },
+      "autobahn": {
+        "startup_seconds": 10
+      },
+      "mysticeti-c": {
+        "startup_seconds": 10
+      }
+    }
+  },
+  "specification": {
+    "manifest": "provenance/spec-2026-10-19.json",
+    "paper_repository": "results/local/migration-acceptance-n4-ablation-canonical-unbundled-20261019/snapshot/paper"
+  }
+}

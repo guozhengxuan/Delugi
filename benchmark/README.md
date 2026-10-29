@@ -74,6 +74,15 @@ and [decomposition](../benchmarks/results/fabric-wan-30s-2026-10-28/latency-deco
 are retained alongside the original pre-fix one-minute results. The fleet has
 been deleted; future creation needs enough remaining aggregate budget reservation.
 
+The current common publication is `3b4a1d9`. Its
+[29 October Raptr timestamp rerun](../benchmarks/results/raptr-wan-stages-2026-10-29/README.md)
+adds exactly two 30-second healthy/silent trials at the same 100 tx/s preset,
+compared with saved Delugi. Means are 448.58/2,985.65 ms for Raptr versus
+519.40/4,180.45 ms for Delugi. Raptr completed 3,000/2,992 of 3,000 scheduled
+requests; all completed requests have full stage coverage. Native timeout,
+batching and fault-placement differences remain explicit. The new fleet and
+security groups are deleted; its quote-based cost estimate is CNY 14.07.
+
 ## Run and reuse
 
 ```sh

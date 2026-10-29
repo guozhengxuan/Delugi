@@ -1,0 +1,1151 @@
+{
+  "schema": 1,
+  "comparison": {
+    "healthy": {
+      "delugi": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 519.4023053333333,
+        "mean_schedule_to_admission_ms": 0.04411633333333333,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6341950000000001
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 336.2064226666667
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 182.44426433333334
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 0.11742333333333334
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6341950000000001
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 336.2064226666667
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 182.44426433333334
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 0.008617333333333333
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.03272866666666667
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 0.07607733333333333
+          }
+        ]
+      },
+      "raptr": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 448.5812526666666,
+        "mean_schedule_to_admission_ms": 0.123979,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 74.67178433333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 190.54134933333336
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 180.86884433333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 2.4992746666666665
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "sum_us": 224015353,
+            "mean_ms": 74.67178433333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "sum_us": 571624048,
+            "mean_ms": 190.54134933333336
+          },
+          {
+            "stage": "Consensus",
+            "sum_us": 542606533,
+            "mean_ms": 180.86884433333333
+          },
+          {
+            "stage": "Payload retrieval / validation",
+            "sum_us": 1323262,
+            "mean_ms": 0.44108733333333333
+          },
+          {
+            "stage": "Contiguous output wait",
+            "sum_us": 22820,
+            "mean_ms": 0.007606666666666666
+          },
+          {
+            "stage": "Output consumer wait",
+            "sum_us": 4120732,
+            "mean_ms": 1.3735773333333334
+          },
+          {
+            "stage": "Application acceptance",
+            "sum_us": 2031010,
+            "mean_ms": 0.6770033333333333
+          }
+        ],
+        "availability_quorum": {
+          "population": "same covered requests; observed subset stated separately",
+          "counts": {
+            "observed": 3000
+          },
+          "after_execution_proposal": 1349,
+          "mean_stored_to_quorum_ms": 177.92303833333332,
+          "additive": false
+        },
+        "serial_quorum_cohort": {
+          "scheduled": 3000,
+          "completed": 3000,
+          "primary_covered": 3000,
+          "covered": 1651,
+          "excluded": {
+            "availability_after_execution_proposal": 1349
+          },
+          "excluded_from_primary_covered": {
+            "availability_after_execution_proposal": 1349
+          },
+          "stages": [
+            {
+              "stage": "Batch formation",
+              "sum_us": 124175624,
+              "mean_ms": 75.21237068443367
+            },
+            {
+              "stage": "Dissemination to availability quorum",
+              "sum_us": 290901665,
+              "mean_ms": 176.19725317989096
+            },
+            {
+              "stage": "Quorum \u2192 inclusion",
+              "sum_us": 127878759,
+              "mean_ms": 77.45533555420957
+            },
+            {
+              "stage": "Consensus",
+              "sum_us": 279842400,
+              "mean_ms": 169.49872804360993
+            },
+            {
+              "stage": "Payload retrieval / validation",
+              "sum_us": 739433,
+              "mean_ms": 0.44786977589339794
+            },
+            {
+              "stage": "Contiguous output wait",
+              "sum_us": 12985,
+              "mean_ms": 0.007864930345245305
+            },
+            {
+              "stage": "Output consumer wait",
+              "sum_us": 2181184,
+              "mean_ms": 1.3211290127195638
+            },
+            {
+              "stage": "Application acceptance",
+              "sum_us": 1069994,
+              "mean_ms": 0.6480884312537856
+            }
+          ],
+          "mean_admission_to_append_ms": 500.7886396123561,
+          "mean_schedule_to_append_ms": 500.9253973349485,
+          "contract": "Separate same-request cohort satisfying stored <= availability quorum <= proposal; this observed order is not a protocol quorum gate. Do not compare these means to primary-cohort stage means as if their populations were identical."
+        },
+        "journal_construction_after_endpoint": {
+          "covered": 3000,
+          "mean_ms": 0.18061533333333332
+        }
+      }
+    },
+    "silent-first-leader": {
+      "delugi": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 4180.445794,
+        "mean_schedule_to_admission_ms": 0.05504066666666667,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6647556666666666
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 3472.675354
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 242.196391
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 464.9092933333334
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6647556666666666
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 3472.675354
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 242.196391
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 462.063325
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 1.0515856666666665
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 1.7943826666666667
+          }
+        ]
+      },
+      "raptr": {
+        "scheduled": 3000,
+        "completed": 2992,
+        "covered": 2992,
+        "excluded": {
+          "unfinished_or_not_admitted": 8
+        },
+        "mean_admission_to_append_ms": 2985.6508880347596,
+        "mean_schedule_to_admission_ms": 19.637057486631015,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 89.62530815508022
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 2268.627160427807
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 275.4728228609626
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 351.9255965909091
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "sum_us": 268158922,
+            "mean_ms": 89.62530815508022
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "sum_us": 6787732464,
+            "mean_ms": 2268.627160427807
+          },
+          {
+            "stage": "Consensus",
+            "sum_us": 824214686,
+            "mean_ms": 275.4728228609626
+          },
+          {
+            "stage": "Payload retrieval / validation",
+            "sum_us": 119544727,
+            "mean_ms": 39.95478843582888
+          },
+          {
+            "stage": "Contiguous output wait",
+            "sum_us": 68129,
+            "mean_ms": 0.022770387700534758
+          },
+          {
+            "stage": "Output consumer wait",
+            "sum_us": 64056790,
+            "mean_ms": 21.409354946524065
+          },
+          {
+            "stage": "Application acceptance",
+            "sum_us": 869291739,
+            "mean_ms": 290.5386828208556
+          }
+        ],
+        "availability_quorum": {
+          "population": "same covered requests; observed subset stated separately",
+          "counts": {
+            "observed": 2992
+          },
+          "after_execution_proposal": 214,
+          "mean_stored_to_quorum_ms": 261.5045010026738,
+          "additive": false
+        },
+        "serial_quorum_cohort": {
+          "scheduled": 3000,
+          "completed": 2992,
+          "primary_covered": 2992,
+          "covered": 2778,
+          "excluded": {
+            "unfinished_or_not_admitted": 8,
+            "availability_after_execution_proposal": 214
+          },
+          "excluded_from_primary_covered": {
+            "availability_after_execution_proposal": 214
+          },
+          "stages": [
+            {
+              "stage": "Batch formation",
+              "sum_us": 250418503,
+              "mean_ms": 90.14344960403167
+            },
+            {
+              "stage": "Dissemination to availability quorum",
+              "sum_us": 692707130,
+              "mean_ms": 249.35461843052556
+            },
+            {
+              "stage": "Quorum \u2192 inclusion",
+              "sum_us": 6049011368,
+              "mean_ms": 2177.469894888409
+            },
+            {
+              "stage": "Consensus",
+              "sum_us": 729018793,
+              "mean_ms": 262.42577141828656
+            },
+            {
+              "stage": "Payload retrieval / validation",
+              "sum_us": 101509734,
+              "mean_ms": 36.54058099352052
+            },
+            {
+              "stage": "Contiguous output wait",
+              "sum_us": 64944,
+              "mean_ms": 0.023377969762419005
+            },
+            {
+              "stage": "Output consumer wait",
+              "sum_us": 38082877,
+              "mean_ms": 13.70873902087833
+            },
+            {
+              "stage": "Application acceptance",
+              "sum_us": 867554500,
+              "mean_ms": 312.2946364290857
+            }
+          ],
+          "mean_admission_to_append_ms": 3141.9610687544996,
+          "mean_schedule_to_append_ms": 3163.1014823614114,
+          "contract": "Separate same-request cohort satisfying stored <= availability quorum <= proposal; this observed order is not a protocol quorum gate. Do not compare these means to primary-cohort stage means as if their populations were identical."
+        },
+        "journal_construction_after_endpoint": {
+          "covered": 2992,
+          "mean_ms": 73.10906717914439
+        }
+      }
+    }
+  },
+  "metric_populations": "Stage means use covered completed requests. Separate full-cohort quantiles retain unfinished scheduled requests; quantiles are never added across stages.",
+  "metrics": {
+    "delugi_saved_2026_10_28": {
+      "healthy": {
+        "trial_id": "5e2250ff5121e8d986930b2e",
+        "protocol": "delugi",
+        "nodes": 4,
+        "case": "healthy",
+        "rate": 100,
+        "status": "passed",
+        "error": null,
+        "duration_s": 30,
+        "useful_transaction_bytes": 1,
+        "faults": 0,
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "admission_fraction": 1.0,
+        "completion_fraction": 1.0,
+        "goodput_tps": 98.23333333333335,
+        "pending_at_end": 53,
+        "p50_ms": 518.809,
+        "p95_ms": 668.11,
+        "p99_ms": 705.636,
+        "p95_status": "observed",
+        "stability": {
+          "boundary": "half-open intervals; pending immediately before each boundary; scheduled_not_output retains rejected and not-yet-admitted requests",
+          "clock": "equal fractions of each origin's own measurement window, floored to microseconds; no cross-host timestamp subtraction",
+          "intervals": [
+            {
+              "admitted": 300,
+              "completed": 250,
+              "interval": 0,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 292,
+              "interval": 1,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 308,
+              "interval": 2,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 303,
+              "interval": 3,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 290,
+              "interval": 4,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 309,
+              "interval": 5,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 301,
+              "interval": 6,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 294,
+              "interval": 7,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 300,
+              "interval": 8,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 300,
+              "interval": 9,
+              "rejected": 0,
+              "scheduled": 300
+            }
+          ],
+          "origin_duration_us": {
+            "0": 30000000,
+            "1": 30000000,
+            "2": 30000000,
+            "3": 30000000
+          },
+          "samples": [
+            {
+              "boundary": 0,
+              "pending_admitted": 0,
+              "scheduled_not_output": 0
+            },
+            {
+              "boundary": 1,
+              "pending_admitted": 50,
+              "scheduled_not_output": 50
+            },
+            {
+              "boundary": 2,
+              "pending_admitted": 58,
+              "scheduled_not_output": 58
+            },
+            {
+              "boundary": 3,
+              "pending_admitted": 50,
+              "scheduled_not_output": 50
+            },
+            {
+              "boundary": 4,
+              "pending_admitted": 47,
+              "scheduled_not_output": 47
+            },
+            {
+              "boundary": 5,
+              "pending_admitted": 57,
+              "scheduled_not_output": 57
+            },
+            {
+              "boundary": 6,
+              "pending_admitted": 48,
+              "scheduled_not_output": 48
+            },
+            {
+              "boundary": 7,
+              "pending_admitted": 47,
+              "scheduled_not_output": 47
+            },
+            {
+              "boundary": 8,
+              "pending_admitted": 53,
+              "scheduled_not_output": 53
+            },
+            {
+              "boundary": 9,
+              "pending_admitted": 53,
+              "scheduled_not_output": 53
+            },
+            {
+              "boundary": 10,
+              "pending_admitted": 53,
+              "scheduled_not_output": 53
+            }
+          ],
+          "schema": 1,
+          "subwindows": 10
+        },
+        "traffic_measurement_written_bytes": 27716299,
+        "traffic_sampled_total_written_bytes": 31042344,
+        "traffic_window_quality": "sampled host-local boundaries; inspect per-replica timestamps",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "cohort_status": "all_completed",
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "end_to_end_p50_ms": 518.833,
+        "end_to_end_p50_lower_bound_ms": 518.833,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p95_ms": 668.166,
+        "end_to_end_p95_lower_bound_ms": 668.166,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p99_ms": 705.693,
+        "end_to_end_p99_lower_bound_ms": 705.693,
+        "end_to_end_p99_status": "observed",
+        "admission_p50_ms": 518.809,
+        "admission_p50_lower_bound_ms": 518.809,
+        "admission_p50_status": "observed",
+        "admission_p95_ms": 668.11,
+        "admission_p95_lower_bound_ms": 668.11,
+        "admission_p95_status": "observed",
+        "admission_p99_ms": 705.636,
+        "admission_p99_lower_bound_ms": 705.636,
+        "admission_p99_status": "observed",
+        "measurement_completion_count": 2947,
+        "cohort_completion_fraction": 1.0,
+        "result_sha256": "c01e41824114eef65102375057d38ebba9dacfb96341f16e53a34fcbeef8eca8"
+      },
+      "silent-first-leader": {
+        "trial_id": "b5619611ae844d5a1d749182",
+        "protocol": "delugi",
+        "nodes": 4,
+        "case": "silent-first-leader",
+        "rate": 100,
+        "status": "passed",
+        "error": null,
+        "duration_s": 30,
+        "useful_transaction_bytes": 1,
+        "faults": 1,
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "admission_fraction": 1.0,
+        "completion_fraction": 1.0,
+        "goodput_tps": 93.03333333333333,
+        "pending_at_end": 209,
+        "p50_ms": 4250.148,
+        "p95_ms": 7248.202,
+        "p99_ms": 7557.53,
+        "p95_status": "observed",
+        "stability": {
+          "boundary": "half-open intervals; pending immediately before each boundary; scheduled_not_output retains rejected and not-yet-admitted requests",
+          "clock": "equal fractions of each origin's own measurement window, floored to microseconds; no cross-host timestamp subtraction",
+          "intervals": [
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 0,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 1,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 663,
+              "interval": 2,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 3,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 703,
+              "interval": 4,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 5,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 6,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 721,
+              "interval": 7,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 8,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 704,
+              "interval": 9,
+              "rejected": 0,
+              "scheduled": 300
+            }
+          ],
+          "origin_duration_us": {
+            "1": 30000000,
+            "2": 30000000,
+            "3": 30000000
+          },
+          "samples": [
+            {
+              "boundary": 0,
+              "pending_admitted": 0,
+              "scheduled_not_output": 0
+            },
+            {
+              "boundary": 1,
+              "pending_admitted": 300,
+              "scheduled_not_output": 300
+            },
+            {
+              "boundary": 2,
+              "pending_admitted": 600,
+              "scheduled_not_output": 600
+            },
+            {
+              "boundary": 3,
+              "pending_admitted": 237,
+              "scheduled_not_output": 237
+            },
+            {
+              "boundary": 4,
+              "pending_admitted": 537,
+              "scheduled_not_output": 537
+            },
+            {
+              "boundary": 5,
+              "pending_admitted": 134,
+              "scheduled_not_output": 134
+            },
+            {
+              "boundary": 6,
+              "pending_admitted": 434,
+              "scheduled_not_output": 434
+            },
+            {
+              "boundary": 7,
+              "pending_admitted": 734,
+              "scheduled_not_output": 734
+            },
+            {
+              "boundary": 8,
+              "pending_admitted": 313,
+              "scheduled_not_output": 313
+            },
+            {
+              "boundary": 9,
+              "pending_admitted": 613,
+              "scheduled_not_output": 613
+            },
+            {
+              "boundary": 10,
+              "pending_admitted": 209,
+              "scheduled_not_output": 209
+            }
+          ],
+          "schema": 1,
+          "subwindows": 10
+        },
+        "traffic_measurement_written_bytes": 7439939,
+        "traffic_sampled_total_written_bytes": 7845657,
+        "traffic_window_quality": "sampled host-local boundaries; inspect per-replica timestamps",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "cohort_status": "all_completed",
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "end_to_end_p50_ms": 4250.197,
+        "end_to_end_p50_lower_bound_ms": 4250.197,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p95_ms": 7248.252,
+        "end_to_end_p95_lower_bound_ms": 7248.252,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p99_ms": 7557.588,
+        "end_to_end_p99_lower_bound_ms": 7557.588,
+        "end_to_end_p99_status": "observed",
+        "admission_p50_ms": 4250.148,
+        "admission_p50_lower_bound_ms": 4250.148,
+        "admission_p50_status": "observed",
+        "admission_p95_ms": 7248.202,
+        "admission_p95_lower_bound_ms": 7248.202,
+        "admission_p95_status": "observed",
+        "admission_p99_ms": 7557.53,
+        "admission_p99_lower_bound_ms": 7557.53,
+        "admission_p99_status": "observed",
+        "measurement_completion_count": 2791,
+        "cohort_completion_fraction": 1.0,
+        "result_sha256": "5f1ec47ed4f5621de8a6d7f11e0dd39454e943958e471fc861445c41a9161a95"
+      }
+    },
+    "raptr_new_2026_10_29": {
+      "healthy": {
+        "trial_id": "9b65f5c790b85b8186317c0f",
+        "result_sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "goodput_tps": 98.5,
+        "end_to_end_p50_lower_bound_ms": 445.8,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 445.8,
+        "end_to_end_p95_lower_bound_ms": 595.427,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 595.427,
+        "end_to_end_p99_lower_bound_ms": 652.63,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 652.63,
+        "admission_p50_lower_bound_ms": 445.726,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 445.726,
+        "admission_p95_lower_bound_ms": 595.368,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 595.368,
+        "admission_p99_lower_bound_ms": 652.548,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 652.548,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 156.833966,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              156.807196,
+              156.834672,
+              156.848347,
+              156.850257,
+              156.82345,
+              156.790012,
+              156.79562,
+              156.816431,
+              156.823668,
+              156.83326,
+              156.839954,
+              156.803594,
+              156.794845,
+              156.835604,
+              156.842118,
+              156.834969,
+              156.80955,
+              156.83864,
+              156.834926,
+              156.836559
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.8074165,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              13.824247,
+              13.810998,
+              13.805516,
+              13.921571,
+              13.800736,
+              13.803737,
+              13.792083,
+              13.789899,
+              13.804158,
+              13.797955,
+              13.795587,
+              13.814343,
+              13.811621,
+              13.81752,
+              13.800257,
+              13.815974,
+              13.811201,
+              13.809317,
+              13.833615,
+              13.794066
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.72324400000002,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              239.7253,
+              239.733037,
+              240.143548,
+              239.706004,
+              239.721188,
+              239.738815,
+              239.713247,
+              239.742376,
+              239.749855,
+              239.734161,
+              239.718757,
+              239.707894,
+              239.706527,
+              239.736429,
+              239.752387,
+              239.740869,
+              239.711667,
+              239.694663,
+              239.720068,
+              239.707967
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.427061,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              64.437764,
+              64.414313,
+              64.461257,
+              64.442073,
+              64.43421,
+              64.443021,
+              64.401571,
+              64.427849,
+              64.431298,
+              64.387718,
+              64.441204,
+              64.430385,
+              64.43678,
+              64.426273,
+              64.392702,
+              64.38931,
+              64.413901,
+              64.391144,
+              64.383758,
+              64.423451
+            ],
+            "source": 3
+          }
+        ]
+      },
+      "silent-first-leader": {
+        "trial_id": "174bff299bdb5a912b6ed52e",
+        "result_sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+        "scheduled": 3000,
+        "admitted": 2992,
+        "completed": 2992,
+        "goodput_tps": 82.53333333333333,
+        "end_to_end_p50_lower_bound_ms": 2971.277,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 2971.277,
+        "end_to_end_p95_lower_bound_ms": 5291.944,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 5291.944,
+        "end_to_end_p99_lower_bound_ms": 5580.0,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 5580.0,
+        "admission_p50_lower_bound_ms": 2969.765,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 2969.765,
+        "admission_p95_lower_bound_ms": 4950.903,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 4950.903,
+        "admission_p99_lower_bound_ms": 5523.405,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 5523.405,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 156.86266999999998,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              156.802213,
+              156.819405,
+              156.847011,
+              156.808143,
+              156.821587,
+              156.81419,
+              156.866092,
+              156.914562,
+              156.885171,
+              156.843687,
+              156.863172,
+              156.888986,
+              156.878214,
+              156.864313,
+              156.834983,
+              156.877324,
+              156.852839,
+              156.862168,
+              156.924523,
+              156.878832
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.808060999999999,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              13.820978,
+              13.805998,
+              13.824671,
+              13.822483,
+              13.806707,
+              13.822951,
+              13.791903,
+              13.809804,
+              13.809415,
+              13.809969,
+              13.804702,
+              13.803039,
+              13.812979,
+              13.804818,
+              13.861157,
+              13.792769,
+              13.801949,
+              13.789652,
+              13.79159,
+              13.810362
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.72807999999998,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              239.704096,
+              241.088326,
+              239.726507,
+              239.744953,
+              239.770794,
+              239.72976,
+              239.674036,
+              239.719622,
+              239.710949,
+              239.727319,
+              239.70292,
+              239.745021,
+              239.73862,
+              239.728841,
+              239.71168,
+              239.700079,
+              239.762838,
+              239.788083,
+              239.709159,
+              239.760955
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.40693350000001,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              64.398141,
+              64.417576,
+              64.429085,
+              64.437961,
+              64.424217,
+              64.418214,
+              64.426204,
+              64.399969,
+              64.387408,
+              64.401984,
+              64.392189,
+              64.415617,
+              64.36794,
+              64.421598,
+              64.411883,
+              64.3955,
+              64.422041,
+              64.397882,
+              64.399672,
+              64.384643
+            ],
+            "source": 3
+          }
+        ]
+      }
+    }
+  },
+  "source_files": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/decomposition-summary.json",
+      "sha256": "cbcb79c517becf084d9731bea33fc99751871a39b51c55137a5f3faf11a5486c",
+      "bytes": 6266
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/record.json",
+      "sha256": "32084b1c3d9e7f1a8f6e2c590b968a8c75d7b93719cc6e204e9262f8a04a6a1b",
+      "bytes": 30022
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/summary.json",
+      "sha256": "9f6526b436b1d39c2e2f24ede4fbcf54073c4c3f8f610f0e6f4c95619219d2e8",
+      "bytes": 22944
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/latency_decomposition.py",
+      "sha256": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+      "bytes": 14765
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/result.json",
+      "sha256": "c01e41824114eef65102375057d38ebba9dacfb96341f16e53a34fcbeef8eca8",
+      "bytes": 134620
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-0.json",
+      "sha256": "04439f5d654a25f815ec00562f8eccd51a17fb90730030d8deb6946e0ea42754",
+      "bytes": 2252035
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-1.json",
+      "sha256": "fc29072b3816545fd1556beea322b9d79c72d2da6dea22d7cd3a218f4aac67f0",
+      "bytes": 2249041
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-2.json",
+      "sha256": "632f8cbccde19051770dc0529e2eb137fefe6726066c0c6987921b1cc17f850b",
+      "bytes": 2248844
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-3.json",
+      "sha256": "615d156eae1996aaab6132799bbbe91b394831ef0812ceb35ddecadaa03440b5",
+      "bytes": 2243246
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/result.json",
+      "sha256": "5f1ec47ed4f5621de8a6d7f11e0dd39454e943958e471fc861445c41a9161a95",
+      "bytes": 159646
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-1.json",
+      "sha256": "69da976df5711f2daa9b865c5f7558661750afe4259aefee9301ddefb985285b",
+      "bytes": 1176942
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-2.json",
+      "sha256": "78b779ec5ea9797c51f4b1dd3b7bd438010d30989b50348a464bf762974bdf7c",
+      "bytes": 1175134
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-3.json",
+      "sha256": "f18f1f1b4d4fa707bc492854918921da73e3fcdb9780993cf96352c2a231424b",
+      "bytes": 1172896
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/state.json",
+      "sha256": "178de693aeef91299fad6f812bc7f004622a4dbe2837cce955a3b7cd0634570c",
+      "bytes": 12463
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/plan.json",
+      "sha256": "7e1054f8c7a80bacffd8287cb724ce0976f84c5933d466cd35c46c31cccc17e5",
+      "bytes": 2816
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/result.json",
+      "sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+      "bytes": 90198
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/result.json",
+      "sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+      "bytes": 63955
+    }
+  ],
+  "limitations": [
+    "Delugi is reused from 28 October; Raptr is a new run. WAN and host conditions are not contemporaneous.",
+    "Both endpoints precede diagnostic journaling; protocol-specific synthetic application work and execution granularity remain different.",
+    "Delugi awaiting-proposal includes dissemination, REPORT/history and proposal waiting; Raptr includes dissemination and native proposal inclusion.",
+    "Consensus starts at locally accepted verified proposal, excluding prior proposal transit. Raptr includes verified-inbox queue delay in the preceding stage.",
+    "Output groups prefix/payload/application phases; Delugi releases descriptors before payload materialization, while Raptr payload validation precedes FIFO output.",
+    "Availability quorum can overlap proposal/consensus. Its optional serial split is a separate cohort, not a protocol gate.",
+    "Silent-leader fault differs: Delugi replica 0/Singapore protocol silence with ACKs; Raptr replica 1/Frankfurt whole-process pause.",
+    "The configured delay bound is the same (Delta = 1,000 ms), but native leader timers are not equal: Raptr uses a 4-Delta leader timeout from round entry; Delugi uses a 7-Delta main timer after eligibility and a 3-Delta catch-up timer. These native policies are preserved.",
+    "Native batching defaults remain: Raptr Quorum Store polls every 150 ms (80 ms minimum nonempty, 300 ms maximum); Delugi maximum batch wait is 10 ms. Common overrides were unset.",
+    "One run per case at one input rate; instrumentation overhead and aggregate bandwidth remain unqualified."
+  ]
+}

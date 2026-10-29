@@ -10,11 +10,45 @@ all four runs completed and fully decomposed **500/500** requests with zero trac
 drops. Validation passed **41 Rust and 135 Python tests**. `fab decompose` now
 supports either protocol using downloaded signed evidence. See the
 [local timing validation](benchmarks/results/raptr-timestamps-local-2026-10-29/README.md).
-This change has **not** been deployed on Aliyun; the old WAN measurements retain
-their original post-journal Raptr endpoint. Observer-overhead qualification and
-matching fault placement/method remain required before a formal comparison.
+The timestamp-enabled Linux release **`3b4a1d9` has now completed two Raptr-only
+Aliyun runs**, healthy and silent leader: four regions, **30 seconds at 100 tx/s**,
+one useful byte, Δ=1,000 ms and the saved 20 Mbps natural-WAN profile. Healthy
+completed and fully traced **3,000/3,000** requests; silent completed and fully
+traced **2,992/3,000**, with eight London requests cancelled before admission.
+Both execution/agreement checks passed and every admitted request completed.
+There were zero dropped trace events and no repeated workload attempts.
 
-The modified common Linux release **`cef4e22` has
+| Mean admission-to-output stage, ms | Raptr healthy | Saved Delugi healthy | Raptr silent | Saved Delugi silent |
+|---|---:|---:|---:|---:|
+| Batch formation | 74.67 | 0.63 | 89.63 | 0.66 |
+| Dissemination / inclusion | 190.54 | 336.21 | 2,268.63 | 3,472.68 |
+| Consensus | 180.87 | 182.44 | 275.47 | 242.20 |
+| Output processing | 2.50 | 0.12 | 351.93 | 464.91 |
+| Total | **448.58** | **519.40** | **2,985.65** | **4,180.45** |
+
+Delugi was not rerun; its 28 October traces were revalidated. Raptr's healthy
+consensus time is almost equal to Delugi's; less proposal/inclusion waiting
+accounts for its lower total despite longer native batching. Both silent runs
+are dominated by proposal waiting. Raptr's silent output stage includes
+290.54 ms of request-weighted section acceptance, primarily repeated signature
+validation before deduplication in large recovery sections. That span also
+includes blocking mutex and admission-row I/O work. No implementation change
+was made during this rerun. Availability quorum overlapped proposal acceptance
+for 1,349 healthy and 214 silent completed requests; serial-quorum bars therefore
+describe smaller cohorts and must not replace the primary comparison.
+
+See the [Raptr WAN comparison](benchmarks/results/raptr-wan-stages-2026-10-29/README.md)
+and [stage figure](benchmarks/results/raptr-wan-stages-2026-10-29/latency-decomposition-comparison.png).
+The Linux release passed 28 Rust and five supervisor tests. All four instances
+and security groups are deleted; the build target was removed. The quote-based
+fleet estimate is **CNY 14.07**, pending final billing. The previous WAN archives
+retain their original post-journal Raptr endpoint. Different native batching,
+4Δ versus eligible 7Δ recovery timers, faulty regions/mechanisms, separate-day
+WAN conditions and observer overhead still require qualification before formal
+comparison. Stage means exclude the eight unadmitted requests; full scheduled
+cohort statistics retain them.
+
+The earlier modified common Linux release **`cef4e22` has
 completed four-region verification** through Fabric: exactly four **30-second**
 runs, one healthy and one silent-first-leader case per protocol, at 100 tx/s,
 one useful byte and Δ=1,000 ms. Singapore, Frankfurt, London and Seoul used
@@ -273,10 +307,12 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 2. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.
-3. **Choose the next bounded qualification plan.** The additional authorized
-   Delugi/Raptr matrix is complete: four runs of 30 seconds, with no repeat attempts.
-   Diagnose Raptr's 16 cancelled tail arrivals from the retained evidence and
-   agree on the next finite matrix after the counterpart fixes; do not silently
+3. **Choose the next bounded qualification plan.** Both the four-run 28 October
+   matrix and the two-run Raptr timestamp rerun are complete, with no repeat
+   attempts. Retain the respective 16/8 cancelled pre-admission tail arrivals.
+   Review the cost of validating repeated transaction occurrences in Raptr's
+   output adapter before interpreting output processing as a protocol effect.
+   Agree on the next finite matrix after the counterpart fixes; do not silently
    turn this smoke check into a rate sweep. Reuse exact native publications
    while their source and recipe identities match, and retain all failed runs.
 4. **Qualify the intended 10/50 profiles and network.** Resolve the n=50 nominal

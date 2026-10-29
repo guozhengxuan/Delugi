@@ -1,0 +1,247 @@
+{
+  "schema": "raptr-latency-decomposition-v1",
+  "run_id": "15af908a09df40f4a45395bf392f687d15af908a09df40f4a45395bf392f687d",
+  "configuration_sha256": "5c56285a379710a4fc741a6bd98a5a0be6c892222ad1f8dce2724c82ff968c3d",
+  "endpoint_contract": "verified_contiguous_application_acceptance_v2",
+  "scheduled": 3000,
+  "admitted": 2992,
+  "completed": 2992,
+  "covered": 2992,
+  "excluded": {
+    "unfinished_or_not_admitted": 8
+  },
+  "by_replica": {
+    "0": {
+      "scheduled": 1000,
+      "completed": 1000,
+      "covered": 1000
+    },
+    "2": {
+      "scheduled": 1000,
+      "completed": 992,
+      "covered": 992
+    },
+    "3": {
+      "scheduled": 1000,
+      "completed": 1000,
+      "covered": 1000
+    }
+  },
+  "stages": [
+    {
+      "stage": "Batch formation",
+      "sum_us": 268158922,
+      "mean_ms": 89.62530815508022
+    },
+    {
+      "stage": "Dissemination / inclusion",
+      "sum_us": 6787732464,
+      "mean_ms": 2268.627160427807
+    },
+    {
+      "stage": "Consensus",
+      "sum_us": 824214686,
+      "mean_ms": 275.4728228609626
+    },
+    {
+      "stage": "Payload retrieval / validation",
+      "sum_us": 119544727,
+      "mean_ms": 39.95478843582888
+    },
+    {
+      "stage": "Contiguous output wait",
+      "sum_us": 68129,
+      "mean_ms": 0.022770387700534758
+    },
+    {
+      "stage": "Output consumer wait",
+      "sum_us": 64056790,
+      "mean_ms": 21.409354946524065
+    },
+    {
+      "stage": "Application acceptance",
+      "sum_us": 869291739,
+      "mean_ms": 290.5386828208556
+    }
+  ],
+  "common_stages": [
+    {
+      "stage": "Batch formation",
+      "mean_ms": 89.62530815508022
+    },
+    {
+      "stage": "Dissemination / inclusion",
+      "mean_ms": 2268.627160427807
+    },
+    {
+      "stage": "Consensus",
+      "mean_ms": 275.4728228609626
+    },
+    {
+      "stage": "Output processing",
+      "mean_ms": 351.9255965909091
+    }
+  ],
+  "mean_admission_to_append_ms": 2985.6508880347596,
+  "mean_schedule_to_admission_ms": 19.637057486631015,
+  "mean_schedule_to_append_ms": 3005.2879455213906,
+  "journal_construction_after_endpoint": {
+    "covered": 2992,
+    "mean_ms": 73.10906717914439
+  },
+  "availability_quorum": {
+    "population": "same covered requests; observed subset stated separately",
+    "counts": {
+      "observed": 2992
+    },
+    "after_execution_proposal": 214,
+    "mean_stored_to_quorum_ms": 261.5045010026738,
+    "additive": false
+  },
+  "serial_quorum_cohort": {
+    "scheduled": 3000,
+    "completed": 2992,
+    "primary_covered": 2992,
+    "covered": 2778,
+    "excluded": {
+      "unfinished_or_not_admitted": 8,
+      "availability_after_execution_proposal": 214
+    },
+    "excluded_from_primary_covered": {
+      "availability_after_execution_proposal": 214
+    },
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "sum_us": 250418503,
+        "mean_ms": 90.14344960403167
+      },
+      {
+        "stage": "Dissemination to availability quorum",
+        "sum_us": 692707130,
+        "mean_ms": 249.35461843052556
+      },
+      {
+        "stage": "Quorum \u2192 inclusion",
+        "sum_us": 6049011368,
+        "mean_ms": 2177.469894888409
+      },
+      {
+        "stage": "Consensus",
+        "sum_us": 729018793,
+        "mean_ms": 262.42577141828656
+      },
+      {
+        "stage": "Payload retrieval / validation",
+        "sum_us": 101509734,
+        "mean_ms": 36.54058099352052
+      },
+      {
+        "stage": "Contiguous output wait",
+        "sum_us": 64944,
+        "mean_ms": 0.023377969762419005
+      },
+      {
+        "stage": "Output consumer wait",
+        "sum_us": 38082877,
+        "mean_ms": 13.70873902087833
+      },
+      {
+        "stage": "Application acceptance",
+        "sum_us": 867554500,
+        "mean_ms": 312.2946364290857
+      }
+    ],
+    "mean_admission_to_append_ms": 3141.9610687544996,
+    "mean_schedule_to_append_ms": 3163.1014823614114,
+    "contract": "Separate same-request cohort satisfying stored <= availability quorum <= proposal; this observed order is not a protocol quorum gate. Do not compare these means to primary-cohort stage means as if their populations were identical."
+  },
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-0/final.json",
+      "bytes": 90362,
+      "sha256": "222f5a6ff19b99912e9c208c5a79ebeca22b2a712130b8cc17c405ccac8eb4f1"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-0/latency-trace.json",
+      "bytes": 256523,
+      "sha256": "c980e88c90546a9c10614a2c53fb1aa8fb5a635dc3325436fe0fbbeee1a3f3a5"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-0/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "9e33d096a99bd1f89f874f9cd1dfeb637980a4a23e0681b373abe0614e041c85"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-0/requests.jsonl",
+      "bytes": 478089,
+      "sha256": "f992e6ec6fe88c226fdac7edb58df71fa43149dc8de52c34270467a0562cf0a2"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-0/output.jsonl",
+      "bytes": 39360008,
+      "sha256": "61856a1368aaa8b2e65daa91e87bec18f8ce6e15f99856636de2a4fb08a1f416"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-2/final.json",
+      "bytes": 90422,
+      "sha256": "0233edee3fa70eb2fbbdf07ae2b2dcbdfa40e69f1a42c25fee1c12582e39e5ff"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-2/latency-trace.json",
+      "bytes": 255766,
+      "sha256": "510a641afe426473def2bd99963f4efcaa30c0e47a4822ccc3cb33d9b3f026d8"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-2/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "d491fb0bdda4f89925b25c4440b5c6e405a298e56cd7f7cc253e1a61be7ceeec"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-2/requests.jsonl",
+      "bytes": 478923,
+      "sha256": "1403d87a99b3942856dfcb0576e8de4612e5f197ba8ebe5d0eb09ab137c437aa"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-2/output.jsonl",
+      "bytes": 39360016,
+      "sha256": "2ba1aa253106a66fc05fd4757fd685785105e814e5ff0c2846e4aba6a5509f78"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-3/final.json",
+      "bytes": 90341,
+      "sha256": "1972ce2a2b684fe88b4523a09028528f33ee5cc5c5612f808289554b6bf96bcf"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-3/latency-trace.json",
+      "bytes": 257280,
+      "sha256": "ee5be94739d79e050b1ff03d8b998a68ab8c6f4e0eb9f0b33b54cc47f1f4fd4b"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-3/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "bb12005b95c55ea890efe79fd12de829484f99079bb1123d3f8dd3d57af1de61"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-3/requests.jsonl",
+      "bytes": 478090,
+      "sha256": "f249054fe5ae598ad8f50bbfc47e8ef1430d86f0590679e6e0d97144c0609ba2"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/replicas/node-3/output.jsonl",
+      "bytes": 39360008,
+      "sha256": "2f3f19ce0823447bc7e65f7b1c69dcdc9d8dcbe304421d9e98f7acc787fd84fb"
+    }
+  ],
+  "verification": "Source hashes rechecked against the saved native verifier receipt hashes and signed file descriptors; signatures are not reverified by this reducer.",
+  "contract": [
+    "Origin-local CLOCK_MONOTONIC only; no cross-host subtraction.",
+    "Arithmetic transaction-weighted means on one identical completed and instrumented cohort.",
+    "Join exact batch identity and the block/section that first credits the request.",
+    "Dissemination / inclusion includes availability and proposal waiting; quorum duration is a separate overlapping diagnostic.",
+    "Consensus starts when the locally verified full execution proposal is accepted by the core, including prior verified-inbox queue delay in dissemination/inclusion, and ends at its exact committed output slice.",
+    "Output includes native payload validation, contiguous FIFO release, consumer scheduling, mutex wait and application identity/dedup validation.",
+    "Application acceptance is measured before diagnostic journal construction; failed publication invalidates the run.",
+    "Missing and nonsequential boundaries exclude requests from stage means but retain cohort counts."
+  ]
+}

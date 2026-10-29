@@ -1,0 +1,48 @@
+{
+  "leases": [
+    {
+      "region": "ap-southeast-1",
+      "start": "2026-10-29T09:11:37.401413+00:00",
+      "end": "2026-10-29T09:51:56.893851+00:00",
+      "elapsed_s": 2419.492438,
+      "hourly_quote_cny": 5.8333,
+      "quote_estimate_cny": 3.920451455162612,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    },
+    {
+      "region": "eu-central-1",
+      "start": "2026-10-29T09:12:14.072046+00:00",
+      "end": "2026-10-29T09:52:04.889859+00:00",
+      "elapsed_s": 2390.817813,
+      "hourly_quote_cny": 5.74714,
+      "quote_estimate_cny": 3.816767968279117,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    },
+    {
+      "region": "eu-west-1",
+      "start": "2026-10-29T09:12:47.903888+00:00",
+      "end": "2026-10-29T09:52:12.229394+00:00",
+      "elapsed_s": 2364.325506,
+      "hourly_quote_cny": 3.92384,
+      "quote_estimate_cny": 2.5770097204064006,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    },
+    {
+      "region": "ap-northeast-2",
+      "start": "2026-10-29T09:13:24.592553+00:00",
+      "end": "2026-10-29T09:52:18.433189+00:00",
+      "elapsed_s": 2333.840636,
+      "hourly_quote_cny": 5.79978,
+      "quote_estimate_cny": 3.7599339566278,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    }
+  ],
+  "quote_estimate_cny": 14.074163100475928,
+  "basis": "live hourly quote times launch-to-security-group-deletion elapsed; estimate only, not reconciled provider bill; build/setup included",
+  "reservation_cny": 100,
+  "reservations_released": false
+}

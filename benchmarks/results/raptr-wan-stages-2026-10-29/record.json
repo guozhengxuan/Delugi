@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "date": "2026-10-29",
+  "scope": "Exactly two integrated Raptr WAN workloads: healthy and silent-first-leader; 30s input each at100 honest tx/s. Delugi reused from2026-10-28; no Delugi rerun.",
+  "comparison_eligible": false,
+  "run_directory": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029",
+  "plan_sha256": "5743d4c8e3f36435e23541b62ef501bcaa4503196ec8741f1d071f2e2df4e7ce",
+  "source_revision": "3b4a1d931b8807de946e47444aed42fbe6d8196f",
+  "runtime_binary_sha256": "40e717800e582d74e230a8c02e878b2897f88fd79e08bb6c8f4697d9ceea8991",
+  "build": {
+    "publication": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/builds/3b4a1d931b8807de946e47444aed42fbe6d8196f/collected/publication.json",
+      "sha256": "173ea33ef577cafcaa14f8c9d08057ef589107c25716f01af8984f7bf4be2da5",
+      "bytes": 421
+    },
+    "archive": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/builds/3b4a1d931b8807de946e47444aed42fbe6d8196f/collected/files/publication/common-node.tar.gz",
+      "sha256": "6bb0dc270b687527beb7455a0529a2bfd8c5abc381aa68d9ce40e6d8b0912c77",
+      "bytes": 34258396
+    },
+    "status": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/builds/3b4a1d931b8807de946e47444aed42fbe6d8196f/collected/files/status.json",
+      "sha256": "410a780c62f580f1d3a7653eacfe392f199363d092f7ac7a875d9bebfa9ea8c0",
+      "bytes": 11429
+    },
+    "rust_tests_passed": 28,
+    "linux_supervisor_tests_passed": 5,
+    "elapsed_seconds": 1392.91355386,
+    "cleanup_confirmed": true,
+    "target_removed": true
+  },
+  "configuration": {
+    "duration_s": 30,
+    "drain_s": 15,
+    "honest_input_tps": 100,
+    "useful_transaction_bytes": 1,
+    "replicas": 4,
+    "regions": [
+      "ap-southeast-1",
+      "eu-central-1",
+      "eu-west-1",
+      "ap-northeast-2"
+    ],
+    "instance_type": "ecs.g9i.xlarge",
+    "cpus_per_host": 4,
+    "memory_gib_per_host": 16,
+    "system_disk_gib": 200,
+    "Delta_ms": 1000,
+    "added_one_way_delay_ms": 0,
+    "provider_egress_mbps": 20,
+    "network": "observed natural WAN over exact-peer WireGuard",
+    "trace_max_events": 250000,
+    "parameters": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/parameters.json",
+      "sha256": "a193ee6d88728c233a8bf74b6a08eb508fe8feb55dcfaa45cbfccfc2ce28adef",
+      "bytes": 1506
+    }
+  },
+  "endpoint": {
+    "start": "origin-local successful admission",
+    "end": "origin-local verified contiguous application acceptance, before diagnostic journal construction",
+    "timing_contract": "verified_contiguous_application_acceptance_v2",
+    "stage_cohort": "fully traced completed requests; absent scheduled requests retained in separate full-cohort latency statistics"
+  },
+  "results": [
+    {
+      "case": "healthy",
+      "trial_id": "9b65f5c790b85b8186317c0f",
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/result.json",
+        "sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+        "bytes": 90198
+      }
+    },
+    {
+      "case": "silent-first-leader",
+      "trial_id": "174bff299bdb5a912b6ed52e",
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/result.json",
+        "sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+        "bytes": 63955
+      }
+    }
+  ],
+  "raw_logs": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/downloaded-logs.tar.gz",
+    "sha256": "e13c64398043ed90daacda0f121b7235743da49e8586364d44402c6b2f205f97",
+    "bytes": 58210371,
+    "files": 212,
+    "uncompressed_bytes": 337574318,
+    "scope": "downloaded logs and results; private signing keys and build snapshots excluded"
+  },
+  "cleanup": {
+    "all_four_instances_deleted": true,
+    "all_four_security_group_deletes_acknowledged": true,
+    "testbed": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/testbed.json",
+      "sha256": "599144cfab17cd52b9860fb644da1c3bb26ae64a00bbdbf03587d982f356a4f5",
+      "bytes": 717
+    },
+    "leases": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/lease-0.json",
+        "sha256": "ce68bf24179a9d1685c9caab3e48f4ea6531c0e0773f8b2acb847960d807bfca",
+        "bytes": 7202
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/lease-1.json",
+        "sha256": "a44a3617475ca0141fc342d80de107ef467ecc51b889257fad8a89a911752939",
+        "bytes": 6870
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/lease-2.json",
+        "sha256": "f75db585f1c37c34b88b666e4c7e91ef047962ebc5566270c525ff1a18920fc3",
+        "bytes": 7199
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/e0ff68e0a4c240a69dc555ee5ef0ac8a/lease-3.json",
+        "sha256": "d88267237199f12f824ddffda6e251ffbd40e72958d02a6f9f7027abe3e74735",
+        "bytes": 6872
+      }
+    ],
+    "cost": {
+      "leases": [
+        {
+          "region": "ap-southeast-1",
+          "start": "2026-10-29T09:11:37.401413+00:00",
+          "end": "2026-10-29T09:51:56.893851+00:00",
+          "elapsed_s": 2419.492438,
+          "hourly_quote_cny": 5.8333,
+          "quote_estimate_cny": 3.920451455162612,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true
+        },
+        {
+          "region": "eu-central-1",
+          "start": "2026-10-29T09:12:14.072046+00:00",
+          "end": "2026-10-29T09:52:04.889859+00:00",
+          "elapsed_s": 2390.817813,
+          "hourly_quote_cny": 5.74714,
+          "quote_estimate_cny": 3.816767968279117,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true
+        },
+        {
+          "region": "eu-west-1",
+          "start": "2026-10-29T09:12:47.903888+00:00",
+          "end": "2026-10-29T09:52:12.229394+00:00",
+          "elapsed_s": 2364.325506,
+          "hourly_quote_cny": 3.92384,
+          "quote_estimate_cny": 2.5770097204064006,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true
+        },
+        {
+          "region": "ap-northeast-2",
+          "start": "2026-10-29T09:13:24.592553+00:00",
+          "end": "2026-10-29T09:52:18.433189+00:00",
+          "elapsed_s": 2333.840636,
+          "hourly_quote_cny": 5.79978,
+          "quote_estimate_cny": 3.7599339566278,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true
+        }
+      ],
+      "quote_estimate_cny": 14.074163100475928,
+      "basis": "live hourly quote times launch-to-security-group-deletion elapsed; estimate only, not reconciled provider bill; build/setup included",
+      "reservation_cny": 100,
+      "reservations_released": false
+    }
+  },
+  "postprocessors": {
+    "scripts/latency_decomposition.py": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+    "scripts/raptr_latency_decomposition.py": "75b4488e5f99a64f16004553f80d92d65ed62714dbe0b4cc6201e821845eb771",
+    "benchmarks/results/raptr-wan-stages-2026-10-29/plot_comparison.py": "836e6a8f3ceb662de417a25be0e3aec7ec2842af83017d4c61d107de33a6ef4d"
+  },
+  "comparison": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/comparison.json",
+    "sha256": "1efafd854dfd5c3d7b2de119b9c5e9b257a821d61d5c5fd71ae2536a62bf58cc",
+    "bytes": 37778
+  },
+  "summary": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/summary.json",
+    "sha256": "a246b81c30f4c5af9630955a766f5f4dec046a697b407eb8cc943a67088455c0",
+    "bytes": 11757
+  }
+}
