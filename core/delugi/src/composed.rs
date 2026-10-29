@@ -74,8 +74,9 @@ pub enum ReportSchedule {
     Admission,
     /// Freeze observations only after the exact ordering history is available.
     HistoryReady,
-    /// Two-step-ahead preparation bounded by own completed outcomes, with
-    /// authenticated CLOSED/history evidence when local outcomes lag peers.
+    /// Two-step-ahead preparation requires both completed prefix progress and
+    /// the preceding validated proposal. Resolved own/CLOSED/history evidence
+    /// independently enables recovery without freezing across a silent round.
     #[default]
     Pipeline,
 }
@@ -333,6 +334,7 @@ impl Node {
                 json!({"kind":"REPORT","signer":self.id,"to":null,"base":base.identity,
                     "schedule":self.report_schedule,"admitted":self.ordering.current_round(),
                     "local_report_horizon":self.ordering.own_report_horizon(),
+                    "predecessor_proposal_validated":self.ordering.preparation_predecessor_validated(round),
                     "closed_signers":self.ordering.preparation_closed_signers(round),
                     "exact_history_ready":self.ordering.input_preparation_ready(round)}),
             );

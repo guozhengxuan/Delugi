@@ -2325,9 +2325,13 @@ impl Replica {
         self.own_reports.keys().next_back().copied().unwrap_or(0)
     }
     /// Prepare two proposal positions ahead of the healthy send wave. At the
-    /// boundary emitting P(r-2), own CER/HISTORY3(r-4) enables REPORT(r), whose
-    /// two-message exchange completes alongside history for P(r). The
-    /// own-prefix branch permits only opportunities through that prefix + 4.
+    /// boundary emitting P(r-2), own CER/HISTORY3(r-4) and a fully validated
+    /// P(r-3) enable REPORT(r). Its two-message exchange completes alongside
+    /// history for P(r). Outcome progress alone can run ahead of that wave:
+    /// freezing without P(r-3) makes a silent predecessor's recovery anchor
+    /// miss all arrivals during its timeout. Round 4 uses the genesis prefix,
+    /// but still requires P(1); only rounds 1..=3 prepare unconditionally.
+    /// A completed own prefix r-3 also permits fresh recovery preparation.
     /// f+1 CLOSED(r-3) or exact history readiness retain timely recovery when
     /// local outcomes lag: each has at least one honest completed-prefix sender.
     /// Thus every prepared round is at most the greatest correct prefix + 4.
@@ -2335,10 +2339,22 @@ impl Replica {
         round > 0
             && round <= self.current
             && self.leader(round) == self.id
-            && (round <= 4
-                || self.own_reports.contains_key(&(round - 4))
+            && (round <= 3
+                || self.own_reports.contains_key(&(round - 3))
+                || ((round == 4 || self.own_reports.contains_key(&(round - 4)))
+                    && self.preparation_predecessor_validated(round))
                 || self.closed.get(&(round - 3)).map_or(0, BTreeMap::len) >= self.amplification()
                 || self.input_preparation_ready(round))
+    }
+    /// Only a full authenticated proposal that passed immutable Q supplies the
+    /// speculative wave evidence. A retained header, VOTE, or CER is insufficient.
+    pub fn preparation_predecessor_validated(&self, round: u64) -> bool {
+        round.checked_sub(3).filter(|h| *h > 0).is_some_and(|h| {
+            self.proposals
+                .range((h, [0; 32])..=(h, [u8::MAX; 32]))
+                .next()
+                .is_some()
+        })
     }
     /// Authenticated distinct CLOSED senders supporting preparation recovery.
     pub fn preparation_closed_signers(&self, round: u64) -> Vec<Id> {
@@ -2937,6 +2953,11 @@ impl Replica {
             }
             self.version += 1;
             self.notice("full_validation", r);
+            // The prefix or admission may have arrived first. Wake the exact
+            // later opportunity when its missing speculative evidence arrives.
+            if let Some(round) = r.checked_add(3).filter(|r| *r <= wire::MAX_ROUND) {
+                self.notice("pipeline_preparation_ready", round);
+            }
         }
     }
     fn ingest(&mut self, message: Message) -> Result<(), String> {
@@ -3201,10 +3222,12 @@ impl Replica {
             let closed = self.signed(Kind::Closed, h, None);
             self.closed_sent.insert(h, closed.clone());
             self.send(None, Message::Closed(closed))?;
-            // Wake the two-step-ahead availability opportunity even when its
-            // admission happened earlier. This notice changes no evidence.
-            if let Some(round) = h.checked_add(4).filter(|r| *r <= wire::MAX_ROUND) {
-                self.notice("pipeline_preparation_ready", round);
+            // Wake both resolved recovery and speculative wave opportunities,
+            // including when admission or proposal validation arrived first.
+            for offset in [3, 4] {
+                if let Some(round) = h.checked_add(offset).filter(|r| *r <= wire::MAX_ROUND) {
+                    self.notice("pipeline_preparation_ready", round);
+                }
             }
         }
         Ok(())
@@ -3700,8 +3723,10 @@ impl Replica {
             let closed = self.signed(Kind::Closed, h, None);
             self.closed_sent.insert(h, closed.clone());
             self.send(None, Message::Closed(closed))?;
-            if let Some(round) = h.checked_add(4).filter(|r| *r <= wire::MAX_ROUND) {
-                self.notice("pipeline_preparation_ready", round);
+            for offset in [3, 4] {
+                if let Some(round) = h.checked_add(offset).filter(|r| *r <= wire::MAX_ROUND) {
+                    self.notice("pipeline_preparation_ready", round);
+                }
             }
         }
         Ok(())

@@ -115,8 +115,9 @@ def scheduling_provenance(options, *, transport="bounded_pipelined_authenticated
             "bundling": "immediate_no_fill_timer" if bundling else "off",
             "transport": transport, "release_deadline_ms": options.get("progress_pacing_ms", options.get("round_barrier_ms")),
             "report_schedule": options.get("report_schedule", "unrecorded"),
-            "report_schedule_scope": ("bounded pipeline: admitted leader prepares after own outcome prefix r-4, "
-                "f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=4; two-delay preparation overlaps history; "
+            "report_schedule_scope": ("validated-predecessor pipeline: admitted leader prepares after own outcome prefix r-4 "
+                "and fully validated PROPOSE(r-3), or own completed prefix r-3, f+1 CLOSED(r-3), or exact HISTORY3(r-3); "
+                "startup r<=3; round 4 uses genesis prefix plus validated PROPOSE(1); two-delay preparation overlaps history; "
                 "fixed observations/inputs and ordering guards/timers are unchanged"
                 if options.get("report_schedule") == "pipeline" else
                 "composition scheduling variant: delay the one REPORT until exact HISTORY3 is ready; "

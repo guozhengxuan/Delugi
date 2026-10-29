@@ -11,6 +11,7 @@ import asyncio
 import copy
 from datetime import datetime, timezone
 import json
+import math
 import os
 from pathlib import Path
 import socket
@@ -27,6 +28,32 @@ import run_sustained
 ROOT = run_network.ROOT
 CHUNK_BYTES = 65536
 QUEUE_CHUNKS = 512
+
+
+def validate_delay_matrix(matrix, nodes):
+    """Directed one-way stream delays; diagonal connections remain local."""
+    if (not isinstance(matrix, list) or len(matrix) != nodes
+            or any(not isinstance(row, list) or len(row) != nodes for row in matrix)):
+        raise ValueError("delay matrix must contain one square row per replica")
+    for i, row in enumerate(matrix):
+        for j, value in enumerate(row):
+            if (isinstance(value, bool) or not isinstance(value, (int, float))
+                    or not math.isfinite(value) or not 0 <= value <= 1000
+                    or (i == j and value != 0)):
+                raise ValueError("delay matrix needs finite 0..1000 ms entries and a zero diagonal")
+    return copy.deepcopy(matrix)
+
+
+def read_delay_model(path, nodes=4):
+    raw = path.read_bytes()
+    if len(raw) > 16384:
+        raise ValueError("delay model exceeds 16 KiB")
+    model = json.loads(raw)
+    if (not isinstance(model, dict) or set(model) != {"description", "matrix_ms"}
+            or not isinstance(model["description"], str) or not 1 <= len(model["description"]) <= 1024):
+        raise ValueError("delay model requires a description and matrix_ms")
+    return {**model, "matrix_ms": validate_delay_matrix(model["matrix_ms"], nodes),
+            "source": str(path.resolve()), "sha256": run_network.sha(raw)}
 
 
 def address_tuple(address):
@@ -93,15 +120,18 @@ def stream_counters():
 
 class DelayProxy:
     """One event-loop thread owns all proxy sockets and connection tasks."""
-    def __init__(self, targets, delay_ms):
+    def __init__(self, targets, delay_ms, delay_matrix_ms=None):
         self.targets = [address_tuple(target) for target in targets]
         if not 0 <= delay_ms <= 1000:
             raise ValueError("delay_ms must be between zero and 1000")
         self.delay_ms = delay_ms
+        self.delay_matrix_ms = (None if delay_matrix_ms is None
+                               else validate_delay_matrix(delay_matrix_ms, len(targets)))
         self.loop = asyncio.new_event_loop()
         self.thread = threading.Thread(target=self.loop.run_forever, name="delugi-tcp-delay")
         self.servers, self.connections, self.records = [], set(), []
         self.addresses = []
+        self.addresses_by_source = []
         self.closed = False
 
     def start(self):
@@ -114,17 +144,25 @@ class DelayProxy:
         return self
 
     async def _start(self):
-        for replica, target in enumerate(self.targets):
-            async def accept(reader, writer, replica=replica, target=target):
-                await self._connection(replica, target, reader, writer)
-            server = await asyncio.start_server(accept, "127.0.0.1", 0)
-            self.servers.append(server)
-            self.addresses.append("127.0.0.1:" + str(server.sockets[0].getsockname()[1]))
+        sources = [None] if self.delay_matrix_ms is None else range(len(self.targets))
+        for source in sources:
+            addresses = []
+            for replica, target in enumerate(self.targets):
+                async def accept(reader, writer, replica=replica, target=target, source=source):
+                    await self._connection(replica, target, reader, writer, source)
+                server = await asyncio.start_server(accept, "127.0.0.1", 0)
+                self.servers.append(server)
+                addresses.append("127.0.0.1:" + str(server.sockets[0].getsockname()[1]))
+            self.addresses_by_source.append(addresses)
+        self.addresses = self.addresses_by_source[0]
 
-    async def _connection(self, replica, target, reader, writer):
+    async def _connection(self, replica, target, reader, writer, source=None):
         task = asyncio.current_task()
         self.connections.add(task)
-        record = {"destination_replica": replica, "closed": False,
+        forward = self.delay_ms if source is None else self.delay_matrix_ms[source][replica]
+        reverse = self.delay_ms if source is None else self.delay_matrix_ms[replica][source]
+        record = {"source_replica": source, "destination_replica": replica, "closed": False,
+                  "requested_delay_ms": {"client_to_replica": forward, "replica_to_client": reverse},
                   "client_to_replica": stream_counters(), "replica_to_client": stream_counters()}
         self.records.append(record)
         backend, pumps = None, []
@@ -140,9 +178,9 @@ class DelayProxy:
                     await asyncio.sleep(.01)
             for stream in (writer, backend):
                 stream.get_extra_info("socket").setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-            pumps = [asyncio.create_task(delayed_stream(reader, backend, self.delay_ms / 1000,
+            pumps = [asyncio.create_task(delayed_stream(reader, backend, forward / 1000,
                                                       record["client_to_replica"])),
-                     asyncio.create_task(delayed_stream(incoming, writer, self.delay_ms / 1000,
+                     asyncio.create_task(delayed_stream(incoming, writer, reverse / 1000,
                                                       record["replica_to_client"]))]
             await asyncio.gather(*pumps)
         except asyncio.CancelledError:
@@ -201,7 +239,10 @@ class DelayProxy:
                 counters["mean_forward_delay_us"] = counters["forward_delay_sum_us"] / count if count else None
                 if not count:
                     counters["forward_delay_min_us"] = None
-        return {"delay_ms_per_direction": self.delay_ms, "proxy_addresses": self.addresses,
+        return {"delay_ms_per_direction": self.delay_ms if self.delay_matrix_ms is None else None,
+                "delay_matrix_ms": self.delay_matrix_ms,
+                "proxy_addresses": self.addresses,
+                "proxy_addresses_by_source": self.addresses_by_source,
                 "backend_addresses": [f"{host}:{port}" for host, port in self.targets],
                 "thread_stopped": not self.thread.is_alive(), "connections": records,
                 "forwarded_bytes_definition": "bytes accepted by asyncio write then drain; validation telemetry only, not replica traffic accounting"}
@@ -209,16 +250,18 @@ class DelayProxy:
 
 class ProxiedChildren:
     """Inject addresses without changing production Config or runner semantics."""
-    def __init__(self, delay_ms):
+    def __init__(self, delay_ms, delay_matrix_ms=None):
         self.delay_ms, self.proxy, self.children = delay_ms, None, []
+        self.delay_matrix_ms = delay_matrix_ms
         self.original_child = run_network.Child
 
     def child(self, binary, config_path, node_id, directory):
         config = json.loads(config_path.read_text())
         if self.proxy is None:
-            self.proxy = DelayProxy(config["addresses"], self.delay_ms).start()
+            self.proxy = DelayProxy(config["addresses"], self.delay_ms, self.delay_matrix_ms).start()
         own_listener = config["addresses"][node_id]
-        config["addresses"] = list(self.proxy.addresses)
+        config["addresses"] = list(self.proxy.addresses if self.delay_matrix_ms is None
+                                   else self.proxy.addresses_by_source[node_id])
         config["addresses"][node_id] = own_listener
         path = directory / f"config-replica-{node_id}.json"
         path.write_text(json.dumps(config, indent=2) + "\n")
@@ -259,7 +302,14 @@ def verify_proxy(report):
                 raise AssertionError("proxy cleanup discarded bytes")
             if counters["queue_capacity_waits"]:
                 raise AssertionError("proxy delay queue saturated; diagnostic is invalid")
-            if counters["forwarded_chunks"] and counters["forward_delay_min_us"] < report["delay_ms_per_direction"] * 1000 - 100:
+            delay = record.get("requested_delay_ms", {}).get(direction, report["delay_ms_per_direction"])
+            matrix = report.get("delay_matrix_ms")
+            if matrix is not None:
+                source, destination = record["source_replica"], record["destination_replica"]
+                expected = matrix[source][destination] if direction == "client_to_replica" else matrix[destination][source]
+                if delay != expected:
+                    raise AssertionError("proxy connection delay differs from its source/destination matrix")
+            if counters["forwarded_chunks"] and counters["forward_delay_min_us"] < delay * 1000 - 100:
                 raise AssertionError("proxy forwarded earlier than the configured delay")
 
 
@@ -329,8 +379,8 @@ def calibration(delay_ms):
             raise RuntimeError(f"calibration cleanup failed: {errors}")
 
 
-def run_proxied(binary, directory, delay_ms, operation):
-    factory = ProxiedChildren(delay_ms)
+def run_proxied(binary, directory, delay_ms, operation, delay_matrix_ms=None):
+    factory = ProxiedChildren(delay_ms, delay_matrix_ms)
     result, report, cleanup_errors = None, None, []
     try:
         with patch.object(run_network, "Child", factory.child), patch.object(run_sustained, "Child", factory.child):
@@ -443,6 +493,8 @@ def main():
     parser.add_argument("--archived-build-manifest", type=Path,
                         help="verify a preserved binary against its original build stamp and source snapshot")
     parser.add_argument("--delay-ms", type=float, default=10)
+    parser.add_argument("--delay-model", type=Path,
+                        help="JSON description and directed matrix_ms; overrides scalar delay for replica traffic")
     parser.add_argument("--bound-ms", type=int, default=100)
     run_network.add_ordering_arguments(parser)
     run_network.add_spec_arguments(parser)
@@ -460,6 +512,8 @@ def main():
     parser.add_argument("--trace-max-events", type=int, default=200000)
     parser.add_argument("--scenario", choices=("all", "finite", "sustained"), default="all")
     args = parser.parse_args()
+    delay_model = read_delay_model(args.delay_model) if args.delay_model else None
+    delay_matrix = delay_model["matrix_ms"] if delay_model else None
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     manifest = {"schema": 1, "status": "incomplete", "command": sys.argv,
@@ -471,7 +525,8 @@ def main():
                            "limitations": "Userspace stream chunks, not IP packets or kernel shaping; TCP handshakes are not artificially delayed; real CPU/event-loop/OS scheduling may add delay; no bandwidth limit or packet loss; proxy scheduling metrics and RTT calibration retained",
                            "latency": "sustained: admission to originating replica's payload-verified contiguous append; finite exact request cohorts and completed-in-window aggregates retained separately; finite preloaded test endpoints are separately retained by the existing runner",
                            "traffic": "native counters include signed data frames and ACK stream bytes once at replica sockets; exclude proxy duplicate writes, control, TCP/IP headers and kernel retries"},
-                "settings": {k: v for k, v in vars(args).items() if k not in ("output", "binary", "archived_build_manifest", "spec_snapshot", "paper_repository")},
+                "settings": {k: v for k, v in vars(args).items() if k not in ("output", "binary", "archived_build_manifest", "spec_snapshot", "paper_repository", "delay_model")},
+                "delay_model": delay_model,
                 "scheduling": run_network.scheduling_provenance({**run_network.ordering_options(
                     args.bound_ms, args.ordering_batch, args.round_barrier_ms,
                     args.progress_pacing_ms, args.ordering_mode), "report_schedule": args.report_schedule}),
@@ -503,19 +558,30 @@ def main():
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(data)
             manifest["source_files"].append({"path": str(relative), "sha256": run_network.sha(data)})
-        manifest["calibration"] = calibration(args.delay_ms)
+        if delay_model:
+            manifest["settings"]["delay_ms"] = None
+            manifest["method"]["delay"] = "Each received chunk waits independently for matrix_ms[source][destination]; the return stream uses matrix_ms[destination][source]; reading and forwarding run concurrently"
+            manifest["method"]["routing"] = "each source replica uses its own proxy-listener row; forward and return streams use their directed matrix entry; own listener and controls stay direct"
+            # Calibrate each configured symmetric sum without claiming the
+            # resulting echo measures application one-way WAN latency.
+            delays = sorted({(delay_matrix[i][j] + delay_matrix[j][i]) / 2
+                             for i in range(4) for j in range(i + 1, 4)})
+            manifest["calibration"] = {"scope": "isolated scalar echo for each distinct configured bidirectional sum; actual per-edge forwarding counters retained in trial proxy reports",
+                                       "pairs": [calibration(delay) for delay in delays]}
+        else:
+            manifest["calibration"] = calibration(args.delay_ms)
         if args.scenario in ("all", "finite"):
             for label, silent in (("honest-round4", None), ("silent-leader-three-anchors", 0)):
                 directory = output / label
                 result = run_proxied(binary, directory, args.delay_ms,
-                                     lambda: run_finite(binary, directory, silent, args))
+                                     lambda: run_finite(binary, directory, silent, args), delay_matrix)
                 manifest["trials"].append({"label": label, "result": result})
                 if result["status"] != "passed":
                     raise AssertionError(f"{label} failed: {result.get('error', result.get('proxy_error'))}")
         if args.scenario in ("all", "sustained"):
             directory = output / "sustained"
             result = run_proxied(binary, directory, args.delay_ms,
-                                 lambda: run_load(binary, directory, args))
+                                 lambda: run_load(binary, directory, args), delay_matrix)
             manifest["trials"].append({"label": "sustained", "result": result})
             manifest["comparison"] = result.get("comparison")
             if result["status"] != "passed":
@@ -526,6 +592,8 @@ def main():
         if run_network.sha(binary.read_bytes()) != manifest["binary"]["sha256"]:
             raise RuntimeError("binary changed during run")
         run_network.verify_spec_unchanged(manifest["specification"])
+        if delay_model and run_network.sha(args.delay_model.read_bytes()) != delay_model["sha256"]:
+            raise RuntimeError("delay model changed during run")
         manifest["status"] = "passed"
     except Exception as error:
         manifest["status"], manifest["error"] = "failed", f"{type(error).__name__}: {error}"

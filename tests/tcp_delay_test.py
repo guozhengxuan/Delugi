@@ -166,6 +166,68 @@ class Harness(unittest.TestCase):
             self.assertEqual(json.loads(config_path.read_text()), original)
             fake_proxy.start.assert_called_once()
 
+    def test_directed_matrix_uses_source_specific_routes_and_preserves_bindings(self):
+        matrix = [[0, 7, 31, 80], [11, 0, 85, 120], [33, 90, 0, 115], [81, 125, 117, 0]]
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            config = {"addresses": [f"127.0.0.1:{31000+i}" for i in range(4)],
+                      "control_addresses": [f"127.0.0.1:{32000+i}" for i in range(4)]}
+            path = directory / "config.json"
+            path.write_text(json.dumps(config))
+            rows = [[f"127.0.0.1:{33000+i*4+j}" for j in range(4)] for i in range(4)]
+            proxy = Mock(addresses_by_source=rows)
+            proxy.start.return_value = proxy
+            factory = runner.ProxiedChildren(10, matrix)
+            factory.original_child = Mock()
+            with patch.object(runner, "DelayProxy", return_value=proxy) as create:
+                for source in range(4):
+                    factory.child(Path("binary"), path, source, directory)
+                    actual = json.loads((directory / f"config-replica-{source}.json").read_text())
+                    expected = list(rows[source]); expected[source] = config["addresses"][source]
+                    self.assertEqual(actual["addresses"], expected)
+                    self.assertEqual(actual["control_addresses"], config["control_addresses"])
+                create.assert_called_once_with(config["addresses"], 10, matrix)
+            self.assertEqual(json.loads(path.read_text()), config)
+
+    def test_matrix_shape_values_and_provenance_are_validated(self):
+        matrix = [[0, 7], [11, 0]]
+        copied = runner.validate_delay_matrix(matrix, 2)
+        matrix[0][1] = 99
+        self.assertEqual(copied[0][1], 7)
+        for invalid in ([[0]], [[1, 7], [11, 0]], [[0, float("nan")], [11, 0]],
+                        [[0, True], [11, 0]], [[0, -1], [11, 0]], [[0, 1001], [11, 0]]):
+            with self.subTest(matrix=invalid), self.assertRaises(ValueError):
+                runner.validate_delay_matrix(invalid, 2)
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "matrix.json"
+            path.write_text(json.dumps({"description": "Synthetic directed timing test", "matrix_ms": copied}))
+            model = runner.read_delay_model(path, 2)
+            self.assertEqual(model["matrix_ms"], copied)
+            self.assertEqual(model["sha256"], runner.run_network.sha(path.read_bytes()))
+            path.write_text(json.dumps({"matrix_ms": copied}))
+            with self.assertRaisesRegex(ValueError, "description"):
+                runner.read_delay_model(path, 2)
+
+    def test_each_direction_is_checked_against_its_own_matrix_entry(self):
+        def counter(milliseconds):
+            value = runner.stream_counters()
+            value.update(read_bytes=4, forwarded_bytes=4, forwarded_chunks=1,
+                         forward_delay_min_us=milliseconds*1000)
+            return value
+        report = {"thread_stopped": True, "delay_ms_per_direction": None,
+                  "delay_matrix_ms": [[0, 7], [31, 0]],
+                  "connections": [{"closed": True, "source_replica": 0, "destination_replica": 1,
+                    "requested_delay_ms": {"client_to_replica": 7, "replica_to_client": 31},
+                    "client_to_replica": counter(7), "replica_to_client": counter(31)}]}
+        runner.verify_proxy(report)
+        report["connections"][0]["replica_to_client"]["forward_delay_min_us"] = 7000
+        with self.assertRaisesRegex(AssertionError, "earlier"):
+            runner.verify_proxy(report)
+        report["connections"][0]["replica_to_client"]["forward_delay_min_us"] = 31000
+        report["connections"][0]["requested_delay_ms"]["replica_to_client"] = 7
+        with self.assertRaisesRegex(AssertionError, "matrix"):
+            runner.verify_proxy(report)
+
     def test_spawn_failure_cleanup_retains_already_started_children(self):
         factory = runner.ProxiedChildren(10)
         alive, exited = Mock(), Mock()
