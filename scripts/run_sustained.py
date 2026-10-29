@@ -2,6 +2,7 @@
 """Independent-arrival multi-process Delugi benchmark with exact output cohorts."""
 from datetime import datetime, timezone
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 import argparse
 import json
 import math
@@ -20,6 +21,55 @@ from cohort_metrics import cost_ratios, ENDPOINT
 from cohort_store import collect_sharded, CohortDatabase, sha_file
 import observer_receipts
 from spec_provenance import add_spec_arguments, archive_spec, verify_spec_unchanged, scheduling_provenance
+
+
+def remote_load_schedule(start_records, replicas, now_monotonic_ns):
+    """Map one future controller epoch through bounded remote clock samples.
+
+    A reply's wall timestamp was taken inside its request/response interval.
+    The midpoint estimate therefore has at most half-RTT uncertainty, assuming
+    neither clock steps after sampling. No cross-host clock is used for latency.
+    """
+    if (not replicas or len(set(replicas)) != len(replicas)
+            or type(now_monotonic_ns) is not int or now_monotonic_ns < 0):
+        raise ValueError("invalid remote load alignment target")
+    max_rtt_us, max_age_us = 2_000_000, 5_000_000
+    samples = {}
+    for record in start_records:
+        replica = record.get("replica")
+        reply = record.get("reply", {})
+        begin = record.get("start_monotonic_ns")
+        duration = record.get("duration_us")
+        remote_wall = reply.get("observed_unix_us")
+        if (replica not in replicas or replica in samples or record.get("type") != "start"
+                or reply.get("ok") is not True or reply.get("id") != replica
+                or any(type(v) is not int or v < 0 for v in (begin, duration, remote_wall))):
+            raise ValueError("invalid remote start clock sample")
+        age_us = (now_monotonic_ns - begin - duration * 1000) // 1000
+        if duration > max_rtt_us or not 0 <= age_us <= max_age_us:
+            raise ValueError("remote start clock sample is too slow or stale")
+        midpoint_ns = begin + duration * 500
+        samples[replica] = {"replica": replica, "request_id": record.get("request_id"),
+            "controller_midpoint_ns": midpoint_ns, "remote_observed_unix_us": remote_wall,
+            "rtt_us": duration, "uncertainty_us": (duration + 1) // 2, "sample_age_us": age_us,
+            "remote_wall_minus_controller_monotonic_us": (remote_wall * 1000 - midpoint_ns) // 1000}
+    if set(samples) != set(replicas) or len(replicas) != len(samples):
+        raise ValueError("remote start clock samples do not cover the exact replica set")
+    # Preserve the local one-second lead; remote dispatch receives two measured
+    # RTTs of extra slack, bounded below the native ten-second future-start cap.
+    lead_us = 1_000_000 + 2 * max(s["rtt_us"] for s in samples.values())
+    target_ns = now_monotonic_ns + lead_us * 1000
+    for sample in samples.values():
+        sample["requested_start_unix_us"] = (sample["remote_observed_unix_us"] * 1000
+            + target_ns - sample["controller_midpoint_ns"]) // 1000
+    return {"method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+        "controller_target_monotonic_ns": target_ns, "lead_us": lead_us,
+        "max_sample_rtt_us": max_rtt_us, "max_sample_age_us": max_age_us,
+        "maximum_pairwise_start_uncertainty_us": sum(sorted(
+            (s["uncertainty_us"] for s in samples.values()), reverse=True)[:2]),
+        "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+        "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+        "replicas": [samples[i] for i in replicas]}
 
 
 def tcp_counters(snapshot):
@@ -393,10 +443,25 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
         if deployment is None:
             shaping = configure_from_environment("delugi", ports)
         result["network_shaping"] = shaping
-        controller.many(list(range(nodes)), "start")
-        start_unix_us = time.time_ns() // 1000 + 1_000_000
-        controller.many(list(range(nodes)), "load", start_unix_us=start_unix_us)
-        load_start = time.monotonic() + (start_unix_us - time.time_ns() // 1000) / 1e6
+        replica_ids = list(range(nodes))
+        starts = controller.many(replica_ids, "start")
+        if deployment is None:
+            start_unix_us = time.time_ns() // 1000 + 1_000_000
+            controller.many(replica_ids, "load", start_unix_us=start_unix_us)
+            load_start = time.monotonic() + (start_unix_us - time.time_ns() // 1000) / 1e6
+        else:
+            alignment = remote_load_schedule(starts, replica_ids, time.monotonic_ns())
+            result["load_start_alignment"] = alignment
+            with ThreadPoolExecutor(max_workers=nodes) as pool:
+                armed = list(pool.map(lambda sample: controller.request(sample["replica"], "load",
+                    start_unix_us=sample["requested_start_unix_us"]), alignment["replicas"]))
+            alignment["acknowledgments"] = [{"replica": r["replica"], "request_id": r["request_id"],
+                "start_monotonic_ns": r["start_monotonic_ns"], "duration_us": r["duration_us"],
+                "accepted_start_unix_us": r["reply"]["data"]["start_unix_us"]} for r in armed]
+            if any(ack["accepted_start_unix_us"] != sample["requested_start_unix_us"]
+                   for ack, sample in zip(alignment["acknowledgments"], alignment["replicas"])):
+                raise RuntimeError("replica accepted a different remote load epoch")
+            load_start = alignment["controller_target_monotonic_ns"] / 1e9
         final_deadline = load_start + warmup_seconds + measurement_seconds + drain_seconds
         pause_start = load_start + warmup_seconds + pause_after
         pause_done = pause_replica is None
