@@ -74,14 +74,33 @@ and [decomposition](../benchmarks/results/fabric-wan-30s-2026-10-28/latency-deco
 are retained alongside the original pre-fix one-minute results. The fleet has
 been deleted; future creation needs enough remaining aggregate budget reservation.
 
-The current common publication is `3b4a1d9`. Its
+The retained common publication `3b4a1d9` and its
 [29 October Raptr timestamp rerun](../benchmarks/results/raptr-wan-stages-2026-10-29/README.md)
-adds exactly two 30-second healthy/silent trials at the same 100 tx/s preset,
+provide two 30-second healthy/silent trials at the same 100 tx/s preset,
 compared with saved Delugi. Means are 448.58/2,985.65 ms for Raptr versus
 519.40/4,180.45 ms for Delugi. Raptr completed 3,000/2,992 of 3,000 scheduled
 requests; all completed requests have full stage coverage. Native timeout,
 batching and fault-placement differences remain explicit. The new fleet and
 security groups are deleted; its quote-based cost estimate is CNY 14.07.
+
+The current publication uses the pipeline Delugi executable built from
+`59daec8`, with the controller-only clock-start fix from `20f4d64`. The
+[pipeline Delugi WAN rerun](../benchmarks/results/delugi-pipeline-wan-2026-10-29/README.md)
+completed exactly two 30-second healthy/silent workloads at 100 tx/s, with
+3,000/3,000 requests completed and fully traced in each. Mean latency is
+617.37 / 10,742.39 ms, compared with saved Raptr's 448.58 / 2,985.65 ms.
+Faster proposal cadence did not improve fresh inclusion; early fixed inputs
+produce an additional recovery-cycle prefix wait under persistent silence.
+The report includes the same-clock causal audit and the remaining healthy
+attribution limits. All owned resources are deleted; combined build/startup
+and retry cost is estimated at CNY 19.33, pending billing.
+
+Remote Delugi load scheduling now maps a common future controller monotonic
+epoch to each host's realtime clock using bounded start-reply samples.
+`load_start_alignment` records the RTT/age checks, uncertainty, requested epochs
+and acknowledgments. Each origin still runs its own exact measurement interval
+and calculates latency with its own monotonic clock. The initial rejected
+zero-input attempt is retained; it is not included in the performance bars.
 
 ## Run and reuse
 

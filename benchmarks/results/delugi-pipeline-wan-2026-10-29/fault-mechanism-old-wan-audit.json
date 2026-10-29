@@ -1,0 +1,289 @@
+{
+  "schema": "delugi-wan-frozen-anchor-audit-v1",
+  "run": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028",
+  "case": "silent-first-leader",
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/state.json",
+      "sha256": "677165c5ab7fb27a6bbbbd55ebe7b8075cc521f0edf51ecc22631044c1b27017"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/result.json",
+      "sha256": "5f1ec47ed4f5621de8a6d7f11e0dd39454e943958e471fc861445c41a9161a95"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/config.json",
+      "sha256": "08d2d95e9609612204a275903efd435bcc40c74ac6577db6a335415e720f1340"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/cohorts/index.json",
+      "sha256": "48a674f27c7fa77255f97bfa974c668afc7b3ae6b776647395a67114448ab795"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-0.json",
+      "sha256": "08d4d0d8e62f7adc48d020b3fc873b349a916214916f8223c62451520e0eed2d"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-1.json",
+      "sha256": "69da976df5711f2daa9b865c5f7558661750afe4259aefee9301ddefb985285b"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-2.json",
+      "sha256": "78b779ec5ea9797c51f4b1dd3b7bd438010d30989b50348a464bf762974bdf7c"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-3.json",
+      "sha256": "f18f1f1b4d4fa707bc492854918921da73e3fcdb9780993cf96352c2a231424b"
+    }
+  ],
+  "source_script_sha256": "42f8d090f82c0b2279f9c8b7a21bf102b64b37b88cd285ad98df1f513d259829",
+  "configuration": {
+    "bound_ms": 1000,
+    "ordering_mode": "progress",
+    "report_schedule": "history_ready",
+    "silent": 0
+  },
+  "population": {
+    "scheduled": 3000,
+    "admitted": 3000,
+    "completed": 3000,
+    "covered": 3000
+  },
+  "excluded": {},
+  "all_correct_collection": {
+    "boundary": "final exact output collection; not remote event latency",
+    "completed": 3000,
+    "fraction": 1.0,
+    "unfinished": 0
+  },
+  "stage_means_ms": {
+    "Batch formation": 0.6647556666666666,
+    "Await execution proposal": 3472.6753540000004,
+    "Agreement": 242.19639099999998,
+    "Contiguous prefix wait": 462.063325,
+    "Payload wait": 1.0515856666666668,
+    "Application append": 1.7943826666666667
+  },
+  "mean_total_ms": 4180.445794,
+  "by_execution_position_mod_four": {
+    "0": {
+      "requests": 2788,
+      "prefix_wait_ms": {
+        "count": 2788,
+        "mean": 0.021865853658536587,
+        "median": 0.021,
+        "min": 0.017,
+        "max": 0.029
+      },
+      "total_ms": {
+        "count": 2788,
+        "mean": 3938.7414049497847,
+        "median": 3987.5969999999998,
+        "min": 492.81,
+        "max": 7189.673
+      },
+      "execution_input_age_ms_request_weighted": {
+        "count": 2788,
+        "mean": 0.332166068866571,
+        "median": 0.282,
+        "min": 0.182,
+        "max": 0.471
+      }
+    },
+    "3": {
+      "requests": 212,
+      "prefix_wait_ms": {
+        "count": 212,
+        "mean": 6538.344400943396,
+        "median": 6516.383,
+        "min": 6297.935,
+        "max": 6716.052
+      },
+      "total_ms": {
+        "count": 212,
+        "mean": 7359.086533018868,
+        "median": 7360.022,
+        "min": 7001.173,
+        "max": 7728.119
+      },
+      "execution_input_age_ms_request_weighted": {
+        "count": 212,
+        "mean": 0.27993867924528304,
+        "median": 0.277,
+        "min": 0.267,
+        "max": 0.29
+      }
+    }
+  },
+  "third_anchor_frozen_age_ms_round_weighted": {
+    "count": 5,
+    "mean": 0.3238,
+    "median": 0.282,
+    "min": 0.182,
+    "max": 0.471
+  },
+  "matching_origin_three_missed_anchor_requests": 0,
+  "representative_request": null,
+  "leader_rounds": [
+    {
+      "leader": 1,
+      "round": 2,
+      "proposal_us": 931049,
+      "input_us": 930939,
+      "report_us": 600293,
+      "history_us": null,
+      "frozen_age_ms": 0.11
+    },
+    {
+      "leader": 1,
+      "round": 6,
+      "proposal_us": 8336705,
+      "input_us": 8336470,
+      "report_us": 8151653,
+      "history_us": 8151423,
+      "frozen_age_ms": 0.235
+    },
+    {
+      "leader": 1,
+      "round": 10,
+      "proposal_us": 15544166,
+      "input_us": 15543887,
+      "report_us": 15357597,
+      "history_us": 15357422,
+      "frozen_age_ms": 0.279
+    },
+    {
+      "leader": 1,
+      "round": 14,
+      "proposal_us": 22580522,
+      "input_us": 22580231,
+      "report_us": 22394087,
+      "history_us": 22393900,
+      "frozen_age_ms": 0.291
+    },
+    {
+      "leader": 1,
+      "round": 18,
+      "proposal_us": 29787474,
+      "input_us": 29787170,
+      "report_us": 29600320,
+      "history_us": 29600148,
+      "frozen_age_ms": 0.304
+    },
+    {
+      "leader": 1,
+      "round": 22,
+      "proposal_us": 36822823,
+      "input_us": 36822536,
+      "report_us": 36637520,
+      "history_us": 36637323,
+      "frozen_age_ms": 0.287
+    },
+    {
+      "leader": 2,
+      "round": 3,
+      "proposal_us": 2371549,
+      "input_us": 2371455,
+      "report_us": 2130450,
+      "history_us": null,
+      "frozen_age_ms": 0.094
+    },
+    {
+      "leader": 2,
+      "round": 7,
+      "proposal_us": 10104512,
+      "input_us": 10104222,
+      "report_us": 9862470,
+      "history_us": 9862287,
+      "frozen_age_ms": 0.29
+    },
+    {
+      "leader": 2,
+      "round": 11,
+      "proposal_us": 17147980,
+      "input_us": 17147703,
+      "report_us": 16905930,
+      "history_us": 16905773,
+      "frozen_age_ms": 0.277
+    },
+    {
+      "leader": 2,
+      "round": 15,
+      "proposal_us": 24355699,
+      "input_us": 24355413,
+      "report_us": 24113094,
+      "history_us": 24112939,
+      "frozen_age_ms": 0.286
+    },
+    {
+      "leader": 2,
+      "round": 19,
+      "proposal_us": 31387895,
+      "input_us": 31387628,
+      "report_us": 31144836,
+      "history_us": 31144678,
+      "frozen_age_ms": 0.267
+    },
+    {
+      "leader": 2,
+      "round": 23,
+      "proposal_us": 38593492,
+      "input_us": 38593233,
+      "report_us": 38351395,
+      "history_us": 38351237,
+      "frozen_age_ms": 0.259
+    },
+    {
+      "leader": 3,
+      "round": 4,
+      "proposal_us": 10408784,
+      "input_us": 10408602,
+      "report_us": 10165041,
+      "history_us": 10164746,
+      "frozen_age_ms": 0.182
+    },
+    {
+      "leader": 3,
+      "round": 8,
+      "proposal_us": 17445045,
+      "input_us": 17444763,
+      "report_us": 17200763,
+      "history_us": 17200594,
+      "frozen_age_ms": 0.282
+    },
+    {
+      "leader": 3,
+      "round": 12,
+      "proposal_us": 24652550,
+      "input_us": 24652079,
+      "report_us": 24407892,
+      "history_us": 24407725,
+      "frozen_age_ms": 0.471
+    },
+    {
+      "leader": 3,
+      "round": 16,
+      "proposal_us": 31688081,
+      "input_us": 31687675,
+      "report_us": 31442674,
+      "history_us": 31442485,
+      "frozen_age_ms": 0.406
+    },
+    {
+      "leader": 3,
+      "round": 20,
+      "proposal_us": 38896930,
+      "input_us": 38896652,
+      "report_us": 38651356,
+      "history_us": 38651171,
+      "frozen_age_ms": 0.278
+    }
+  ],
+  "contracts": [
+    "Every event-duration subtraction uses one replica monotonic clock.",
+    "Leader input-freeze age is a same-leader duration; transaction weighting assigns that duration to requests first executed in its round.",
+    "Execution position 0 is the third honest anchor; 2 the first, 3 the second; position 1 is the silent leader.",
+    "The representative request is selected only if its own third-anchor input froze before its admission and that anchor proposed afterward.",
+    "Missing or unfinished requests remain counted and excluded from completed stage means, never zero-filled."
+  ]
+}

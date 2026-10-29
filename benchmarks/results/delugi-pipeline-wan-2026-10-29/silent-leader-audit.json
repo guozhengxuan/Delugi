@@ -1,0 +1,573 @@
+{
+  "schema": "delugi-wan-frozen-anchor-audit-v1",
+  "run": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned",
+  "case": "silent-first-leader",
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/state.json",
+      "sha256": "805b3bf03a771b317b1c6cdb073a614bcf8708b674b4c702307fb070d964d9eb"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/result.json",
+      "sha256": "ab330956155ffe0ed538a1bfc82e399513ffa7e615d637eea6fdba368ec4bfc5"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/config.json",
+      "sha256": "b1599b28f41f9162c6ef0d6b437873e862e94a91e53d0f36e790c4ac7a704b51"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/cohorts/index.json",
+      "sha256": "5817e4d4cad6e62bfd0f7c4b3887c834c351c1e9799cadaa4135fabb06a63827"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-0.json",
+      "sha256": "138eacd5a6dc14dce60cf05ac7e226ad5b1a8804f8fb1bde18d9d7f3c7d82010"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-1.json",
+      "sha256": "55e2405465af05b470471664fd9e086a1a14fcc87ae8dbe17e92030dc51e060a"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-2.json",
+      "sha256": "776c525128ee2e8cbb696af51ad6eef68592744c633545ae354927ffa84cebad"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-3.json",
+      "sha256": "e60940cfc00aac6d08e78c70d33d5dfc5a80b9478fb8d5fd4f531e5bc98b318f"
+    }
+  ],
+  "source_script_sha256": "42f8d090f82c0b2279f9c8b7a21bf102b64b37b88cd285ad98df1f513d259829",
+  "configuration": {
+    "bound_ms": 1000,
+    "ordering_mode": "canonical",
+    "report_schedule": "pipeline",
+    "silent": 0
+  },
+  "population": {
+    "scheduled": 3000,
+    "admitted": 3000,
+    "completed": 3000,
+    "covered": 3000
+  },
+  "excluded": {},
+  "all_correct_collection": {
+    "boundary": "final exact output collection; not remote event latency",
+    "completed": 3000,
+    "fraction": 1.0,
+    "unfinished": 0
+  },
+  "stage_means_ms": {
+    "Batch formation": 0.6307556666666667,
+    "Await execution proposal": 3847.8966413333337,
+    "Agreement": 236.81708233333333,
+    "Contiguous prefix wait": 6655.110620666666,
+    "Payload wait": 0.42491933333333337,
+    "Application append": 1.5104066666666667
+  },
+  "mean_total_ms": 10742.390426,
+  "by_execution_position_mod_four": {
+    "0": {
+      "requests": 183,
+      "prefix_wait_ms": {
+        "count": 183,
+        "mean": 0.02874863387978142,
+        "median": 0.028,
+        "min": 0.022,
+        "max": 0.037
+      },
+      "total_ms": {
+        "count": 183,
+        "mean": 7363.18562295082,
+        "median": 7360.122,
+        "min": 7016.96,
+        "max": 7717.296
+      },
+      "execution_input_age_ms_request_weighted": {
+        "count": 183,
+        "mean": 6628.6251912568305,
+        "median": 6744.526,
+        "min": 6504.391,
+        "max": 6746.028
+      }
+    },
+    "2": {
+      "requests": 2811,
+      "prefix_wait_ms": {
+        "count": 2811,
+        "mean": 7088.3441568836715,
+        "median": 7067.501,
+        "min": 6862.775,
+        "max": 7260.233
+      },
+      "total_ms": {
+        "count": 2811,
+        "mean": 10969.34131696905,
+        "median": 11085.07,
+        "min": 7494.769,
+        "max": 14264.144
+      },
+      "execution_input_age_ms_request_weighted": {
+        "count": 2811,
+        "mean": 8.654861259338315,
+        "median": 0.292,
+        "min": 0.227,
+        "max": 18.855
+      }
+    },
+    "3": {
+      "requests": 6,
+      "prefix_wait_ms": {
+        "count": 6,
+        "mean": 6665.196,
+        "median": 6725.4169999999995,
+        "min": 6508.17,
+        "max": 6761.531
+      },
+      "total_ms": {
+        "count": 6,
+        "mean": 7481.644499999999,
+        "median": 7473.389999999999,
+        "min": 7466.044,
+        "max": 7517.093
+      },
+      "execution_input_age_ms_request_weighted": {
+        "count": 6,
+        "mean": 243.59799999999998,
+        "median": 243.598,
+        "min": 239.672,
+        "max": 247.524
+      }
+    }
+  },
+  "third_anchor_frozen_age_ms_round_weighted": {
+    "count": 6,
+    "mean": 6629.630166666667,
+    "median": 6630.829,
+    "min": 6504.391,
+    "max": 6760.151
+  },
+  "matching_origin_three_missed_anchor_requests": 904,
+  "representative_request": {
+    "origin": 3,
+    "request_id": "609983941cf7338978c60f1cadca896109f767a1712e6257e43d6b0965c1dd2c",
+    "sequence": 500,
+    "exact_batch_id": "76016d7ee3b0eba7ff575cfaad4f36da2dedc429a2c9addab63041d6bcebc2f3",
+    "admitted_us": 19823828,
+    "batch_sealed_us": 19824108,
+    "execution_round": 14,
+    "output_us": 31488481,
+    "stages_ms": {
+      "Batch formation": 0.28,
+      "Await execution proposal": 4558.959,
+      "Agreement": 239.809,
+      "Contiguous prefix wait": 6862.775,
+      "Payload wait": 0.136,
+      "Application append": 2.694
+    },
+    "total_ms": 11664.653,
+    "execution_input_frozen_age_ms": 0.292,
+    "previous_third_anchor": {
+      "leader": 3,
+      "round": 12,
+      "proposal_us": 24239951,
+      "input_us": 17493923,
+      "report_us": 17242140,
+      "history_us": 24239677,
+      "frozen_age_ms": 6746.028
+    },
+    "selection": "median admitted time among origin-3 completed requests that missed a frozen prior third anchor",
+    "same_clock_events": [
+      {
+        "at_us": 17242140,
+        "event": "dissemination_outbox",
+        "round": 12,
+        "detail": {
+          "kind": "REPORT",
+          "signer": 3,
+          "to": null,
+          "base": 7,
+          "schedule": "pipeline",
+          "admitted": 123,
+          "local_report_horizon": 8,
+          "closed_signers": [],
+          "exact_history_ready": false
+        }
+      },
+      {
+        "at_us": 17493923,
+        "event": "input_fixed",
+        "round": 12,
+        "start_us": 17493701,
+        "detail": {}
+      },
+      {
+        "at_us": 23999359,
+        "event": "no_cer",
+        "round": 9,
+        "detail": {}
+      },
+      {
+        "at_us": 24239677,
+        "event": "history_quorum",
+        "round": 12,
+        "detail": {
+          "horizon": 9
+        }
+      },
+      {
+        "at_us": 24239951,
+        "event": "ordering_outbox",
+        "round": 12,
+        "detail": {
+          "kind": "PROPOSE",
+          "signer": 3,
+          "to": null,
+          "encoded_message_bytes": 15148
+        }
+      },
+      {
+        "at_us": 24383067,
+        "event": "proposal_validated",
+        "round": 14,
+        "detail": {
+          "digest": [
+            236,
+            202,
+            101,
+            227,
+            163,
+            59,
+            167,
+            235,
+            123,
+            252,
+            52,
+            249,
+            91,
+            92,
+            89,
+            160,
+            147,
+            199,
+            190,
+            32,
+            47,
+            156,
+            141,
+            68,
+            192,
+            235,
+            167,
+            221,
+            219,
+            234,
+            152,
+            61
+          ],
+          "value_bytes": 1208,
+          "witness_bytes": 11148
+        }
+      },
+      {
+        "at_us": 24622876,
+        "event": "classified",
+        "round": 14,
+        "detail": {
+          "status": {
+            "Commit": [
+              236,
+              202,
+              101,
+              227,
+              163,
+              59,
+              167,
+              235,
+              123,
+              252,
+              52,
+              249,
+              91,
+              92,
+              89,
+              160,
+              147,
+              199,
+              190,
+              32,
+              47,
+              156,
+              141,
+              68,
+              192,
+              235,
+              167,
+              221,
+              219,
+              234,
+              152,
+              61
+            ]
+          },
+          "direct": true
+        }
+      },
+      {
+        "at_us": 31240909,
+        "event": "no_cer",
+        "round": 13,
+        "detail": {}
+      },
+      {
+        "at_us": 31242839,
+        "event": "ordering_outbox",
+        "round": 16,
+        "detail": {
+          "kind": "PROPOSE",
+          "signer": 3,
+          "to": null,
+          "encoded_message_bytes": 15872
+        }
+      },
+      {
+        "at_us": 31485617,
+        "event": "classified",
+        "round": 13,
+        "detail": {
+          "status": "Skip",
+          "direct": false
+        }
+      },
+      {
+        "at_us": 31485651,
+        "event": "prefix_release",
+        "round": 14,
+        "detail": {
+          "digest": [
+            236,
+            202,
+            101,
+            227,
+            163,
+            59,
+            167,
+            235,
+            123,
+            252,
+            52,
+            249,
+            91,
+            92,
+            89,
+            160,
+            147,
+            199,
+            190,
+            32,
+            47,
+            156,
+            141,
+            68,
+            192,
+            235,
+            167,
+            221,
+            219,
+            234,
+            152,
+            61
+          ]
+        }
+      }
+    ]
+  },
+  "leader_rounds": [
+    {
+      "leader": 1,
+      "round": 2,
+      "proposal_us": 938813,
+      "input_us": 938672,
+      "report_us": 604114,
+      "history_us": null,
+      "frozen_age_ms": 0.141
+    },
+    {
+      "leader": 1,
+      "round": 6,
+      "proposal_us": 8142676,
+      "input_us": 8142449,
+      "report_us": 7951884,
+      "history_us": 7982699,
+      "frozen_age_ms": 0.227
+    },
+    {
+      "leader": 1,
+      "round": 10,
+      "proposal_us": 15194841,
+      "input_us": 15175986,
+      "report_us": 14983381,
+      "history_us": 15194567,
+      "frozen_age_ms": 18.855
+    },
+    {
+      "leader": 1,
+      "round": 14,
+      "proposal_us": 22388538,
+      "input_us": 22388246,
+      "report_us": 22195352,
+      "history_us": 22225268,
+      "frozen_age_ms": 0.292
+    },
+    {
+      "leader": 1,
+      "round": 18,
+      "proposal_us": 29437932,
+      "input_us": 29420201,
+      "report_us": 29226586,
+      "history_us": 29437665,
+      "frozen_age_ms": 17.731
+    },
+    {
+      "leader": 1,
+      "round": 22,
+      "proposal_us": 36629704,
+      "input_us": 36629427,
+      "report_us": 36437989,
+      "history_us": 36468290,
+      "frozen_age_ms": 0.277
+    },
+    {
+      "leader": 1,
+      "round": 26,
+      "proposal_us": 43679949,
+      "input_us": 43659315,
+      "report_us": 43469229,
+      "history_us": 43679716,
+      "frozen_age_ms": 20.634
+    },
+    {
+      "leader": 2,
+      "round": 3,
+      "proposal_us": 2214594,
+      "input_us": 2214499,
+      "report_us": 1973395,
+      "history_us": null,
+      "frozen_age_ms": 0.095
+    },
+    {
+      "leader": 2,
+      "round": 7,
+      "proposal_us": 9456857,
+      "input_us": 9217185,
+      "report_us": 8974050,
+      "history_us": 9456596,
+      "frozen_age_ms": 239.672
+    },
+    {
+      "leader": 2,
+      "round": 11,
+      "proposal_us": 16466186,
+      "input_us": 16222339,
+      "report_us": 15975815,
+      "history_us": 16465903,
+      "frozen_age_ms": 243.847
+    },
+    {
+      "leader": 2,
+      "round": 15,
+      "proposal_us": 23711178,
+      "input_us": 23463654,
+      "report_us": 23216377,
+      "history_us": 23710904,
+      "frozen_age_ms": 247.524
+    },
+    {
+      "leader": 2,
+      "round": 19,
+      "proposal_us": 30711888,
+      "input_us": 30465333,
+      "report_us": 30219039,
+      "history_us": 30711604,
+      "frozen_age_ms": 246.555
+    },
+    {
+      "leader": 2,
+      "round": 23,
+      "proposal_us": 37954024,
+      "input_us": 37703860,
+      "report_us": 37459342,
+      "history_us": 37953743,
+      "frozen_age_ms": 250.164
+    },
+    {
+      "leader": 2,
+      "round": 27,
+      "proposal_us": 44949016,
+      "input_us": 44705204,
+      "report_us": 44461165,
+      "history_us": 44948768,
+      "frozen_age_ms": 243.812
+    },
+    {
+      "leader": 3,
+      "round": 4,
+      "proposal_us": 9997062,
+      "input_us": 3236911,
+      "report_us": 2996248,
+      "history_us": 9996951,
+      "frozen_age_ms": 6760.151
+    },
+    {
+      "leader": 3,
+      "round": 8,
+      "proposal_us": 16999393,
+      "input_us": 10482261,
+      "report_us": 10238338,
+      "history_us": 16999152,
+      "frozen_age_ms": 6517.132
+    },
+    {
+      "leader": 3,
+      "round": 12,
+      "proposal_us": 24239951,
+      "input_us": 17493923,
+      "report_us": 17242140,
+      "history_us": 24239677,
+      "frozen_age_ms": 6746.028
+    },
+    {
+      "leader": 3,
+      "round": 16,
+      "proposal_us": 31242839,
+      "input_us": 24738448,
+      "report_us": 24485154,
+      "history_us": 31242572,
+      "frozen_age_ms": 6504.391
+    },
+    {
+      "leader": 3,
+      "round": 20,
+      "proposal_us": 38482897,
+      "input_us": 31738371,
+      "report_us": 31484770,
+      "history_us": 38482626,
+      "frozen_age_ms": 6744.526
+    },
+    {
+      "leader": 3,
+      "round": 24,
+      "proposal_us": 45484410,
+      "input_us": 38978857,
+      "report_us": 38726764,
+      "history_us": 45484146,
+      "frozen_age_ms": 6505.553
+    }
+  ],
+  "contracts": [
+    "Every event-duration subtraction uses one replica monotonic clock.",
+    "Leader input-freeze age is a same-leader duration; transaction weighting assigns that duration to requests first executed in its round.",
+    "Execution position 0 is the third honest anchor; 2 the first, 3 the second; position 1 is the silent leader.",
+    "The representative request is selected only if its own third-anchor input froze before its admission and that anchor proposed afterward.",
+    "Missing or unfinished requests remain counted and excluded from completed stage means, never zero-filled."
+  ]
+}

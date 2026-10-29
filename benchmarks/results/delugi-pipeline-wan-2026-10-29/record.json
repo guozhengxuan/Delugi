@@ -1,0 +1,936 @@
+{
+  "schema": 1,
+  "date": "2026-10-29",
+  "scope": "Exactly two completed Delugi-only workloads: healthy and persistent silent-first-leader,30s input at100 honest tx/s. Saved Raptr reused without rerunning. One earlier zero-input scheduling failure retained separately.",
+  "comparison_eligible": false,
+  "run_directory": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned",
+  "plan_sha256": "a4aca7324071ef783b5dce9a8fcaf99938b88f8f01113ef7b4f9c45677a5cc3d",
+  "run_state": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/state.json",
+    "sha256": "805b3bf03a771b317b1c6cdb073a614bcf8708b674b4c702307fb070d964d9eb",
+    "bytes": 12304
+  },
+  "plan": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/plan.json",
+    "sha256": "bf97ad0128975fa9dd9c8a2660d372c606a4dcfe607e3a5b3f8730ae2cbd96fa",
+    "bytes": 2784
+  },
+  "native_source_revision": "59daec8e0eb4e45639879051a200795587a9ca8b",
+  "controller_source_revision": "20f4d64",
+  "runtime_binary_sha256": "8d6ed81250395430d5f6657b8b0808d5dc13862edcf76a9e5624362dd971a294",
+  "build": {
+    "source_revision": "59daec8e0eb4e45639879051a200795587a9ca8b",
+    "binary_sha256": "8d6ed81250395430d5f6657b8b0808d5dc13862edcf76a9e5624362dd971a294",
+    "status": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/builds/59daec8e0eb4e45639879051a200795587a9ca8b/collected/files/status.json",
+      "sha256": "3ddcf1695fb9785b53c01c0730854a57be93dcd6b7ae9391e48b2775b0c82c0f",
+      "bytes": 11429
+    },
+    "rust_tests_passed": 28,
+    "rust_test_log": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/builds/59daec8e0eb4e45639879051a200795587a9ca8b/collected/files/source/results/cloud-build/test/cargo.log",
+      "sha256": "73d7db5a6949e57999e5d0342e201e05337806fb90e8e3ca5deaf30d5bdf791c",
+      "bytes": 64199
+    },
+    "linux_supervisor_tests_passed": 5,
+    "linux_supervisor_test_log": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/builds/59daec8e0eb4e45639879051a200795587a9ca8b/collected/files/logs/linux-supervisor-tests.log",
+      "sha256": "35a3369f62e7b74a27216a10a1f63edd0db9141245c945c5ea8483187262dbab",
+      "bytes": 104
+    },
+    "build_elapsed_seconds": 1316.105065188,
+    "cleanup_confirmed": true,
+    "target_removed": true
+  },
+  "runtime_republication": {
+    "original_executable_and_build_receipt_unchanged": true,
+    "changed_manifest_members": [
+      "source/scripts/run_sustained.py"
+    ],
+    "publication": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-pipeline-wan-20261029/repacked-runtime/publication.json",
+      "sha256": "4a0627fdcf125b398d7b800d8db1fecfbecc8f33203dc46684f58bc43eed9e9f",
+      "bytes": 344
+    },
+    "archive": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-pipeline-wan-20261029/repacked-runtime/common-node.tar.gz",
+      "sha256": "c9011a61d6fd00fcd3a65eb23ae52a203b2526d12cc89a36959263b77c5d7c1a",
+      "bytes": 34270801
+    },
+    "verification": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-pipeline-wan-20261029/repacked-runtime/verification.json",
+      "sha256": "9b0902fcf65456925294b6603ad6d3640785de1f0f44db4ef718c709c340f439",
+      "bytes": 8881
+    },
+    "replacement_sha256": "7a030da6c6535dc2d62d1ee7913e88f8b493abf219a324f46976fa39bd651c55",
+    "clock_tests_passed": 4,
+    "sustained_runner_tests_passed": 24
+  },
+  "configuration": {
+    "parameters": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/parameters.json",
+      "sha256": "de51ff997f72261662d6ce300e3c8246d36edc5754b28f62bd2cef1629105614",
+      "bytes": 1502
+    },
+    "duration_s": 30,
+    "warmup_s": 0,
+    "drain_s": 15,
+    "honest_input_tps": 100,
+    "useful_transaction_bytes": 1,
+    "encoded_transaction_bytes": 61,
+    "replicas": 4,
+    "regions": [
+      "ap-southeast-1",
+      "eu-central-1",
+      "eu-west-1",
+      "ap-northeast-2"
+    ],
+    "instance_type": "ecs.g9i.xlarge",
+    "cpus_per_host": 4,
+    "memory_gib_per_host": 16,
+    "system_disk_gib": 200,
+    "Delta_ms": 1000,
+    "added_one_way_delay_ms": 0,
+    "provider_egress_mbps": 20,
+    "network": "observed natural WAN over exact-peer WireGuard",
+    "ordering_mode": "canonical",
+    "report_schedule": "pipeline",
+    "bundling": "immediate_no_fill_timer",
+    "trace_round_stride": 64,
+    "trace_max_events": 250000
+  },
+  "endpoint": {
+    "start": "origin-local successful admission",
+    "middle": "first valid consensus proposal acceptance at transaction origin; includes proposal transit before middle",
+    "end": "origin-local verified contiguous application acceptance, before diagnostic journaling",
+    "stage_cohort": "fully traced completed intended requests; every unfinished scheduled request separately retained"
+  },
+  "results": [
+    {
+      "case": "healthy",
+      "trial_id": "b02e64f55f4e7fa0598860f6",
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/result.json",
+        "sha256": "de448555b91879634ee5f8830bec951c551148e5b028918b5af14a38ac920ee5",
+        "bytes": 138957
+      },
+      "cohort": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0
+      },
+      "agreement": {
+        "all_correct_overlap_prefixes_verified": true,
+        "all_replica_minimum_diagnostic": {
+          "common_prefix_count": 3000,
+          "common_prefix_state_hash": [
+            249,
+            197,
+            247,
+            81,
+            209,
+            6,
+            134,
+            42,
+            67,
+            173,
+            8,
+            227,
+            217,
+            54,
+            243,
+            151,
+            201,
+            149,
+            142,
+            160,
+            176,
+            1,
+            133,
+            205,
+            23,
+            133,
+            214,
+            138,
+            40,
+            83,
+            102,
+            64
+          ],
+          "replicas_agree_on_common_prefix": true
+        },
+        "common_prefix_count": 3000,
+        "common_prefix_state_hash": [
+          249,
+          197,
+          247,
+          81,
+          209,
+          6,
+          134,
+          42,
+          67,
+          173,
+          8,
+          227,
+          217,
+          54,
+          243,
+          151,
+          201,
+          149,
+          142,
+          160,
+          176,
+          1,
+          133,
+          205,
+          23,
+          133,
+          214,
+          138,
+          40,
+          83,
+          102,
+          64
+        ],
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "executed_counts": {
+          "0": 3000,
+          "1": 3000,
+          "2": 3000,
+          "3": 3000
+        },
+        "executed_per_replica": 3000,
+        "origin_notification_validation": "all notified prefix counts are at most the final minimum correct prefix, authenticated and compared here",
+        "overlap_checks": [
+          {
+            "common_prefix_count": 3000,
+            "common_prefix_state_hash": [
+              249,
+              197,
+              247,
+              81,
+              209,
+              6,
+              134,
+              42,
+              67,
+              173,
+              8,
+              227,
+              217,
+              54,
+              243,
+              151,
+              201,
+              149,
+              142,
+              160,
+              176,
+              1,
+              133,
+              205,
+              23,
+              133,
+              214,
+              138,
+              40,
+              83,
+              102,
+              64
+            ],
+            "replicas": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "replicas_agree_on_common_prefix": true
+          }
+        ],
+        "replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "replicas_agree": true,
+        "replicas_agree_on_common_prefix": true,
+        "state_hash": [
+          249,
+          197,
+          247,
+          81,
+          209,
+          6,
+          134,
+          42,
+          67,
+          173,
+          8,
+          227,
+          217,
+          54,
+          243,
+          151,
+          201,
+          149,
+          142,
+          160,
+          176,
+          1,
+          133,
+          205,
+          23,
+          133,
+          214,
+          138,
+          40,
+          83,
+          102,
+          64
+        ],
+        "unique_generated_transactions": 3000
+      },
+      "load_start_alignment": {
+        "acknowledgments": [
+          {
+            "accepted_start_unix_us": 1793286302509176,
+            "duration_us": 104426,
+            "replica": 0,
+            "request_id": "request-5",
+            "start_monotonic_ns": 5108589556718208
+          },
+          {
+            "accepted_start_unix_us": 1793286302564087,
+            "duration_us": 839265,
+            "replica": 1,
+            "request_id": "request-6",
+            "start_monotonic_ns": 5108589557129250
+          },
+          {
+            "accepted_start_unix_us": 1793286302588236,
+            "duration_us": 390931,
+            "replica": 2,
+            "request_id": "request-7",
+            "start_monotonic_ns": 5108589557477916
+          },
+          {
+            "accepted_start_unix_us": 1793286302509678,
+            "duration_us": 192600,
+            "replica": 3,
+            "request_id": "request-8",
+            "start_monotonic_ns": 5108589557978541
+          }
+        ],
+        "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+        "controller_target_monotonic_ns": 5108591682001791,
+        "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+        "lead_us": 2125814,
+        "max_sample_age_us": 5000000,
+        "max_sample_rtt_us": 2000000,
+        "maximum_pairwise_start_uncertainty_us": 472984,
+        "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+        "replicas": [
+          {
+            "controller_midpoint_ns": 5108589042985166,
+            "remote_observed_unix_us": 1793286299870160,
+            "remote_wall_minus_controller_monotonic_us": 1788177710827174,
+            "replica": 0,
+            "request_id": "request-1",
+            "requested_start_unix_us": 1793286302509176,
+            "rtt_us": 102863,
+            "sample_age_us": 461771,
+            "uncertainty_us": 51432
+          },
+          {
+            "controller_midpoint_ns": 5108589273652875,
+            "remote_observed_unix_us": 1793286300155739,
+            "remote_wall_minus_controller_monotonic_us": 1788177710882086,
+            "replica": 1,
+            "request_id": "request-2",
+            "requested_start_unix_us": 1793286302564087,
+            "rtt_us": 562907,
+            "sample_age_us": 1081,
+            "uncertainty_us": 281454
+          },
+          {
+            "controller_midpoint_ns": 5108589184334833,
+            "remote_observed_unix_us": 1793286300090570,
+            "remote_wall_minus_controller_monotonic_us": 1788177710906235,
+            "replica": 2,
+            "request_id": "request-3",
+            "requested_start_unix_us": 1793286302588236,
+            "rtt_us": 383060,
+            "sample_age_us": 180322,
+            "uncertainty_us": 191530
+          },
+          {
+            "controller_midpoint_ns": 5108589087489666,
+            "remote_observed_unix_us": 1793286299915166,
+            "remote_wall_minus_controller_monotonic_us": 1788177710827676,
+            "replica": 3,
+            "request_id": "request-4",
+            "requested_start_unix_us": 1793286302509678,
+            "rtt_us": 188228,
+            "sample_age_us": 374584,
+            "uncertainty_us": 94114
+          }
+        ]
+      }
+    },
+    {
+      "case": "silent-first-leader",
+      "trial_id": "d22bcc884402d1e925c4eed8",
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/result.json",
+        "sha256": "ab330956155ffe0ed538a1bfc82e399513ffa7e615d637eea6fdba368ec4bfc5",
+        "bytes": 153925
+      },
+      "cohort": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0
+      },
+      "agreement": {
+        "all_correct_overlap_prefixes_verified": true,
+        "all_replica_minimum_diagnostic": {
+          "common_prefix_count": 0,
+          "common_prefix_state_hash": [
+            208,
+            174,
+            204,
+            206,
+            28,
+            245,
+            216,
+            145,
+            215,
+            141,
+            31,
+            137,
+            52,
+            178,
+            98,
+            57,
+            184,
+            139,
+            77,
+            174,
+            4,
+            190,
+            218,
+            68,
+            47,
+            7,
+            194,
+            170,
+            10,
+            198,
+            223,
+            4
+          ],
+          "replicas_agree_on_common_prefix": true
+        },
+        "common_prefix_count": 3000,
+        "common_prefix_state_hash": [
+          215,
+          226,
+          134,
+          178,
+          48,
+          70,
+          166,
+          14,
+          32,
+          29,
+          128,
+          212,
+          219,
+          130,
+          254,
+          85,
+          172,
+          14,
+          11,
+          33,
+          77,
+          143,
+          74,
+          240,
+          75,
+          103,
+          226,
+          13,
+          63,
+          245,
+          36,
+          230
+        ],
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ],
+        "executed_counts": {
+          "0": 0,
+          "1": 3000,
+          "2": 3000,
+          "3": 3000
+        },
+        "origin_notification_validation": "all notified prefix counts are at most the final minimum correct prefix, authenticated and compared here",
+        "overlap_checks": [
+          {
+            "common_prefix_count": 3000,
+            "common_prefix_state_hash": [
+              215,
+              226,
+              134,
+              178,
+              48,
+              70,
+              166,
+              14,
+              32,
+              29,
+              128,
+              212,
+              219,
+              130,
+              254,
+              85,
+              172,
+              14,
+              11,
+              33,
+              77,
+              143,
+              74,
+              240,
+              75,
+              103,
+              226,
+              13,
+              63,
+              245,
+              36,
+              230
+            ],
+            "replicas": [
+              1,
+              2,
+              3
+            ],
+            "replicas_agree_on_common_prefix": true
+          }
+        ],
+        "replicas": [
+          1,
+          2,
+          3
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "unique_generated_transactions": 3000
+      },
+      "load_start_alignment": {
+        "acknowledgments": [
+          {
+            "accepted_start_unix_us": 1793286610598054,
+            "duration_us": 100297,
+            "replica": 0,
+            "request_id": "request-5",
+            "start_monotonic_ns": 5108897653430791
+          },
+          {
+            "accepted_start_unix_us": 1793286610652252,
+            "duration_us": 835186,
+            "replica": 1,
+            "request_id": "request-6",
+            "start_monotonic_ns": 5108897653808250
+          },
+          {
+            "accepted_start_unix_us": 1793286610676173,
+            "duration_us": 380578,
+            "replica": 2,
+            "request_id": "request-7",
+            "start_monotonic_ns": 5108897654118333
+          },
+          {
+            "accepted_start_unix_us": 1793286610599186,
+            "duration_us": 187877,
+            "replica": 3,
+            "request_id": "request-8",
+            "start_monotonic_ns": 5108897654579583
+          }
+        ],
+        "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+        "controller_target_monotonic_ns": 5108899769466583,
+        "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+        "lead_us": 2116576,
+        "max_sample_age_us": 5000000,
+        "max_sample_rtt_us": 2000000,
+        "maximum_pairwise_start_uncertainty_us": 467622,
+        "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+        "replicas": [
+          {
+            "controller_midpoint_ns": 5108897143349541,
+            "remote_observed_unix_us": 1793286607971937,
+            "remote_wall_minus_controller_monotonic_us": 1788177710828587,
+            "replica": 0,
+            "request_id": "request-1",
+            "requested_start_unix_us": 1793286610598054,
+            "rtt_us": 100981,
+            "sample_age_us": 459050,
+            "uncertainty_us": 50491
+          },
+          {
+            "controller_midpoint_ns": 5108897372668958,
+            "remote_observed_unix_us": 1793286608255455,
+            "remote_wall_minus_controller_monotonic_us": 1788177710882786,
+            "replica": 1,
+            "request_id": "request-2",
+            "requested_start_unix_us": 1793286610652252,
+            "rtt_us": 558288,
+            "sample_age_us": 1077,
+            "uncertainty_us": 279144
+          },
+          {
+            "controller_midpoint_ns": 5108897282436208,
+            "remote_observed_unix_us": 1793286608189143,
+            "remote_wall_minus_controller_monotonic_us": 1788177710906706,
+            "replica": 2,
+            "request_id": "request-3",
+            "requested_start_unix_us": 1793286610676173,
+            "rtt_us": 376956,
+            "sample_age_us": 181976,
+            "uncertainty_us": 188478
+          },
+          {
+            "controller_midpoint_ns": 5108897185509666,
+            "remote_observed_unix_us": 1793286608015230,
+            "remote_wall_minus_controller_monotonic_us": 1788177710829720,
+            "replica": 3,
+            "request_id": "request-4",
+            "requested_start_unix_us": 1793286610599186,
+            "rtt_us": 181467,
+            "sample_age_us": 376647,
+            "uncertainty_us": 90734
+          }
+        ]
+      }
+    }
+  ],
+  "raw_logs": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/downloaded-logs.tar.gz",
+    "sha256": "b21cc6be1947d5803c659fd1817468227594a6ed2c07a3828f265686f6f45389",
+    "bytes": 16008010
+  },
+  "raw_log_archive_summary": {
+    "archive": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/downloaded-logs.tar.gz",
+    "files": 164,
+    "scope": "downloaded per-replica logs/results; build snapshots and private key directories excluded",
+    "sha256": "b21cc6be1947d5803c659fd1817468227594a6ed2c07a3828f265686f6f45389",
+    "uncompressed_bytes": 69342787
+  },
+  "startup_failure": {
+    "audit": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/startup-failure.json",
+      "sha256": "399122fc8e30b22290f5dc5af9bf9e8d70b8441c62b4dbcee9d2f149995dc0e3",
+      "bytes": 9955
+    },
+    "accepted_load_commands": 0,
+    "admitted_transactions": 0,
+    "silent_case_not_dispatched": true,
+    "raw_logs": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/downloaded-logs.tar.gz",
+      "sha256": "7c5bcfceae49e7b1465f33fa15ee8c4c3afd16ba66639bc23f547d0e946a17aa",
+      "bytes": 19980
+    },
+    "cleanup": {
+      "testbed": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/testbed.json",
+        "sha256": "906dbca930e16ef2c75c7a26bce8ca9d8dc46e247f8526ca931357b86dff7d82",
+        "bytes": 717
+      },
+      "all_four_instances_deleted": true,
+      "all_four_owned_security_groups_deleted": true,
+      "leases": [
+        {
+          "region": "ap-southeast-1",
+          "lease": {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-0.json",
+            "sha256": "42dc586b2acc6ea71b01f568da15d85ca320f782dd3c17f360ee3bc85714c5d2",
+            "bytes": 8251
+          },
+          "run_instances_ack_at": "2026-10-29T14:15:12.145172+00:00",
+          "security_group_delete_ack_at": "2026-10-29T14:52:56.360712+00:00",
+          "elapsed_seconds": 2264.21554,
+          "live_hourly_quote_cny": 5.8333,
+          "quote_estimate_cny": 3.668846808189445,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true,
+          "lease_closed": true
+        },
+        {
+          "region": "eu-central-1",
+          "lease": {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-1.json",
+            "sha256": "96d5d655a05b012d3c7b0bca7d12fecfb97783f2aed6b5ad0679b5efebbbb15e",
+            "bytes": 7921
+          },
+          "run_instances_ack_at": "2026-10-29T14:15:49.682503+00:00",
+          "security_group_delete_ack_at": "2026-10-29T14:53:03.941688+00:00",
+          "elapsed_seconds": 2234.259185,
+          "live_hourly_quote_cny": 5.74714,
+          "quote_estimate_cny": 3.5668334256891385,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true,
+          "lease_closed": true
+        },
+        {
+          "region": "eu-west-1",
+          "lease": {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-2.json",
+            "sha256": "5327e8b3e6fb6b454a9546637d38b8ae9cf699cb1e8f00bac87e5ee2bf7e6e0b",
+            "bytes": 7918
+          },
+          "run_instances_ack_at": "2026-10-29T14:16:24.282389+00:00",
+          "security_group_delete_ack_at": "2026-10-29T14:53:11.839714+00:00",
+          "elapsed_seconds": 2207.557325,
+          "live_hourly_quote_cny": 3.92384,
+          "quote_estimate_cny": 2.4061393705911116,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true,
+          "lease_closed": true
+        },
+        {
+          "region": "ap-northeast-2",
+          "lease": {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-3.json",
+            "sha256": "48859cdd48c5b6b2e3ab6c912abdcf5aa1566efb8a8392ac075925b61cf15578",
+            "bytes": 7921
+          },
+          "run_instances_ack_at": "2026-10-29T14:16:58.403996+00:00",
+          "security_group_delete_ack_at": "2026-10-29T14:53:18.390407+00:00",
+          "elapsed_seconds": 2179.986411,
+          "live_hourly_quote_cny": 5.79978,
+          "quote_estimate_cny": 3.5120671074415495,
+          "instances_deleted": true,
+          "security_group_delete_acknowledged": true,
+          "lease_closed": true
+        }
+      ],
+      "quote_estimate_cny": 13.153886711911245,
+      "cost_basis": "Fresh full-profile hourly quote multiplied by launch-ack to security-group-delete-ack time; includes compilation/setup, estimate only, not final provider billing; old budget reservations remain unsettled."
+    }
+  },
+  "cleanup": {
+    "all_retry_instances_deleted": true,
+    "all_retry_security_groups_deleted": true,
+    "testbed": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/1f2e33c96d724b98b3210bf79d3dfe62/testbed.json",
+      "sha256": "ec36c4858c9a2ae0233dc36daa5f95e7ac01359ba0dafffcca142699c1ff8220",
+      "bytes": 717
+    },
+    "leases": [
+      {
+        "region": "ap-southeast-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/1f2e33c96d724b98b3210bf79d3dfe62/lease-0.json",
+          "sha256": "4adcff563e917d0950fb5e8b78acc53020d32c05d936c94ef04fd5d0519c8370",
+          "bytes": 6926
+        },
+        "start": "2026-10-29T14:54:26.655219+00:00",
+        "end": "2026-10-29T15:12:27.111375+00:00",
+        "elapsed_s": 1080.456156,
+        "hourly_quote_cny": 5.8333,
+        "quote_estimate_cny": 1.750729137443,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      },
+      {
+        "region": "eu-central-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/1f2e33c96d724b98b3210bf79d3dfe62/lease-1.json",
+          "sha256": "36df166ceed49b5d8b124fd987e8dbf6eb20195d588c8f40c0277c3a91bf7874",
+          "bytes": 6925
+        },
+        "start": "2026-10-29T14:54:59.162848+00:00",
+        "end": "2026-10-29T15:12:34.788700+00:00",
+        "elapsed_s": 1055.625852,
+        "hourly_quote_cny": 5.74714,
+        "quote_estimate_cny": 1.6852304330731334,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      },
+      {
+        "region": "eu-west-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/1f2e33c96d724b98b3210bf79d3dfe62/lease-2.json",
+          "sha256": "136251aca4c5bb18e57960fb463b9eefa8c15d34cdbeebae3aaea7953acedf32",
+          "bytes": 6925
+        },
+        "start": "2026-10-29T14:55:33.554968+00:00",
+        "end": "2026-10-29T15:12:43.073290+00:00",
+        "elapsed_s": 1029.518322,
+        "hourly_quote_cny": 3.92384,
+        "quote_estimate_cny": 1.1221292146101334,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      },
+      {
+        "region": "ap-northeast-2",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/1f2e33c96d724b98b3210bf79d3dfe62/lease-3.json",
+          "sha256": "7a0ef0f8636c7870c489d62de73645e09656800f6eb988b18c200ea04d9ce9c6",
+          "bytes": 6929
+        },
+        "start": "2026-10-29T14:56:06.867843+00:00",
+        "end": "2026-10-29T15:12:49.778818+00:00",
+        "elapsed_s": 1002.910975,
+        "hourly_quote_cny": 5.79978,
+        "quote_estimate_cny": 1.61573972627375,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      }
+    ],
+    "local_build_cache": {
+      "scope": "compiler intermediates only; current shared verifier executable and build receipts retained",
+      "target": "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/.native-deps/target",
+      "removed": [
+        "debug/.fingerprint",
+        "debug/build",
+        "debug/deps",
+        "debug/examples",
+        "debug/incremental",
+        "tmp"
+      ],
+      "bytes_before": 2249912320,
+      "bytes_after": 67899392,
+      "bytes_reclaimed": 2182012928,
+      "binary_sha256": "4289df11b1b3495cb455c07490f28f21db712143b2df75ee3573ba8b71d33a95",
+      "temporary_extraction_cleanup": {
+        "archives_and_verification_retained": true,
+        "removed": [
+          {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-pipeline-wan-20261029/repack/original",
+            "bytes_reclaimed": 341782528
+          },
+          {
+            "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-pipeline-wan-20261029/repacked-runtime/bundle",
+            "bytes_reclaimed": 173658112
+          }
+        ]
+      }
+    },
+    "cost": {
+      "build_and_failed_startup_estimate_cny": 13.153886711911245,
+      "retry_fleet_estimate_cny": 6.173828511400017,
+      "combined_quote_estimate_cny": 19.327715223311262,
+      "basis": "Live full-profile hourly quotes times launch-to-security-group-deletion elapsed; includes build/setup; estimate pending provider billing. Old budget reservations preserved.",
+      "reservations_released": false
+    }
+  },
+  "comparison": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/comparison.json",
+    "sha256": "72ea098c561530643b0044ea32e8a9f73da1bed7df5e39eb5243c0686a1ec615",
+    "bytes": 60103
+  },
+  "counterpart_record": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/record.json",
+    "sha256": "d3e1f72437ba43f2b5e534cb5dca17e678e6260e2aad83daeccba98e86d7aef5",
+    "bytes": 8208
+  },
+  "postprocessors": {
+    "scripts/latency_decomposition.py": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+    "scripts/raptr_latency_decomposition.py": "75b4488e5f99a64f16004553f80d92d65ed62714dbe0b4cc6201e821845eb771",
+    "benchmarks/results/delugi-pipeline-wan-2026-10-29/plot_comparison.py": "de6fc9312aedeee1ff3f241222aee9f3b1db5b09cee830155393f3d589c9da87"
+  },
+  "audits": {
+    "healthy-pipeline-audit.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/healthy-pipeline-audit.json",
+      "sha256": "cdcf5dc8ccc90e9f26f4dd4189747718f70f74930e8ee335568829084a816e06",
+      "bytes": 358470
+    },
+    "healthy-pipeline-audit.md": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/healthy-pipeline-audit.md",
+      "sha256": "b541ef8149fd480a1d589e7fec09c3e01ec8cba5abfcb99045eb605237a88270",
+      "bytes": 6105
+    },
+    "silent-leader-audit.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/silent-leader-audit.json",
+      "sha256": "125a72ed542f0d92bfc19d77242eb49b7851f6bc924e283644ddf535af5f218b",
+      "bytes": 14678
+    },
+    "silent-leader-audit.md": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/silent-leader-audit.md",
+      "sha256": "18fd11e597fc75a5638a42285aca2d917bb9c3bba8cb597afaf0746c6149f393",
+      "bytes": 4800
+    },
+    "fault-mechanism-old-wan-audit.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/fault-mechanism-old-wan-audit.json",
+      "sha256": "7f1838ff89f8b183ff59d50698ef30ff24b4c4a7ae1da777f5c455a6bf719555",
+      "bytes": 8453
+    },
+    "audit_healthy.py": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/audit_healthy.py",
+      "sha256": "719402eee038391c0b9efeebdc74b32fc9147680f182768860d5f1c9c9062c28",
+      "bytes": 6871
+    },
+    "audit_fault.py": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/audit_fault.py",
+      "sha256": "42f8d090f82c0b2279f9c8b7a21bf102b64b37b88cd285ad98df1f513d259829",
+      "bytes": 10084
+    }
+  },
+  "report_outputs": {
+    "README.md": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/README.md",
+      "sha256": "9c956ea34b23ff33494cbd56e0c2d1790d49713ca1cc698b562850fc89957f15",
+      "bytes": 11710
+    },
+    "latency-decomposition-comparison.png": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/latency-decomposition-comparison.png",
+      "sha256": "c088338abfab1d87ac491756b8d2a927f829c5d57a87983c42f4a768c5e10c44",
+      "bytes": 177878
+    },
+    "latency-decomposition-comparison.pdf": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/latency-decomposition-comparison.pdf",
+      "sha256": "38cdb3ecc4a59b5a8b60e7a6106a405c5d6f570769a51950da62135066c14ddf",
+      "bytes": 34644
+    },
+    "latency-decomposition-comparison.svg": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/latency-decomposition-comparison.svg",
+      "sha256": "27863a9ed1d0aacad368ee615de601ad65b8a4c09f2353ffc3f858fb0fefaec0",
+      "bytes": 21115
+    },
+    "common-stages.csv": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/common-stages.csv",
+      "sha256": "11c74a55be0bb7a30ce4c7375819e0c4c31a3d996758a186083b315979eaadf7",
+      "bytes": 913
+    },
+    "summary.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/summary.json",
+      "sha256": "d1afd4fb8ec78a0ce3560996722a0abba4a494ae16be242e1dbff02cc4a2dd3f",
+      "bytes": 11671
+    },
+    "summary.csv": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/summary.csv",
+      "sha256": "a0b01e3814bc5fd14fa5bf8a456a951946fe2ebf4773221e11b383eb40cf758d",
+      "bytes": 6087
+    },
+    "summary.txt": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/summary.txt",
+      "sha256": "fd584efe9a40ea9f666e043a3b633f2cafb112ad41e079906c4f8971fdfc9716",
+      "bytes": 632
+    }
+  }
+}

@@ -1,0 +1,1772 @@
+{
+  "schema": 1,
+  "comparison": {
+    "healthy": {
+      "delugi_previous": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 519.4023053333333,
+        "mean_schedule_to_admission_ms": 0.04411633333333333,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6341950000000001
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 336.2064226666667
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 182.44426433333334
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 0.11742333333333334
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6341950000000001
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 336.2064226666667
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 182.44426433333334
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 0.008617333333333333
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.03272866666666667
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 0.07607733333333333
+          }
+        ]
+      },
+      "raptr_saved": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 448.5812526666666,
+        "mean_schedule_to_admission_ms": 0.123979,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 74.67178433333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 190.54134933333336
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 180.86884433333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 2.4992746666666665
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "sum_us": 224015353,
+            "mean_ms": 74.67178433333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "sum_us": 571624048,
+            "mean_ms": 190.54134933333336
+          },
+          {
+            "stage": "Consensus",
+            "sum_us": 542606533,
+            "mean_ms": 180.86884433333333
+          },
+          {
+            "stage": "Payload retrieval / validation",
+            "sum_us": 1323262,
+            "mean_ms": 0.44108733333333333
+          },
+          {
+            "stage": "Contiguous output wait",
+            "sum_us": 22820,
+            "mean_ms": 0.007606666666666666
+          },
+          {
+            "stage": "Output consumer wait",
+            "sum_us": 4120732,
+            "mean_ms": 1.3735773333333334
+          },
+          {
+            "stage": "Application acceptance",
+            "sum_us": 2031010,
+            "mean_ms": 0.6770033333333333
+          }
+        ]
+      },
+      "delugi_pipeline": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 617.3704563333333,
+        "mean_schedule_to_admission_ms": 0.04275866666666667,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6404273333333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 424.002048
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 187.55037533333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 5.1776056666666666
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6404273333333333
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 424.002048
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 187.55037533333333
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 5.023091333333333
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.061961333333333334
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 0.092553
+          }
+        ]
+      }
+    },
+    "silent-first-leader": {
+      "delugi_previous": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 4180.445794,
+        "mean_schedule_to_admission_ms": 0.05504066666666667,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6647556666666666
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 3472.675354
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 242.196391
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 464.9092933333334
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6647556666666666
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 3472.675354
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 242.196391
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 462.063325
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 1.0515856666666665
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 1.7943826666666667
+          }
+        ]
+      },
+      "raptr_saved": {
+        "scheduled": 3000,
+        "completed": 2992,
+        "covered": 2992,
+        "excluded": {
+          "unfinished_or_not_admitted": 8
+        },
+        "mean_admission_to_append_ms": 2985.6508880347596,
+        "mean_schedule_to_admission_ms": 19.637057486631015,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 89.62530815508022
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 2268.627160427807
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 275.4728228609626
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 351.9255965909091
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "sum_us": 268158922,
+            "mean_ms": 89.62530815508022
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "sum_us": 6787732464,
+            "mean_ms": 2268.627160427807
+          },
+          {
+            "stage": "Consensus",
+            "sum_us": 824214686,
+            "mean_ms": 275.4728228609626
+          },
+          {
+            "stage": "Payload retrieval / validation",
+            "sum_us": 119544727,
+            "mean_ms": 39.95478843582888
+          },
+          {
+            "stage": "Contiguous output wait",
+            "sum_us": 68129,
+            "mean_ms": 0.022770387700534758
+          },
+          {
+            "stage": "Output consumer wait",
+            "sum_us": 64056790,
+            "mean_ms": 21.409354946524065
+          },
+          {
+            "stage": "Application acceptance",
+            "sum_us": 869291739,
+            "mean_ms": 290.5386828208556
+          }
+        ]
+      },
+      "delugi_pipeline": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 10742.390426000002,
+        "mean_schedule_to_admission_ms": 0.055050666666666664,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6307556666666667
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 3847.8966413333333
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 236.81708233333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 6657.045946666667
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6307556666666667
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 3847.8966413333333
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 236.81708233333333
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 6655.110620666667
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.4249193333333333
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 1.5104066666666667
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "delugi_previous": {
+      "healthy": {
+        "trial_id": "5e2250ff5121e8d986930b2e",
+        "protocol": "delugi",
+        "nodes": 4,
+        "case": "healthy",
+        "rate": 100,
+        "status": "passed",
+        "error": null,
+        "duration_s": 30,
+        "useful_transaction_bytes": 1,
+        "faults": 0,
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "admission_fraction": 1.0,
+        "completion_fraction": 1.0,
+        "goodput_tps": 98.23333333333335,
+        "pending_at_end": 53,
+        "p50_ms": 518.809,
+        "p95_ms": 668.11,
+        "p99_ms": 705.636,
+        "p95_status": "observed",
+        "stability": {
+          "boundary": "half-open intervals; pending immediately before each boundary; scheduled_not_output retains rejected and not-yet-admitted requests",
+          "clock": "equal fractions of each origin's own measurement window, floored to microseconds; no cross-host timestamp subtraction",
+          "intervals": [
+            {
+              "admitted": 300,
+              "completed": 250,
+              "interval": 0,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 292,
+              "interval": 1,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 308,
+              "interval": 2,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 303,
+              "interval": 3,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 290,
+              "interval": 4,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 309,
+              "interval": 5,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 301,
+              "interval": 6,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 294,
+              "interval": 7,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 300,
+              "interval": 8,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 300,
+              "interval": 9,
+              "rejected": 0,
+              "scheduled": 300
+            }
+          ],
+          "origin_duration_us": {
+            "0": 30000000,
+            "1": 30000000,
+            "2": 30000000,
+            "3": 30000000
+          },
+          "samples": [
+            {
+              "boundary": 0,
+              "pending_admitted": 0,
+              "scheduled_not_output": 0
+            },
+            {
+              "boundary": 1,
+              "pending_admitted": 50,
+              "scheduled_not_output": 50
+            },
+            {
+              "boundary": 2,
+              "pending_admitted": 58,
+              "scheduled_not_output": 58
+            },
+            {
+              "boundary": 3,
+              "pending_admitted": 50,
+              "scheduled_not_output": 50
+            },
+            {
+              "boundary": 4,
+              "pending_admitted": 47,
+              "scheduled_not_output": 47
+            },
+            {
+              "boundary": 5,
+              "pending_admitted": 57,
+              "scheduled_not_output": 57
+            },
+            {
+              "boundary": 6,
+              "pending_admitted": 48,
+              "scheduled_not_output": 48
+            },
+            {
+              "boundary": 7,
+              "pending_admitted": 47,
+              "scheduled_not_output": 47
+            },
+            {
+              "boundary": 8,
+              "pending_admitted": 53,
+              "scheduled_not_output": 53
+            },
+            {
+              "boundary": 9,
+              "pending_admitted": 53,
+              "scheduled_not_output": 53
+            },
+            {
+              "boundary": 10,
+              "pending_admitted": 53,
+              "scheduled_not_output": 53
+            }
+          ],
+          "schema": 1,
+          "subwindows": 10
+        },
+        "traffic_measurement_written_bytes": 27716299,
+        "traffic_sampled_total_written_bytes": 31042344,
+        "traffic_window_quality": "sampled host-local boundaries; inspect per-replica timestamps",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "cohort_status": "all_completed",
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "end_to_end_p50_ms": 518.833,
+        "end_to_end_p50_lower_bound_ms": 518.833,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p95_ms": 668.166,
+        "end_to_end_p95_lower_bound_ms": 668.166,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p99_ms": 705.693,
+        "end_to_end_p99_lower_bound_ms": 705.693,
+        "end_to_end_p99_status": "observed",
+        "admission_p50_ms": 518.809,
+        "admission_p50_lower_bound_ms": 518.809,
+        "admission_p50_status": "observed",
+        "admission_p95_ms": 668.11,
+        "admission_p95_lower_bound_ms": 668.11,
+        "admission_p95_status": "observed",
+        "admission_p99_ms": 705.636,
+        "admission_p99_lower_bound_ms": 705.636,
+        "admission_p99_status": "observed",
+        "measurement_completion_count": 2947,
+        "cohort_completion_fraction": 1.0,
+        "result_sha256": "c01e41824114eef65102375057d38ebba9dacfb96341f16e53a34fcbeef8eca8"
+      },
+      "silent-first-leader": {
+        "trial_id": "b5619611ae844d5a1d749182",
+        "protocol": "delugi",
+        "nodes": 4,
+        "case": "silent-first-leader",
+        "rate": 100,
+        "status": "passed",
+        "error": null,
+        "duration_s": 30,
+        "useful_transaction_bytes": 1,
+        "faults": 1,
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "admission_fraction": 1.0,
+        "completion_fraction": 1.0,
+        "goodput_tps": 93.03333333333333,
+        "pending_at_end": 209,
+        "p50_ms": 4250.148,
+        "p95_ms": 7248.202,
+        "p99_ms": 7557.53,
+        "p95_status": "observed",
+        "stability": {
+          "boundary": "half-open intervals; pending immediately before each boundary; scheduled_not_output retains rejected and not-yet-admitted requests",
+          "clock": "equal fractions of each origin's own measurement window, floored to microseconds; no cross-host timestamp subtraction",
+          "intervals": [
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 0,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 1,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 663,
+              "interval": 2,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 3,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 703,
+              "interval": 4,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 5,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 6,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 721,
+              "interval": 7,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 0,
+              "interval": 8,
+              "rejected": 0,
+              "scheduled": 300
+            },
+            {
+              "admitted": 300,
+              "completed": 704,
+              "interval": 9,
+              "rejected": 0,
+              "scheduled": 300
+            }
+          ],
+          "origin_duration_us": {
+            "1": 30000000,
+            "2": 30000000,
+            "3": 30000000
+          },
+          "samples": [
+            {
+              "boundary": 0,
+              "pending_admitted": 0,
+              "scheduled_not_output": 0
+            },
+            {
+              "boundary": 1,
+              "pending_admitted": 300,
+              "scheduled_not_output": 300
+            },
+            {
+              "boundary": 2,
+              "pending_admitted": 600,
+              "scheduled_not_output": 600
+            },
+            {
+              "boundary": 3,
+              "pending_admitted": 237,
+              "scheduled_not_output": 237
+            },
+            {
+              "boundary": 4,
+              "pending_admitted": 537,
+              "scheduled_not_output": 537
+            },
+            {
+              "boundary": 5,
+              "pending_admitted": 134,
+              "scheduled_not_output": 134
+            },
+            {
+              "boundary": 6,
+              "pending_admitted": 434,
+              "scheduled_not_output": 434
+            },
+            {
+              "boundary": 7,
+              "pending_admitted": 734,
+              "scheduled_not_output": 734
+            },
+            {
+              "boundary": 8,
+              "pending_admitted": 313,
+              "scheduled_not_output": 313
+            },
+            {
+              "boundary": 9,
+              "pending_admitted": 613,
+              "scheduled_not_output": 613
+            },
+            {
+              "boundary": 10,
+              "pending_admitted": 209,
+              "scheduled_not_output": 209
+            }
+          ],
+          "schema": 1,
+          "subwindows": 10
+        },
+        "traffic_measurement_written_bytes": 7439939,
+        "traffic_sampled_total_written_bytes": 7845657,
+        "traffic_window_quality": "sampled host-local boundaries; inspect per-replica timestamps",
+        "traffic_boundary": "successful_replica_tcp_stream_writes",
+        "cohort_status": "all_completed",
+        "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+        "end_to_end_p50_ms": 4250.197,
+        "end_to_end_p50_lower_bound_ms": 4250.197,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p95_ms": 7248.252,
+        "end_to_end_p95_lower_bound_ms": 7248.252,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p99_ms": 7557.588,
+        "end_to_end_p99_lower_bound_ms": 7557.588,
+        "end_to_end_p99_status": "observed",
+        "admission_p50_ms": 4250.148,
+        "admission_p50_lower_bound_ms": 4250.148,
+        "admission_p50_status": "observed",
+        "admission_p95_ms": 7248.202,
+        "admission_p95_lower_bound_ms": 7248.202,
+        "admission_p95_status": "observed",
+        "admission_p99_ms": 7557.53,
+        "admission_p99_lower_bound_ms": 7557.53,
+        "admission_p99_status": "observed",
+        "measurement_completion_count": 2791,
+        "cohort_completion_fraction": 1.0,
+        "result_sha256": "5f1ec47ed4f5621de8a6d7f11e0dd39454e943958e471fc861445c41a9161a95"
+      }
+    },
+    "raptr_saved": {
+      "healthy": {
+        "trial_id": "9b65f5c790b85b8186317c0f",
+        "result_sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "goodput_tps": 98.5,
+        "end_to_end_p50_lower_bound_ms": 445.8,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 445.8,
+        "end_to_end_p95_lower_bound_ms": 595.427,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 595.427,
+        "end_to_end_p99_lower_bound_ms": 652.63,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 652.63,
+        "admission_p50_lower_bound_ms": 445.726,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 445.726,
+        "admission_p95_lower_bound_ms": 595.368,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 595.368,
+        "admission_p99_lower_bound_ms": 652.548,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 652.548,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 156.833966,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              156.807196,
+              156.834672,
+              156.848347,
+              156.850257,
+              156.82345,
+              156.790012,
+              156.79562,
+              156.816431,
+              156.823668,
+              156.83326,
+              156.839954,
+              156.803594,
+              156.794845,
+              156.835604,
+              156.842118,
+              156.834969,
+              156.80955,
+              156.83864,
+              156.834926,
+              156.836559
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.8074165,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              13.824247,
+              13.810998,
+              13.805516,
+              13.921571,
+              13.800736,
+              13.803737,
+              13.792083,
+              13.789899,
+              13.804158,
+              13.797955,
+              13.795587,
+              13.814343,
+              13.811621,
+              13.81752,
+              13.800257,
+              13.815974,
+              13.811201,
+              13.809317,
+              13.833615,
+              13.794066
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.72324400000002,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              239.7253,
+              239.733037,
+              240.143548,
+              239.706004,
+              239.721188,
+              239.738815,
+              239.713247,
+              239.742376,
+              239.749855,
+              239.734161,
+              239.718757,
+              239.707894,
+              239.706527,
+              239.736429,
+              239.752387,
+              239.740869,
+              239.711667,
+              239.694663,
+              239.720068,
+              239.707967
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.427061,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              64.437764,
+              64.414313,
+              64.461257,
+              64.442073,
+              64.43421,
+              64.443021,
+              64.401571,
+              64.427849,
+              64.431298,
+              64.387718,
+              64.441204,
+              64.430385,
+              64.43678,
+              64.426273,
+              64.392702,
+              64.38931,
+              64.413901,
+              64.391144,
+              64.383758,
+              64.423451
+            ],
+            "source": 3
+          }
+        ]
+      },
+      "silent-first-leader": {
+        "trial_id": "174bff299bdb5a912b6ed52e",
+        "result_sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+        "scheduled": 3000,
+        "admitted": 2992,
+        "completed": 2992,
+        "goodput_tps": 82.53333333333333,
+        "end_to_end_p50_lower_bound_ms": 2971.277,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 2971.277,
+        "end_to_end_p95_lower_bound_ms": 5291.944,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 5291.944,
+        "end_to_end_p99_lower_bound_ms": 5580.0,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 5580.0,
+        "admission_p50_lower_bound_ms": 2969.765,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 2969.765,
+        "admission_p95_lower_bound_ms": 4950.903,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 4950.903,
+        "admission_p99_lower_bound_ms": 5523.405,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 5523.405,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 156.86266999999998,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              156.802213,
+              156.819405,
+              156.847011,
+              156.808143,
+              156.821587,
+              156.81419,
+              156.866092,
+              156.914562,
+              156.885171,
+              156.843687,
+              156.863172,
+              156.888986,
+              156.878214,
+              156.864313,
+              156.834983,
+              156.877324,
+              156.852839,
+              156.862168,
+              156.924523,
+              156.878832
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.808060999999999,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              13.820978,
+              13.805998,
+              13.824671,
+              13.822483,
+              13.806707,
+              13.822951,
+              13.791903,
+              13.809804,
+              13.809415,
+              13.809969,
+              13.804702,
+              13.803039,
+              13.812979,
+              13.804818,
+              13.861157,
+              13.792769,
+              13.801949,
+              13.789652,
+              13.79159,
+              13.810362
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.72807999999998,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              239.704096,
+              241.088326,
+              239.726507,
+              239.744953,
+              239.770794,
+              239.72976,
+              239.674036,
+              239.719622,
+              239.710949,
+              239.727319,
+              239.70292,
+              239.745021,
+              239.73862,
+              239.728841,
+              239.71168,
+              239.700079,
+              239.762838,
+              239.788083,
+              239.709159,
+              239.760955
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.40693350000001,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              64.398141,
+              64.417576,
+              64.429085,
+              64.437961,
+              64.424217,
+              64.418214,
+              64.426204,
+              64.399969,
+              64.387408,
+              64.401984,
+              64.392189,
+              64.415617,
+              64.36794,
+              64.421598,
+              64.411883,
+              64.3955,
+              64.422041,
+              64.397882,
+              64.399672,
+              64.384643
+            ],
+            "source": 3
+          }
+        ]
+      }
+    },
+    "delugi_pipeline": {
+      "healthy": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "goodput_tps": 97.93333333333334,
+        "pending_at_end": 62,
+        "end_to_end_p50_lower_bound_ms": 612.708,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 612.708,
+        "end_to_end_p95_lower_bound_ms": 800.754,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 800.754,
+        "end_to_end_p99_lower_bound_ms": 839.981,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 839.981,
+        "admission_p50_lower_bound_ms": 612.671,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 612.671,
+        "admission_p95_lower_bound_ms": 800.697,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 800.697,
+        "admission_p99_lower_bound_ms": 839.954,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 839.954,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 159.32066550000002,
+            "samples_ms": [
+              159.333873,
+              159.35228,
+              159.32136,
+              159.332465,
+              159.316522,
+              159.358676,
+              159.295053,
+              159.298674,
+              159.31669,
+              159.333232,
+              159.310196,
+              159.317953,
+              159.33799,
+              159.329627,
+              159.277307,
+              159.319971,
+              159.323602,
+              159.314392,
+              159.357822,
+              159.316798
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 14.0730635,
+            "samples_ms": [
+              14.072727,
+              14.087438,
+              14.076995,
+              14.059618,
+              14.0734,
+              14.073639,
+              14.065648,
+              14.070871,
+              14.081761,
+              14.081793,
+              14.080905,
+              14.061006,
+              14.069695,
+              14.08733,
+              14.080337,
+              14.079376,
+              14.063269,
+              14.055072,
+              14.059747,
+              14.053055
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.25611400000003,
+            "samples_ms": [
+              239.31731,
+              239.221878,
+              239.276571,
+              239.231536,
+              239.237314,
+              239.260146,
+              239.24122,
+              239.262751,
+              239.258842,
+              239.257799,
+              239.255366,
+              239.253358,
+              239.258591,
+              239.232074,
+              239.251365,
+              239.259442,
+              239.228414,
+              239.257262,
+              239.239784,
+              239.256862
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 62.421561,
+            "samples_ms": [
+              62.46777,
+              62.446691,
+              62.437509,
+              62.416588,
+              62.4492,
+              62.42163,
+              62.399789,
+              62.421492,
+              62.427716,
+              62.410666,
+              62.393683,
+              62.409299,
+              62.422452,
+              62.389655,
+              62.418493,
+              62.420772,
+              62.418911,
+              62.463052,
+              62.432942,
+              62.42737
+            ],
+            "source": 3
+          }
+        ],
+        "drain_complete": true,
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 3000,
+          "fraction": 1.0,
+          "unfinished": 0
+        },
+        "tcp_written_bytes": 37679270,
+        "load_start_alignment": {
+          "acknowledgments": [
+            {
+              "accepted_start_unix_us": 1793286302509176,
+              "duration_us": 104426,
+              "replica": 0,
+              "request_id": "request-5",
+              "start_monotonic_ns": 5108589556718208
+            },
+            {
+              "accepted_start_unix_us": 1793286302564087,
+              "duration_us": 839265,
+              "replica": 1,
+              "request_id": "request-6",
+              "start_monotonic_ns": 5108589557129250
+            },
+            {
+              "accepted_start_unix_us": 1793286302588236,
+              "duration_us": 390931,
+              "replica": 2,
+              "request_id": "request-7",
+              "start_monotonic_ns": 5108589557477916
+            },
+            {
+              "accepted_start_unix_us": 1793286302509678,
+              "duration_us": 192600,
+              "replica": 3,
+              "request_id": "request-8",
+              "start_monotonic_ns": 5108589557978541
+            }
+          ],
+          "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+          "controller_target_monotonic_ns": 5108591682001791,
+          "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+          "lead_us": 2125814,
+          "max_sample_age_us": 5000000,
+          "max_sample_rtt_us": 2000000,
+          "maximum_pairwise_start_uncertainty_us": 472984,
+          "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+          "replicas": [
+            {
+              "controller_midpoint_ns": 5108589042985166,
+              "remote_observed_unix_us": 1793286299870160,
+              "remote_wall_minus_controller_monotonic_us": 1788177710827174,
+              "replica": 0,
+              "request_id": "request-1",
+              "requested_start_unix_us": 1793286302509176,
+              "rtt_us": 102863,
+              "sample_age_us": 461771,
+              "uncertainty_us": 51432
+            },
+            {
+              "controller_midpoint_ns": 5108589273652875,
+              "remote_observed_unix_us": 1793286300155739,
+              "remote_wall_minus_controller_monotonic_us": 1788177710882086,
+              "replica": 1,
+              "request_id": "request-2",
+              "requested_start_unix_us": 1793286302564087,
+              "rtt_us": 562907,
+              "sample_age_us": 1081,
+              "uncertainty_us": 281454
+            },
+            {
+              "controller_midpoint_ns": 5108589184334833,
+              "remote_observed_unix_us": 1793286300090570,
+              "remote_wall_minus_controller_monotonic_us": 1788177710906235,
+              "replica": 2,
+              "request_id": "request-3",
+              "requested_start_unix_us": 1793286302588236,
+              "rtt_us": 383060,
+              "sample_age_us": 180322,
+              "uncertainty_us": 191530
+            },
+            {
+              "controller_midpoint_ns": 5108589087489666,
+              "remote_observed_unix_us": 1793286299915166,
+              "remote_wall_minus_controller_monotonic_us": 1788177710827676,
+              "replica": 3,
+              "request_id": "request-4",
+              "requested_start_unix_us": 1793286302509678,
+              "rtt_us": 188228,
+              "sample_age_us": 374584,
+              "uncertainty_us": 94114
+            }
+          ]
+        },
+        "trial_id": "b02e64f55f4e7fa0598860f6",
+        "result_sha256": "de448555b91879634ee5f8830bec951c551148e5b028918b5af14a38ac920ee5",
+        "scheduling": {
+          "bundling": "immediate_no_fill_timer",
+          "ordering_mode": "canonical",
+          "originating_prog": "immediate",
+          "release_deadline_ms": null,
+          "report_schedule": "pipeline",
+          "report_schedule_scope": "bounded pipeline: admitted leader prepares after own outcome prefix r-4, f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=4; two-delay preparation overlaps history; fixed observations/inputs and ordering guards/timers are unchanged",
+          "required_ablation_cell": "immediate/bundle-on",
+          "theorem_scope": "canonical ordering with bounded pipeline composition; input readiness is measured from its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions",
+          "transport": "bounded_pipelined_authenticated_tcp"
+        }
+      },
+      "silent-first-leader": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "goodput_tps": 65.69999999999999,
+        "pending_at_end": 1029,
+        "end_to_end_p50_lower_bound_ms": 10880.517,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 10880.517,
+        "end_to_end_p95_lower_bound_ms": 13874.655,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 13874.655,
+        "end_to_end_p99_lower_bound_ms": 14174.611,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 14174.611,
+        "admission_p50_lower_bound_ms": 10880.461,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 10880.461,
+        "admission_p95_lower_bound_ms": 13874.599,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 13874.599,
+        "admission_p99_lower_bound_ms": 14174.554,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 14174.554,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 159.316799,
+            "samples_ms": [
+              159.325074,
+              159.303595,
+              159.354586,
+              159.344458,
+              159.283922,
+              159.304801,
+              159.327829,
+              159.316916,
+              159.309016,
+              159.316682,
+              159.310781,
+              159.330992,
+              159.330517,
+              159.336906,
+              159.29338,
+              159.288125,
+              159.321323,
+              159.322172,
+              159.311524,
+              159.300554
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 14.0825195,
+            "samples_ms": [
+              14.113557,
+              14.100222,
+              14.086778,
+              14.079852,
+              14.094631,
+              14.097438,
+              14.083183,
+              14.100023,
+              14.081032,
+              14.113662,
+              14.097982,
+              14.079262,
+              14.071289,
+              14.079581,
+              14.068168,
+              14.082427,
+              14.082612,
+              14.06465,
+              14.067654,
+              14.067004
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.253261,
+            "samples_ms": [
+              239.255998,
+              239.241987,
+              239.244373,
+              239.252559,
+              239.266405,
+              239.253963,
+              239.249362,
+              239.26448,
+              239.276406,
+              239.243646,
+              239.266109,
+              239.280435,
+              239.257626,
+              239.265482,
+              239.237792,
+              239.260377,
+              239.230277,
+              239.24035,
+              239.236579,
+              239.24289
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 62.4257815,
+            "samples_ms": [
+              62.423891,
+              62.401219,
+              62.412534,
+              62.436181,
+              62.409055,
+              62.399781,
+              62.420905,
+              62.428028,
+              62.427729,
+              62.417965,
+              62.393512,
+              62.430255,
+              62.892476,
+              62.425782,
+              62.435235,
+              62.425781,
+              62.441081,
+              62.407416,
+              62.439929,
+              62.442504
+            ],
+            "source": 3
+          }
+        ],
+        "drain_complete": true,
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ],
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 3000,
+          "fraction": 1.0,
+          "unfinished": 0
+        },
+        "tcp_written_bytes": 7811900,
+        "load_start_alignment": {
+          "acknowledgments": [
+            {
+              "accepted_start_unix_us": 1793286610598054,
+              "duration_us": 100297,
+              "replica": 0,
+              "request_id": "request-5",
+              "start_monotonic_ns": 5108897653430791
+            },
+            {
+              "accepted_start_unix_us": 1793286610652252,
+              "duration_us": 835186,
+              "replica": 1,
+              "request_id": "request-6",
+              "start_monotonic_ns": 5108897653808250
+            },
+            {
+              "accepted_start_unix_us": 1793286610676173,
+              "duration_us": 380578,
+              "replica": 2,
+              "request_id": "request-7",
+              "start_monotonic_ns": 5108897654118333
+            },
+            {
+              "accepted_start_unix_us": 1793286610599186,
+              "duration_us": 187877,
+              "replica": 3,
+              "request_id": "request-8",
+              "start_monotonic_ns": 5108897654579583
+            }
+          ],
+          "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+          "controller_target_monotonic_ns": 5108899769466583,
+          "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+          "lead_us": 2116576,
+          "max_sample_age_us": 5000000,
+          "max_sample_rtt_us": 2000000,
+          "maximum_pairwise_start_uncertainty_us": 467622,
+          "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+          "replicas": [
+            {
+              "controller_midpoint_ns": 5108897143349541,
+              "remote_observed_unix_us": 1793286607971937,
+              "remote_wall_minus_controller_monotonic_us": 1788177710828587,
+              "replica": 0,
+              "request_id": "request-1",
+              "requested_start_unix_us": 1793286610598054,
+              "rtt_us": 100981,
+              "sample_age_us": 459050,
+              "uncertainty_us": 50491
+            },
+            {
+              "controller_midpoint_ns": 5108897372668958,
+              "remote_observed_unix_us": 1793286608255455,
+              "remote_wall_minus_controller_monotonic_us": 1788177710882786,
+              "replica": 1,
+              "request_id": "request-2",
+              "requested_start_unix_us": 1793286610652252,
+              "rtt_us": 558288,
+              "sample_age_us": 1077,
+              "uncertainty_us": 279144
+            },
+            {
+              "controller_midpoint_ns": 5108897282436208,
+              "remote_observed_unix_us": 1793286608189143,
+              "remote_wall_minus_controller_monotonic_us": 1788177710906706,
+              "replica": 2,
+              "request_id": "request-3",
+              "requested_start_unix_us": 1793286610676173,
+              "rtt_us": 376956,
+              "sample_age_us": 181976,
+              "uncertainty_us": 188478
+            },
+            {
+              "controller_midpoint_ns": 5108897185509666,
+              "remote_observed_unix_us": 1793286608015230,
+              "remote_wall_minus_controller_monotonic_us": 1788177710829720,
+              "replica": 3,
+              "request_id": "request-4",
+              "requested_start_unix_us": 1793286610599186,
+              "rtt_us": 181467,
+              "sample_age_us": 376647,
+              "uncertainty_us": 90734
+            }
+          ]
+        },
+        "trial_id": "d22bcc884402d1e925c4eed8",
+        "result_sha256": "ab330956155ffe0ed538a1bfc82e399513ffa7e615d637eea6fdba368ec4bfc5",
+        "scheduling": {
+          "bundling": "immediate_no_fill_timer",
+          "ordering_mode": "canonical",
+          "originating_prog": "immediate",
+          "release_deadline_ms": null,
+          "report_schedule": "pipeline",
+          "report_schedule_scope": "bounded pipeline: admitted leader prepares after own outcome prefix r-4, f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=4; two-delay preparation overlaps history; fixed observations/inputs and ordering guards/timers are unchanged",
+          "required_ablation_cell": "immediate/bundle-on",
+          "theorem_scope": "canonical ordering with bounded pipeline composition; input readiness is measured from its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions",
+          "transport": "bounded_pipelined_authenticated_tcp"
+        }
+      }
+    }
+  },
+  "delugi_pipeline_leader_diagnostics": {
+    "healthy": {
+      "frozen_input_age_ms": {
+        "count": 360,
+        "mean_ms": 48.16195,
+        "median_ms": 0.3395
+      },
+      "admission_to_proposal_ms": {
+        "count": 360,
+        "mean_ms": 4701.814647222222,
+        "median_ms": 4685.2565
+      },
+      "report_to_input_ms": {
+        "count": 360,
+        "mean_ms": 185.7811611111111,
+        "median_ms": 189.1645
+      },
+      "history_assembly_ms": {
+        "count": 47,
+        "mean_ms": 0.10804255319148937,
+        "median_ms": 0.113
+      },
+      "leader_outbox_to_direct_ms": {
+        "count": 358,
+        "mean_ms": 208.46477932960894,
+        "median_ms": 208.1155
+      },
+      "first_history_report_to_quorum_ms": {
+        "count": 357,
+        "mean_ms": 60.96421848739495,
+        "median_ms": 75.945
+      },
+      "population": "all retained sampled leader rounds, not transaction weighted or restricted to the input window; each metric retains its own count",
+      "report_before_history_count": 357
+    },
+    "silent-first-leader": {
+      "frozen_input_age_ms": {
+        "count": 20,
+        "mean_ms": 2065.38035,
+        "median_ms": 243.8295
+      },
+      "admission_to_proposal_ms": {
+        "count": 20,
+        "mean_ms": 21206.4345,
+        "median_ms": 20291.0995
+      },
+      "report_to_input_ms": {
+        "count": 20,
+        "mean_ms": 234.70045,
+        "median_ms": 243.981
+      },
+      "history_assembly_ms": {
+        "count": 5,
+        "mean_ms": 0.039400000000000004,
+        "median_ms": 0.011
+      },
+      "leader_outbox_to_direct_ms": {
+        "count": 20,
+        "mean_ms": 238.7253,
+        "median_ms": 241.64499999999998
+      },
+      "first_history_report_to_quorum_ms": {
+        "count": 18,
+        "mean_ms": 166.33533333333332,
+        "median_ms": 225.28199999999998
+      },
+      "population": "all retained sampled leader rounds, not transaction weighted or restricted to the input window; each metric retains its own count",
+      "report_before_history_count": 18
+    }
+  },
+  "source_files": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/plot_comparison.py",
+      "sha256": "836e6a8f3ceb662de417a25be0e3aec7ec2842af83017d4c61d107de33a6ef4d",
+      "bytes": 15479
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/record.json",
+      "sha256": "d3e1f72437ba43f2b5e534cb5dca17e678e6260e2aad83daeccba98e86d7aef5",
+      "bytes": 8208
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/comparison.json",
+      "sha256": "1efafd854dfd5c3d7b2de119b9c5e9b257a821d61d5c5fd71ae2536a62bf58cc",
+      "bytes": 37778
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/decomposition-summary.json",
+      "sha256": "cbcb79c517becf084d9731bea33fc99751871a39b51c55137a5f3faf11a5486c",
+      "bytes": 6266
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/record.json",
+      "sha256": "32084b1c3d9e7f1a8f6e2c590b968a8c75d7b93719cc6e204e9262f8a04a6a1b",
+      "bytes": 30022
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/summary.json",
+      "sha256": "9f6526b436b1d39c2e2f24ede4fbcf54073c4c3f8f610f0e6f4c95619219d2e8",
+      "bytes": 22944
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/latency_decomposition.py",
+      "sha256": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+      "bytes": 14765
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/result.json",
+      "sha256": "c01e41824114eef65102375057d38ebba9dacfb96341f16e53a34fcbeef8eca8",
+      "bytes": 134620
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-0.json",
+      "sha256": "04439f5d654a25f815ec00562f8eccd51a17fb90730030d8deb6946e0ea42754",
+      "bytes": 2252035
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-1.json",
+      "sha256": "fc29072b3816545fd1556beea322b9d79c72d2da6dea22d7cd3a218f4aac67f0",
+      "bytes": 2249041
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-2.json",
+      "sha256": "632f8cbccde19051770dc0529e2eb137fefe6726066c0c6987921b1cc17f850b",
+      "bytes": 2248844
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-3.json",
+      "sha256": "615d156eae1996aaab6132799bbbe91b394831ef0812ceb35ddecadaa03440b5",
+      "bytes": 2243246
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/result.json",
+      "sha256": "5f1ec47ed4f5621de8a6d7f11e0dd39454e943958e471fc861445c41a9161a95",
+      "bytes": 159646
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-1.json",
+      "sha256": "69da976df5711f2daa9b865c5f7558661750afe4259aefee9301ddefb985285b",
+      "bytes": 1176942
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-2.json",
+      "sha256": "78b779ec5ea9797c51f4b1dd3b7bd438010d30989b50348a464bf762974bdf7c",
+      "bytes": 1175134
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-3.json",
+      "sha256": "f18f1f1b4d4fa707bc492854918921da73e3fcdb9780993cf96352c2a231424b",
+      "bytes": 1172896
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/state.json",
+      "sha256": "178de693aeef91299fad6f812bc7f004622a4dbe2837cce955a3b7cd0634570c",
+      "bytes": 12463
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/plan.json",
+      "sha256": "7e1054f8c7a80bacffd8287cb724ce0976f84c5933d466cd35c46c31cccc17e5",
+      "bytes": 2816
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/result.json",
+      "sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+      "bytes": 90198
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/result.json",
+      "sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+      "bytes": 63955
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/state.json",
+      "sha256": "805b3bf03a771b317b1c6cdb073a614bcf8708b674b4c702307fb070d964d9eb",
+      "bytes": 12304
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/plan.json",
+      "sha256": "bf97ad0128975fa9dd9c8a2660d372c606a4dcfe607e3a5b3f8730ae2cbd96fa",
+      "bytes": 2784
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/result.json",
+      "sha256": "de448555b91879634ee5f8830bec951c551148e5b028918b5af14a38ac920ee5",
+      "bytes": 138957
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/cohorts/index.json",
+      "sha256": "8c839de7e43f11a2160e729d41d510f395474ab6c08f346f286fa8da875eae49",
+      "bytes": 12946
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-0.json",
+      "sha256": "b8061dd0a841b5b24d47f7bbf1b900d7d5a1fa20fb867fd82f0fa2f971e41797",
+      "bytes": 2890390
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-1.json",
+      "sha256": "f9f20bc3c976ccfd3ed54340bb084591a5d45bf3ef93cd5db1b4d9d512ad70c4",
+      "bytes": 2900080
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-2.json",
+      "sha256": "be14a563c0a90daff4a073526017eba416833d677eeab6b46e5dccc346bb3c2e",
+      "bytes": 2900912
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-3.json",
+      "sha256": "a681b7f3fed7182c01412b455ca42f74f0705b7533e5c0c8668bc871f229e723",
+      "bytes": 2892893
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/result.json",
+      "sha256": "ab330956155ffe0ed538a1bfc82e399513ffa7e615d637eea6fdba368ec4bfc5",
+      "bytes": 153925
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/cohorts/index.json",
+      "sha256": "5817e4d4cad6e62bfd0f7c4b3887c834c351c1e9799cadaa4135fabb06a63827",
+      "bytes": 11026
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-0.json",
+      "sha256": "138eacd5a6dc14dce60cf05ac7e226ad5b1a8804f8fb1bde18d9d7f3c7d82010",
+      "bytes": 603
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-1.json",
+      "sha256": "55e2405465af05b470471664fd9e086a1a14fcc87ae8dbe17e92030dc51e060a",
+      "bytes": 1353274
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-2.json",
+      "sha256": "776c525128ee2e8cbb696af51ad6eef68592744c633545ae354927ffa84cebad",
+      "bytes": 1351602
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-3.json",
+      "sha256": "e60940cfc00aac6d08e78c70d33d5dfc5a80b9478fb8d5fd4f531e5bc98b318f",
+      "bytes": 1350683
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/plot_comparison.py",
+      "sha256": "de6fc9312aedeee1ff3f241222aee9f3b1db5b09cee830155393f3d589c9da87",
+      "bytes": 16638
+    }
+  ],
+  "metric_populations": "Stage means use covered completed intended requests. Full scheduled-cohort quantiles retain unfinished requests. Stage means are additive; quantiles are not.",
+  "limitations": [
+    "Only pipeline Delugi was rerun; Raptr is from 29 October and previous Delugi from 28 October. Host/WAN conditions are independent.",
+    "Both endpoints precede diagnostic journaling. Consensus starts at origin-local valid proposal acceptance, not leader emission; proposal transit belongs to the preceding stage.",
+    "Different native batching remains: Delugi maximum wait 10 ms; Raptr Quorum Store 150 ms polling with 80 ms minimum nonempty / 300 ms maximum.",
+    "Equal Delta does not imply equal native failure timers: Raptr uses 4Delta from round entry; Delugi uses eligible 7Delta main and independent 3Delta catch-up.",
+    "Delugi silences protocol participation at replica0/Singapore while transport ACKs remain active; Raptr pauses replica1/Frankfurt. Faulty identities retain repeated leadership slots.",
+    "Output groups different internal phase orderings: Delugi releases descriptors before payload materialization; Raptr validates payloads before FIFO release.",
+    "Saved Raptr silent run has eight requests cancelled before admission. They remain in scheduled-cohort statistics but not completed stage means.",
+    "One run per case, one low offered load and unqualified observer overhead; this is deployment/pipeline validation, not a full throughput study.",
+    "The initial Delugi attempt rejected every load command before input because controller and server wall clocks differed. The retry maps one common controller monotonic epoch to each server wall clock, records RTT uncertainty, and changes no origin-local latency endpoint; its setup lead differs from the previous controller-wall-time assumption."
+  ]
+}

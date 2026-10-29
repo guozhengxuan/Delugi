@@ -1,0 +1,219 @@
+{
+  "schema": 1,
+  "classification": "startup_failure_before_workload_ingress",
+  "comparison_eligible": false,
+  "run_directory": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029",
+  "state": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/state.json",
+    "sha256": "09352b26a0d33424fdc8ef6e2a5971e25200afe194ae3ad0f3a38a6b14d1c6f9",
+    "bytes": 3450
+  },
+  "control": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/trials/b02e64f55f4e7fa0598860f6/trial/control.jsonl",
+    "sha256": "ebd0e0a4d8cc55979e0de6f624bced0acc8ba706667fd4b255944bf6b6549541",
+    "bytes": 2315
+  },
+  "protocol_processes_started": 4,
+  "accepted_load_commands": 0,
+  "load_scheduled_events": 0,
+  "workload_admissions": 0,
+  "zero_admission_basis": "All four load requests were rejected by the source-bound guard before load.start_us assignment and Ingress construction; no other workload command was sent. No admission-counter snapshot was collected.",
+  "workloads_completed": 0,
+  "healthy_status": "failed_before_load_schedule",
+  "silent_status": "not_run",
+  "replicas": [
+    {
+      "replica": 0,
+      "stdout": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/trials/b02e64f55f4e7fa0598860f6/trial/replica-0.stdout.jsonl",
+        "sha256": "16e66c45e1d2cc62aad7cb75b77b4f5f10743f18dce93c15cf8c4b6ebab07deb",
+        "bytes": 340
+      },
+      "events": {
+        "ready": 1,
+        "started": 1
+      },
+      "load_scheduled_events": 0,
+      "load_reply_ok": false,
+      "load_reply_error": "load start must be within the next ten seconds",
+      "remote_minus_controller_clock_offset_interval_ms": [
+        2057.712,
+        2160.041
+      ]
+    },
+    {
+      "replica": 1,
+      "stdout": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/trials/b02e64f55f4e7fa0598860f6/trial/replica-1.stdout.jsonl",
+        "sha256": "3e8eb95d875d7ad2d6b64880beac0736dbf54d5362b8333cb5d7f2ed9b114932",
+        "bytes": 339
+      },
+      "events": {
+        "ready": 1,
+        "started": 1
+      },
+      "load_scheduled_events": 0,
+      "load_reply_ok": false,
+      "load_reply_error": "load start must be within the next ten seconds",
+      "remote_minus_controller_clock_offset_interval_ms": [
+        1863.028,
+        2714.259
+      ]
+    },
+    {
+      "replica": 2,
+      "stdout": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/trials/b02e64f55f4e7fa0598860f6/trial/replica-2.stdout.jsonl",
+        "sha256": "5b72044a4708278ee85e9911f74a40ecf1617f6a5dcf40567dd121f4494d431d",
+        "bytes": 339
+      },
+      "events": {
+        "ready": 1,
+        "started": 1
+      },
+      "load_scheduled_events": 0,
+      "load_reply_ok": false,
+      "load_reply_error": "load start must be within the next ten seconds",
+      "remote_minus_controller_clock_offset_interval_ms": [
+        2000.122,
+        2554.461
+      ]
+    },
+    {
+      "replica": 3,
+      "stdout": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/trials/b02e64f55f4e7fa0598860f6/trial/replica-3.stdout.jsonl",
+        "sha256": "698a738fd2a4bfc96003dcd2ed457936f3128714722e8c28837baa464d8021e7",
+        "bytes": 339
+      },
+      "events": {
+        "ready": 1,
+        "started": 1
+      },
+      "load_scheduled_events": 0,
+      "load_reply_ok": false,
+      "load_reply_error": "load start must be within the next ten seconds",
+      "remote_minus_controller_clock_offset_interval_ms": [
+        2016.095,
+        2325.481
+      ]
+    }
+  ],
+  "clock_offset_scope": "Each interval is remote observed time minus the controller send/receive bracket for that RPC. It estimates wall-clock offset and includes network uncertainty; it is not protocol latency.",
+  "snapshot_file": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029/trials/b02e64f55f4e7fa0598860f6/trial/snapshots.json",
+    "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "bytes": 3
+  },
+  "snapshots_available": false,
+  "process_telemetry_limit": "SSH children exited255 and remote whole-worker resource summaries are missing; do not infer measured CPU/RSS. The instances were subsequently deleted.",
+  "cleanup": {
+    "testbed": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/testbed.json",
+      "sha256": "906dbca930e16ef2c75c7a26bce8ca9d8dc46e247f8526ca931357b86dff7d82",
+      "bytes": 717
+    },
+    "all_four_instances_deleted": true,
+    "all_four_owned_security_groups_deleted": true,
+    "leases": [
+      {
+        "region": "ap-southeast-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-0.json",
+          "sha256": "42dc586b2acc6ea71b01f568da15d85ca320f782dd3c17f360ee3bc85714c5d2",
+          "bytes": 8251
+        },
+        "run_instances_ack_at": "2026-10-29T14:15:12.145172+00:00",
+        "security_group_delete_ack_at": "2026-10-29T14:52:56.360712+00:00",
+        "elapsed_seconds": 2264.21554,
+        "live_hourly_quote_cny": 5.8333,
+        "quote_estimate_cny": 3.668846808189445,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true,
+        "lease_closed": true
+      },
+      {
+        "region": "eu-central-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-1.json",
+          "sha256": "96d5d655a05b012d3c7b0bca7d12fecfb97783f2aed6b5ad0679b5efebbbb15e",
+          "bytes": 7921
+        },
+        "run_instances_ack_at": "2026-10-29T14:15:49.682503+00:00",
+        "security_group_delete_ack_at": "2026-10-29T14:53:03.941688+00:00",
+        "elapsed_seconds": 2234.259185,
+        "live_hourly_quote_cny": 5.74714,
+        "quote_estimate_cny": 3.5668334256891385,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true,
+        "lease_closed": true
+      },
+      {
+        "region": "eu-west-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-2.json",
+          "sha256": "5327e8b3e6fb6b454a9546637d38b8ae9cf699cb1e8f00bac87e5ee2bf7e6e0b",
+          "bytes": 7918
+        },
+        "run_instances_ack_at": "2026-10-29T14:16:24.282389+00:00",
+        "security_group_delete_ack_at": "2026-10-29T14:53:11.839714+00:00",
+        "elapsed_seconds": 2207.557325,
+        "live_hourly_quote_cny": 3.92384,
+        "quote_estimate_cny": 2.4061393705911116,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true,
+        "lease_closed": true
+      },
+      {
+        "region": "ap-northeast-2",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/lease-3.json",
+          "sha256": "48859cdd48c5b6b2e3ab6c912abdcf5aa1566efb8a8392ac075925b61cf15578",
+          "bytes": 7921
+        },
+        "run_instances_ack_at": "2026-10-29T14:16:58.403996+00:00",
+        "security_group_delete_ack_at": "2026-10-29T14:53:18.390407+00:00",
+        "elapsed_seconds": 2179.986411,
+        "live_hourly_quote_cny": 5.79978,
+        "quote_estimate_cny": 3.5120671074415495,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true,
+        "lease_closed": true
+      }
+    ],
+    "quote_estimate_cny": 13.153886711911245,
+    "cost_basis": "Fresh full-profile hourly quote multiplied by launch-ack to security-group-delete-ack time; includes compilation/setup, estimate only, not final provider billing; old budget reservations remain unsettled."
+  },
+  "build": {
+    "source_revision": "59daec8e0eb4e45639879051a200795587a9ca8b",
+    "binary_sha256": "8d6ed81250395430d5f6657b8b0808d5dc13862edcf76a9e5624362dd971a294",
+    "status": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/builds/59daec8e0eb4e45639879051a200795587a9ca8b/collected/files/status.json",
+      "sha256": "3ddcf1695fb9785b53c01c0730854a57be93dcd6b7ae9391e48b2775b0c82c0f",
+      "bytes": 11429
+    },
+    "rust_tests_passed": 28,
+    "rust_test_log": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/builds/59daec8e0eb4e45639879051a200795587a9ca8b/collected/files/source/results/cloud-build/test/cargo.log",
+      "sha256": "73d7db5a6949e57999e5d0342e201e05337806fb90e8e3ca5deaf30d5bdf791c",
+      "bytes": 64199
+    },
+    "linux_supervisor_tests_passed": 5,
+    "linux_supervisor_test_log": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/6242d9cf2f87431c86efc4202b922f35/builds/59daec8e0eb4e45639879051a200795587a9ca8b/collected/files/logs/linux-supervisor-tests.log",
+      "sha256": "35a3369f62e7b74a27216a10a1f63edd0db9141245c945c5ea8483187262dbab",
+      "bytes": 104
+    },
+    "build_elapsed_seconds": 1316.105065188,
+    "cleanup_confirmed": true,
+    "target_removed": true
+  },
+  "controller_change_binding": {
+    "file": "scripts/run_sustained.py",
+    "listed_in_native_compiled_source_receipt": false,
+    "listed_in_python_publication_runtime": true,
+    "native_recompile_needed_for_this_sole_change": false,
+    "publication_repack_required": true,
+    "reason": "campaign_execute validates all remote_native.RUNTIME_FILES against the publication; that closure includes run_sustained.py. Supported pack/verify can preserve exact original Linux ELF and receipt while rebinding only this controller file. Original receipt must not be rewritten."
+  }
+}

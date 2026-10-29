@@ -1,0 +1,7 @@
+Protocol       Case                  Status       Input      Goodput   p50 end-to-end   Completed
+delugi         healthy               passed         100 tx/s   97.93      612.71 ms  3000/3000
+delugi         silent-first-leader   passed         100 tx/s   65.70    10880.52 ms  3000/3000
+Goodput: exact useful completions inside the measurement window.
+End-to-end: intended arrival to origin-local payload-verified contiguous output; cohort observed through drain.
+Status describes execution/agreement checks; the completed count reports workload completion.
+Censored latency is a lower bound. One run is not a confidence interval.

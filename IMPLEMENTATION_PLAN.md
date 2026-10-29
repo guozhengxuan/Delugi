@@ -1,7 +1,7 @@
 # Delugi implementation and evaluation plan
 
 Updated **29 October 2026**. The intended one-δ Delugi proposal pipeline is
-implemented and locally validated. Commit **360d9f7** restores immediate
+implemented and validated locally and in two four-region WAN runs. Commit **360d9f7** restores immediate
 canonical PROG and adds bounded, two-position-ahead REPORT preparation;
 immediate ordering bundling remains enabled. All default local/campaign
 paths select `canonical` + `pipeline`. Explicit legacy pacing and preparation
@@ -29,8 +29,37 @@ gap; it does not subtract different replica clocks. The fault case repeatedly
 skips that replica's leadership every fourth round; its 667.29 ms mean contiguous
 prefix wait is recovery latency. All correct output prefixes agree, all traces
 are complete, and the delay proxy discarded no bytes. Finite healthy round-4
-and silent-leader/three-anchor TCP checks also passed. No cloud runs were made.
+and silent-leader/three-anchor TCP checks also passed. Those checks were local.
 See the [measurement report and figure](benchmarks/results/pipeline-2026-10-29/README.md).
+
+The new Delugi-only WAN check is complete: four saved regions, **30 seconds at
+100 tx/s** per healthy/silent case, one useful byte, Δ=1,000 ms and 20 Mbps.
+Both cases completed and fully traced **3,000/3,000** requests, with correct
+output agreement. The unchanged Linux executable was built from **59daec8**.
+Controller commit **20f4d64** fixes remote start scheduling across wall-clock
+offsets; one zero-input startup failure is retained separately. The native
+executable and receipt were unchanged when republishing that Python fix.
+
+| Mean admission-to-output stage, ms | Pipeline Delugi healthy | Saved Raptr healthy | Pipeline Delugi silent | Saved Raptr silent |
+|---|---:|---:|---:|---:|
+| Batch formation | 0.64 | 74.67 | 0.63 | 89.63 |
+| Dissemination / inclusion | 424.00 | 190.54 | 3,847.90 | 2,268.63 |
+| Consensus | 187.55 | 180.87 | 236.82 | 275.47 |
+| Output processing | 5.18 | 2.50 | 6,657.05 | 351.93 |
+| Total | **617.37** | **448.58** | **10,742.39** | **2,985.65** |
+
+This is a performance regression despite faster proposal cadence: normalized
+four-round cadence improves from 145.59 to 105.55 ms/round, but immutable early
+inputs change fresh-transaction inclusion. Healthy timer callbacks all follow
+completed outcomes; Δ is not the cause. In the silent run, 2,811/3,000 requests
+enter the first honest anchor of the next cycle and wait another recovery
+interval for contiguous output. Prefix waiting accounts for 6,655.11 ms of the
+new total and 94.4% of the increase over the previous Delugi run. The healthy
+pre-proposal increase is only partially attributed by the retained traces.
+See the [WAN comparison and trace audits](benchmarks/results/delugi-pipeline-wan-2026-10-29/README.md).
+All eight instances across the initial build/startup fleet and retry fleet,
+and their security groups, are deleted. Combined quote-based cost is **CNY
+19.33**, pending billing. Local compiler cleanup reclaimed 2.18 GB.
 
 The correction bounds future **input preparation** by the greatest correct
 completed outcome prefix plus four. Admission can still advance independently
@@ -43,18 +72,22 @@ records that diagnosis.
 
 Next evaluation work:
 
-1. Align both protocols' primary transaction split at **first valid leader
+1. Resolve input freshness under persistent silent leaders without rewriting
+   immutable signed observations or fixed inputs. Reproduce the extra-cycle
+   wait locally and evaluate composition-trigger alternatives before more WAN
+   spending. Keep the pipeline cadence regression checks and prior baselines.
+2. Align both protocols' primary transaction split at **first valid leader
    proposal finalization/handoff**, with exact batch membership. The new
    leader-local PROPOSE→CER measurement proves Delugi's pipeline but is not
    a replacement for the requested per-transaction cross-protocol boundary.
    Existing proposal-acceptance timestamps must retain their original labels.
-2. Rebuild the shared Delugi/Raptr artifact with this source identity and repeat
-   matched local checks before selecting a new WAN release. Keep native batching,
-   fault mechanisms and timer policies explicit in every manifest.
-3. Review the updated composition trigger with the paper and refresh its
+3. Capture fresh-batch eligibility and observation cutoff reasons to isolate
+   the remaining healthy inclusion gap. Keep native batching, fault mechanisms,
+   timer policies and clock-alignment uncertainty explicit in every manifest.
+4. Review the updated composition trigger with the paper and refresh its
    reviewed provenance only after that source change is accepted. Future cloud
-   work uses the established Fabric configuration and budget controls; this
-   local validation does not authorize a new deployment.
+   work uses the established Fabric configuration and budget controls. The
+   requested two-case WAN check is complete; no rate sweep was run.
 
 The following WAN results and earlier implementation checkpoints are retained
 as historical comparison evidence.
@@ -356,15 +389,13 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Restore the intended healthy cross-layer pipeline.** Ensure each logical
-   send boundary overlaps proposal r, preceding ordering phases, OBS(r+1) and
-   REPORT(r+2); preserve authenticated bases, immutable signed observations,
-   message-specific evidence guards, independent fault progress and timers.
-   Replace the two identified scheduling gates with a composition that retains
-   the silent-leader stale-input fix. Validate δ proposal spacing after warm-up
-   in the actual implementation under controlled equal delays; a hand timing
-   model or packet bundling alone is not acceptance. Keep the canonical and
-   existing paced versions as named diagnostic comparisons.
+1. **Resolve the measured pipeline/freshness tradeoff.** The restored pipeline
+   passes the signed-core δ-spacing and local process checks, and the new WAN
+   cadence is faster. Its early immutable inputs nevertheless miss timeout-period
+   arrivals, creating an extra recovery cycle for most silent-case transactions.
+   Reproduce and evaluate a composition correction locally while preserving
+   authenticated bases, immutable signed observations, fixed inputs, evidence
+   guards and timers. Retain canonical/paced and pipeline/history-ready controls.
 2. **Instrument productive readiness and proposal eligibility locally.** The
    source/trace audit and Pro review are complete; the avoidable portion of the
    healthy inclusion gap remains unmeasured. Capture exact fixed bases, OBS
@@ -382,8 +413,10 @@ skipped before measured arrivals begin; record that fault interval explicitly.
    question is productive Delugi opportunity timing. Retain HistoryReady as
    a named comparison; preserve fixed snapshots and
    n−f/f+1 thresholds; the sampled third-response wait is not a safe optimization.
-3. **Review the REPORT-trigger revision and its local/WAN evidence.** The stale-input
-   cause is fixed; the recurring 7Δ timeout cost remains explicit. Align the paper's
+3. **Review the REPORT-trigger revision and its local/WAN evidence.** The earlier
+   history-ready fix reduced stale inputs; the new pipeline reintroduces a
+   measurable freshness cost despite bounded lookahead. Keep the recurring 7Δ
+   timeout and the extra-cycle prefix wait distinct. Align the paper's
    entry-trigger wording with the selected composition schedule before a formal
    evaluation. Qualify tracing overhead and choose trace caps for the expected round
    rate. Preserve all prior WAN attempts and incomplete cohorts. The corrected
@@ -392,9 +425,10 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 4. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.
-5. **Choose the next bounded qualification plan.** Both the four-run 28 October
-   matrix and the two-run Raptr timestamp rerun are complete, with no repeat
-   attempts. Retain the respective 16/8 cancelled pre-admission tail arrivals.
+5. **Choose the next bounded qualification plan.** The four-run 28 October
+   matrix, two-run Raptr timestamp check and two-run pipeline Delugi check are
+   complete. Preserve the latter's zero-input clock-start failure and retry,
+   and the earlier Raptr checks' respective 16/8 cancelled pre-admission tails.
    Review the cost of validating repeated transaction occurrences in Raptr's
    output adapter before interpreting output processing as a protocol effect.
    Agree on the next finite matrix after the counterpart fixes; do not silently
