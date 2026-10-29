@@ -1,0 +1,54 @@
+{
+  "n": 3000,
+  "opportunities": {
+    "1": 560,
+    "2": 878,
+    "3": 316,
+    "0": 1183,
+    "4": 50,
+    "5": 13
+  },
+  "all": {
+    "sealed_to_next_local_obs_ms": 80.370465,
+    "next_obs_to_selected_obs_ms": 74.10658566666666,
+    "selected_obs_to_proposal_ms": 182.030327
+  },
+  "by_opportunities": {
+    "0": {
+      "n": 1183,
+      "sealed_to_next_local_obs_ms": 92.99334488588335,
+      "next_obs_to_selected_obs_ms": 0.0,
+      "selected_obs_to_proposal_ms": 182.84891377852915
+    },
+    "1": {
+      "n": 560,
+      "sealed_to_next_local_obs_ms": 75.22687857142857,
+      "next_obs_to_selected_obs_ms": 40.672294642857146,
+      "selected_obs_to_proposal_ms": 180.8462357142857
+    },
+    "2": {
+      "n": 878,
+      "sealed_to_next_local_obs_ms": 71.68867312072894,
+      "next_obs_to_selected_obs_ms": 114.14306378132119,
+      "selected_obs_to_proposal_ms": 183.45024487471525
+    },
+    "3": {
+      "n": 316,
+      "sealed_to_next_local_obs_ms": 80.08619620253164,
+      "next_obs_to_selected_obs_ms": 234.6604430379747,
+      "selected_obs_to_proposal_ms": 177.93652848101266
+    },
+    "4": {
+      "n": 50,
+      "sealed_to_next_local_obs_ms": 13.55364,
+      "next_obs_to_selected_obs_ms": 394.2756,
+      "selected_obs_to_proposal_ms": 177.89856
+    },
+    "5": {
+      "n": 13,
+      "sealed_to_next_local_obs_ms": 3.510846153846154,
+      "next_obs_to_selected_obs_ms": 419.9370769230769,
+      "selected_obs_to_proposal_ms": 178.0490769230769
+    }
+  }
+}

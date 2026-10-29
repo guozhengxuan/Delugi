@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "investigation": "offline corrected-Delugi dissemination follow-up",
+  "runtime_revision": "5c7057ff9a7c90c531ceed671678c396ea85e0d7",
+  "report_base_revision": "48c1126445ece84bb8664616d36317a13562a93d",
+  "validation": {
+    "delugi_requests": 3000,
+    "raptr_requests": 3000,
+    "exclusions": 0,
+    "recomputed_identical": [
+      "summary.json",
+      "validation.json",
+      "delugi-opportunity-summary.json",
+      "current-metrics.json",
+      "obs-order-statistics.json"
+    ],
+    "self_leader_additive_rows": 1024,
+    "analytical_opportunity_simulations": 3936,
+    "phase_origin_leader_cases": 320,
+    "python_syntax": "pass",
+    "json_parse": "pass"
+  },
+  "scope": "No protocol changes, builds, or cloud runs. All archive intervals use same-replica clocks. Analytical model is conditional, not a production benchmark.",
+  "files": {
+    "README.md": "ed9ee63145176f502eb8910d2ce12989e3d517666658944b1988d2ff179480e4",
+    "analyze.py": "fa402943aad925586b4445cca1224d6947ea0885692ec89167d72cf618ab5807",
+    "current-metrics.json": "9dde625d97316c32065aaf24ebcaf3b11e118d0618c6ac47937bf9acbc361b3c",
+    "current_metrics.py": "a29d6a900c30bdc95b06138c2739f01a37bed062b9eb14b07dd0387cd35088dd",
+    "delugi-opportunity-summary.json": "9171d70d3666efeed4d8c4aef1c998c86d66f6369320e200760288c7b4d9a85a",
+    "extra.py": "7f827cf9b5d32fc8ad3f86495fd6d5e9d0ca38518edad3ad7271373a3a160ebf",
+    "obs-order-statistics.json": "d6e6f41e3e22af2e107ae2a0dd0bd2b6b8c2b136f5c7b37352ffb447b5820709",
+    "obs_order_statistics.py": "d304d51c49caf3768074191ece0740e599049dab75eebc90d43f076a352a38dc",
+    "snapshot_phase.json": "98842912183148bda9c2b24c199eed631e2d681f3635c0384c87cdb17f7b160f",
+    "snapshot_phase.py": "a9c30c5d2761d281f4ac28d382643aa9ebb75fdd00f64244e219de4e28d9fc6d",
+    "summary.json": "a7fff1e020b74d51194a08d64a15926a2825c1f1b4b81a550b0c34dd3b5eb644",
+    "trace-audit.md": "d8ded51a73cbc337c14711d29ccea86b898ff342849ba75c0faf16a2299beaea",
+    "validation.json": "bc91925a5e16e3c75f8e0850116d0e8dc2c6aa874a9e34c1ee9a6025e5521bf3"
+  }
+}

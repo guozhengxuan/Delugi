@@ -1,0 +1,46 @@
+{
+  "kind": "conditional-snapshot-phase-example-v1",
+  "scope": "A conditional timing example, not a measured or universal Delugi bound.\n\nFour honest nodes; all remote links take exactly DELAY_MS; local work is zero;\none REPORT opens per DELAY_MS; each reporter snapshots immediately on receipt;\nthe first three OBS form the immutable pool; two covering OBS and complete\nleader source/proof state suffice for the one new batch. Healthy history and\nordering are already aligned, so proposal follows pool closure immediately and\ndirect commit is three delays later. Different remote tie orders are enumerated.\n\nThe simulator has only batch arrival, REPORT receipt/snapshot, and OBS receipt\nevents. It does not run the Rust implementation or model its other guards.\n",
+  "delay_ms": 10.0,
+  "opportunity_simulations_checked": 3936,
+  "phase_origin_leader_cases": 320,
+  "means_ms": {
+    "batch_to_proposal": 25.0,
+    "batch_to_direct_commit": 55.0
+  },
+  "conclusion": "For these assumptions, the next REPORT is first productive; uniform arrival phase gives 2.5\u03b4 to proposal and 5.5\u03b4 to direct commit. Alignment just before REPORT instead approaches 2\u03b4 and 5\u03b4. This demonstrates a possible phase cost despite \u03b4 proposal cadence; it does not estimate the WAN latency gap.",
+  "examples": [
+    {
+      "origin": 0,
+      "preceding_leader": 0,
+      "next_leader": 1,
+      "phase_ms": 0.25,
+      "batch_to_proposal_ms": 29.75,
+      "batch_to_direct_commit_ms": 59.75
+    },
+    {
+      "origin": 0,
+      "preceding_leader": 0,
+      "next_leader": 1,
+      "phase_ms": 9.75,
+      "batch_to_proposal_ms": 20.25,
+      "batch_to_direct_commit_ms": 50.25
+    },
+    {
+      "origin": 3,
+      "preceding_leader": 0,
+      "next_leader": 1,
+      "phase_ms": 0.25,
+      "batch_to_proposal_ms": 29.75,
+      "batch_to_direct_commit_ms": 59.75
+    },
+    {
+      "origin": 3,
+      "preceding_leader": 0,
+      "next_leader": 1,
+      "phase_ms": 9.75,
+      "batch_to_proposal_ms": 20.25,
+      "batch_to_direct_commit_ms": 50.25
+    }
+  ]
+}

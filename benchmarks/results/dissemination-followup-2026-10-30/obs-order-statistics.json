@@ -1,0 +1,829 @@
+{
+  "schema": 1,
+  "kind": "delugi-sampled-obs-order-statistics-v1",
+  "method": {
+    "population": "Healthy saved four-region run; per-leader REPORT opportunities after round3.",
+    "eligibility": "Exactly one leader REPORT, local observation_fixed and observation_pool_fixed; at least two distinct remote OBS dispatches with matching accepted handler records at or before pool fixation.",
+    "start": "Leader-local dissemination_outbox event with kind REPORT.",
+    "arrivals": "Leader-local dispatch.at_us, not mailbox arrival, for first accepted OBS from each distinct remote peer. Records matched by peer/sequence/member_index/member_count.",
+    "end": "Leader-local observation_pool_fixed.at_us.",
+    "weighting": "Unweighted mean across sampled leader rounds, not transaction-weighted.",
+    "clock": "All subtraction within one replica monotonic clock. No cross-host subtraction or wall-clock alignment.",
+    "interpretation": "Observed extra wait for the second remote response in an n-f=3 pool containing self. This is an arrival-order diagnostic, not a safe lower-threshold protocol or a per-transaction latency saving. WA target feasibility and the n-f pool invariant are unchanged.",
+    "sampling_limit": "Detailed dispatch/handler records are sampled by round; included and excluded counts are explicit. Startup rounds1\u20133 excluded."
+  },
+  "eligible_post_startup_leader_rounds": 371,
+  "included_rounds": 44,
+  "excluded": {
+    "startup_rounds_1_to_3": 3,
+    "no_two_sampled_accepted_remote_dispatches_before_pool": 324,
+    "report_without_completed_pool_or_self_observation": 3
+  },
+  "sampling": [
+    {
+      "replica": 0,
+      "detail_stride": 64,
+      "detail_width": 8,
+      "dropped": 0
+    },
+    {
+      "replica": 1,
+      "detail_stride": 64,
+      "detail_width": 8,
+      "dropped": 0
+    },
+    {
+      "replica": 2,
+      "detail_stride": 64,
+      "detail_width": 8,
+      "dropped": 0
+    },
+    {
+      "replica": 3,
+      "detail_stride": 64,
+      "detail_width": 8,
+      "dropped": 0
+    }
+  ],
+  "overall": {
+    "rounds": 44,
+    "mean_ms": {
+      "report_to_first_remote": 41.18654545454545,
+      "first_to_second_remote": 133.5580681818182,
+      "report_to_pool_fixed": 174.87245454545456
+    },
+    "ordered_peer_pairs": [
+      {
+        "first_peer": 0,
+        "second_peer": 1,
+        "rounds": 11
+      },
+      {
+        "first_peer": 1,
+        "second_peer": 0,
+        "rounds": 11
+      },
+      {
+        "first_peer": 2,
+        "second_peer": 0,
+        "rounds": 11
+      },
+      {
+        "first_peer": 3,
+        "second_peer": 1,
+        "rounds": 11
+      }
+    ]
+  },
+  "by_replica": {
+    "0": {
+      "region": "Singapore",
+      "rounds": 11,
+      "mean_ms": {
+        "report_to_first_remote": 68.11690909090909,
+        "first_to_second_remote": 96.16754545454546,
+        "report_to_pool_fixed": 164.41254545454544
+      },
+      "ordered_peer_pairs": [
+        {
+          "first_peer": 3,
+          "second_peer": 1,
+          "rounds": 11
+        }
+      ]
+    },
+    "1": {
+      "region": "Frankfurt",
+      "rounds": 11,
+      "mean_ms": {
+        "report_to_first_remote": 14.894454545454545,
+        "first_to_second_remote": 147.20445454545455,
+        "report_to_pool_fixed": 162.23136363636365
+      },
+      "ordered_peer_pairs": [
+        {
+          "first_peer": 2,
+          "second_peer": 0,
+          "rounds": 11
+        }
+      ]
+    },
+    "2": {
+      "region": "London",
+      "rounds": 11,
+      "mean_ms": {
+        "report_to_first_remote": 15.002545454545453,
+        "first_to_second_remote": 161.80890909090908,
+        "report_to_pool_fixed": 176.94045454545457
+      },
+      "ordered_peer_pairs": [
+        {
+          "first_peer": 1,
+          "second_peer": 0,
+          "rounds": 11
+        }
+      ]
+    },
+    "3": {
+      "region": "Seoul",
+      "rounds": 11,
+      "mean_ms": {
+        "report_to_first_remote": 66.73227272727271,
+        "first_to_second_remote": 129.05136363636365,
+        "report_to_pool_fixed": 195.90545454545455
+      },
+      "ordered_peer_pairs": [
+        {
+          "first_peer": 0,
+          "second_peer": 1,
+          "rounds": 11
+        }
+      ]
+    }
+  },
+  "rounds": [
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 5,
+      "report_at_us": 3595579,
+      "self_observation_at_us": 3595747,
+      "first_remote_at_us": 3667098,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 3760193,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 3760315,
+      "report_to_first_remote_us": 71519,
+      "first_to_second_remote_us": 93095,
+      "report_to_pool_fixed_us": 164736
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 65,
+      "report_at_us": 9457509,
+      "self_observation_at_us": 9457729,
+      "first_remote_at_us": 9524099,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 9622826,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 9622952,
+      "report_to_first_remote_us": 66590,
+      "first_to_second_remote_us": 98727,
+      "report_to_pool_fixed_us": 165443
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 69,
+      "report_at_us": 9850720,
+      "self_observation_at_us": 9850938,
+      "first_remote_at_us": 9919957,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 10016472,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 10016603,
+      "report_to_first_remote_us": 69237,
+      "first_to_second_remote_us": 96515,
+      "report_to_pool_fixed_us": 165883
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 129,
+      "report_at_us": 15769594,
+      "self_observation_at_us": 15769891,
+      "first_remote_at_us": 15839402,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 15936952,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 15937094,
+      "report_to_first_remote_us": 69808,
+      "first_to_second_remote_us": 97550,
+      "report_to_pool_fixed_us": 167500
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 133,
+      "report_at_us": 16164379,
+      "self_observation_at_us": 16164689,
+      "first_remote_at_us": 16233445,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 16332891,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 16333023,
+      "report_to_first_remote_us": 69066,
+      "first_to_second_remote_us": 99446,
+      "report_to_pool_fixed_us": 168644
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 193,
+      "report_at_us": 22077800,
+      "self_observation_at_us": 22078088,
+      "first_remote_at_us": 22144953,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 22239741,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 22239856,
+      "report_to_first_remote_us": 67153,
+      "first_to_second_remote_us": 94788,
+      "report_to_pool_fixed_us": 162056
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 197,
+      "report_at_us": 22472381,
+      "self_observation_at_us": 22472694,
+      "first_remote_at_us": 22538311,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 22633145,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 22633280,
+      "report_to_first_remote_us": 65930,
+      "first_to_second_remote_us": 94834,
+      "report_to_pool_fixed_us": 160899
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 257,
+      "report_at_us": 28382766,
+      "self_observation_at_us": 28383117,
+      "first_remote_at_us": 28450521,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 28546751,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 28546871,
+      "report_to_first_remote_us": 67755,
+      "first_to_second_remote_us": 96230,
+      "report_to_pool_fixed_us": 164105
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 261,
+      "report_at_us": 28776830,
+      "self_observation_at_us": 28777197,
+      "first_remote_at_us": 28843384,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 28942144,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 28942277,
+      "report_to_first_remote_us": 66554,
+      "first_to_second_remote_us": 98760,
+      "report_to_pool_fixed_us": 165447
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 321,
+      "report_at_us": 34687104,
+      "self_observation_at_us": 34687476,
+      "first_remote_at_us": 34755881,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 34848347,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 34848468,
+      "report_to_first_remote_us": 68777,
+      "first_to_second_remote_us": 92466,
+      "report_to_pool_fixed_us": 161364
+    },
+    {
+      "replica": 0,
+      "region": "Singapore",
+      "round": 325,
+      "report_at_us": 35081940,
+      "self_observation_at_us": 35082387,
+      "first_remote_at_us": 35148837,
+      "first_remote_peer": 3,
+      "second_remote_at_us": 35244269,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 35244401,
+      "report_to_first_remote_us": 66897,
+      "first_to_second_remote_us": 95432,
+      "report_to_pool_fixed_us": 162461
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 6,
+      "report_at_us": 1047410,
+      "self_observation_at_us": 1047581,
+      "first_remote_at_us": 1062343,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 1207545,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 1207659,
+      "report_to_first_remote_us": 14933,
+      "first_to_second_remote_us": 145202,
+      "report_to_pool_fixed_us": 160249
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 66,
+      "report_at_us": 6956939,
+      "self_observation_at_us": 6957194,
+      "first_remote_at_us": 6972215,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 7120897,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 7121031,
+      "report_to_first_remote_us": 15276,
+      "first_to_second_remote_us": 148682,
+      "report_to_pool_fixed_us": 164092
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 70,
+      "report_at_us": 7349105,
+      "self_observation_at_us": 7349353,
+      "first_remote_at_us": 7363601,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 7509529,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 7509655,
+      "report_to_first_remote_us": 14496,
+      "first_to_second_remote_us": 145928,
+      "report_to_pool_fixed_us": 160550
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 130,
+      "report_at_us": 13267008,
+      "self_observation_at_us": 13267317,
+      "first_remote_at_us": 13281842,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 13436686,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 13436838,
+      "report_to_first_remote_us": 14834,
+      "first_to_second_remote_us": 154844,
+      "report_to_pool_fixed_us": 169830
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 134,
+      "report_at_us": 13663633,
+      "self_observation_at_us": 13663904,
+      "first_remote_at_us": 13678199,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 13824509,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 13824628,
+      "report_to_first_remote_us": 14566,
+      "first_to_second_remote_us": 146310,
+      "report_to_pool_fixed_us": 160995
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 194,
+      "report_at_us": 19575262,
+      "self_observation_at_us": 19575578,
+      "first_remote_at_us": 19590428,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 19736406,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 19736539,
+      "report_to_first_remote_us": 15166,
+      "first_to_second_remote_us": 145978,
+      "report_to_pool_fixed_us": 161277
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 198,
+      "report_at_us": 19970646,
+      "self_observation_at_us": 19970967,
+      "first_remote_at_us": 19985449,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 20131571,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 20131696,
+      "report_to_first_remote_us": 14803,
+      "first_to_second_remote_us": 146122,
+      "report_to_pool_fixed_us": 161050
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 258,
+      "report_at_us": 25881138,
+      "self_observation_at_us": 25881476,
+      "first_remote_at_us": 25896467,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 26042135,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 26042276,
+      "report_to_first_remote_us": 15329,
+      "first_to_second_remote_us": 145668,
+      "report_to_pool_fixed_us": 161138
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 262,
+      "report_at_us": 26277801,
+      "self_observation_at_us": 26278156,
+      "first_remote_at_us": 26292579,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 26440425,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 26440571,
+      "report_to_first_remote_us": 14778,
+      "first_to_second_remote_us": 147846,
+      "report_to_pool_fixed_us": 162770
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 322,
+      "report_at_us": 32184822,
+      "self_observation_at_us": 32185160,
+      "first_remote_at_us": 32199661,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 32346037,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 32346159,
+      "report_to_first_remote_us": 14839,
+      "first_to_second_remote_us": 146376,
+      "report_to_pool_fixed_us": 161337
+    },
+    {
+      "replica": 1,
+      "region": "Frankfurt",
+      "round": 326,
+      "report_at_us": 32579797,
+      "self_observation_at_us": 32580173,
+      "first_remote_at_us": 32594616,
+      "first_remote_peer": 2,
+      "second_remote_at_us": 32740909,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 32741054,
+      "report_to_first_remote_us": 14819,
+      "first_to_second_remote_us": 146293,
+      "report_to_pool_fixed_us": 161257
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 7,
+      "report_at_us": 2227502,
+      "self_observation_at_us": 2227659,
+      "first_remote_at_us": 2242524,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 2403180,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 2403282,
+      "report_to_first_remote_us": 15022,
+      "first_to_second_remote_us": 160656,
+      "report_to_pool_fixed_us": 175780
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 67,
+      "report_at_us": 8140355,
+      "self_observation_at_us": 8140577,
+      "first_remote_at_us": 8154930,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 8317297,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 8317423,
+      "report_to_first_remote_us": 14575,
+      "first_to_second_remote_us": 162367,
+      "report_to_pool_fixed_us": 177068
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 71,
+      "report_at_us": 8536107,
+      "self_observation_at_us": 8536328,
+      "first_remote_at_us": 8550585,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 8712567,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 8712696,
+      "report_to_first_remote_us": 14478,
+      "first_to_second_remote_us": 161982,
+      "report_to_pool_fixed_us": 176589
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 131,
+      "report_at_us": 14454542,
+      "self_observation_at_us": 14454854,
+      "first_remote_at_us": 14470261,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 14631113,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 14631243,
+      "report_to_first_remote_us": 15719,
+      "first_to_second_remote_us": 160852,
+      "report_to_pool_fixed_us": 176701
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 135,
+      "report_at_us": 14848364,
+      "self_observation_at_us": 14848618,
+      "first_remote_at_us": 14862950,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 15024858,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 15024977,
+      "report_to_first_remote_us": 14586,
+      "first_to_second_remote_us": 161908,
+      "report_to_pool_fixed_us": 176613
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 195,
+      "report_at_us": 20761377,
+      "self_observation_at_us": 20761663,
+      "first_remote_at_us": 20776138,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 20937922,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 20938091,
+      "report_to_first_remote_us": 14761,
+      "first_to_second_remote_us": 161784,
+      "report_to_pool_fixed_us": 176714
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 199,
+      "report_at_us": 21157039,
+      "self_observation_at_us": 21157341,
+      "first_remote_at_us": 21171940,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 21335102,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 21335215,
+      "report_to_first_remote_us": 14901,
+      "first_to_second_remote_us": 163162,
+      "report_to_pool_fixed_us": 178176
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 259,
+      "report_at_us": 27067595,
+      "self_observation_at_us": 27067973,
+      "first_remote_at_us": 27082463,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 27244909,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 27245049,
+      "report_to_first_remote_us": 14868,
+      "first_to_second_remote_us": 162446,
+      "report_to_pool_fixed_us": 177454
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 263,
+      "report_at_us": 27461640,
+      "self_observation_at_us": 27461966,
+      "first_remote_at_us": 27476402,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 27638397,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 27638543,
+      "report_to_first_remote_us": 14762,
+      "first_to_second_remote_us": 161995,
+      "report_to_pool_fixed_us": 176903
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 323,
+      "report_at_us": 33370602,
+      "self_observation_at_us": 33371032,
+      "first_remote_at_us": 33386240,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 33547860,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 33547990,
+      "report_to_first_remote_us": 15638,
+      "first_to_second_remote_us": 161620,
+      "report_to_pool_fixed_us": 177388
+    },
+    {
+      "replica": 2,
+      "region": "London",
+      "round": 327,
+      "report_at_us": 33765482,
+      "self_observation_at_us": 33765854,
+      "first_remote_at_us": 33781200,
+      "first_remote_peer": 1,
+      "second_remote_at_us": 33942326,
+      "second_remote_peer": 0,
+      "pool_fixed_at_us": 33942441,
+      "report_to_first_remote_us": 15718,
+      "first_to_second_remote_us": 161126,
+      "report_to_pool_fixed_us": 176959
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 4,
+      "report_at_us": 3573090,
+      "self_observation_at_us": 3573211,
+      "first_remote_at_us": 3645103,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 3767790,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 3767883,
+      "report_to_first_remote_us": 72013,
+      "first_to_second_remote_us": 122687,
+      "report_to_pool_fixed_us": 194793
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 64,
+      "report_at_us": 9484587,
+      "self_observation_at_us": 9484804,
+      "first_remote_at_us": 9550649,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 9679877,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 9679992,
+      "report_to_first_remote_us": 66062,
+      "first_to_second_remote_us": 129228,
+      "report_to_pool_fixed_us": 195405
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 68,
+      "report_at_us": 9877724,
+      "self_observation_at_us": 9877952,
+      "first_remote_at_us": 9943596,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 10073618,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 10073751,
+      "report_to_first_remote_us": 65872,
+      "first_to_second_remote_us": 130022,
+      "report_to_pool_fixed_us": 196027
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 128,
+      "report_at_us": 15796709,
+      "self_observation_at_us": 15796986,
+      "first_remote_at_us": 15862964,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 15992727,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 15992863,
+      "report_to_first_remote_us": 66255,
+      "first_to_second_remote_us": 129763,
+      "report_to_pool_fixed_us": 196154
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 132,
+      "report_at_us": 16191052,
+      "self_observation_at_us": 16191341,
+      "first_remote_at_us": 16257372,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 16386860,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 16386993,
+      "report_to_first_remote_us": 66320,
+      "first_to_second_remote_us": 129488,
+      "report_to_pool_fixed_us": 195941
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 192,
+      "report_at_us": 22104905,
+      "self_observation_at_us": 22105174,
+      "first_remote_at_us": 22171112,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 22300981,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 22301101,
+      "report_to_first_remote_us": 66207,
+      "first_to_second_remote_us": 129869,
+      "report_to_pool_fixed_us": 196196
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 196,
+      "report_at_us": 22499548,
+      "self_observation_at_us": 22499858,
+      "first_remote_at_us": 22565848,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 22695489,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 22695615,
+      "report_to_first_remote_us": 66300,
+      "first_to_second_remote_us": 129641,
+      "report_to_pool_fixed_us": 196067
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 256,
+      "report_at_us": 28409870,
+      "self_observation_at_us": 28410185,
+      "first_remote_at_us": 28476206,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 28606062,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 28606174,
+      "report_to_first_remote_us": 66336,
+      "first_to_second_remote_us": 129856,
+      "report_to_pool_fixed_us": 196304
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 260,
+      "report_at_us": 28803938,
+      "self_observation_at_us": 28804289,
+      "first_remote_at_us": 28870409,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 28999772,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 28999896,
+      "report_to_first_remote_us": 66471,
+      "first_to_second_remote_us": 129363,
+      "report_to_pool_fixed_us": 195958
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 320,
+      "report_at_us": 34714025,
+      "self_observation_at_us": 34714405,
+      "first_remote_at_us": 34780427,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 34909955,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 34910082,
+      "report_to_first_remote_us": 66402,
+      "first_to_second_remote_us": 129528,
+      "report_to_pool_fixed_us": 196057
+    },
+    {
+      "replica": 3,
+      "region": "Seoul",
+      "round": 324,
+      "report_at_us": 35108938,
+      "self_observation_at_us": 35109279,
+      "first_remote_at_us": 35174755,
+      "first_remote_peer": 0,
+      "second_remote_at_us": 35304875,
+      "second_remote_peer": 1,
+      "pool_fixed_at_us": 35304996,
+      "report_to_first_remote_us": 65817,
+      "first_to_second_remote_us": 130120,
+      "report_to_pool_fixed_us": 196058
+    }
+  ],
+  "trace_sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-0.json",
+      "bytes": 2944929,
+      "sha256": "45ff974e1a8dc5a7074384febedd7f4623b041d9e0e4994aae9524de247aaf6e"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-1.json",
+      "bytes": 2945044,
+      "sha256": "1af56df93ff0d3000e6c8ebcf341198d38a48493394abac1756410a62fd232d0"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-2.json",
+      "bytes": 2941453,
+      "sha256": "c1e593720d0ace691f22429ece6c9a726c04e8d78d22f71e1d93a2415a7bbff0"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-3.json",
+      "bytes": 2937994,
+      "sha256": "13ef1ec1272355f79d59bc9a4e17b1b0f9f73a52be4f9641aeaa2ed65fbf2fc2"
+    }
+  ],
+  "source_references": []
+}

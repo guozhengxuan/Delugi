@@ -1,0 +1,160 @@
+{
+  "schema": 1,
+  "method": "Exact request/batch joins. All spans are local monotonic differences; leader diagnostics never subtract origin timestamps. Origin OBS is a checkpoint, not asserted pool membership except self-leader.",
+  "covered": {
+    "delugi": 3000,
+    "raptr": 3000
+  },
+  "excluded": {
+    "delugi": {},
+    "raptr": {}
+  },
+  "delugi_trace_sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-0.json",
+      "sha256": "45ff974e1a8dc5a7074384febedd7f4623b041d9e0e4994aae9524de247aaf6e",
+      "events": 18091,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-1.json",
+      "sha256": "1af56df93ff0d3000e6c8ebcf341198d38a48493394abac1756410a62fd232d0",
+      "events": 18116,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-2.json",
+      "sha256": "c1e593720d0ace691f22429ece6c9a726c04e8d78d22f71e1d93a2415a7bbff0",
+      "events": 18086,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-3.json",
+      "sha256": "13ef1ec1272355f79d59bc9a4e17b1b0f9f73a52be4f9641aeaa2ed65fbf2fc2",
+      "events": 18053,
+      "dropped": 0,
+      "run_bound": true
+    }
+  ],
+  "raptr_sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/final.json",
+      "bytes": 90575,
+      "sha256": "de27ebc9c29976234514bdc55bd9e1e11c4a74fd2f562cb1f22f1de1e00b5f65"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/latency-trace.json",
+      "bytes": 1159644,
+      "sha256": "ba06e8ff2b491e9201be23b00a14c1f5be7855b05a653772decb4eee951e3690"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "2f0517ec86be55ee9806dbe8b5b3f326abd778eea998160549fde20f041fef4b"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/requests.jsonl",
+      "bytes": 359200,
+      "sha256": "a95c76b4d3ef84f34cda1745e5308757d99d5efce24a1bf05574fcdd8f37039f"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/output.jsonl",
+      "bytes": 8242363,
+      "sha256": "95c503d56a0c228eb1cdc410623f6121b68616c25a7dc34a24353531a4b4bac8"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/final.json",
+      "bytes": 96947,
+      "sha256": "2faef29d52db128cefdec82d9b576d5dea8474b45df4d45fc12f69812e7faea6"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/latency-trace.json",
+      "bytes": 1163844,
+      "sha256": "f452fd944682faefdc00c7fe9315359958f2e3584a4917f5c7ce4cfaa8392a3d"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "998ad37b288c35287fb01a85081917916b36944dee8a34cdef8b88435693e76f"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/requests.jsonl",
+      "bytes": 359240,
+      "sha256": "134b206e8d1d6186570db240cbe8125d83dc5795d9874fbad97ff36a27fbaf48"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/output.jsonl",
+      "bytes": 8246296,
+      "sha256": "451687c569e78a28e02b4377063fd7a90c7a233d3492573a4404dedb27ab4362"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/final.json",
+      "bytes": 91719,
+      "sha256": "2ed58a64cb9d5e585a9453477b8b54b4002a76452a60ed13a31f910575a92e6a"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/latency-trace.json",
+      "bytes": 1164601,
+      "sha256": "d5c34ea31e514088f9aa7674238a5090ce6dd33edd22b834005f2efe32dc83d3"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "d0cbaf51183351b46c2dcaf056a620cbdaa5dbaab46da50bb571508d8e1369c3"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/requests.jsonl",
+      "bytes": 359230,
+      "sha256": "fa25272ae32ed164008fcbfb5ee87b221410e3792340ba8a22f96ccd51d1f3e5"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/output.jsonl",
+      "bytes": 8246305,
+      "sha256": "72cf6898901b0bb544e750c29574cefb4ec19b8fb3ec49b572468eda27f33f83"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/final.json",
+      "bytes": 90611,
+      "sha256": "835725ef5794f9ac5f9299d65de38ff58e17f67d2d07dd0fbf56178307209a7c"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/latency-trace.json",
+      "bytes": 1160539,
+      "sha256": "ddd2b3540279b8cfb0898e98d740d1e43a941171088a38baacbeed30b9d5084d"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "f5b50497a58d4243e786fbe3f8ac4c5539a74712f2f23066c42589238250198c"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/requests.jsonl",
+      "bytes": 359208,
+      "sha256": "2389561c8abeca86e8a54317e37498ed3e757e250a3aec5e419d41b067394af0"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/output.jsonl",
+      "bytes": 8242357,
+      "sha256": "e3b1c7fb0593d0d09b514b633fc642866f379d132d237b0563151365040a4e8f"
+    }
+  ],
+  "delugi_cohort_index_sha256": "a921395bad9e32d9beafd1702a1561afad03694dc3c7f03aa84ff22b3e6e6869",
+  "raptr_configuration_sha256": "2b4e4128801ab6f58750d495518822ba759a39ed9398f9e56e3439114a9ed82c",
+  "inputs": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/cohorts/index.json",
+      "sha256": "a921395bad9e32d9beafd1702a1561afad03694dc3c7f03aa84ff22b3e6e6869"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/config.json",
+      "sha256": "2b4e4128801ab6f58750d495518822ba759a39ed9398f9e56e3439114a9ed82c"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/result.json",
+      "sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348"
+    }
+  ]
+}
