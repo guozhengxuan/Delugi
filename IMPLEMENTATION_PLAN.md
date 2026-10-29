@@ -33,8 +33,20 @@ and δ=99 ms / Δ=100 ms recovery remain passing. **276 Rust tests** pass (20
 explicitly ignored), together with **58 relevant Python checks**.
 See the [fix and matched local evidence](benchmarks/results/freshness-fix-2026-10-29/README.md).
 
+The requested four-region rerun was attempted on 29 October, with the same
+two 30-second, 100 tx/s Delugi cases and an ¥80 fleet cap. Aliyun rejected
+the first instance with `InvalidAccountStatus.NotEnoughBalance`; the live
+account balance was ¥87.16. No VM or workload started. The owned setup
+security group was deleted and all four lease records were closed. The
+matched settings and saved Raptr comparison are prepared under
+`results/local/delugi-freshness-wan-20261029`; resume after the account top-up.
+The fresh local shared verifier is built and validated against all 165 stamped
+sources at `837bf09`; its receipt is saved under
+`results/local/delugi-freshness-wan-local-build-20261029`. Local compiler
+cleanup reclaimed 2.16 GB. The Linux publication still needs rebuilding.
+
 No cloud workload was run for this correction. A fresh shared Linux build is
-required before the next requested WAN check; the previous publication is
+required before the requested WAN check; the previous publication is
 source-stale and must remain historical evidence. Selective Byzantine delivery
 of a valid predecessor can still trigger early preparation before a later
 timeout, so the correction is not a universal transaction-freshness bound.
