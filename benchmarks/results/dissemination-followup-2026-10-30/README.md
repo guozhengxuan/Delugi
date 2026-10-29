@@ -12,6 +12,10 @@ It changes no protocol implementation and performs no new cloud runs.
 The [trace audit](trace-audit.md), [aggregates](summary.json),
 [same-clock diagnostics](current-metrics.json), and
 [validation bindings](validation.json) retain the calculations.
+The continued [Pro discussion](https://chatgpt.com/c/6ad0826d-7048-83ec-b309-e09c2dca6590)
+reviews the corrected public evidence; its [verbatim reply](pro-consultation.json)
+accepts the conditional timing example and distinguishes snapshot support,
+pool arrival order, source readiness and additional implementation gates.
 
 ## First compare the same interval
 
@@ -99,6 +103,12 @@ orders, and favorable alignment. At δ=10 ms it obtains 25 ms to proposal and
 instead approaches 2δ to proposal and 5δ to direct commitment. Equality requires
 the payload to be processed before the snapshot, not merely sent at the same
 timestamp.
+
+Synchronizing batch creation with REPORT does not by itself remove the cost for
+arbitrary transaction arrivals: their residual waiting can move into batching.
+The admission-to-proposal interval must retain that time. Pro also emphasizes
+that low fixed-input age measures construction-to-proposal freshness, not the
+age of the signed observations encoded by that input.
 
 This is a **conditional possible execution**, not a universal Delugi bound,
 a Rust benchmark, or a numerical explanation of the WAN gap. It identifies the
@@ -190,6 +200,12 @@ The saved logs retain pool signers and timestamps, but not signed OBS frontiers,
 selected WA witnesses, per-round proposal contents, or source-state availability.
 Even final snapshots contain only cumulative state/counters. Therefore the
 earliest legal inclusion opportunity cannot be reconstructed fully offline.
+
+One interpretation in the earlier recovery audit needs narrowing. Its origin-3,
+sequence-165 example proves that the request missed its **own** anchor-4 OBS
+snapshot. It does not prove that the whole frozen pool lacked two usable
+covering sources. The measured event ordering remains correct; causal attribution
+to insufficient pool support requires the missing contents and local proof state.
 
 The narrow next step is observer-only capture of these fields, plus actual
 proposal handoff and exact first-inclusion membership, in a common-clock local

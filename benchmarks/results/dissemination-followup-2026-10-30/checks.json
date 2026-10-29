@@ -22,7 +22,7 @@
   },
   "scope": "No protocol changes, builds, or cloud runs. All archive intervals use same-replica clocks. Analytical model is conditional, not a production benchmark.",
   "files": {
-    "README.md": "ed9ee63145176f502eb8910d2ce12989e3d517666658944b1988d2ff179480e4",
+    "README.md": "c17551d9a139848748570ac8323e643f4775d91a8f27d36e937e5b0b15ec6f51",
     "analyze.py": "fa402943aad925586b4445cca1224d6947ea0885692ec89167d72cf618ab5807",
     "current-metrics.json": "9dde625d97316c32065aaf24ebcaf3b11e118d0618c6ac47937bf9acbc361b3c",
     "current_metrics.py": "a29d6a900c30bdc95b06138c2739f01a37bed062b9eb14b07dd0387cd35088dd",
@@ -30,10 +30,16 @@
     "extra.py": "7f827cf9b5d32fc8ad3f86495fd6d5e9d0ca38518edad3ad7271373a3a160ebf",
     "obs-order-statistics.json": "d6e6f41e3e22af2e107ae2a0dd0bd2b6b8c2b136f5c7b37352ffb447b5820709",
     "obs_order_statistics.py": "d304d51c49caf3768074191ece0740e599049dab75eebc90d43f076a352a38dc",
+    "pro-consultation.json": "932a957011065913a94f4cbc6b4bc1a85daec5ce316cd9ac29b08dcd2b755db5",
     "snapshot_phase.json": "98842912183148bda9c2b24c199eed631e2d681f3635c0384c87cdb17f7b160f",
     "snapshot_phase.py": "a9c30c5d2761d281f4ac28d382643aa9ebb75fdd00f64244e219de4e28d9fc6d",
     "summary.json": "a7fff1e020b74d51194a08d64a15926a2825c1f1b4b81a550b0c34dd3b5eb644",
     "trace-audit.md": "d8ded51a73cbc337c14711d29ccea86b898ff342849ba75c0faf16a2299beaea",
     "validation.json": "bc91925a5e16e3c75f8e0850116d0e8dc2c6aa874a9e34c1ee9a6025e5521bf3"
+  },
+  "consultation": {
+    "thread": "6ad0826d-7048-83ec-b309-e09c2dca6590",
+    "turn": "af756155-2f3a-4007-81ec-b93a84e17ef2",
+    "status": "completed"
   }
 }
