@@ -7,6 +7,22 @@ they must not be added as if they were consecutive transaction stages.
 
 ## Boundaries
 
+The author's primary presentation is now a two-stage transaction path:
+**dissemination** from origin admission to the leader's first valid proposal
+finalization/handoff containing the exact transaction, then **consensus** from
+that point to verified contiguous output at the origin. Batching belongs to the
+first bar; proposal transport, voting, recovery after first inclusion and output
+release belong to the second. The detailed spans below remain diagnostic.
+
+This is the target measurement contract, not a relabeling of existing archives.
+The current shared breakpoint is origin-local proposal acceptance. Raptr lacks
+a recorded leader proposal-finalization event, and neither exported proposal
+trace contains complete first-inclusion membership. Exact leader handoff,
+membership and qualified cross-host clock mappings are required before plotting
+the new all-request split. Preserve the eventual execution-associated proposal
+as a separate diagnostic so retries are not silently moved between stages.
+See the [five-delay and midpoint follow-up](../../benchmarks/results/dissemination-audit-2026-10-29/5delta-followup.md).
+
 Each request is joined to its **exact batch identity**, the ordering round that
 first materializes that batch, and the proposal digest released in that round.
 Every subtraction uses the request origin's monotonic clock.

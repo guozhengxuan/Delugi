@@ -1,5 +1,12 @@
 # Why Delugi's measured inclusion stage is longer
 
+The [five-delay follow-up](5delta-followup.md) corrects an incomplete inference
+from this first audit: Raptr's published 5δ already includes optimistic
+certification overlap. That structural fact alone does not explain a difference
+from Delugi's favorable 5δ target. The follow-up examines transaction eligibility
+at REPORT snapshots, composition timing, actual proposal cadence and the
+requested two-stage split at leader proposal finalization.
+
 The saved healthy WAN evidence points to **when availability collection blocks
 proposal inclusion**, together with batching and reporting-opportunity timing.
 It does not support a simple Raptr-two-signatures versus Delugi-three-signatures

@@ -1,0 +1,66 @@
+{
+  "kind": "offline-analysis-only",
+  "models_rounds_per_variant": 240,
+  "models": [
+    {
+      "schedule": "canonical",
+      "report_schedule": "admission",
+      "repeating_report_gaps_delta": [
+        1
+      ],
+      "steady_residual_report_wait_delta": 0.5,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 5.5
+    },
+    {
+      "schedule": "canonical",
+      "report_schedule": "history_ready",
+      "repeating_report_gaps_delta": [
+        1,
+        1,
+        3
+      ],
+      "steady_residual_report_wait_delta": 1.1,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 6.1
+    },
+    {
+      "schedule": "progress_pacing",
+      "report_schedule": "admission",
+      "repeating_report_gaps_delta": [
+        1,
+        3
+      ],
+      "steady_residual_report_wait_delta": 1.25,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 6.25
+    },
+    {
+      "schedule": "progress_pacing",
+      "report_schedule": "history_ready",
+      "repeating_report_gaps_delta": [
+        1,
+        3
+      ],
+      "steady_residual_report_wait_delta": 1.25,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 6.25
+    }
+  ],
+  "model_source_sha256": "def064ee3eeac2c809e1fe81ab2fad9386176fe9c5ec248cfa5533fe8c1f85c5",
+  "core_changes": false,
+  "protocol_workload_runs": 0,
+  "cloud_runs": 0,
+  "offline_source_bound_coverage": {
+    "delugi": 3000,
+    "raptr": 3000,
+    "exclusions": 0
+  },
+  "summaries_sha256": {
+    "ideal_cadence.json": "fd76381343ad9c4b9acd60922ecf01b4b994054ebdd077cdf8fa238eb675baee",
+    "delugi-cadence-summary.json": "1240b1456e022cd890aead1a80aac18eb0d318c83d2a6a1a2072b40c9a07bef0",
+    "raptr-cadence-summary.json": "1837f14dd719eb8c55e77906e4937047f64151ef4d6d7fcf29a788f8e70d5786",
+    "midpoint-summary.json": "6be838acf3e266f963035c8879ac29e9c48b1a00f57f736a418840c5145ed612"
+  },
+  "source_rules_sha256": {
+    "core/delugi/src/replica.rs": "cdec5d17feb854531f9b31d0964702d00ae6aa633687a7b135037a29460f3a3f",
+    "core/delugi/src/slot.rs": "189cd88eead31697cc30db8094b24983f426aecd092639f7f97c519e76ef8335",
+    "core/delugi/src/composed.rs": "2d67c5f610a4d1a54a6cc33598bde1e577639e5c76e6de1ba816a3f825c062ed"
+  }
+}

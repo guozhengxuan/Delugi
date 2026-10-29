@@ -1,0 +1,1748 @@
+{
+  "schema": 1,
+  "trial": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f",
+  "run_id": "7a24067564ec42a58704c6d25d5d36637a24067564ec42a58704c6d25d5d3663",
+  "measurement_duration_ms": 30000,
+  "event": "first proposal_validated per round; after native proposal verification and inbox processing",
+  "window": "each replica signed receipt epoch_us <= local CLOCK_MONOTONIC event at_us < epoch_us + measurement_duration_ms*1000",
+  "leader_rule": "native Config::leader(round) = round % 4",
+  "four_round_cycle": "two consecutive in-window proposal_validated events for that replica as leader; round difference exactly 4; local timestamp difference divided by 4",
+  "interpretation": "Cadence proxy, not an exact proposal-send timestamp. Same-leader comparisons avoid alternating leader-to-observer route offsets; self-dispatch and validation jitter remains.",
+  "cross_host_subtraction": false,
+  "validation": "Existing decomposition analyzer rechecked receipt and source hashes against the previously native-verified archive authentication map; no new native-signature verification.",
+  "decomposition_covered": 3000,
+  "replicas": [
+    {
+      "replica": 0,
+      "window_start_us": 2174966564,
+      "window_end_us_exclusive": 2204966564,
+      "proposal_event_count_in_window": 195,
+      "first_round": 1,
+      "last_round": 195,
+      "consecutive_round_gaps": {
+        "count": 194,
+        "mean_ms": 151.25274742268041,
+        "min_ms": 59.973,
+        "max_ms": 224.314
+      },
+      "own_leader_four_round_cycles_divided_by_four": {
+        "count": 47,
+        "mean_ms": 151.2985159574468,
+        "min_ms": 149.89775,
+        "max_ms": 152.87425
+      },
+      "own_leader_four_round_cycle_rows": [
+        {
+          "start_round": 4,
+          "end_round": 8,
+          "start_at_us": 2176025190,
+          "end_at_us": 2176626025,
+          "four_round_cycle_ms": 600.835,
+          "per_round_ms": 150.20875
+        },
+        {
+          "start_round": 8,
+          "end_round": 12,
+          "start_at_us": 2176626025,
+          "end_at_us": 2177228489,
+          "four_round_cycle_ms": 602.464,
+          "per_round_ms": 150.616
+        },
+        {
+          "start_round": 12,
+          "end_round": 16,
+          "start_at_us": 2177228489,
+          "end_at_us": 2177834787,
+          "four_round_cycle_ms": 606.298,
+          "per_round_ms": 151.5745
+        },
+        {
+          "start_round": 16,
+          "end_round": 20,
+          "start_at_us": 2177834787,
+          "end_at_us": 2178435466,
+          "four_round_cycle_ms": 600.679,
+          "per_round_ms": 150.16975
+        },
+        {
+          "start_round": 20,
+          "end_round": 24,
+          "start_at_us": 2178435466,
+          "end_at_us": 2179041069,
+          "four_round_cycle_ms": 605.603,
+          "per_round_ms": 151.40075
+        },
+        {
+          "start_round": 24,
+          "end_round": 28,
+          "start_at_us": 2179041069,
+          "end_at_us": 2179642581,
+          "four_round_cycle_ms": 601.512,
+          "per_round_ms": 150.378
+        },
+        {
+          "start_round": 28,
+          "end_round": 32,
+          "start_at_us": 2179642581,
+          "end_at_us": 2180248586,
+          "four_round_cycle_ms": 606.005,
+          "per_round_ms": 151.50125
+        },
+        {
+          "start_round": 32,
+          "end_round": 36,
+          "start_at_us": 2180248586,
+          "end_at_us": 2180850294,
+          "four_round_cycle_ms": 601.708,
+          "per_round_ms": 150.427
+        },
+        {
+          "start_round": 36,
+          "end_round": 40,
+          "start_at_us": 2180850294,
+          "end_at_us": 2181454685,
+          "four_round_cycle_ms": 604.391,
+          "per_round_ms": 151.09775
+        },
+        {
+          "start_round": 40,
+          "end_round": 44,
+          "start_at_us": 2181454685,
+          "end_at_us": 2182054277,
+          "four_round_cycle_ms": 599.592,
+          "per_round_ms": 149.898
+        },
+        {
+          "start_round": 44,
+          "end_round": 48,
+          "start_at_us": 2182054277,
+          "end_at_us": 2182658253,
+          "four_round_cycle_ms": 603.976,
+          "per_round_ms": 150.994
+        },
+        {
+          "start_round": 48,
+          "end_round": 52,
+          "start_at_us": 2182658253,
+          "end_at_us": 2183264720,
+          "four_round_cycle_ms": 606.467,
+          "per_round_ms": 151.61675
+        },
+        {
+          "start_round": 52,
+          "end_round": 56,
+          "start_at_us": 2183264720,
+          "end_at_us": 2183866032,
+          "four_round_cycle_ms": 601.312,
+          "per_round_ms": 150.328
+        },
+        {
+          "start_round": 56,
+          "end_round": 60,
+          "start_at_us": 2183866032,
+          "end_at_us": 2184474921,
+          "four_round_cycle_ms": 608.889,
+          "per_round_ms": 152.22225
+        },
+        {
+          "start_round": 60,
+          "end_round": 64,
+          "start_at_us": 2184474921,
+          "end_at_us": 2185086418,
+          "four_round_cycle_ms": 611.497,
+          "per_round_ms": 152.87425
+        },
+        {
+          "start_round": 64,
+          "end_round": 68,
+          "start_at_us": 2185086418,
+          "end_at_us": 2185692859,
+          "four_round_cycle_ms": 606.441,
+          "per_round_ms": 151.61025
+        },
+        {
+          "start_round": 68,
+          "end_round": 72,
+          "start_at_us": 2185692859,
+          "end_at_us": 2186297072,
+          "four_round_cycle_ms": 604.213,
+          "per_round_ms": 151.05325
+        },
+        {
+          "start_round": 72,
+          "end_round": 76,
+          "start_at_us": 2186297072,
+          "end_at_us": 2186898498,
+          "four_round_cycle_ms": 601.426,
+          "per_round_ms": 150.3565
+        },
+        {
+          "start_round": 76,
+          "end_round": 80,
+          "start_at_us": 2186898498,
+          "end_at_us": 2187507447,
+          "four_round_cycle_ms": 608.949,
+          "per_round_ms": 152.23725
+        },
+        {
+          "start_round": 80,
+          "end_round": 84,
+          "start_at_us": 2187507447,
+          "end_at_us": 2188116097,
+          "four_round_cycle_ms": 608.65,
+          "per_round_ms": 152.1625
+        },
+        {
+          "start_round": 84,
+          "end_round": 88,
+          "start_at_us": 2188116097,
+          "end_at_us": 2188721822,
+          "four_round_cycle_ms": 605.725,
+          "per_round_ms": 151.43125
+        },
+        {
+          "start_round": 88,
+          "end_round": 92,
+          "start_at_us": 2188721822,
+          "end_at_us": 2189324741,
+          "four_round_cycle_ms": 602.919,
+          "per_round_ms": 150.72975
+        },
+        {
+          "start_round": 92,
+          "end_round": 96,
+          "start_at_us": 2189324741,
+          "end_at_us": 2189932826,
+          "four_round_cycle_ms": 608.085,
+          "per_round_ms": 152.02125
+        },
+        {
+          "start_round": 96,
+          "end_round": 100,
+          "start_at_us": 2189932826,
+          "end_at_us": 2190535560,
+          "four_round_cycle_ms": 602.734,
+          "per_round_ms": 150.6835
+        },
+        {
+          "start_round": 100,
+          "end_round": 104,
+          "start_at_us": 2190535560,
+          "end_at_us": 2191143884,
+          "four_round_cycle_ms": 608.324,
+          "per_round_ms": 152.081
+        },
+        {
+          "start_round": 104,
+          "end_round": 108,
+          "start_at_us": 2191143884,
+          "end_at_us": 2191751420,
+          "four_round_cycle_ms": 607.536,
+          "per_round_ms": 151.884
+        },
+        {
+          "start_round": 108,
+          "end_round": 112,
+          "start_at_us": 2191751420,
+          "end_at_us": 2192352568,
+          "four_round_cycle_ms": 601.148,
+          "per_round_ms": 150.287
+        },
+        {
+          "start_round": 112,
+          "end_round": 116,
+          "start_at_us": 2192352568,
+          "end_at_us": 2192957268,
+          "four_round_cycle_ms": 604.7,
+          "per_round_ms": 151.175
+        },
+        {
+          "start_round": 116,
+          "end_round": 120,
+          "start_at_us": 2192957268,
+          "end_at_us": 2193557906,
+          "four_round_cycle_ms": 600.638,
+          "per_round_ms": 150.1595
+        },
+        {
+          "start_round": 120,
+          "end_round": 124,
+          "start_at_us": 2193557906,
+          "end_at_us": 2194169288,
+          "four_round_cycle_ms": 611.382,
+          "per_round_ms": 152.8455
+        },
+        {
+          "start_round": 124,
+          "end_round": 128,
+          "start_at_us": 2194169288,
+          "end_at_us": 2194777627,
+          "four_round_cycle_ms": 608.339,
+          "per_round_ms": 152.08475
+        },
+        {
+          "start_round": 128,
+          "end_round": 132,
+          "start_at_us": 2194777627,
+          "end_at_us": 2195387444,
+          "four_round_cycle_ms": 609.817,
+          "per_round_ms": 152.45425
+        },
+        {
+          "start_round": 132,
+          "end_round": 136,
+          "start_at_us": 2195387444,
+          "end_at_us": 2195987035,
+          "four_round_cycle_ms": 599.591,
+          "per_round_ms": 149.89775
+        },
+        {
+          "start_round": 136,
+          "end_round": 140,
+          "start_at_us": 2195987035,
+          "end_at_us": 2196593411,
+          "four_round_cycle_ms": 606.376,
+          "per_round_ms": 151.594
+        },
+        {
+          "start_round": 140,
+          "end_round": 144,
+          "start_at_us": 2196593411,
+          "end_at_us": 2197200057,
+          "four_round_cycle_ms": 606.646,
+          "per_round_ms": 151.6615
+        },
+        {
+          "start_round": 144,
+          "end_round": 148,
+          "start_at_us": 2197200057,
+          "end_at_us": 2197805449,
+          "four_round_cycle_ms": 605.392,
+          "per_round_ms": 151.348
+        },
+        {
+          "start_round": 148,
+          "end_round": 152,
+          "start_at_us": 2197805449,
+          "end_at_us": 2198412450,
+          "four_round_cycle_ms": 607.001,
+          "per_round_ms": 151.75025
+        },
+        {
+          "start_round": 152,
+          "end_round": 156,
+          "start_at_us": 2198412450,
+          "end_at_us": 2199020398,
+          "four_round_cycle_ms": 607.948,
+          "per_round_ms": 151.987
+        },
+        {
+          "start_round": 156,
+          "end_round": 160,
+          "start_at_us": 2199020398,
+          "end_at_us": 2199624976,
+          "four_round_cycle_ms": 604.578,
+          "per_round_ms": 151.1445
+        },
+        {
+          "start_round": 160,
+          "end_round": 164,
+          "start_at_us": 2199624976,
+          "end_at_us": 2200231512,
+          "four_round_cycle_ms": 606.536,
+          "per_round_ms": 151.634
+        },
+        {
+          "start_round": 164,
+          "end_round": 168,
+          "start_at_us": 2200231512,
+          "end_at_us": 2200842578,
+          "four_round_cycle_ms": 611.066,
+          "per_round_ms": 152.7665
+        },
+        {
+          "start_round": 168,
+          "end_round": 172,
+          "start_at_us": 2200842578,
+          "end_at_us": 2201443209,
+          "four_round_cycle_ms": 600.631,
+          "per_round_ms": 150.15775
+        },
+        {
+          "start_round": 172,
+          "end_round": 176,
+          "start_at_us": 2201443209,
+          "end_at_us": 2202042854,
+          "four_round_cycle_ms": 599.645,
+          "per_round_ms": 149.91125
+        },
+        {
+          "start_round": 176,
+          "end_round": 180,
+          "start_at_us": 2202042854,
+          "end_at_us": 2202647126,
+          "four_round_cycle_ms": 604.272,
+          "per_round_ms": 151.068
+        },
+        {
+          "start_round": 180,
+          "end_round": 184,
+          "start_at_us": 2202647126,
+          "end_at_us": 2203253321,
+          "four_round_cycle_ms": 606.195,
+          "per_round_ms": 151.54875
+        },
+        {
+          "start_round": 184,
+          "end_round": 188,
+          "start_at_us": 2203253321,
+          "end_at_us": 2203862686,
+          "four_round_cycle_ms": 609.365,
+          "per_round_ms": 152.34125
+        },
+        {
+          "start_round": 188,
+          "end_round": 192,
+          "start_at_us": 2203862686,
+          "end_at_us": 2204469311,
+          "four_round_cycle_ms": 606.625,
+          "per_round_ms": 151.65625
+        }
+      ],
+      "by_previous_leader": {
+        "0->1": {
+          "count": 48,
+          "mean_ms": 203.86602083333332,
+          "min_ms": 198.251,
+          "max_ms": 210.008
+        },
+        "1->2": {
+          "count": 49,
+          "mean_ms": 185.1037755102041,
+          "min_ms": 181.545,
+          "max_ms": 224.314
+        },
+        "2->3": {
+          "count": 49,
+          "mean_ms": 72.45036734693878,
+          "min_ms": 59.973,
+          "max_ms": 77.196
+        },
+        "3->0": {
+          "count": 48,
+          "mean_ms": 144.5273125,
+          "min_ms": 141.351,
+          "max_ms": 147.486
+        }
+      },
+      "trace_sha256": "ba06e8ff2b491e9201be23b00a14c1f5be7855b05a653772decb4eee951e3690"
+    },
+    {
+      "replica": 1,
+      "window_start_us": 2139520558,
+      "window_end_us_exclusive": 2169520558,
+      "proposal_event_count_in_window": 198,
+      "first_round": 1,
+      "last_round": 198,
+      "consecutive_round_gaps": {
+        "count": 197,
+        "mean_ms": 151.62647208121828,
+        "min_ms": 43.085,
+        "max_ms": 214.893
+      },
+      "own_leader_four_round_cycles_divided_by_four": {
+        "count": 49,
+        "mean_ms": 151.48386734693878,
+        "min_ms": 148.82,
+        "max_ms": 158.9345
+      },
+      "own_leader_four_round_cycle_rows": [
+        {
+          "start_round": 1,
+          "end_round": 5,
+          "start_at_us": 2139525727,
+          "end_at_us": 2140161465,
+          "four_round_cycle_ms": 635.738,
+          "per_round_ms": 158.9345
+        },
+        {
+          "start_round": 5,
+          "end_round": 9,
+          "start_at_us": 2140161465,
+          "end_at_us": 2140761647,
+          "four_round_cycle_ms": 600.182,
+          "per_round_ms": 150.0455
+        },
+        {
+          "start_round": 9,
+          "end_round": 13,
+          "start_at_us": 2140761647,
+          "end_at_us": 2141364622,
+          "four_round_cycle_ms": 602.975,
+          "per_round_ms": 150.74375
+        },
+        {
+          "start_round": 13,
+          "end_round": 17,
+          "start_at_us": 2141364622,
+          "end_at_us": 2141968222,
+          "four_round_cycle_ms": 603.6,
+          "per_round_ms": 150.9
+        },
+        {
+          "start_round": 17,
+          "end_round": 21,
+          "start_at_us": 2141968222,
+          "end_at_us": 2142571878,
+          "four_round_cycle_ms": 603.656,
+          "per_round_ms": 150.914
+        },
+        {
+          "start_round": 21,
+          "end_round": 25,
+          "start_at_us": 2142571878,
+          "end_at_us": 2143173559,
+          "four_round_cycle_ms": 601.681,
+          "per_round_ms": 150.42025
+        },
+        {
+          "start_round": 25,
+          "end_round": 29,
+          "start_at_us": 2143173559,
+          "end_at_us": 2143778571,
+          "four_round_cycle_ms": 605.012,
+          "per_round_ms": 151.253
+        },
+        {
+          "start_round": 29,
+          "end_round": 33,
+          "start_at_us": 2143778571,
+          "end_at_us": 2144379396,
+          "four_round_cycle_ms": 600.825,
+          "per_round_ms": 150.20625
+        },
+        {
+          "start_round": 33,
+          "end_round": 37,
+          "start_at_us": 2144379396,
+          "end_at_us": 2144986349,
+          "four_round_cycle_ms": 606.953,
+          "per_round_ms": 151.73825
+        },
+        {
+          "start_round": 37,
+          "end_round": 41,
+          "start_at_us": 2144986349,
+          "end_at_us": 2145586038,
+          "four_round_cycle_ms": 599.689,
+          "per_round_ms": 149.92225
+        },
+        {
+          "start_round": 41,
+          "end_round": 45,
+          "start_at_us": 2145586038,
+          "end_at_us": 2146189851,
+          "four_round_cycle_ms": 603.813,
+          "per_round_ms": 150.95325
+        },
+        {
+          "start_round": 45,
+          "end_round": 49,
+          "start_at_us": 2146189851,
+          "end_at_us": 2146795834,
+          "four_round_cycle_ms": 605.983,
+          "per_round_ms": 151.49575
+        },
+        {
+          "start_round": 49,
+          "end_round": 53,
+          "start_at_us": 2146795834,
+          "end_at_us": 2147398131,
+          "four_round_cycle_ms": 602.297,
+          "per_round_ms": 150.57425
+        },
+        {
+          "start_round": 53,
+          "end_round": 57,
+          "start_at_us": 2147398131,
+          "end_at_us": 2148001498,
+          "four_round_cycle_ms": 603.367,
+          "per_round_ms": 150.84175
+        },
+        {
+          "start_round": 57,
+          "end_round": 61,
+          "start_at_us": 2148001498,
+          "end_at_us": 2148612285,
+          "four_round_cycle_ms": 610.787,
+          "per_round_ms": 152.69675
+        },
+        {
+          "start_round": 61,
+          "end_round": 65,
+          "start_at_us": 2148612285,
+          "end_at_us": 2149222475,
+          "four_round_cycle_ms": 610.19,
+          "per_round_ms": 152.5475
+        },
+        {
+          "start_round": 65,
+          "end_round": 69,
+          "start_at_us": 2149222475,
+          "end_at_us": 2149826768,
+          "four_round_cycle_ms": 604.293,
+          "per_round_ms": 151.07325
+        },
+        {
+          "start_round": 69,
+          "end_round": 73,
+          "start_at_us": 2149826768,
+          "end_at_us": 2150432668,
+          "four_round_cycle_ms": 605.9,
+          "per_round_ms": 151.475
+        },
+        {
+          "start_round": 73,
+          "end_round": 77,
+          "start_at_us": 2150432668,
+          "end_at_us": 2151033488,
+          "four_round_cycle_ms": 600.82,
+          "per_round_ms": 150.205
+        },
+        {
+          "start_round": 77,
+          "end_round": 81,
+          "start_at_us": 2151033488,
+          "end_at_us": 2151642447,
+          "four_round_cycle_ms": 608.959,
+          "per_round_ms": 152.23975
+        },
+        {
+          "start_round": 81,
+          "end_round": 85,
+          "start_at_us": 2151642447,
+          "end_at_us": 2152251314,
+          "four_round_cycle_ms": 608.867,
+          "per_round_ms": 152.21675
+        },
+        {
+          "start_round": 85,
+          "end_round": 89,
+          "start_at_us": 2152251314,
+          "end_at_us": 2152857113,
+          "four_round_cycle_ms": 605.799,
+          "per_round_ms": 151.44975
+        },
+        {
+          "start_round": 89,
+          "end_round": 93,
+          "start_at_us": 2152857113,
+          "end_at_us": 2153461613,
+          "four_round_cycle_ms": 604.5,
+          "per_round_ms": 151.125
+        },
+        {
+          "start_round": 93,
+          "end_round": 97,
+          "start_at_us": 2153461613,
+          "end_at_us": 2154069633,
+          "four_round_cycle_ms": 608.02,
+          "per_round_ms": 152.005
+        },
+        {
+          "start_round": 97,
+          "end_round": 101,
+          "start_at_us": 2154069633,
+          "end_at_us": 2154673229,
+          "four_round_cycle_ms": 603.596,
+          "per_round_ms": 150.899
+        },
+        {
+          "start_round": 101,
+          "end_round": 105,
+          "start_at_us": 2154673229,
+          "end_at_us": 2155278487,
+          "four_round_cycle_ms": 605.258,
+          "per_round_ms": 151.3145
+        },
+        {
+          "start_round": 105,
+          "end_round": 109,
+          "start_at_us": 2155278487,
+          "end_at_us": 2155886836,
+          "four_round_cycle_ms": 608.349,
+          "per_round_ms": 152.08725
+        },
+        {
+          "start_round": 109,
+          "end_round": 113,
+          "start_at_us": 2155886836,
+          "end_at_us": 2156488237,
+          "four_round_cycle_ms": 601.401,
+          "per_round_ms": 150.35025
+        },
+        {
+          "start_round": 113,
+          "end_round": 117,
+          "start_at_us": 2156488237,
+          "end_at_us": 2157092241,
+          "four_round_cycle_ms": 604.004,
+          "per_round_ms": 151.001
+        },
+        {
+          "start_round": 117,
+          "end_round": 121,
+          "start_at_us": 2157092241,
+          "end_at_us": 2157691090,
+          "four_round_cycle_ms": 598.849,
+          "per_round_ms": 149.71225
+        },
+        {
+          "start_round": 121,
+          "end_round": 125,
+          "start_at_us": 2157691090,
+          "end_at_us": 2158303929,
+          "four_round_cycle_ms": 612.839,
+          "per_round_ms": 153.20975
+        },
+        {
+          "start_round": 125,
+          "end_round": 129,
+          "start_at_us": 2158303929,
+          "end_at_us": 2158915057,
+          "four_round_cycle_ms": 611.128,
+          "per_round_ms": 152.782
+        },
+        {
+          "start_round": 129,
+          "end_round": 133,
+          "start_at_us": 2158915057,
+          "end_at_us": 2159519087,
+          "four_round_cycle_ms": 604.03,
+          "per_round_ms": 151.0075
+        },
+        {
+          "start_round": 133,
+          "end_round": 137,
+          "start_at_us": 2159519087,
+          "end_at_us": 2160119911,
+          "four_round_cycle_ms": 600.824,
+          "per_round_ms": 150.206
+        },
+        {
+          "start_round": 137,
+          "end_round": 141,
+          "start_at_us": 2160119911,
+          "end_at_us": 2160731509,
+          "four_round_cycle_ms": 611.598,
+          "per_round_ms": 152.8995
+        },
+        {
+          "start_round": 141,
+          "end_round": 145,
+          "start_at_us": 2160731509,
+          "end_at_us": 2161336530,
+          "four_round_cycle_ms": 605.021,
+          "per_round_ms": 151.25525
+        },
+        {
+          "start_round": 145,
+          "end_round": 149,
+          "start_at_us": 2161336530,
+          "end_at_us": 2161943112,
+          "four_round_cycle_ms": 606.582,
+          "per_round_ms": 151.6455
+        },
+        {
+          "start_round": 149,
+          "end_round": 153,
+          "start_at_us": 2161943112,
+          "end_at_us": 2162549210,
+          "four_round_cycle_ms": 606.098,
+          "per_round_ms": 151.5245
+        },
+        {
+          "start_round": 153,
+          "end_round": 157,
+          "start_at_us": 2162549210,
+          "end_at_us": 2163156708,
+          "four_round_cycle_ms": 607.498,
+          "per_round_ms": 151.8745
+        },
+        {
+          "start_round": 157,
+          "end_round": 161,
+          "start_at_us": 2163156708,
+          "end_at_us": 2163760471,
+          "four_round_cycle_ms": 603.763,
+          "per_round_ms": 150.94075
+        },
+        {
+          "start_round": 161,
+          "end_round": 165,
+          "start_at_us": 2163760471,
+          "end_at_us": 2164366718,
+          "four_round_cycle_ms": 606.247,
+          "per_round_ms": 151.56175
+        },
+        {
+          "start_round": 165,
+          "end_round": 169,
+          "start_at_us": 2164366718,
+          "end_at_us": 2164976653,
+          "four_round_cycle_ms": 609.935,
+          "per_round_ms": 152.48375
+        },
+        {
+          "start_round": 169,
+          "end_round": 173,
+          "start_at_us": 2164976653,
+          "end_at_us": 2165571933,
+          "four_round_cycle_ms": 595.28,
+          "per_round_ms": 148.82
+        },
+        {
+          "start_round": 173,
+          "end_round": 177,
+          "start_at_us": 2165571933,
+          "end_at_us": 2166176851,
+          "four_round_cycle_ms": 604.918,
+          "per_round_ms": 151.2295
+        },
+        {
+          "start_round": 177,
+          "end_round": 181,
+          "start_at_us": 2166176851,
+          "end_at_us": 2166783409,
+          "four_round_cycle_ms": 606.558,
+          "per_round_ms": 151.6395
+        },
+        {
+          "start_round": 181,
+          "end_round": 185,
+          "start_at_us": 2166783409,
+          "end_at_us": 2167389731,
+          "four_round_cycle_ms": 606.322,
+          "per_round_ms": 151.5805
+        },
+        {
+          "start_round": 185,
+          "end_round": 189,
+          "start_at_us": 2167389731,
+          "end_at_us": 2167998462,
+          "four_round_cycle_ms": 608.731,
+          "per_round_ms": 152.18275
+        },
+        {
+          "start_round": 189,
+          "end_round": 193,
+          "start_at_us": 2167998462,
+          "end_at_us": 2168601744,
+          "four_round_cycle_ms": 603.282,
+          "per_round_ms": 150.8205
+        },
+        {
+          "start_round": 193,
+          "end_round": 197,
+          "start_at_us": 2168601744,
+          "end_at_us": 2169216565,
+          "four_round_cycle_ms": 614.821,
+          "per_round_ms": 153.70525
+        }
+      ],
+      "by_previous_leader": {
+        "0->1": {
+          "count": 49,
+          "mean_ms": 47.93628571428572,
+          "min_ms": 43.085,
+          "max_ms": 50.934
+        },
+        "1->2": {
+          "count": 50,
+          "mean_ms": 183.60518,
+          "min_ms": 177.908,
+          "max_ms": 214.852
+        },
+        "2->3": {
+          "count": 49,
+          "mean_ms": 210.37295918367346,
+          "min_ms": 206.358,
+          "max_ms": 214.893
+        },
+        "3->0": {
+          "count": 49,
+          "mean_ms": 163.93883673469387,
+          "min_ms": 162.234,
+          "max_ms": 166.546
+        }
+      },
+      "trace_sha256": "f452fd944682faefdc00c7fe9315359958f2e3584a4917f5c7ce4cfaa8392a3d"
+    },
+    {
+      "replica": 2,
+      "window_start_us": 2106346017,
+      "window_end_us_exclusive": 2136346017,
+      "proposal_event_count_in_window": 197,
+      "first_round": 1,
+      "last_round": 197,
+      "consecutive_round_gaps": {
+        "count": 196,
+        "mean_ms": 151.47447959183674,
+        "min_ms": 19.669,
+        "max_ms": 267.635
+      },
+      "own_leader_four_round_cycles_divided_by_four": {
+        "count": 48,
+        "mean_ms": 151.321296875,
+        "min_ms": 149.798,
+        "max_ms": 152.96725
+      },
+      "own_leader_four_round_cycle_rows": [
+        {
+          "start_round": 2,
+          "end_round": 6,
+          "start_at_us": 2106690259,
+          "end_at_us": 2107291814,
+          "four_round_cycle_ms": 601.555,
+          "per_round_ms": 150.38875
+        },
+        {
+          "start_round": 6,
+          "end_round": 10,
+          "start_at_us": 2107291814,
+          "end_at_us": 2107895059,
+          "four_round_cycle_ms": 603.245,
+          "per_round_ms": 150.81125
+        },
+        {
+          "start_round": 10,
+          "end_round": 14,
+          "start_at_us": 2107895059,
+          "end_at_us": 2108498483,
+          "four_round_cycle_ms": 603.424,
+          "per_round_ms": 150.856
+        },
+        {
+          "start_round": 14,
+          "end_round": 18,
+          "start_at_us": 2108498483,
+          "end_at_us": 2109102782,
+          "four_round_cycle_ms": 604.299,
+          "per_round_ms": 151.07475
+        },
+        {
+          "start_round": 18,
+          "end_round": 22,
+          "start_at_us": 2109102782,
+          "end_at_us": 2109705516,
+          "four_round_cycle_ms": 602.734,
+          "per_round_ms": 150.6835
+        },
+        {
+          "start_round": 22,
+          "end_round": 26,
+          "start_at_us": 2109705516,
+          "end_at_us": 2110309586,
+          "four_round_cycle_ms": 604.07,
+          "per_round_ms": 151.0175
+        },
+        {
+          "start_round": 26,
+          "end_round": 30,
+          "start_at_us": 2110309586,
+          "end_at_us": 2110915673,
+          "four_round_cycle_ms": 606.087,
+          "per_round_ms": 151.52175
+        },
+        {
+          "start_round": 30,
+          "end_round": 34,
+          "start_at_us": 2110915673,
+          "end_at_us": 2111517708,
+          "four_round_cycle_ms": 602.035,
+          "per_round_ms": 150.50875
+        },
+        {
+          "start_round": 34,
+          "end_round": 38,
+          "start_at_us": 2111517708,
+          "end_at_us": 2112121756,
+          "four_round_cycle_ms": 604.048,
+          "per_round_ms": 151.012
+        },
+        {
+          "start_round": 38,
+          "end_round": 42,
+          "start_at_us": 2112121756,
+          "end_at_us": 2112722452,
+          "four_round_cycle_ms": 600.696,
+          "per_round_ms": 150.174
+        },
+        {
+          "start_round": 42,
+          "end_round": 46,
+          "start_at_us": 2112722452,
+          "end_at_us": 2113325598,
+          "four_round_cycle_ms": 603.146,
+          "per_round_ms": 150.7865
+        },
+        {
+          "start_round": 46,
+          "end_round": 50,
+          "start_at_us": 2113325598,
+          "end_at_us": 2113929332,
+          "four_round_cycle_ms": 603.734,
+          "per_round_ms": 150.9335
+        },
+        {
+          "start_round": 50,
+          "end_round": 54,
+          "start_at_us": 2113929332,
+          "end_at_us": 2114533252,
+          "four_round_cycle_ms": 603.92,
+          "per_round_ms": 150.98
+        },
+        {
+          "start_round": 54,
+          "end_round": 58,
+          "start_at_us": 2114533252,
+          "end_at_us": 2115138532,
+          "four_round_cycle_ms": 605.28,
+          "per_round_ms": 151.32
+        },
+        {
+          "start_round": 58,
+          "end_round": 62,
+          "start_at_us": 2115138532,
+          "end_at_us": 2115750401,
+          "four_round_cycle_ms": 611.869,
+          "per_round_ms": 152.96725
+        },
+        {
+          "start_round": 62,
+          "end_round": 66,
+          "start_at_us": 2115750401,
+          "end_at_us": 2116358262,
+          "four_round_cycle_ms": 607.861,
+          "per_round_ms": 151.96525
+        },
+        {
+          "start_round": 66,
+          "end_round": 70,
+          "start_at_us": 2116358262,
+          "end_at_us": 2116963302,
+          "four_round_cycle_ms": 605.04,
+          "per_round_ms": 151.26
+        },
+        {
+          "start_round": 70,
+          "end_round": 74,
+          "start_at_us": 2116963302,
+          "end_at_us": 2117566042,
+          "four_round_cycle_ms": 602.74,
+          "per_round_ms": 150.685
+        },
+        {
+          "start_round": 74,
+          "end_round": 78,
+          "start_at_us": 2117566042,
+          "end_at_us": 2118169080,
+          "four_round_cycle_ms": 603.038,
+          "per_round_ms": 150.7595
+        },
+        {
+          "start_round": 78,
+          "end_round": 82,
+          "start_at_us": 2118169080,
+          "end_at_us": 2118778238,
+          "four_round_cycle_ms": 609.158,
+          "per_round_ms": 152.2895
+        },
+        {
+          "start_round": 82,
+          "end_round": 86,
+          "start_at_us": 2118778238,
+          "end_at_us": 2119388502,
+          "four_round_cycle_ms": 610.264,
+          "per_round_ms": 152.566
+        },
+        {
+          "start_round": 86,
+          "end_round": 90,
+          "start_at_us": 2119388502,
+          "end_at_us": 2119992830,
+          "four_round_cycle_ms": 604.328,
+          "per_round_ms": 151.082
+        },
+        {
+          "start_round": 90,
+          "end_round": 94,
+          "start_at_us": 2119992830,
+          "end_at_us": 2120597396,
+          "four_round_cycle_ms": 604.566,
+          "per_round_ms": 151.1415
+        },
+        {
+          "start_round": 94,
+          "end_round": 98,
+          "start_at_us": 2120597396,
+          "end_at_us": 2121201437,
+          "four_round_cycle_ms": 604.041,
+          "per_round_ms": 151.01025
+        },
+        {
+          "start_round": 98,
+          "end_round": 102,
+          "start_at_us": 2121201437,
+          "end_at_us": 2121810094,
+          "four_round_cycle_ms": 608.657,
+          "per_round_ms": 152.16425
+        },
+        {
+          "start_round": 102,
+          "end_round": 106,
+          "start_at_us": 2121810094,
+          "end_at_us": 2122415150,
+          "four_round_cycle_ms": 605.056,
+          "per_round_ms": 151.264
+        },
+        {
+          "start_round": 106,
+          "end_round": 110,
+          "start_at_us": 2122415150,
+          "end_at_us": 2123017765,
+          "four_round_cycle_ms": 602.615,
+          "per_round_ms": 150.65375
+        },
+        {
+          "start_round": 110,
+          "end_round": 114,
+          "start_at_us": 2123017765,
+          "end_at_us": 2123621077,
+          "four_round_cycle_ms": 603.312,
+          "per_round_ms": 150.828
+        },
+        {
+          "start_round": 114,
+          "end_round": 118,
+          "start_at_us": 2123621077,
+          "end_at_us": 2124225006,
+          "four_round_cycle_ms": 603.929,
+          "per_round_ms": 150.98225
+        },
+        {
+          "start_round": 118,
+          "end_round": 122,
+          "start_at_us": 2124225006,
+          "end_at_us": 2124829470,
+          "four_round_cycle_ms": 604.464,
+          "per_round_ms": 151.116
+        },
+        {
+          "start_round": 122,
+          "end_round": 126,
+          "start_at_us": 2124829470,
+          "end_at_us": 2125440049,
+          "four_round_cycle_ms": 610.579,
+          "per_round_ms": 152.64475
+        },
+        {
+          "start_round": 126,
+          "end_round": 130,
+          "start_at_us": 2125440049,
+          "end_at_us": 2126048444,
+          "four_round_cycle_ms": 608.395,
+          "per_round_ms": 152.09875
+        },
+        {
+          "start_round": 130,
+          "end_round": 134,
+          "start_at_us": 2126048444,
+          "end_at_us": 2126655850,
+          "four_round_cycle_ms": 607.406,
+          "per_round_ms": 151.8515
+        },
+        {
+          "start_round": 134,
+          "end_round": 138,
+          "start_at_us": 2126655850,
+          "end_at_us": 2127258450,
+          "four_round_cycle_ms": 602.6,
+          "per_round_ms": 150.65
+        },
+        {
+          "start_round": 138,
+          "end_round": 142,
+          "start_at_us": 2127258450,
+          "end_at_us": 2127866744,
+          "four_round_cycle_ms": 608.294,
+          "per_round_ms": 152.0735
+        },
+        {
+          "start_round": 142,
+          "end_round": 146,
+          "start_at_us": 2127866744,
+          "end_at_us": 2128472133,
+          "four_round_cycle_ms": 605.389,
+          "per_round_ms": 151.34725
+        },
+        {
+          "start_round": 146,
+          "end_round": 150,
+          "start_at_us": 2128472133,
+          "end_at_us": 2129076623,
+          "four_round_cycle_ms": 604.49,
+          "per_round_ms": 151.1225
+        },
+        {
+          "start_round": 150,
+          "end_round": 154,
+          "start_at_us": 2129076623,
+          "end_at_us": 2129684434,
+          "four_round_cycle_ms": 607.811,
+          "per_round_ms": 151.95275
+        },
+        {
+          "start_round": 154,
+          "end_round": 158,
+          "start_at_us": 2129684434,
+          "end_at_us": 2130290655,
+          "four_round_cycle_ms": 606.221,
+          "per_round_ms": 151.55525
+        },
+        {
+          "start_round": 158,
+          "end_round": 162,
+          "start_at_us": 2130290655,
+          "end_at_us": 2130898009,
+          "four_round_cycle_ms": 607.354,
+          "per_round_ms": 151.8385
+        },
+        {
+          "start_round": 162,
+          "end_round": 166,
+          "start_at_us": 2130898009,
+          "end_at_us": 2131505969,
+          "four_round_cycle_ms": 607.96,
+          "per_round_ms": 151.99
+        },
+        {
+          "start_round": 166,
+          "end_round": 170,
+          "start_at_us": 2131505969,
+          "end_at_us": 2132107112,
+          "four_round_cycle_ms": 601.143,
+          "per_round_ms": 150.28575
+        },
+        {
+          "start_round": 170,
+          "end_round": 174,
+          "start_at_us": 2132107112,
+          "end_at_us": 2132706304,
+          "four_round_cycle_ms": 599.192,
+          "per_round_ms": 149.798
+        },
+        {
+          "start_round": 174,
+          "end_round": 178,
+          "start_at_us": 2132706304,
+          "end_at_us": 2133310540,
+          "four_round_cycle_ms": 604.236,
+          "per_round_ms": 151.059
+        },
+        {
+          "start_round": 178,
+          "end_round": 182,
+          "start_at_us": 2133310540,
+          "end_at_us": 2133918179,
+          "four_round_cycle_ms": 607.639,
+          "per_round_ms": 151.90975
+        },
+        {
+          "start_round": 182,
+          "end_round": 186,
+          "start_at_us": 2133918179,
+          "end_at_us": 2134527337,
+          "four_round_cycle_ms": 609.158,
+          "per_round_ms": 152.2895
+        },
+        {
+          "start_round": 186,
+          "end_round": 190,
+          "start_at_us": 2134527337,
+          "end_at_us": 2135134216,
+          "four_round_cycle_ms": 606.879,
+          "per_round_ms": 151.71975
+        },
+        {
+          "start_round": 190,
+          "end_round": 194,
+          "start_at_us": 2135134216,
+          "end_at_us": 2135743948,
+          "four_round_cycle_ms": 609.732,
+          "per_round_ms": 152.433
+        }
+      ],
+      "by_previous_leader": {
+        "0->1": {
+          "count": 49,
+          "mean_ms": 22.52518367346939,
+          "min_ms": 19.669,
+          "max_ms": 26.021
+        },
+        "1->2": {
+          "count": 49,
+          "mean_ms": 170.60442857142857,
+          "min_ms": 165.532,
+          "max_ms": 196.523
+        },
+        "2->3": {
+          "count": 49,
+          "mean_ms": 247.33789795918366,
+          "min_ms": 242.699,
+          "max_ms": 267.635
+        },
+        "3->0": {
+          "count": 49,
+          "mean_ms": 165.4304081632653,
+          "min_ms": 144.744,
+          "max_ms": 168.613
+        }
+      },
+      "trace_sha256": "d5c34ea31e514088f9aa7674238a5090ce6dd33edd22b834005f2efe32dc83d3"
+    },
+    {
+      "replica": 3,
+      "window_start_us": 2069058701,
+      "window_end_us_exclusive": 2099058701,
+      "proposal_event_count_in_window": 195,
+      "first_round": 1,
+      "last_round": 195,
+      "consecutive_round_gaps": {
+        "count": 194,
+        "mean_ms": 150.8178711340206,
+        "min_ms": 6.482,
+        "max_ms": 214.05
+      },
+      "own_leader_four_round_cycles_divided_by_four": {
+        "count": 48,
+        "mean_ms": 151.35065104166665,
+        "min_ms": 150.122,
+        "max_ms": 152.5825
+      },
+      "own_leader_four_round_cycle_rows": [
+        {
+          "start_round": 3,
+          "end_round": 7,
+          "start_at_us": 2069814460,
+          "end_at_us": 2070419182,
+          "four_round_cycle_ms": 604.722,
+          "per_round_ms": 151.1805
+        },
+        {
+          "start_round": 7,
+          "end_round": 11,
+          "start_at_us": 2070419182,
+          "end_at_us": 2071021605,
+          "four_round_cycle_ms": 602.423,
+          "per_round_ms": 150.60575
+        },
+        {
+          "start_round": 11,
+          "end_round": 15,
+          "start_at_us": 2071021605,
+          "end_at_us": 2071626726,
+          "four_round_cycle_ms": 605.121,
+          "per_round_ms": 151.28025
+        },
+        {
+          "start_round": 15,
+          "end_round": 19,
+          "start_at_us": 2071626726,
+          "end_at_us": 2072227872,
+          "four_round_cycle_ms": 601.146,
+          "per_round_ms": 150.2865
+        },
+        {
+          "start_round": 19,
+          "end_round": 23,
+          "start_at_us": 2072227872,
+          "end_at_us": 2072832803,
+          "four_round_cycle_ms": 604.931,
+          "per_round_ms": 151.23275
+        },
+        {
+          "start_round": 23,
+          "end_round": 27,
+          "start_at_us": 2072832803,
+          "end_at_us": 2073436099,
+          "four_round_cycle_ms": 603.296,
+          "per_round_ms": 150.824
+        },
+        {
+          "start_round": 27,
+          "end_round": 31,
+          "start_at_us": 2073436099,
+          "end_at_us": 2074042535,
+          "four_round_cycle_ms": 606.436,
+          "per_round_ms": 151.609
+        },
+        {
+          "start_round": 31,
+          "end_round": 35,
+          "start_at_us": 2074042535,
+          "end_at_us": 2074643400,
+          "four_round_cycle_ms": 600.865,
+          "per_round_ms": 150.21625
+        },
+        {
+          "start_round": 35,
+          "end_round": 39,
+          "start_at_us": 2074643400,
+          "end_at_us": 2075248818,
+          "four_round_cycle_ms": 605.418,
+          "per_round_ms": 151.3545
+        },
+        {
+          "start_round": 39,
+          "end_round": 43,
+          "start_at_us": 2075248818,
+          "end_at_us": 2075849306,
+          "four_round_cycle_ms": 600.488,
+          "per_round_ms": 150.122
+        },
+        {
+          "start_round": 43,
+          "end_round": 47,
+          "start_at_us": 2075849306,
+          "end_at_us": 2076450508,
+          "four_round_cycle_ms": 601.202,
+          "per_round_ms": 150.3005
+        },
+        {
+          "start_round": 47,
+          "end_round": 51,
+          "start_at_us": 2076450508,
+          "end_at_us": 2077057319,
+          "four_round_cycle_ms": 606.811,
+          "per_round_ms": 151.70275
+        },
+        {
+          "start_round": 51,
+          "end_round": 55,
+          "start_at_us": 2077057319,
+          "end_at_us": 2077659942,
+          "four_round_cycle_ms": 602.623,
+          "per_round_ms": 150.65575
+        },
+        {
+          "start_round": 55,
+          "end_round": 59,
+          "start_at_us": 2077659942,
+          "end_at_us": 2078267920,
+          "four_round_cycle_ms": 607.978,
+          "per_round_ms": 151.9945
+        },
+        {
+          "start_round": 59,
+          "end_round": 63,
+          "start_at_us": 2078267920,
+          "end_at_us": 2078878008,
+          "four_round_cycle_ms": 610.088,
+          "per_round_ms": 152.522
+        },
+        {
+          "start_round": 63,
+          "end_round": 67,
+          "start_at_us": 2078878008,
+          "end_at_us": 2079485720,
+          "four_round_cycle_ms": 607.712,
+          "per_round_ms": 151.928
+        },
+        {
+          "start_round": 67,
+          "end_round": 71,
+          "start_at_us": 2079485720,
+          "end_at_us": 2080088630,
+          "four_round_cycle_ms": 602.91,
+          "per_round_ms": 150.7275
+        },
+        {
+          "start_round": 71,
+          "end_round": 75,
+          "start_at_us": 2080088630,
+          "end_at_us": 2080692259,
+          "four_round_cycle_ms": 603.629,
+          "per_round_ms": 150.90725
+        },
+        {
+          "start_round": 75,
+          "end_round": 79,
+          "start_at_us": 2080692259,
+          "end_at_us": 2081296803,
+          "four_round_cycle_ms": 604.544,
+          "per_round_ms": 151.136
+        },
+        {
+          "start_round": 79,
+          "end_round": 83,
+          "start_at_us": 2081296803,
+          "end_at_us": 2081906246,
+          "four_round_cycle_ms": 609.443,
+          "per_round_ms": 152.36075
+        },
+        {
+          "start_round": 83,
+          "end_round": 87,
+          "start_at_us": 2081906246,
+          "end_at_us": 2082515782,
+          "four_round_cycle_ms": 609.536,
+          "per_round_ms": 152.384
+        },
+        {
+          "start_round": 87,
+          "end_round": 91,
+          "start_at_us": 2082515782,
+          "end_at_us": 2083119395,
+          "four_round_cycle_ms": 603.613,
+          "per_round_ms": 150.90325
+        },
+        {
+          "start_round": 91,
+          "end_round": 95,
+          "start_at_us": 2083119395,
+          "end_at_us": 2083724661,
+          "four_round_cycle_ms": 605.266,
+          "per_round_ms": 151.3165
+        },
+        {
+          "start_round": 95,
+          "end_round": 99,
+          "start_at_us": 2083724661,
+          "end_at_us": 2084329431,
+          "four_round_cycle_ms": 604.77,
+          "per_round_ms": 151.1925
+        },
+        {
+          "start_round": 99,
+          "end_round": 103,
+          "start_at_us": 2084329431,
+          "end_at_us": 2084935341,
+          "four_round_cycle_ms": 605.91,
+          "per_round_ms": 151.4775
+        },
+        {
+          "start_round": 103,
+          "end_round": 107,
+          "start_at_us": 2084935341,
+          "end_at_us": 2085545245,
+          "four_round_cycle_ms": 609.904,
+          "per_round_ms": 152.476
+        },
+        {
+          "start_round": 107,
+          "end_round": 111,
+          "start_at_us": 2085545245,
+          "end_at_us": 2086146213,
+          "four_round_cycle_ms": 600.968,
+          "per_round_ms": 150.242
+        },
+        {
+          "start_round": 111,
+          "end_round": 115,
+          "start_at_us": 2086146213,
+          "end_at_us": 2086749189,
+          "four_round_cycle_ms": 602.976,
+          "per_round_ms": 150.744
+        },
+        {
+          "start_round": 115,
+          "end_round": 119,
+          "start_at_us": 2086749189,
+          "end_at_us": 2087352436,
+          "four_round_cycle_ms": 603.247,
+          "per_round_ms": 150.81175
+        },
+        {
+          "start_round": 119,
+          "end_round": 123,
+          "start_at_us": 2087352436,
+          "end_at_us": 2087958616,
+          "four_round_cycle_ms": 606.18,
+          "per_round_ms": 151.545
+        },
+        {
+          "start_round": 123,
+          "end_round": 127,
+          "start_at_us": 2087958616,
+          "end_at_us": 2088567964,
+          "four_round_cycle_ms": 609.348,
+          "per_round_ms": 152.337
+        },
+        {
+          "start_round": 127,
+          "end_round": 131,
+          "start_at_us": 2088567964,
+          "end_at_us": 2089176981,
+          "four_round_cycle_ms": 609.017,
+          "per_round_ms": 152.25425
+        },
+        {
+          "start_round": 131,
+          "end_round": 135,
+          "start_at_us": 2089176981,
+          "end_at_us": 2089780782,
+          "four_round_cycle_ms": 603.801,
+          "per_round_ms": 150.95025
+        },
+        {
+          "start_round": 135,
+          "end_round": 139,
+          "start_at_us": 2089780782,
+          "end_at_us": 2090386057,
+          "four_round_cycle_ms": 605.275,
+          "per_round_ms": 151.31875
+        },
+        {
+          "start_round": 139,
+          "end_round": 143,
+          "start_at_us": 2090386057,
+          "end_at_us": 2090993544,
+          "four_round_cycle_ms": 607.487,
+          "per_round_ms": 151.87175
+        },
+        {
+          "start_round": 143,
+          "end_round": 147,
+          "start_at_us": 2090993544,
+          "end_at_us": 2091599718,
+          "four_round_cycle_ms": 606.174,
+          "per_round_ms": 151.5435
+        },
+        {
+          "start_round": 147,
+          "end_round": 151,
+          "start_at_us": 2091599718,
+          "end_at_us": 2092204239,
+          "four_round_cycle_ms": 604.521,
+          "per_round_ms": 151.13025
+        },
+        {
+          "start_round": 151,
+          "end_round": 155,
+          "start_at_us": 2092204239,
+          "end_at_us": 2092812529,
+          "four_round_cycle_ms": 608.29,
+          "per_round_ms": 152.0725
+        },
+        {
+          "start_round": 155,
+          "end_round": 159,
+          "start_at_us": 2092812529,
+          "end_at_us": 2093418717,
+          "four_round_cycle_ms": 606.188,
+          "per_round_ms": 151.547
+        },
+        {
+          "start_round": 159,
+          "end_round": 163,
+          "start_at_us": 2093418717,
+          "end_at_us": 2094026762,
+          "four_round_cycle_ms": 608.045,
+          "per_round_ms": 152.01125
+        },
+        {
+          "start_round": 163,
+          "end_round": 167,
+          "start_at_us": 2094026762,
+          "end_at_us": 2094631227,
+          "four_round_cycle_ms": 604.465,
+          "per_round_ms": 151.11625
+        },
+        {
+          "start_round": 167,
+          "end_round": 171,
+          "start_at_us": 2094631227,
+          "end_at_us": 2095234518,
+          "four_round_cycle_ms": 603.291,
+          "per_round_ms": 150.82275
+        },
+        {
+          "start_round": 171,
+          "end_round": 175,
+          "start_at_us": 2095234518,
+          "end_at_us": 2095835417,
+          "four_round_cycle_ms": 600.899,
+          "per_round_ms": 150.22475
+        },
+        {
+          "start_round": 175,
+          "end_round": 179,
+          "start_at_us": 2095835417,
+          "end_at_us": 2096438111,
+          "four_round_cycle_ms": 602.694,
+          "per_round_ms": 150.6735
+        },
+        {
+          "start_round": 179,
+          "end_round": 183,
+          "start_at_us": 2096438111,
+          "end_at_us": 2097046442,
+          "four_round_cycle_ms": 608.331,
+          "per_round_ms": 152.08275
+        },
+        {
+          "start_round": 183,
+          "end_round": 187,
+          "start_at_us": 2097046442,
+          "end_at_us": 2097655032,
+          "four_round_cycle_ms": 608.59,
+          "per_round_ms": 152.1475
+        },
+        {
+          "start_round": 187,
+          "end_round": 191,
+          "start_at_us": 2097655032,
+          "end_at_us": 2098263455,
+          "four_round_cycle_ms": 608.423,
+          "per_round_ms": 152.10575
+        },
+        {
+          "start_round": 191,
+          "end_round": 195,
+          "start_at_us": 2098263455,
+          "end_at_us": 2098873785,
+          "four_round_cycle_ms": 610.33,
+          "per_round_ms": 152.5825
+        }
+      ],
+      "by_previous_leader": {
+        "0->1": {
+          "count": 48,
+          "mean_ms": 181.63400000000001,
+          "min_ms": 177.806,
+          "max_ms": 186.616
+        },
+        "1->2": {
+          "count": 49,
+          "mean_ms": 206.78473469387754,
+          "min_ms": 192.86,
+          "max_ms": 214.05
+        },
+        "2->3": {
+          "count": 49,
+          "mean_ms": 9.105795918367347,
+          "min_ms": 6.482,
+          "max_ms": 11.651
+        },
+        "3->0": {
+          "count": 48,
+          "mean_ms": 207.5333125,
+          "min_ms": 204.422,
+          "max_ms": 211.587
+        }
+      },
+      "trace_sha256": "ddd2b3540279b8cfb0898e98d740d1e43a941171088a38baacbeed30b9d5084d"
+    }
+  ]
+}

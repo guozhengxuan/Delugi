@@ -1,0 +1,1632 @@
+{
+  "schema": 1,
+  "kind": "analytical-event-timing-abstraction-not-implementation-test",
+  "assumptions": [
+    "n4 f1; all honest; homogeneous one-way delay delta exactly1; self delivery0",
+    "Zero CPU, unlimited transport, valid complete inputs after REPORT/OBS; no payload/proof feasibility delay",
+    "Aligned startup; pacing/main/catch-up deadlines inactive; pacing deadline greater than2delta permits the modeled hold",
+    "Exact HISTORY3(r-3) quorum and contiguous report prefix modeled; report schedule is an explicit variant",
+    "For transaction phase means only: uniform arrival phase relative to stationary REPORT epochs; tx can be covered by the first REPORT at or after emission; no batch formation delay"
+  ],
+  "interpretation": "These conditional results expose a dependency in current pacing. They are neither a measured WAN delta fit nor a proof of arbitrary transaction inclusion. The actual WAN is heterogeneous.",
+  "source_rules": {
+    "core/delugi/src/replica.rs": [
+      2275,
+      2587,
+      2605,
+      2684,
+      3104,
+      3130
+    ],
+    "core/delugi/src/slot.rs": [
+      125
+    ],
+    "core/delugi/src/composed.rs": [
+      300,
+      336,
+      384
+    ]
+  },
+  "models": [
+    {
+      "schedule": "canonical",
+      "report_schedule": "admission",
+      "delivered_events": 1568,
+      "rounds": [
+        {
+          "round": 1,
+          "leader": 0,
+          "entry": 0,
+          "report": 0,
+          "input_ready": 2,
+          "proposal": 2,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            5,
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "round": 2,
+          "leader": 1,
+          "entry": 1,
+          "report": 1,
+          "input_ready": 3,
+          "proposal": 3,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            6,
+            6,
+            6,
+            6
+          ]
+        },
+        {
+          "round": 3,
+          "leader": 2,
+          "entry": 2,
+          "report": 2,
+          "input_ready": 4,
+          "proposal": 4,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            7,
+            7,
+            7,
+            7
+          ]
+        },
+        {
+          "round": 4,
+          "leader": 3,
+          "entry": 3,
+          "report": 3,
+          "input_ready": 5,
+          "proposal": 5,
+          "history_quorum": 5,
+          "commit_at_every_replica": [
+            8,
+            8,
+            8,
+            8
+          ]
+        },
+        {
+          "round": 5,
+          "leader": 0,
+          "entry": 4,
+          "report": 4,
+          "input_ready": 6,
+          "proposal": 6,
+          "history_quorum": 6,
+          "commit_at_every_replica": [
+            9,
+            9,
+            9,
+            9
+          ]
+        },
+        {
+          "round": 6,
+          "leader": 1,
+          "entry": 5,
+          "report": 5,
+          "input_ready": 7,
+          "proposal": 7,
+          "history_quorum": 7,
+          "commit_at_every_replica": [
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        {
+          "round": 7,
+          "leader": 2,
+          "entry": 6,
+          "report": 6,
+          "input_ready": 8,
+          "proposal": 8,
+          "history_quorum": 8,
+          "commit_at_every_replica": [
+            11,
+            11,
+            11,
+            11
+          ]
+        },
+        {
+          "round": 8,
+          "leader": 3,
+          "entry": 7,
+          "report": 7,
+          "input_ready": 9,
+          "proposal": 9,
+          "history_quorum": 9,
+          "commit_at_every_replica": [
+            12,
+            12,
+            12,
+            12
+          ]
+        },
+        {
+          "round": 9,
+          "leader": 0,
+          "entry": 8,
+          "report": 8,
+          "input_ready": 10,
+          "proposal": 10,
+          "history_quorum": 10,
+          "commit_at_every_replica": [
+            13,
+            13,
+            13,
+            13
+          ]
+        },
+        {
+          "round": 10,
+          "leader": 1,
+          "entry": 9,
+          "report": 9,
+          "input_ready": 11,
+          "proposal": 11,
+          "history_quorum": 11,
+          "commit_at_every_replica": [
+            14,
+            14,
+            14,
+            14
+          ]
+        },
+        {
+          "round": 11,
+          "leader": 2,
+          "entry": 10,
+          "report": 10,
+          "input_ready": 12,
+          "proposal": 12,
+          "history_quorum": 12,
+          "commit_at_every_replica": [
+            15,
+            15,
+            15,
+            15
+          ]
+        },
+        {
+          "round": 12,
+          "leader": 3,
+          "entry": 11,
+          "report": 11,
+          "input_ready": 13,
+          "proposal": 13,
+          "history_quorum": 13,
+          "commit_at_every_replica": [
+            16,
+            16,
+            16,
+            16
+          ]
+        },
+        {
+          "round": 13,
+          "leader": 0,
+          "entry": 12,
+          "report": 12,
+          "input_ready": 14,
+          "proposal": 14,
+          "history_quorum": 14,
+          "commit_at_every_replica": [
+            17,
+            17,
+            17,
+            17
+          ]
+        },
+        {
+          "round": 14,
+          "leader": 1,
+          "entry": 13,
+          "report": 13,
+          "input_ready": 15,
+          "proposal": 15,
+          "history_quorum": 15,
+          "commit_at_every_replica": [
+            18,
+            18,
+            18,
+            18
+          ]
+        },
+        {
+          "round": 15,
+          "leader": 2,
+          "entry": 14,
+          "report": 14,
+          "input_ready": 16,
+          "proposal": 16,
+          "history_quorum": 16,
+          "commit_at_every_replica": [
+            19,
+            19,
+            19,
+            19
+          ]
+        },
+        {
+          "round": 16,
+          "leader": 3,
+          "entry": 15,
+          "report": 15,
+          "input_ready": 17,
+          "proposal": 17,
+          "history_quorum": 17,
+          "commit_at_every_replica": [
+            20,
+            20,
+            20,
+            20
+          ]
+        },
+        {
+          "round": 17,
+          "leader": 0,
+          "entry": 16,
+          "report": 16,
+          "input_ready": 18,
+          "proposal": 18,
+          "history_quorum": 18,
+          "commit_at_every_replica": [
+            21,
+            21,
+            21,
+            21
+          ]
+        },
+        {
+          "round": 18,
+          "leader": 1,
+          "entry": 17,
+          "report": 17,
+          "input_ready": 19,
+          "proposal": 19,
+          "history_quorum": 19,
+          "commit_at_every_replica": [
+            22,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "round": 19,
+          "leader": 2,
+          "entry": 18,
+          "report": 18,
+          "input_ready": 20,
+          "proposal": 20,
+          "history_quorum": 20,
+          "commit_at_every_replica": [
+            23,
+            23,
+            23,
+            23
+          ]
+        },
+        {
+          "round": 20,
+          "leader": 3,
+          "entry": 19,
+          "report": 19,
+          "input_ready": 21,
+          "proposal": 21,
+          "history_quorum": 21,
+          "commit_at_every_replica": [
+            24,
+            24,
+            24,
+            24
+          ]
+        },
+        {
+          "round": 21,
+          "leader": 0,
+          "entry": 20,
+          "report": 20,
+          "input_ready": 22,
+          "proposal": 22,
+          "history_quorum": 22,
+          "commit_at_every_replica": [
+            25,
+            25,
+            25,
+            25
+          ]
+        },
+        {
+          "round": 22,
+          "leader": 1,
+          "entry": 21,
+          "report": 21,
+          "input_ready": 23,
+          "proposal": 23,
+          "history_quorum": 23,
+          "commit_at_every_replica": [
+            26,
+            26,
+            26,
+            26
+          ]
+        },
+        {
+          "round": 23,
+          "leader": 2,
+          "entry": 22,
+          "report": 22,
+          "input_ready": 24,
+          "proposal": 24,
+          "history_quorum": 24,
+          "commit_at_every_replica": [
+            27,
+            27,
+            27,
+            27
+          ]
+        },
+        {
+          "round": 24,
+          "leader": 3,
+          "entry": 23,
+          "report": 23,
+          "input_ready": 25,
+          "proposal": 25,
+          "history_quorum": 25,
+          "commit_at_every_replica": [
+            28,
+            28,
+            28,
+            28
+          ]
+        }
+      ],
+      "maximum_pacing_hold": 0,
+      "proposal_gaps": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "repeating_report_gaps_delta": [
+        1
+      ],
+      "steady_residual_report_wait_delta": 0.5,
+      "batch_emission_to_proposal_mean_delta_under_explicit_phase_assumptions": 2.5,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 5.5
+    },
+    {
+      "schedule": "canonical",
+      "report_schedule": "history_ready",
+      "delivered_events": 1568,
+      "rounds": [
+        {
+          "round": 1,
+          "leader": 0,
+          "entry": 0,
+          "report": 0,
+          "input_ready": 2,
+          "proposal": 2,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            5,
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "round": 2,
+          "leader": 1,
+          "entry": 1,
+          "report": 1,
+          "input_ready": 3,
+          "proposal": 3,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            6,
+            6,
+            6,
+            6
+          ]
+        },
+        {
+          "round": 3,
+          "leader": 2,
+          "entry": 2,
+          "report": 2,
+          "input_ready": 4,
+          "proposal": 4,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            7,
+            7,
+            7,
+            7
+          ]
+        },
+        {
+          "round": 4,
+          "leader": 3,
+          "entry": 3,
+          "report": 5,
+          "input_ready": 7,
+          "proposal": 7,
+          "history_quorum": 5,
+          "commit_at_every_replica": [
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        {
+          "round": 5,
+          "leader": 0,
+          "entry": 4,
+          "report": 6,
+          "input_ready": 8,
+          "proposal": 8,
+          "history_quorum": 6,
+          "commit_at_every_replica": [
+            11,
+            11,
+            11,
+            11
+          ]
+        },
+        {
+          "round": 6,
+          "leader": 1,
+          "entry": 5,
+          "report": 7,
+          "input_ready": 9,
+          "proposal": 9,
+          "history_quorum": 7,
+          "commit_at_every_replica": [
+            12,
+            12,
+            12,
+            12
+          ]
+        },
+        {
+          "round": 7,
+          "leader": 2,
+          "entry": 6,
+          "report": 10,
+          "input_ready": 12,
+          "proposal": 12,
+          "history_quorum": 10,
+          "commit_at_every_replica": [
+            15,
+            15,
+            15,
+            15
+          ]
+        },
+        {
+          "round": 8,
+          "leader": 3,
+          "entry": 7,
+          "report": 11,
+          "input_ready": 13,
+          "proposal": 13,
+          "history_quorum": 11,
+          "commit_at_every_replica": [
+            16,
+            16,
+            16,
+            16
+          ]
+        },
+        {
+          "round": 9,
+          "leader": 0,
+          "entry": 8,
+          "report": 12,
+          "input_ready": 14,
+          "proposal": 14,
+          "history_quorum": 12,
+          "commit_at_every_replica": [
+            17,
+            17,
+            17,
+            17
+          ]
+        },
+        {
+          "round": 10,
+          "leader": 1,
+          "entry": 9,
+          "report": 15,
+          "input_ready": 17,
+          "proposal": 17,
+          "history_quorum": 15,
+          "commit_at_every_replica": [
+            20,
+            20,
+            20,
+            20
+          ]
+        },
+        {
+          "round": 11,
+          "leader": 2,
+          "entry": 10,
+          "report": 16,
+          "input_ready": 18,
+          "proposal": 18,
+          "history_quorum": 16,
+          "commit_at_every_replica": [
+            21,
+            21,
+            21,
+            21
+          ]
+        },
+        {
+          "round": 12,
+          "leader": 3,
+          "entry": 11,
+          "report": 17,
+          "input_ready": 19,
+          "proposal": 19,
+          "history_quorum": 17,
+          "commit_at_every_replica": [
+            22,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "round": 13,
+          "leader": 0,
+          "entry": 12,
+          "report": 20,
+          "input_ready": 22,
+          "proposal": 22,
+          "history_quorum": 20,
+          "commit_at_every_replica": [
+            25,
+            25,
+            25,
+            25
+          ]
+        },
+        {
+          "round": 14,
+          "leader": 1,
+          "entry": 13,
+          "report": 21,
+          "input_ready": 23,
+          "proposal": 23,
+          "history_quorum": 21,
+          "commit_at_every_replica": [
+            26,
+            26,
+            26,
+            26
+          ]
+        },
+        {
+          "round": 15,
+          "leader": 2,
+          "entry": 14,
+          "report": 22,
+          "input_ready": 24,
+          "proposal": 24,
+          "history_quorum": 22,
+          "commit_at_every_replica": [
+            27,
+            27,
+            27,
+            27
+          ]
+        },
+        {
+          "round": 16,
+          "leader": 3,
+          "entry": 15,
+          "report": 25,
+          "input_ready": 27,
+          "proposal": 27,
+          "history_quorum": 25,
+          "commit_at_every_replica": [
+            30,
+            30,
+            30,
+            30
+          ]
+        },
+        {
+          "round": 17,
+          "leader": 0,
+          "entry": 16,
+          "report": 26,
+          "input_ready": 28,
+          "proposal": 28,
+          "history_quorum": 26,
+          "commit_at_every_replica": [
+            31,
+            31,
+            31,
+            31
+          ]
+        },
+        {
+          "round": 18,
+          "leader": 1,
+          "entry": 17,
+          "report": 27,
+          "input_ready": 29,
+          "proposal": 29,
+          "history_quorum": 27,
+          "commit_at_every_replica": [
+            32,
+            32,
+            32,
+            32
+          ]
+        },
+        {
+          "round": 19,
+          "leader": 2,
+          "entry": 18,
+          "report": 30,
+          "input_ready": 32,
+          "proposal": 32,
+          "history_quorum": 30,
+          "commit_at_every_replica": [
+            35,
+            35,
+            35,
+            35
+          ]
+        },
+        {
+          "round": 20,
+          "leader": 3,
+          "entry": 19,
+          "report": 31,
+          "input_ready": 33,
+          "proposal": 33,
+          "history_quorum": 31,
+          "commit_at_every_replica": [
+            36,
+            36,
+            36,
+            36
+          ]
+        },
+        {
+          "round": 21,
+          "leader": 0,
+          "entry": 20,
+          "report": 32,
+          "input_ready": 34,
+          "proposal": 34,
+          "history_quorum": 32,
+          "commit_at_every_replica": [
+            37,
+            37,
+            37,
+            37
+          ]
+        },
+        {
+          "round": 22,
+          "leader": 1,
+          "entry": 21,
+          "report": 35,
+          "input_ready": 37,
+          "proposal": 37,
+          "history_quorum": 35,
+          "commit_at_every_replica": [
+            40,
+            40,
+            40,
+            40
+          ]
+        },
+        {
+          "round": 23,
+          "leader": 2,
+          "entry": 22,
+          "report": 36,
+          "input_ready": 38,
+          "proposal": 38,
+          "history_quorum": 36,
+          "commit_at_every_replica": [
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "round": 24,
+          "leader": 3,
+          "entry": 23,
+          "report": 37,
+          "input_ready": 39,
+          "proposal": 39,
+          "history_quorum": 37,
+          "commit_at_every_replica": [
+            42,
+            42,
+            42,
+            42
+          ]
+        }
+      ],
+      "maximum_pacing_hold": 0,
+      "proposal_gaps": [
+        1,
+        1,
+        3,
+        1,
+        1,
+        3,
+        1,
+        1,
+        3,
+        1,
+        1,
+        3,
+        1,
+        1,
+        3,
+        1,
+        1,
+        3,
+        1,
+        1,
+        3,
+        1,
+        1
+      ],
+      "repeating_report_gaps_delta": [
+        1,
+        1,
+        3
+      ],
+      "steady_residual_report_wait_delta": 1.1,
+      "batch_emission_to_proposal_mean_delta_under_explicit_phase_assumptions": 3.1,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 6.1
+    },
+    {
+      "schedule": "progress_pacing",
+      "report_schedule": "admission",
+      "delivered_events": 1552,
+      "rounds": [
+        {
+          "round": 1,
+          "leader": 0,
+          "entry": 0,
+          "report": 0,
+          "input_ready": 2,
+          "proposal": 2,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            5,
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "round": 2,
+          "leader": 1,
+          "entry": 1,
+          "report": 1,
+          "input_ready": 3,
+          "proposal": 3,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            6,
+            6,
+            6,
+            6
+          ]
+        },
+        {
+          "round": 3,
+          "leader": 2,
+          "entry": 4,
+          "report": 4,
+          "input_ready": 6,
+          "proposal": 6,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            9,
+            9,
+            9,
+            9
+          ]
+        },
+        {
+          "round": 4,
+          "leader": 3,
+          "entry": 5,
+          "report": 5,
+          "input_ready": 7,
+          "proposal": 7,
+          "history_quorum": 5,
+          "commit_at_every_replica": [
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        {
+          "round": 5,
+          "leader": 0,
+          "entry": 8,
+          "report": 8,
+          "input_ready": 10,
+          "proposal": 10,
+          "history_quorum": 6,
+          "commit_at_every_replica": [
+            13,
+            13,
+            13,
+            13
+          ]
+        },
+        {
+          "round": 6,
+          "leader": 1,
+          "entry": 9,
+          "report": 9,
+          "input_ready": 11,
+          "proposal": 11,
+          "history_quorum": 9,
+          "commit_at_every_replica": [
+            14,
+            14,
+            14,
+            14
+          ]
+        },
+        {
+          "round": 7,
+          "leader": 2,
+          "entry": 12,
+          "report": 12,
+          "input_ready": 14,
+          "proposal": 14,
+          "history_quorum": 10,
+          "commit_at_every_replica": [
+            17,
+            17,
+            17,
+            17
+          ]
+        },
+        {
+          "round": 8,
+          "leader": 3,
+          "entry": 13,
+          "report": 13,
+          "input_ready": 15,
+          "proposal": 15,
+          "history_quorum": 13,
+          "commit_at_every_replica": [
+            18,
+            18,
+            18,
+            18
+          ]
+        },
+        {
+          "round": 9,
+          "leader": 0,
+          "entry": 16,
+          "report": 16,
+          "input_ready": 18,
+          "proposal": 18,
+          "history_quorum": 14,
+          "commit_at_every_replica": [
+            21,
+            21,
+            21,
+            21
+          ]
+        },
+        {
+          "round": 10,
+          "leader": 1,
+          "entry": 17,
+          "report": 17,
+          "input_ready": 19,
+          "proposal": 19,
+          "history_quorum": 17,
+          "commit_at_every_replica": [
+            22,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "round": 11,
+          "leader": 2,
+          "entry": 20,
+          "report": 20,
+          "input_ready": 22,
+          "proposal": 22,
+          "history_quorum": 18,
+          "commit_at_every_replica": [
+            25,
+            25,
+            25,
+            25
+          ]
+        },
+        {
+          "round": 12,
+          "leader": 3,
+          "entry": 21,
+          "report": 21,
+          "input_ready": 23,
+          "proposal": 23,
+          "history_quorum": 21,
+          "commit_at_every_replica": [
+            26,
+            26,
+            26,
+            26
+          ]
+        },
+        {
+          "round": 13,
+          "leader": 0,
+          "entry": 24,
+          "report": 24,
+          "input_ready": 26,
+          "proposal": 26,
+          "history_quorum": 22,
+          "commit_at_every_replica": [
+            29,
+            29,
+            29,
+            29
+          ]
+        },
+        {
+          "round": 14,
+          "leader": 1,
+          "entry": 25,
+          "report": 25,
+          "input_ready": 27,
+          "proposal": 27,
+          "history_quorum": 25,
+          "commit_at_every_replica": [
+            30,
+            30,
+            30,
+            30
+          ]
+        },
+        {
+          "round": 15,
+          "leader": 2,
+          "entry": 28,
+          "report": 28,
+          "input_ready": 30,
+          "proposal": 30,
+          "history_quorum": 26,
+          "commit_at_every_replica": [
+            33,
+            33,
+            33,
+            33
+          ]
+        },
+        {
+          "round": 16,
+          "leader": 3,
+          "entry": 29,
+          "report": 29,
+          "input_ready": 31,
+          "proposal": 31,
+          "history_quorum": 29,
+          "commit_at_every_replica": [
+            34,
+            34,
+            34,
+            34
+          ]
+        },
+        {
+          "round": 17,
+          "leader": 0,
+          "entry": 32,
+          "report": 32,
+          "input_ready": 34,
+          "proposal": 34,
+          "history_quorum": 30,
+          "commit_at_every_replica": [
+            37,
+            37,
+            37,
+            37
+          ]
+        },
+        {
+          "round": 18,
+          "leader": 1,
+          "entry": 33,
+          "report": 33,
+          "input_ready": 35,
+          "proposal": 35,
+          "history_quorum": 33,
+          "commit_at_every_replica": [
+            38,
+            38,
+            38,
+            38
+          ]
+        },
+        {
+          "round": 19,
+          "leader": 2,
+          "entry": 36,
+          "report": 36,
+          "input_ready": 38,
+          "proposal": 38,
+          "history_quorum": 34,
+          "commit_at_every_replica": [
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "round": 20,
+          "leader": 3,
+          "entry": 37,
+          "report": 37,
+          "input_ready": 39,
+          "proposal": 39,
+          "history_quorum": 37,
+          "commit_at_every_replica": [
+            42,
+            42,
+            42,
+            42
+          ]
+        },
+        {
+          "round": 21,
+          "leader": 0,
+          "entry": 40,
+          "report": 40,
+          "input_ready": 42,
+          "proposal": 42,
+          "history_quorum": 38,
+          "commit_at_every_replica": [
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "round": 22,
+          "leader": 1,
+          "entry": 41,
+          "report": 41,
+          "input_ready": 43,
+          "proposal": 43,
+          "history_quorum": 41,
+          "commit_at_every_replica": [
+            46,
+            46,
+            46,
+            46
+          ]
+        },
+        {
+          "round": 23,
+          "leader": 2,
+          "entry": 44,
+          "report": 44,
+          "input_ready": 46,
+          "proposal": 46,
+          "history_quorum": 42,
+          "commit_at_every_replica": [
+            49,
+            49,
+            49,
+            49
+          ]
+        },
+        {
+          "round": 24,
+          "leader": 3,
+          "entry": 45,
+          "report": 45,
+          "input_ready": 47,
+          "proposal": 47,
+          "history_quorum": 45,
+          "commit_at_every_replica": [
+            50,
+            50,
+            50,
+            50
+          ]
+        }
+      ],
+      "maximum_pacing_hold": 2,
+      "proposal_gaps": [
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1
+      ],
+      "repeating_report_gaps_delta": [
+        1,
+        3
+      ],
+      "steady_residual_report_wait_delta": 1.25,
+      "batch_emission_to_proposal_mean_delta_under_explicit_phase_assumptions": 3.25,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 6.25
+    },
+    {
+      "schedule": "progress_pacing",
+      "report_schedule": "history_ready",
+      "delivered_events": 1552,
+      "rounds": [
+        {
+          "round": 1,
+          "leader": 0,
+          "entry": 0,
+          "report": 0,
+          "input_ready": 2,
+          "proposal": 2,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            5,
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "round": 2,
+          "leader": 1,
+          "entry": 1,
+          "report": 1,
+          "input_ready": 3,
+          "proposal": 3,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            6,
+            6,
+            6,
+            6
+          ]
+        },
+        {
+          "round": 3,
+          "leader": 2,
+          "entry": 4,
+          "report": 4,
+          "input_ready": 6,
+          "proposal": 6,
+          "history_quorum": null,
+          "commit_at_every_replica": [
+            9,
+            9,
+            9,
+            9
+          ]
+        },
+        {
+          "round": 4,
+          "leader": 3,
+          "entry": 5,
+          "report": 5,
+          "input_ready": 7,
+          "proposal": 7,
+          "history_quorum": 5,
+          "commit_at_every_replica": [
+            10,
+            10,
+            10,
+            10
+          ]
+        },
+        {
+          "round": 5,
+          "leader": 0,
+          "entry": 8,
+          "report": 8,
+          "input_ready": 10,
+          "proposal": 10,
+          "history_quorum": 6,
+          "commit_at_every_replica": [
+            13,
+            13,
+            13,
+            13
+          ]
+        },
+        {
+          "round": 6,
+          "leader": 1,
+          "entry": 9,
+          "report": 9,
+          "input_ready": 11,
+          "proposal": 11,
+          "history_quorum": 9,
+          "commit_at_every_replica": [
+            14,
+            14,
+            14,
+            14
+          ]
+        },
+        {
+          "round": 7,
+          "leader": 2,
+          "entry": 12,
+          "report": 12,
+          "input_ready": 14,
+          "proposal": 14,
+          "history_quorum": 10,
+          "commit_at_every_replica": [
+            17,
+            17,
+            17,
+            17
+          ]
+        },
+        {
+          "round": 8,
+          "leader": 3,
+          "entry": 13,
+          "report": 13,
+          "input_ready": 15,
+          "proposal": 15,
+          "history_quorum": 13,
+          "commit_at_every_replica": [
+            18,
+            18,
+            18,
+            18
+          ]
+        },
+        {
+          "round": 9,
+          "leader": 0,
+          "entry": 16,
+          "report": 16,
+          "input_ready": 18,
+          "proposal": 18,
+          "history_quorum": 14,
+          "commit_at_every_replica": [
+            21,
+            21,
+            21,
+            21
+          ]
+        },
+        {
+          "round": 10,
+          "leader": 1,
+          "entry": 17,
+          "report": 17,
+          "input_ready": 19,
+          "proposal": 19,
+          "history_quorum": 17,
+          "commit_at_every_replica": [
+            22,
+            22,
+            22,
+            22
+          ]
+        },
+        {
+          "round": 11,
+          "leader": 2,
+          "entry": 20,
+          "report": 20,
+          "input_ready": 22,
+          "proposal": 22,
+          "history_quorum": 18,
+          "commit_at_every_replica": [
+            25,
+            25,
+            25,
+            25
+          ]
+        },
+        {
+          "round": 12,
+          "leader": 3,
+          "entry": 21,
+          "report": 21,
+          "input_ready": 23,
+          "proposal": 23,
+          "history_quorum": 21,
+          "commit_at_every_replica": [
+            26,
+            26,
+            26,
+            26
+          ]
+        },
+        {
+          "round": 13,
+          "leader": 0,
+          "entry": 24,
+          "report": 24,
+          "input_ready": 26,
+          "proposal": 26,
+          "history_quorum": 22,
+          "commit_at_every_replica": [
+            29,
+            29,
+            29,
+            29
+          ]
+        },
+        {
+          "round": 14,
+          "leader": 1,
+          "entry": 25,
+          "report": 25,
+          "input_ready": 27,
+          "proposal": 27,
+          "history_quorum": 25,
+          "commit_at_every_replica": [
+            30,
+            30,
+            30,
+            30
+          ]
+        },
+        {
+          "round": 15,
+          "leader": 2,
+          "entry": 28,
+          "report": 28,
+          "input_ready": 30,
+          "proposal": 30,
+          "history_quorum": 26,
+          "commit_at_every_replica": [
+            33,
+            33,
+            33,
+            33
+          ]
+        },
+        {
+          "round": 16,
+          "leader": 3,
+          "entry": 29,
+          "report": 29,
+          "input_ready": 31,
+          "proposal": 31,
+          "history_quorum": 29,
+          "commit_at_every_replica": [
+            34,
+            34,
+            34,
+            34
+          ]
+        },
+        {
+          "round": 17,
+          "leader": 0,
+          "entry": 32,
+          "report": 32,
+          "input_ready": 34,
+          "proposal": 34,
+          "history_quorum": 30,
+          "commit_at_every_replica": [
+            37,
+            37,
+            37,
+            37
+          ]
+        },
+        {
+          "round": 18,
+          "leader": 1,
+          "entry": 33,
+          "report": 33,
+          "input_ready": 35,
+          "proposal": 35,
+          "history_quorum": 33,
+          "commit_at_every_replica": [
+            38,
+            38,
+            38,
+            38
+          ]
+        },
+        {
+          "round": 19,
+          "leader": 2,
+          "entry": 36,
+          "report": 36,
+          "input_ready": 38,
+          "proposal": 38,
+          "history_quorum": 34,
+          "commit_at_every_replica": [
+            41,
+            41,
+            41,
+            41
+          ]
+        },
+        {
+          "round": 20,
+          "leader": 3,
+          "entry": 37,
+          "report": 37,
+          "input_ready": 39,
+          "proposal": 39,
+          "history_quorum": 37,
+          "commit_at_every_replica": [
+            42,
+            42,
+            42,
+            42
+          ]
+        },
+        {
+          "round": 21,
+          "leader": 0,
+          "entry": 40,
+          "report": 40,
+          "input_ready": 42,
+          "proposal": 42,
+          "history_quorum": 38,
+          "commit_at_every_replica": [
+            45,
+            45,
+            45,
+            45
+          ]
+        },
+        {
+          "round": 22,
+          "leader": 1,
+          "entry": 41,
+          "report": 41,
+          "input_ready": 43,
+          "proposal": 43,
+          "history_quorum": 41,
+          "commit_at_every_replica": [
+            46,
+            46,
+            46,
+            46
+          ]
+        },
+        {
+          "round": 23,
+          "leader": 2,
+          "entry": 44,
+          "report": 44,
+          "input_ready": 46,
+          "proposal": 46,
+          "history_quorum": 42,
+          "commit_at_every_replica": [
+            49,
+            49,
+            49,
+            49
+          ]
+        },
+        {
+          "round": 24,
+          "leader": 3,
+          "entry": 45,
+          "report": 45,
+          "input_ready": 47,
+          "proposal": 47,
+          "history_quorum": 45,
+          "commit_at_every_replica": [
+            50,
+            50,
+            50,
+            50
+          ]
+        }
+      ],
+      "maximum_pacing_hold": 2,
+      "proposal_gaps": [
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1,
+        3,
+        1
+      ],
+      "repeating_report_gaps_delta": [
+        1,
+        3
+      ],
+      "steady_residual_report_wait_delta": 1.25,
+      "batch_emission_to_proposal_mean_delta_under_explicit_phase_assumptions": 3.25,
+      "batch_emission_to_direct_commit_mean_delta_under_explicit_phase_assumptions": 6.25
+    }
+  ]
+}

@@ -1,16 +1,30 @@
 # Delugi implementation and evaluation plan
 
-Updated **29 October 2026**. The offline dissemination audit and requested
-GPT-6 Pro review are complete. At four replicas, Delugi needs three current OBS
-reports and two witnesses per advancing WA; Raptr's background PoA also needs
-three signatures. The leading explanation is Delugi's proposal-blocking pool
-exchange versus Raptr's optimistic inclusion during certification, together
-with reporting opportunities and native batching. Collection averages are
-178.33/177.92 ms. The common admission-to-proposal gap is **71.63 ms**, versus
-145.67 ms between the stored-batch-to-proposal bars. No protocol code or workload
-changed for this audit. See the [reproducible audit and Pro review](benchmarks/results/dissemination-audit-2026-10-29/README.md).
-The next local diagnosis must establish exact snapshot eligibility and
-source/proof readiness before selecting a scheduling optimization.
+Updated **29 October 2026**. The offline dissemination audit and continued
+GPT-6 Pro discussion identify **productive REPORT timing and snapshot eligibility**
+as the next issue to resolve. Raptr's published 5δ already includes optimism;
+certificate overlap alone cannot explain a gap from Delugi's favorable 5δ
+target. The code-derived equal-delay model gives alternating δ/3δ REPORT gaps
+under current pacing and a conditional 1.25δ residual opportunity wait. Its
+6.25δ average path from batch emission to direct commitment includes that phase wait; it is an
+analytical model, not a measured implementation or WAN result. Saved WAN cadence
+is approximately 146/151 ms per round for Delugi/Raptr, so lower Delugi proposal
+frequency is not the observed explanation. See the [follow-up audit](benchmarks/results/dissemination-audit-2026-10-29/5delta-followup.md).
+
+At four replicas, Delugi collects three OBS and selects two witnesses per
+advancing WA; Raptr's background PoA also needs three signatures. The original
+collection diagnostics average 178.33/177.92 ms. The measured common
+admission-to-origin-proposal-acceptance gap is **71.63 ms**, versus 145.67 ms
+between stored-batch-to-acceptance bars. Its allocation at actual leader proposal
+emission remains unmeasured. No protocol code or workload changed for this audit.
+See the [original reproducible evidence](benchmarks/results/dissemination-audit-2026-10-29/README.md).
+
+The requested primary decomposition is now
+two stages, split at **first valid leader proposal finalization/handoff**:
+admission→proposal and proposal→origin verified contiguous output. Existing
+acceptance timestamps cannot be relabeled as this boundary. The next local
+diagnosis must capture it and exact membership, then establish snapshot
+eligibility and source/proof readiness before selecting a scheduling change.
 
 Raptr now has bounded, opt-in timestamps for exact
 batch storage, availability quorum, verified proposal acceptance, commit slices,
@@ -315,11 +329,16 @@ skipped before measured arrivals begin; record that fault interval explicitly.
    snapshots/branches, frozen-pool signers, WA witnesses, source/proof readiness
    and missed-opportunity reasons. Separate coordinate readiness from full
    legal input readiness. For Raptr, capture proposer-local batch arrival,
-   eligibility/pull and PoA state. Separate proposal send and origin validation;
-   retain local clocks and exact identities. Use request-, batch- and
+   eligibility/pull and PoA state. Record first valid proposal membership and
+   leader finalization/handoff for the two-stage primary view, separately from
+   eventual execution-associated inclusion and origin validation. Use a common
+   host monotonic clock for a local test, and qualified clock mappings with
+   uncertainty for any future remote split. Use request-, batch- and
    opportunity-weighted summaries. Start controlled local timing checks with
-   unchanged native behavior; vary arrival phase, then test Raptr optimism and
-   batching in separate controls. Preserve HistoryReady, fixed snapshots and
+   unchanged native behavior and vary arrival phase to test the code-derived
+   timing model. A certified-only Raptr control is deferred: the immediate
+   question is productive Delugi opportunity timing. Preserve HistoryReady,
+   fixed snapshots and
    n−f/f+1 thresholds; the sampled third-response wait is not a safe optimization.
 2. **Review the REPORT-trigger revision and its local/WAN evidence.** The stale-input
    cause is fixed; the recurring 7Δ timeout cost remains explicit. Align the paper's

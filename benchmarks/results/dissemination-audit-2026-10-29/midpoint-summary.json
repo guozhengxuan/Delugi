@@ -1,0 +1,278 @@
+{
+  "delugi_same_host_logical_outbox": {
+    "all": {
+      "requests": 928,
+      "admission_to_logical_outbox_ms": 269.92772629310343,
+      "assembly_to_outbox_ms": 0.01767780172413793,
+      "input_fixed_to_outbox_ms": 0.3041605603448276,
+      "logical_outbox_to_origin_output_ms": 204.14850323275863,
+      "outbox_to_first_transport_enqueue_ms": 0.22669444444444445,
+      "outbox_to_last_transport_enqueue_ms": 0.30480555555555555,
+      "sealed_to_logical_outbox_ms": 269.28632435344826,
+      "total_admission_to_output_ms": 474.07622952586206,
+      "validation_to_outbox_ms": -0.023544181034482758
+    },
+    "by_origin": {
+      "0": {
+        "requests": 214,
+        "admission_to_logical_outbox_ms": 248.18153271028038,
+        "assembly_to_outbox_ms": 0.017186915887850467,
+        "input_fixed_to_outbox_ms": 0.2966308411214953,
+        "logical_outbox_to_origin_output_ms": 207.790476635514,
+        "outbox_to_first_transport_enqueue_ms": 0.1165,
+        "outbox_to_last_transport_enqueue_ms": 0.18533333333333332,
+        "sealed_to_logical_outbox_ms": 247.5081261682243,
+        "total_admission_to_output_ms": 455.9720093457944,
+        "validation_to_outbox_ms": -0.022121495327102805
+      },
+      "1": {
+        "requests": 236,
+        "admission_to_logical_outbox_ms": 258.02555508474575,
+        "assembly_to_outbox_ms": 0.018415254237288136,
+        "input_fixed_to_outbox_ms": 0.32711016949152544,
+        "logical_outbox_to_origin_output_ms": 199.08234745762712,
+        "outbox_to_first_transport_enqueue_ms": 0.33344444444444443,
+        "outbox_to_last_transport_enqueue_ms": 0.4253703703703704,
+        "sealed_to_logical_outbox_ms": 257.3689915254237,
+        "total_admission_to_output_ms": 457.10790254237287,
+        "validation_to_outbox_ms": -0.03
+      },
+      "2": {
+        "requests": 225,
+        "admission_to_logical_outbox_ms": 287.2435777777778,
+        "assembly_to_outbox_ms": 0.017622222222222223,
+        "input_fixed_to_outbox_ms": 0.29599555555555557,
+        "logical_outbox_to_origin_output_ms": 200.4784977777778,
+        "outbox_to_first_transport_enqueue_ms": 0.26255555555555554,
+        "outbox_to_last_transport_enqueue_ms": 0.3392962962962963,
+        "sealed_to_logical_outbox_ms": 286.60782666666665,
+        "total_admission_to_output_ms": 487.72207555555553,
+        "validation_to_outbox_ms": -0.02060888888888889
+      },
+      "3": {
+        "requests": 253,
+        "admission_to_logical_outbox_ms": 284.02468774703556,
+        "assembly_to_outbox_ms": 0.017454545454545455,
+        "input_fixed_to_outbox_ms": 0.29638339920948614,
+        "logical_outbox_to_origin_output_ms": 209.05752173913044,
+        "outbox_to_first_transport_enqueue_ms": 0.1865,
+        "outbox_to_last_transport_enqueue_ms": 0.26083333333333336,
+        "sealed_to_logical_outbox_ms": 283.4194743083004,
+        "total_admission_to_output_ms": 493.082209486166,
+        "validation_to_outbox_ms": -0.02133596837944664
+      }
+    },
+    "unique_rounds": 207,
+    "unique_batches": 928,
+    "transport_enqueue_covered_requests": 108,
+    "transport_enqueue_covered_rounds": 24
+  },
+  "delugi_all_requests_leader_endpoint_diagnostic": {
+    "requests": 3000,
+    "logical_outbox_to_leader_output_ms": 204.078861
+  },
+  "raptr_same_host_self_acceptance_PROXY_NOT_EMISSION": {
+    "all": {
+      "requests": 950,
+      "admission_to_leader_self_acceptance_ms": 206.3722947368421,
+      "leader_self_acceptance_to_origin_output_ms": 202.6020505263158,
+      "sealed_to_leader_self_acceptance_ms": 132.89824421052631,
+      "total_admission_to_output_ms": 408.9743452631579
+    },
+    "by_origin": {
+      "0": {
+        "requests": 197,
+        "admission_to_leader_self_acceptance_ms": 197.54481725888326,
+        "leader_self_acceptance_to_origin_output_ms": 207.8037766497462,
+        "sealed_to_leader_self_acceptance_ms": 129.19031979695433,
+        "total_admission_to_output_ms": 405.3485939086294
+      },
+      "1": {
+        "requests": 223,
+        "admission_to_leader_self_acceptance_ms": 203.1763587443946,
+        "leader_self_acceptance_to_origin_output_ms": 185.98552914798208,
+        "sealed_to_leader_self_acceptance_ms": 124.76717040358744,
+        "total_admission_to_output_ms": 389.1618878923767
+      },
+      "2": {
+        "requests": 232,
+        "admission_to_leader_self_acceptance_ms": 196.96492672413794,
+        "leader_self_acceptance_to_origin_output_ms": 205.09825862068965,
+        "sealed_to_leader_self_acceptance_ms": 124.81412068965517,
+        "total_admission_to_output_ms": 402.06318534482756
+      },
+      "3": {
+        "requests": 298,
+        "admission_to_leader_self_acceptance_ms": 221.923355704698,
+        "leader_self_acceptance_to_origin_output_ms": 209.6544798657718,
+        "sealed_to_leader_self_acceptance_ms": 147.72779865771813,
+        "total_admission_to_output_ms": 431.5778355704698
+      }
+    },
+    "unique_rounds": 197,
+    "unique_batches": 252
+  },
+  "first_inclusion_observability": {
+    "delugi": "No full proposal payloads in causal traces. All observed classified rounds in healthy archive commit directly, supporting output association under ordered materialization; no exact decoded first-inclusion search possible.",
+    "raptr": "No proposed-block payload membership or emission events exported; earlier failed/partial optimistic inclusions cannot be recovered. Output-associated proposal != proven first inclusion."
+  },
+  "clock_contract": "All computed differences are same-host monotonic. No cross-host subtraction. Logical outbox precedes per-peer transport queue insertion; no socket-write emission timestamp. Raptr self-acceptance is after multicast loopback, not emission; proxy explicitly labeled.",
+  "delugi_classification_counts": {
+    "0": {
+      "Commit": 242
+    },
+    "1": {
+      "Commit": 243
+    },
+    "2": {
+      "Commit": 243
+    },
+    "3": {
+      "Commit": 242
+    }
+  },
+  "validation": {
+    "covered": {
+      "delugi": 3000,
+      "raptr": 3000
+    },
+    "excluded": {
+      "delugi": {},
+      "raptr": {}
+    },
+    "delugi_trace_sources": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-0.json",
+        "sha256": "04439f5d654a25f815ec00562f8eccd51a17fb90730030d8deb6946e0ea42754",
+        "events": 13291,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-1.json",
+        "sha256": "fc29072b3816545fd1556beea322b9d79c72d2da6dea22d7cd3a218f4aac67f0",
+        "events": 13289,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-2.json",
+        "sha256": "632f8cbccde19051770dc0529e2eb137fefe6726066c0c6987921b1cc17f850b",
+        "events": 13280,
+        "dropped": 0,
+        "run_bound": true
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-3.json",
+        "sha256": "615d156eae1996aaab6132799bbbe91b394831ef0812ceb35ddecadaa03440b5",
+        "events": 13246,
+        "dropped": 0,
+        "run_bound": true
+      }
+    ],
+    "raptr_sources": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/final.json",
+        "bytes": 90575,
+        "sha256": "de27ebc9c29976234514bdc55bd9e1e11c4a74fd2f562cb1f22f1de1e00b5f65"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/latency-trace.json",
+        "bytes": 1159644,
+        "sha256": "ba06e8ff2b491e9201be23b00a14c1f5be7855b05a653772decb4eee951e3690"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/effective-profile.json",
+        "bytes": 15514,
+        "sha256": "2f0517ec86be55ee9806dbe8b5b3f326abd778eea998160549fde20f041fef4b"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/requests.jsonl",
+        "bytes": 359200,
+        "sha256": "a95c76b4d3ef84f34cda1745e5308757d99d5efce24a1bf05574fcdd8f37039f"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/output.jsonl",
+        "bytes": 8242363,
+        "sha256": "95c503d56a0c228eb1cdc410623f6121b68616c25a7dc34a24353531a4b4bac8"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/final.json",
+        "bytes": 96947,
+        "sha256": "2faef29d52db128cefdec82d9b576d5dea8474b45df4d45fc12f69812e7faea6"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/latency-trace.json",
+        "bytes": 1163844,
+        "sha256": "f452fd944682faefdc00c7fe9315359958f2e3584a4917f5c7ce4cfaa8392a3d"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/effective-profile.json",
+        "bytes": 15514,
+        "sha256": "998ad37b288c35287fb01a85081917916b36944dee8a34cdef8b88435693e76f"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/requests.jsonl",
+        "bytes": 359240,
+        "sha256": "134b206e8d1d6186570db240cbe8125d83dc5795d9874fbad97ff36a27fbaf48"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/output.jsonl",
+        "bytes": 8246296,
+        "sha256": "451687c569e78a28e02b4377063fd7a90c7a233d3492573a4404dedb27ab4362"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/final.json",
+        "bytes": 91719,
+        "sha256": "2ed58a64cb9d5e585a9453477b8b54b4002a76452a60ed13a31f910575a92e6a"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/latency-trace.json",
+        "bytes": 1164601,
+        "sha256": "d5c34ea31e514088f9aa7674238a5090ce6dd33edd22b834005f2efe32dc83d3"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/effective-profile.json",
+        "bytes": 15514,
+        "sha256": "d0cbaf51183351b46c2dcaf056a620cbdaa5dbaab46da50bb571508d8e1369c3"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/requests.jsonl",
+        "bytes": 359230,
+        "sha256": "fa25272ae32ed164008fcbfb5ee87b221410e3792340ba8a22f96ccd51d1f3e5"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/output.jsonl",
+        "bytes": 8246305,
+        "sha256": "72cf6898901b0bb544e750c29574cefb4ec19b8fb3ec49b572468eda27f33f83"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/final.json",
+        "bytes": 90611,
+        "sha256": "835725ef5794f9ac5f9299d65de38ff58e17f67d2d07dd0fbf56178307209a7c"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/latency-trace.json",
+        "bytes": 1160539,
+        "sha256": "ddd2b3540279b8cfb0898e98d740d1e43a941171088a38baacbeed30b9d5084d"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/effective-profile.json",
+        "bytes": 15514,
+        "sha256": "f5b50497a58d4243e786fbe3f8ac4c5539a74712f2f23066c42589238250198c"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/requests.jsonl",
+        "bytes": 359208,
+        "sha256": "2389561c8abeca86e8a54317e37498ed3e757e250a3aec5e419d41b067394af0"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/output.jsonl",
+        "bytes": 8242357,
+        "sha256": "e3b1c7fb0593d0d09b514b633fc642866f379d132d237b0563151365040a4e8f"
+      }
+    ],
+    "delugi_cohort_index_sha256": "c67f6a8b8e51d47c5e90dddd22603508d1c955d96035ab38b5fe997b694b0895",
+    "raptr_configuration_sha256": "2b4e4128801ab6f58750d495518822ba759a39ed9398f9e56e3439114a9ed82c"
+  }
+}
