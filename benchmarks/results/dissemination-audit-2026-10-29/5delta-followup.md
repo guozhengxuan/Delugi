@@ -1,5 +1,51 @@
 # Reconsidering equal five-delay paths and the primary split
 
+## Author clarification: restore the one-delay pipeline
+
+The author clarified that the intended healthy execution sends the next
+dissemination and ordering wave together after the appropriate n−f round
+messages arrive. It must emit one new proposal per δ in steady state. The
+2,3,6,7,… sequence below describes the implemented composition's extra gates;
+it is not the intended Delugi cadence or a reason to accept that slower cadence.
+
+Define B_r as the communication boundary that emits proposal P_r. The intended
+steady pipeline can overlap these sends:
+
+| At B_r | Destination / purpose |
+|---|---|
+| PROPOSE(r), VOTE(r−1), CER(r−2) | Ordering recipients |
+| HISTORY3(r−2), with corresponding CLOSED when enabled | History goes to L(r+1) |
+| OBS(r+1) | Reply to the already received REPORT; goes to L(r+1) |
+| REPORT(r+2) | L(r+2) opens preparation two proposal positions ahead |
+| PROG(r+2) | Advance admission while current proposals finish |
+
+Then REPORT(r+2) at B_r → OBS(r+2) at B_(r+1) → prepared proposal(r+2) at
+B_(r+2). Two-delay preparation and one-delay proposal spacing are compatible
+because different opportunities overlap. At B_r the admission index is r+2;
+communication boundaries, admission indices and proposal indices are distinct.
+Each message retains its authenticated evidence, quorum and once-only guards;
+this table describes the healthy steady wave, not a universal wait-for-all
+barrier under faults.
+
+Two implemented gates prevent this wave:
+
+1. `ProgressPacing` holds originating PROG(r+2) until complete proposal(r+1)
+   or proposal(r+2), which is unavailable at B_r. See
+   [the configured rule](../../../core/delugi/src/replica.rs#L2275) and
+   [its readiness predicate](../../../core/delugi/src/replica.rs#L2587).
+2. `HistoryReady` holds REPORT(r+2) until HISTORY3(r−1). Those reports leave
+   with CER(r−1) at B_(r+1) and arrive at B_(r+2), when proposal(r+2) should
+   already be ready. See [REPORT admission](../../../core/delugi/src/composed.rs#L300)
+   and [history readiness](../../../core/delugi/src/replica.rs#L2341).
+
+Immediate transport bundling groups messages already enabled by these guards;
+it does not remove the gates or create the intended cross-layer wave. The next
+implementation work must restore the two-position preparation lead and verify
+δ-spaced proposals in the real implementation while retaining the silent-leader
+stale-input regression. No core change is made by this clarification.
+
+## Prior five-delay audit
+
 The previous explanation based on Raptr's optimistic certificate overlap was
 incomplete. Raptr's published five-delay calculation already includes that
 optimization. It cannot, by itself, explain the difference from a Delugi path

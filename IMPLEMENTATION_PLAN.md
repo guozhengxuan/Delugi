@@ -1,5 +1,15 @@
 # Delugi implementation and evaluation plan
 
+**Author clarification, 29 October:** the intended healthy cross-layer pipeline
+emits one proposal per δ. At the boundary emitting proposal r, dissemination
+must already send OBS(r+1) and open REPORT(r+2), alongside the enabled ordering
+messages. The current proposal-gated PROG and history-gated REPORT prevent this
+two-position preparation lead. The modeled 2,3,6,7,… sequence diagnoses that
+composition mismatch; it is not the target algorithm. Restoring the intended
+wave, with actual implementation timing tests and silent-leader regression
+coverage, takes priority over interpreting current performance as intrinsic.
+See the [exact boundary/gate mapping](benchmarks/results/dissemination-audit-2026-10-29/5delta-followup.md).
+
 Updated **29 October 2026**. The offline dissemination audit and continued
 GPT-6 Pro discussion identify **productive REPORT timing and snapshot eligibility**
 as the next issue to resolve. Raptr's published 5δ already includes optimism;
@@ -323,7 +333,16 @@ skipped before measured arrivals begin; record that fault interval explicitly.
 
 ## 4. Next sequence
 
-1. **Instrument productive readiness and proposal eligibility locally.** The
+1. **Restore the intended healthy cross-layer pipeline.** Ensure each logical
+   send boundary overlaps proposal r, preceding ordering phases, OBS(r+1) and
+   REPORT(r+2); preserve authenticated bases, immutable signed observations,
+   message-specific evidence guards, independent fault progress and timers.
+   Replace the two identified scheduling gates with a composition that retains
+   the silent-leader stale-input fix. Validate δ proposal spacing after warm-up
+   in the actual implementation under controlled equal delays; a hand timing
+   model or packet bundling alone is not acceptance. Keep the canonical and
+   existing paced versions as named diagnostic comparisons.
+2. **Instrument productive readiness and proposal eligibility locally.** The
    source/trace audit and Pro review are complete; the avoidable portion of the
    healthy inclusion gap remains unmeasured. Capture exact fixed bases, OBS
    snapshots/branches, frozen-pool signers, WA witnesses, source/proof readiness
@@ -337,20 +356,20 @@ skipped before measured arrivals begin; record that fault interval explicitly.
    opportunity-weighted summaries. Start controlled local timing checks with
    unchanged native behavior and vary arrival phase to test the code-derived
    timing model. A certified-only Raptr control is deferred: the immediate
-   question is productive Delugi opportunity timing. Preserve HistoryReady,
-   fixed snapshots and
+   question is productive Delugi opportunity timing. Retain HistoryReady as
+   a named comparison; preserve fixed snapshots and
    n−f/f+1 thresholds; the sampled third-response wait is not a safe optimization.
-2. **Review the REPORT-trigger revision and its local/WAN evidence.** The stale-input
+3. **Review the REPORT-trigger revision and its local/WAN evidence.** The stale-input
    cause is fixed; the recurring 7Δ timeout cost remains explicit. Align the paper's
    entry-trigger wording with the selected composition schedule before a formal
    evaluation. Qualify tracing overhead and choose trace caps for the expected round
    rate. Preserve all prior WAN attempts and incomplete cohorts. The corrected
    common binary has now passed the bounded four-region check above; this does
    not establish the canonical paper's timing claim or larger-scale performance.
-3. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
+4. **Resolve the counterpart gaps.** Diagnose original Autobahn's recovery;
    choose Simple-IT batch targets compatible with the offered rate; audit its
    certificates/fallback and complete Mysticeti's signed native-order proof.
-4. **Choose the next bounded qualification plan.** Both the four-run 28 October
+5. **Choose the next bounded qualification plan.** Both the four-run 28 October
    matrix and the two-run Raptr timestamp rerun are complete, with no repeat
    attempts. Retain the respective 16/8 cancelled pre-admission tail arrivals.
    Review the cost of validating repeated transaction occurrences in Raptr's
@@ -358,10 +377,10 @@ skipped before measured arrivals begin; record that fault interval explicitly.
    Agree on the next finite matrix after the counterpart fixes; do not silently
    turn this smoke check into a rate sweep. Reuse exact native publications
    while their source and recipe identities match, and retain all failed runs.
-5. **Qualify the intended 10/50 profiles and network.** Resolve the n=50 nominal
+6. **Qualify the intended 10/50 profiles and network.** Resolve the n=50 nominal
    timer failure and verify aggregate 100 Mbps and loaded delay on the selected
    hosts before interpreting latency/throughput curves.
-6. **Run the agreed main matrix.** Use one common settings file and one campaign
+7. **Run the agreed main matrix.** Use one common settings file and one campaign
    command, with fresh quotes and the durable budget ledger. Preparation and
    collection remain outside the one-minute measurement; release owned resources
    after collection and reconcile actual billing before releasing reservations.
