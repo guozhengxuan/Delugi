@@ -1,0 +1,300 @@
+{
+  "run": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/pipeline-tcp-20261029-4000",
+  "status": "verified",
+  "analysis_source_sha256": "1e7e59ee53c5d7ef9702a5907cdd2af14e2810a46769a33627faf58fc544e50a",
+  "manifest_sha256": "2e02c32b50b86e9a0ccca75199358dfc543d828714fdf791e1e8c6ea01182983",
+  "binary_sha256": "b96a379cf342cb6c03a159d08c69e4e343732d8c884c63ec867d520e7285b250",
+  "checks": {
+    "no_trace_drops": true,
+    "retained_cohort_authentication_verified": true,
+    "instrumented_quorum_and_preparation_guards_hold": true,
+    "drain_complete": true,
+    "correct_replica_prefixes_agree": true,
+    "intended_cohort_complete": true,
+    "all_correct_collection_complete": true,
+    "request_stage_coverage_complete": true
+  },
+  "settings": {
+    "bound_ms": 100,
+    "ordering_mode": "canonical",
+    "ordering_batch": true,
+    "report_schedule": "pipeline",
+    "silent": null,
+    "sustained": {
+      "rate_per_replica": 1000,
+      "total_rate": 4000,
+      "transaction_bytes": 61,
+      "useful_bytes": 1,
+      "origins": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "max_batch_transactions": 128,
+      "arrival_queue_capacity": 65536,
+      "batch_ms": 10,
+      "warmup_ms": 2000,
+      "measurement_ms": 10000
+    }
+  },
+  "correct_replicas": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "traces": [
+    {
+      "replica": 0,
+      "events": 143155,
+      "dropped": 0,
+      "detail_stride": 1,
+      "run_bound": true
+    },
+    {
+      "replica": 1,
+      "events": 143113,
+      "dropped": 0,
+      "detail_stride": 1,
+      "run_bound": true
+    },
+    {
+      "replica": 2,
+      "events": 143117,
+      "dropped": 0,
+      "detail_stride": 1,
+      "run_bound": true
+    },
+    {
+      "replica": 3,
+      "events": 143124,
+      "dropped": 0,
+      "detail_stride": 1,
+      "run_bound": true
+    }
+  ],
+  "cohort": {
+    "scheduled": 40000,
+    "admitted": 40000,
+    "rejected": 0,
+    "completed": 40000,
+    "unfinished": 0
+  },
+  "window_completions": {
+    "count": 40003,
+    "carried_in": 280,
+    "definition": "completions during the half-open measurement window, distinct from final intended-cohort completion"
+  },
+  "deadline_missed": 0,
+  "all_correct_collection": {
+    "completed": 40000,
+    "unfinished": 0,
+    "fraction": 1.0,
+    "boundary": "final exact output collection; not remote event latency"
+  },
+  "agreement": {
+    "common_prefix_count": 48000,
+    "common_prefix_state_hash": [
+      47,
+      21,
+      220,
+      41,
+      207,
+      104,
+      1,
+      224,
+      122,
+      178,
+      92,
+      228,
+      86,
+      230,
+      25,
+      192,
+      250,
+      243,
+      153,
+      19,
+      157,
+      118,
+      37,
+      41,
+      252,
+      247,
+      61,
+      171,
+      21,
+      102,
+      152,
+      8
+    ],
+    "executed_counts": {
+      "0": 48000,
+      "1": 48000,
+      "2": 48000,
+      "3": 48000
+    },
+    "unique_generated_transactions": 48000
+  },
+  "mean_admission_to_append_ms": 65.979215,
+  "request_stages": [
+    {
+      "stage": "Batch formation",
+      "mean_ms": 5.046822525
+    },
+    {
+      "stage": "Await execution proposal",
+      "mean_ms": 37.040798175000006
+    },
+    {
+      "stage": "Agreement",
+      "mean_ms": 23.800875775
+    },
+    {
+      "stage": "Contiguous prefix wait",
+      "mean_ms": 0.00823265
+    },
+    {
+      "stage": "Payload wait",
+      "mean_ms": 0.017125575
+    },
+    {
+      "stage": "Application append",
+      "mean_ms": 0.0653603
+    }
+  ],
+  "request_stage_coverage": {
+    "scheduled": 40000,
+    "completed": 40000,
+    "covered": 40000,
+    "excluded": {}
+  },
+  "unique_completion_tps": 4000.2999999999997,
+  "measured_tcp_written_bytes": 109668213,
+  "proxy": {
+    "configured_one_way_ms": 10.0,
+    "client_to_replica": {
+      "chunks": 63082,
+      "bytes": 129456072,
+      "mean_hold_ms": 10.174226989131448,
+      "min_hold_ms": 10.005458258092403,
+      "max_hold_ms": 11.955666355788708,
+      "peak_queued_chunks": 7
+    },
+    "replica_to_client": {
+      "chunks": 62276,
+      "bytes": 12402432,
+      "mean_hold_ms": 10.257202874542736,
+      "min_hold_ms": 10.008166544139385,
+      "max_hold_ms": 12.17670924961567,
+      "peak_queued_chunks": 7
+    },
+    "no_discarded_bytes": true,
+    "no_queue_saturation": true,
+    "definition": "chunk read to asyncio write, before drain; not end-to-end one-way network delay"
+  },
+  "calibration_added_rtt_ms": 24.4880625,
+  "leader_proposal_count": 1177,
+  "leader_proposals_in_window": 887,
+  "complete_leader_chains_in_window": 887,
+  "leader_chain_exclusions": {},
+  "leader_stage_ms": {
+    "report_to_pool_ms": {
+      "count": 887,
+      "mean": 21.721693348365275,
+      "median": 21.593,
+      "p95": 22.7,
+      "min": 21.062,
+      "max": 24.116
+    },
+    "pool_to_input_ms": {
+      "count": 887,
+      "mean": 0.6053540022547914,
+      "median": 0.586,
+      "p95": 0.888,
+      "min": 0.373,
+      "max": 1.252
+    },
+    "input_to_proposal_ms": {
+      "count": 887,
+      "mean": 0.9729921082299887,
+      "median": 0.848,
+      "p95": 1.98,
+      "min": 0.289,
+      "max": 3.318
+    },
+    "proposal_to_direct_commit_ms": {
+      "count": 887,
+      "mean": 31.915737316798197,
+      "median": 31.789,
+      "p95": 32.724,
+      "min": 31.336,
+      "max": 34.118
+    }
+  },
+  "leader_stage_population": "same complete leader rounds with proposal outbox inside own measurement window; unweighted by transactions",
+  "report_before_history_quorum": {
+    "true": 887
+  },
+  "normalized_proposal_cadence_ms": {
+    "count": 883,
+    "mean": 11.269543035107587,
+    "median": 11.256,
+    "p95": 11.6,
+    "min": 10.83725,
+    "max": 11.87875
+  },
+  "round_weighted_cadence_ms": 11.269543035107587,
+  "cadence_by_leader": {
+    "0": {
+      "count": 221,
+      "mean": 11.268717194570137,
+      "median": 11.26175,
+      "p95": 11.5935,
+      "min": 10.83725,
+      "max": 11.81175
+    },
+    "1": {
+      "count": 221,
+      "mean": 11.270468325791855,
+      "median": 11.273,
+      "p95": 11.541,
+      "min": 10.90775,
+      "max": 11.87875
+    },
+    "2": {
+      "count": 221,
+      "mean": 11.269115384615384,
+      "median": 11.25525,
+      "p95": 11.569,
+      "min": 10.90775,
+      "max": 11.84475
+    },
+    "3": {
+      "count": 220,
+      "mean": 11.269872727272727,
+      "median": 11.247375,
+      "p95": 11.6465,
+      "min": 10.882,
+      "max": 11.836
+    }
+  },
+  "cadence_round_gaps": {
+    "4": 883
+  },
+  "timer_expiries_whole_trace": {
+    "main_timer_expiry": 4468,
+    "catchup_timer_expiry": 4596,
+    "no_cer": 0
+  },
+  "instrumented_guards_whole_trace": {
+    "pipeline_reports_with_satisfied_guard": 1179,
+    "report_branch_true_initial_four_rounds": 4,
+    "report_branch_true_exact_history_ready": 3,
+    "progress_quorums_with_distinct_n_minus_f_signers": 4964,
+    "pools_with_exact_distinct_n_minus_f_signers": 1177,
+    "report_branch_true_own_terminal_prefix_plus_four": 1175
+  },
+  "guard_evidence_scope": "Instrumentation reports distinct authenticated sender identities and preparation-state facts. This checks the reported predicates; it does not independently reverify every protocol-message signature. Report branch counts overlap."
+}

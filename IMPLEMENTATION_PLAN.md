@@ -1,40 +1,63 @@
 # Delugi implementation and evaluation plan
 
-**Author clarification, 29 October:** the intended healthy cross-layer pipeline
-emits one proposal per δ. At the boundary emitting proposal r, dissemination
-must already send OBS(r+1) and open REPORT(r+2), alongside the enabled ordering
-messages. The current proposal-gated PROG and history-gated REPORT prevent this
-two-position preparation lead. The modeled 2,3,6,7,… sequence diagnoses that
-composition mismatch; it is not the target algorithm. Restoring the intended
-wave, with actual implementation timing tests and silent-leader regression
-coverage, takes priority over interpreting current performance as intrinsic.
-See the [exact boundary/gate mapping](benchmarks/results/dissemination-audit-2026-10-29/5delta-followup.md).
+Updated **29 October 2026**. The intended one-δ Delugi proposal pipeline is
+implemented and locally validated. Commit **360d9f7** restores immediate
+canonical PROG and adds bounded, two-position-ahead REPORT preparation;
+immediate ordering bundling remains enabled. All default local/campaign
+paths select `canonical` + `pipeline`. Explicit legacy pacing and preparation
+policies remain available for comparisons.
 
-Updated **29 October 2026**. The offline dissemination audit and continued
-GPT-6 Pro discussion identify **productive REPORT timing and snapshot eligibility**
-as the next issue to resolve. Raptr's published 5δ already includes optimism;
-certificate overlap alone cannot explain a gap from Delugi's favorable 5δ
-target. The code-derived equal-delay model gives alternating δ/3δ REPORT gaps
-under current pacing and a conditional 1.25δ residual opportunity wait. Its
-6.25δ average path from batch emission to direct commitment includes that phase wait; it is an
-analytical model, not a measured implementation or WAN result. Saved WAN cadence
-is approximately 146/151 ms per round for Delugi/Raptr, so lower Delugi proposal
-frequency is not the observed explanation. See the [follow-up audit](benchmarks/results/dissemination-audit-2026-10-29/5delta-followup.md).
+The signed-core regression checks twelve proposals exactly δ apart and direct
+commitment exactly 3δ after proposal, including every typed ordering and
+preparation send and its recipient. Repeated silent leaders, three honest
+anchors, δ=99 ms/Δ=100 ms recovery, Byzantine forks, and authenticated CLOSED
+fallbacks pass. The workspace suite passed **273 tests** (20 explicitly ignored).
+See the [guard matrix and timing/recovery argument](docs/architecture/2026-10-29-pipeline.md).
 
-At four replicas, Delugi collects three OBS and selects two witnesses per
-advancing WA; Raptr's background PoA also needs three signatures. The original
-collection diagnostics average 178.33/177.92 ms. The measured common
-admission-to-origin-proposal-acceptance gap is **71.63 ms**, versus 145.67 ms
-between stored-batch-to-acceptance bars. Its allocation at actual leader proposal
-emission remains unmeasured. No protocol code or workload changed for this audit.
-See the [original reproducible evidence](benchmarks/results/dissemination-audit-2026-10-29/README.md).
+Independent local processes with pipelined TCP delay also pass. Each sustained
+run used four replicas, δ=10 ms, Δ=100 ms, 2 s warmup and 10 s measurement,
+61 encoded bytes per transaction (one useful byte), and a 10 ms batching limit.
 
-The requested primary decomposition is now
-two stages, split at **first valid leader proposal finalization/handoff**:
-admission→proposal and proposal→origin verified contiguous output. Existing
-acceptance timestamps cannot be relabeled as this boundary. The next local
-diagnosis must capture it and exact membership, then establish snapshot
-eligibility and source/proof readiness before selecting a scheduling change.
+| Case | Completed intended cohort | Mean cadence per round | PROPOSE → direct commit | Admission → verified output |
+|---|---:|---:|---:|---:|
+| Healthy, 100 tx/s | 1,000/1,000 | 11.27 ms | 32.12 ms | 61.55 ms |
+| Healthy, 4,000 tx/s | 40,000/40,000 | 11.27 ms | 31.92 ms | 65.98 ms |
+| Persistently silent replica, 100 tx/s | 1,000/1,000 | Fault recovery intervals | 32.95 ms | 1,081.70 ms |
+
+Cadence divides successive proposals on the same leader's clock by their round
+gap; it does not subtract different replica clocks. The fault case repeatedly
+skips that replica's leadership every fourth round; its 667.29 ms mean contiguous
+prefix wait is recovery latency. All correct output prefixes agree, all traces
+are complete, and the delay proxy discarded no bytes. Finite healthy round-4
+and silent-leader/three-anchor TCP checks also passed. No cloud runs were made.
+See the [measurement report and figure](benchmarks/results/pipeline-2026-10-29/README.md).
+
+The correction bounds future **input preparation** by the greatest correct
+completed outcome prefix plus four. Admission can still advance independently
+during faults. The two-delay input-readiness contract now starts at the bounded
+evidence trigger, not arbitrary admission; the historical pinned paper sources
+remain unchanged. The earlier alternating δ/3δ analytical schedule and saved
+WAN measurements describe the previous implementation. They must not be used
+as results for this new default. The [earlier audit](benchmarks/results/dissemination-audit-2026-10-29/5delta-followup.md)
+records that diagnosis.
+
+Next evaluation work:
+
+1. Align both protocols' primary transaction split at **first valid leader
+   proposal finalization/handoff**, with exact batch membership. The new
+   leader-local PROPOSE→CER measurement proves Delugi's pipeline but is not
+   a replacement for the requested per-transaction cross-protocol boundary.
+   Existing proposal-acceptance timestamps must retain their original labels.
+2. Rebuild the shared Delugi/Raptr artifact with this source identity and repeat
+   matched local checks before selecting a new WAN release. Keep native batching,
+   fault mechanisms and timer policies explicit in every manifest.
+3. Review the updated composition trigger with the paper and refresh its
+   reviewed provenance only after that source change is accepted. Future cloud
+   work uses the established Fabric configuration and budget controls; this
+   local validation does not authorize a new deployment.
+
+The following WAN results and earlier implementation checkpoints are retained
+as historical comparison evidence.
 
 Raptr now has bounded, opt-in timestamps for exact
 batch storage, availability quorum, verified proposal acceptance, commit slices,
