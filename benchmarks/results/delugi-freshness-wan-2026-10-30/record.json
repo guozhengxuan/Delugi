@@ -1,0 +1,941 @@
+{
+  "schema": 1,
+  "status": "completed",
+  "runtime_fix_commit": "8d84dec",
+  "linux_source_commit": "5c7057ff9a7c90c531ceed671678c396ea85e0d7",
+  "scope": "Exactly two Delugi-only WAN workloads, one healthy and one persistent silent leader. Raptr and previous Delugi traces reused offline. No runtime edits during deployment.",
+  "settings": {
+    "parameters": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/parameters.json",
+      "sha256": "de51ff997f72261662d6ce300e3c8246d36edc5754b28f62bd2cef1629105614",
+      "bytes": 1502
+    },
+    "matches_previous_delugi_parameters": true,
+    "duration_s": 30,
+    "warmup_s": 0,
+    "drain_s": 15,
+    "input_tps": 100,
+    "nodes": 4,
+    "useful_transaction_bytes": 1,
+    "encoded_transaction_bytes": 61,
+    "regions": [
+      "ap-southeast-1",
+      "eu-central-1",
+      "eu-west-1",
+      "ap-northeast-2"
+    ],
+    "instance_type": "ecs.g9i.xlarge",
+    "cpus_per_host": 4,
+    "memory_gib_per_host": 16,
+    "system_disk_gib": 200,
+    "Delta_ms": 1000,
+    "added_delay_ms": 0,
+    "public_egress_mbps": 20,
+    "network": "observed natural WAN over exact-peer WireGuard",
+    "storage": "shared-rocksdb-written-v1",
+    "report_schedule": "pipeline",
+    "ordering_mode": "canonical",
+    "trace_detail_stride": 64,
+    "trace_max_events": 250000
+  },
+  "endpoint": {
+    "start": "successful origin-local admission",
+    "middle": "origin-local verified consensus-proposal acceptance; proposal transit is before the midpoint",
+    "end": "origin-local payload-verified contiguous application output before diagnostic journaling",
+    "clock": "one origin monotonic clock for every transaction interval"
+  },
+  "run_state": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/state.json",
+    "sha256": "370930a08ee39315a0663d278d1bc76acdf49744e83b428f1a8e837fcaf88664",
+    "bytes": 12376
+  },
+  "results": [
+    {
+      "case": "healthy",
+      "trial_id": "b02e64f55f4e7fa0598860f6",
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/result.json",
+        "sha256": "05b589eeea28ef629966d0af6c7b48287c4a1e5daa25c555bfd42776ad6be0c4",
+        "bytes": 138505
+      },
+      "cohort": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0
+      },
+      "output_agreement": {
+        "all_correct_overlap_prefixes_verified": true,
+        "all_replica_minimum_diagnostic": {
+          "common_prefix_count": 3000,
+          "common_prefix_state_hash": [
+            163,
+            142,
+            96,
+            190,
+            30,
+            14,
+            81,
+            221,
+            201,
+            143,
+            195,
+            28,
+            233,
+            31,
+            247,
+            92,
+            172,
+            131,
+            147,
+            63,
+            255,
+            35,
+            80,
+            112,
+            165,
+            168,
+            11,
+            25,
+            121,
+            242,
+            219,
+            238
+          ],
+          "replicas_agree_on_common_prefix": true
+        },
+        "common_prefix_count": 3000,
+        "common_prefix_state_hash": [
+          163,
+          142,
+          96,
+          190,
+          30,
+          14,
+          81,
+          221,
+          201,
+          143,
+          195,
+          28,
+          233,
+          31,
+          247,
+          92,
+          172,
+          131,
+          147,
+          63,
+          255,
+          35,
+          80,
+          112,
+          165,
+          168,
+          11,
+          25,
+          121,
+          242,
+          219,
+          238
+        ],
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "executed_counts": {
+          "0": 3000,
+          "1": 3000,
+          "2": 3000,
+          "3": 3000
+        },
+        "executed_per_replica": 3000,
+        "origin_notification_validation": "all notified prefix counts are at most the final minimum correct prefix, authenticated and compared here",
+        "overlap_checks": [
+          {
+            "common_prefix_count": 3000,
+            "common_prefix_state_hash": [
+              163,
+              142,
+              96,
+              190,
+              30,
+              14,
+              81,
+              221,
+              201,
+              143,
+              195,
+              28,
+              233,
+              31,
+              247,
+              92,
+              172,
+              131,
+              147,
+              63,
+              255,
+              35,
+              80,
+              112,
+              165,
+              168,
+              11,
+              25,
+              121,
+              242,
+              219,
+              238
+            ],
+            "replicas": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "replicas_agree_on_common_prefix": true
+          }
+        ],
+        "replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "replicas_agree": true,
+        "replicas_agree_on_common_prefix": true,
+        "state_hash": [
+          163,
+          142,
+          96,
+          190,
+          30,
+          14,
+          81,
+          221,
+          201,
+          143,
+          195,
+          28,
+          233,
+          31,
+          247,
+          92,
+          172,
+          131,
+          147,
+          63,
+          255,
+          35,
+          80,
+          112,
+          165,
+          168,
+          11,
+          25,
+          121,
+          242,
+          219,
+          238
+        ],
+        "unique_generated_transactions": 3000
+      },
+      "causal_trace_complete": true,
+      "unique_window_goodput_tps": 98.66666666666666,
+      "admission_to_output": {
+        "completed": 3000,
+        "p50": {
+          "lower_bound_ms": 504.29,
+          "status": "observed",
+          "value_ms": 504.29
+        },
+        "p95": {
+          "lower_bound_ms": 694.959,
+          "status": "observed",
+          "value_ms": 694.959
+        },
+        "p99": {
+          "lower_bound_ms": 735.894,
+          "status": "observed",
+          "value_ms": 735.894
+        },
+        "population": 3000,
+        "unfinished": 0
+      },
+      "scheduled_to_output": {
+        "completed": 3000,
+        "p50": {
+          "lower_bound_ms": 504.296,
+          "status": "observed",
+          "value_ms": 504.296
+        },
+        "p95": {
+          "lower_bound_ms": 695.01,
+          "status": "observed",
+          "value_ms": 695.01
+        },
+        "p99": {
+          "lower_bound_ms": 735.951,
+          "status": "observed",
+          "value_ms": 735.951
+        },
+        "population": 3000,
+        "unfinished": 0
+      }
+    },
+    {
+      "case": "silent-first-leader",
+      "trial_id": "d22bcc884402d1e925c4eed8",
+      "result": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/result.json",
+        "sha256": "7365f3604d1672b7c6d485ae7006364c71a9b39f7a4a846ea992c7374efbccf2",
+        "bytes": 165585
+      },
+      "cohort": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0
+      },
+      "output_agreement": {
+        "all_correct_overlap_prefixes_verified": true,
+        "all_replica_minimum_diagnostic": {
+          "common_prefix_count": 0,
+          "common_prefix_state_hash": [
+            208,
+            174,
+            204,
+            206,
+            28,
+            245,
+            216,
+            145,
+            215,
+            141,
+            31,
+            137,
+            52,
+            178,
+            98,
+            57,
+            184,
+            139,
+            77,
+            174,
+            4,
+            190,
+            218,
+            68,
+            47,
+            7,
+            194,
+            170,
+            10,
+            198,
+            223,
+            4
+          ],
+          "replicas_agree_on_common_prefix": true
+        },
+        "common_prefix_count": 3000,
+        "common_prefix_state_hash": [
+          254,
+          115,
+          27,
+          69,
+          40,
+          81,
+          217,
+          238,
+          221,
+          184,
+          244,
+          0,
+          199,
+          109,
+          143,
+          226,
+          52,
+          145,
+          150,
+          120,
+          168,
+          115,
+          211,
+          147,
+          5,
+          0,
+          143,
+          94,
+          185,
+          200,
+          65,
+          68
+        ],
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ],
+        "executed_counts": {
+          "0": 0,
+          "1": 3000,
+          "2": 3000,
+          "3": 3000
+        },
+        "origin_notification_validation": "all notified prefix counts are at most the final minimum correct prefix, authenticated and compared here",
+        "overlap_checks": [
+          {
+            "common_prefix_count": 3000,
+            "common_prefix_state_hash": [
+              254,
+              115,
+              27,
+              69,
+              40,
+              81,
+              217,
+              238,
+              221,
+              184,
+              244,
+              0,
+              199,
+              109,
+              143,
+              226,
+              52,
+              145,
+              150,
+              120,
+              168,
+              115,
+              211,
+              147,
+              5,
+              0,
+              143,
+              94,
+              185,
+              200,
+              65,
+              68
+            ],
+            "replicas": [
+              1,
+              2,
+              3
+            ],
+            "replicas_agree_on_common_prefix": true
+          }
+        ],
+        "replicas": [
+          1,
+          2,
+          3
+        ],
+        "replicas_agree_on_common_prefix": true,
+        "unique_generated_transactions": 3000
+      },
+      "causal_trace_complete": true,
+      "unique_window_goodput_tps": 88.19999999999999,
+      "admission_to_output": {
+        "completed": 3000,
+        "p50": {
+          "lower_bound_ms": 4188.393,
+          "status": "observed",
+          "value_ms": 4188.393
+        },
+        "p95": {
+          "lower_bound_ms": 7241.671,
+          "status": "observed",
+          "value_ms": 7241.671
+        },
+        "p99": {
+          "lower_bound_ms": 7586.742,
+          "status": "observed",
+          "value_ms": 7586.742
+        },
+        "population": 3000,
+        "unfinished": 0
+      },
+      "scheduled_to_output": {
+        "completed": 3000,
+        "p50": {
+          "lower_bound_ms": 4188.449,
+          "status": "observed",
+          "value_ms": 4188.449
+        },
+        "p95": {
+          "lower_bound_ms": 7241.732,
+          "status": "observed",
+          "value_ms": 7241.732
+        },
+        "p99": {
+          "lower_bound_ms": 7586.798,
+          "status": "observed",
+          "value_ms": 7586.798
+        },
+        "population": 3000,
+        "unfinished": 0
+      }
+    }
+  ],
+  "build": {
+    "plan": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/plan.json",
+      "sha256": "c8a5ea27005eecd50847386a7767dcb609539af6e8d6e140836f35bbe303c1d6",
+      "bytes": 1763
+    },
+    "status": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/status.json",
+      "sha256": "4557c0e50b77d4975b13095a8abfae13a6280f3c7bdad8e9fe05d37a32f90807",
+      "bytes": 11429
+    },
+    "evidence_archive": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/build-evidence.tar",
+      "sha256": "d85309b34f3610e7e007fb3f4160069af7e3a47fbba6b65ca9b863b8b9ad47ba",
+      "bytes": 320409600
+    },
+    "publication": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/publication.json",
+      "sha256": "f98783659769524b847232011de38ddbb83943171dae003db180212bebfb3855",
+      "bytes": 421
+    },
+    "publication_archive": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/publication/common-node.tar.gz",
+      "sha256": "5787da20cee6bc38ee0c386c3b4dfbfdeab565264a6092ecdf8f0e267687f86b",
+      "bytes": 34279167
+    },
+    "linux_binary_sha256": "13ea1ce848652b6aab50bc7b3c2db22de062451b1967ee71d3eb75f89ab6233c",
+    "linux_binary_bytes": 29183840,
+    "native_commit": "a4c98047cf8aeae3571168d02fb7e343140d2948",
+    "receipt": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/source/results/cloud-build/build/build-receipt.json",
+      "sha256": "704a3cf2ed88da2d7b17334725572a603164b6a7a17f1c1a58a731bd5817c961",
+      "bytes": 3673466
+    },
+    "local_verifier": {
+      "binary": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/core/raptr/.native-deps/target/debug/raptr-shared-node",
+        "sha256": "aa06d7d91ab749b3e16d263aa663cb667867ca71bc1ff37edf64f92439f31812",
+        "bytes": 67686336
+      },
+      "receipt": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-freshness-wan-local-build-20261029/build-receipt.json",
+        "sha256": "2d360e16646869e6fab04e717597c8e8af1808606b49147fe3eb144f259e5692",
+        "bytes": 3676211
+      }
+    },
+    "all_165_source_hashes_match_linux_local_current_and_git_commit": true,
+    "sources": {
+      "Cargo.lock": "4550a30f34e6ca9633a66d7e6294e7d2b0532f99ac1cb81656fe7f7ee8c1f859",
+      "Cargo.toml": "35921a9e28b20e0f34dde5159a440a55218b961dd731c1f8d3086d4bf8415fcd",
+      "core-api/Cargo.toml": "bb709c2320d457667e5cae585f05865d0ec41009306f489efcdd840c985c7471",
+      "core-api/src/lib.rs": "cfcb409507bcec60bd6b0c0907f212a67a62d0d809ba1c61e947b8d6ec0c277f",
+      "core/delugi/Cargo.toml": "ff455677a0e00548100be8c02f11276c118a6ec9da1fc3fa24fc5f77b279f474",
+      "core/delugi/src/availability.rs": "f25cad0531195716e10a8ed73c2d11c8171b4ef1aa0486d1cbde6c87914ba71e",
+      "core/delugi/src/batch.rs": "9d434f1dc9a4df8f3006ce59b2b1a00ccec574e3c4df1f80d3402904e85a17e6",
+      "core/delugi/src/causal.rs": "4c836b825e2487422b90dbc0ea52fac2bd5c73448da80415b38461c8fff29735",
+      "core/delugi/src/composed.rs": "47c164d69f0b070b067cf9e89762c677168d0f501db2abca41ac000c9218056f",
+      "core/delugi/src/end_to_end.rs": "eefc1eab69ead449b30551530ef44ac601dd917c59827452753c6a76242a674a",
+      "core/delugi/src/factory.rs": "b59a75e23e2f44d145ca47628616a43d4b55461fa95c46219a488818b287da14",
+      "core/delugi/src/history.rs": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8",
+      "core/delugi/src/ledger.rs": "b4cfeb84caecae3923f3eeb9820d025a9ac86a5803035da0d88588ae3fb99339",
+      "core/delugi/src/lib.rs": "eb868e4c4ba83e85d0c9d823aaba3231eeaf9f542567af15e7840fe4f424f20b",
+      "core/delugi/src/mmr.rs": "5a6010fb1d59d0ea96c3bb1bc0a5f277e3987c0260246de4e9778ef8e291541f",
+      "core/delugi/src/process.rs": "7b717983a23b97ef6cee63e0f77c31d736a486bb2cb912ea9b9b8b13313c2edc",
+      "core/delugi/src/record_store.rs": "8ac4001f86f309ceefca00c860cc972007ceace6c8326712c26567d8ed2c2bd2",
+      "core/delugi/src/replica.rs": "fb3b9ab7e0b87fbffa7d99979b5bc0d1ad846ccfb118993664db21d83651c694",
+      "core/delugi/src/scanner.rs": "f5e92967ceeec4b9d1504e74409e23ed8c40692fc45fe60400d716c2abc95ee9",
+      "core/delugi/src/simulation.rs": "e8cb387871a8c135998d2bc035c77dce2df2df47b87f34e0342da52a9d8336f3",
+      "core/delugi/src/slot.rs": "189cd88eead31697cc30db8094b24983f426aecd092639f7f97c519e76ef8335",
+      "core/delugi/src/transport.rs": "d45aa933acc67355b5c6650c7f35ad1931c18ca2525f891790527c00698b82d1",
+      "core/delugi/src/wire.rs": "5637cd816dc0a3d7ced69ceeb4abf3be84d9edd0db8c9b1fd7cc67b5798af39d",
+      "core/delugi/src/workload.rs": "8b3bafd056d8567036b305e8c3780d310cbf2d4a70a34a5768eac4c91f574899",
+      "core/delugi/tests/freshness_regression.rs": "92079fec6e9e01a4a0328e8ce501eb2a371a974cc1fdaaf0a18e2d29881c4414",
+      "core/delugi/tests/pipeline_composition.rs": "13f4ec149efc9bff8a6f7336a1433baf2e0c1a368b3de8f71aeccdb171f2c23a",
+      "core/raptr/Cargo.lock": "e2b2ff2c84d1f6910c2cd6c5fb1eab94acf9d2d86d311c7fa516cccd4d0f288e",
+      "core/raptr/Cargo.toml": "20d861dbd0f69dd6eb8119ddcdd34fd8719c367776798cbeb4d45c8fb0d9f556",
+      "core/raptr/native-source.json": "f462e0b0e2ccd34e449ada1eec541517b498bf5615da52952dd36425dd348eea",
+      "core/raptr/native/.cargo/config.toml": "604f49dc24b306d9b0905b6d548811157b2e0ee32b0bc4f0c8cf55673d7814bc",
+      "core/raptr/native/Cargo.lock": "dbf70141b7b0e006d1b5db2b4e6a794fef8e43b581db1e85147ba7e1fa66b224",
+      "core/raptr/native/Cargo.toml": "536aff176f0b9fcd863ea3fd05026873959947e7d6873b0199429f1a713934ab",
+      "core/raptr/native/benches/crypto_bench.rs": "52fc17d8f0d8c905fdac5ef7c8a7c3e7774ed9cf5c57190f84d856397e25d6d7",
+      "core/raptr/native/benches/wendy_bench.rs": "fc33d77beeed15d548988e8b246f9cff44a207aae61eb17cf4ca803fe36fc6ec",
+      "core/raptr/native/src/delays.rs": "440663f96c7983731ba6698c584f17e39b7f26cd0198573dbb1ef56dc15a0233",
+      "core/raptr/native/src/framework/context.rs": "e34db1177ef1665aad685d1b9c34c8a30a77428c9926d3adf5c1395b4e0ba349",
+      "core/raptr/native/src/framework/crypto.rs": "086032c724c979c9f9143e1f1f1a25bb4433bc42db6ba8764951f12830c91c43",
+      "core/raptr/native/src/framework/injection.rs": "05c39cf9e2c32c516ae7e68de5dca41243d5ad68a82aae4467a377eb543e9d6a",
+      "core/raptr/native/src/framework/mod.rs": "5da2d98a92ea6481972d6bfad97acafa12846b14407d85df2e7039b909edc3f1",
+      "core/raptr/native/src/framework/module_network.rs": "aeb995e4070b26d0d485459eb8922f97561a87216c52093fc3a8926dac88cdbe",
+      "core/raptr/native/src/framework/network.rs": "37b8ff2f685f43bba0ee6440ff3bcd742e7d86cb0ba6d4bba7a9b0a0a007ee57",
+      "core/raptr/native/src/framework/tcp_network.rs": "a094b485a6fa767681025fb3d6bc5751eab4611d2f0b93d440f165965bf21821",
+      "core/raptr/native/src/framework/timer.rs": "5712fcfb8e77aa47915aae535994b48061e19733aa752f764ccf8d0bca35cb38",
+      "core/raptr/native/src/jolteon.rs": "2aa4f06adf75e0e4390cf2a7903e7a931e9cb5a02ace4a03f37ba2a3dc29dbdf",
+      "core/raptr/native/src/jolteon_fast_qs.rs": "8e144ce0771453fdb60b4dd66906be3f67319e7caeced577b8e2e4fd990b9b2f",
+      "core/raptr/native/src/leader_schedule.rs": "8b7a73a6b259fab744cf90c88f5630d192b459b66e09d2f0cf70334e83aea9b2",
+      "core/raptr/native/src/lib.rs": "13c2e4f0bf1d4daadf1f2bb2e981c01eecd090639d030b98c1a4bbfad2d3e8dc",
+      "core/raptr/native/src/main.rs": "5f053c7d8855b9110da595dd0c2b2ccd34bacedc55be769f1d7761a5e9523eae",
+      "core/raptr/native/src/metrics.rs": "e8921f4ca6d3f7a01e9c4f5c4e1ed12d6aba790e82658989d2917d57324945ea",
+      "core/raptr/native/src/multichain.rs": "6f1d2fa39b2d66d50bb19d0a1b5bcba2e06a46fe30326da19ef59ee0c497d545",
+      "core/raptr/native/src/raptr/counters.rs": "aed6b3a2d97a4cd09bfa130e8c7d4e3b79e2ca8d5122b3fca0fade1626340ccd",
+      "core/raptr/native/src/raptr/dissemination/mod.rs": "fb12e3951eedfc1bb9b57a472369b3bbc26051ccfe67a36292c68a773f558051",
+      "core/raptr/native/src/raptr/dissemination/native.rs": "161a0764cb965b38bc2f2c8d98531f9c27f2c72017731879903bf5d2f656eba0",
+      "core/raptr/native/src/raptr/dissemination/penalty_tracker.rs": "437df8b607751c96c8225b525c673683268011d812693b39c71521f6dc985c42",
+      "core/raptr/native/src/raptr/mod.rs": "3d22ddace0f4720f8d7816e11613bb01cb91d754295733a9a654497aa09999e2",
+      "core/raptr/native/src/raptr/multichain_raikou.rs": "7920841394fd0d9466dc4edd93f1b9a27cc8d155266ad7cab7f36870d7de4d92",
+      "core/raptr/native/src/raptr/protocol.rs": "dafed0e224fad0aefb0d2386bcefcb920ccdb11adb9f6da3952574f87fc34918",
+      "core/raptr/native/src/raptr/protocol/extraction_tests.rs": "680abafba0a6a2989e245303c2f5dce5e0b4ccff8e429477497769c4f520276c",
+      "core/raptr/native/src/raptr/types/aptos_types.rs": "7d9e7a41169e37e0cc48d3fb4a4173fae6a65f122c0f258bf42bb0cc94866d5f",
+      "core/raptr/native/src/raptr/types/common.rs": "f53433e90d6eb53bf53b4c76071fc65c12f11e46f938b6428c24f5bc49f508ac",
+      "core/raptr/native/src/raptr/types/mod.rs": "d8a6822e1f02a1e0617cde01f61f61171b3f698261d0f60681feb4646dca0de8",
+      "core/raptr/native/src/raptr/types/sim_types.rs": "eeeb51edca455961bd0952ae052ff673c496105bb688c5cd109a6c053c6746b4",
+      "core/raptr/native/src/rehost.rs": "8223d9b2ccf026b07b9a7f523fad75fa020601aead848e330076716a09b2c98f",
+      "core/raptr/native/src/rehost/tests.rs": "18460ec8df5641f8310f5a303d5d6e0212e187461973962bfe7692ed11f1bd64",
+      "core/raptr/native/src/simulation_test.rs": "b95e339081042d273437b35c0aeb3f8839a83e4c45f067f735b4c3d30a97ee7b",
+      "core/raptr/node/Cargo.lock": "096834815072b5a4cae869a201abdf7cf3af79166af6955595ca8a48338bf413",
+      "core/raptr/node/Cargo.toml": "08a9d9d4ec64362f09e85959d1b010450fb4c588247828c301df1c818d311fa3",
+      "core/raptr/node/src/archive.rs": "be676b3bde70a6831401353fe6f58e0e50616e05099a5e2ba11c254b0f0272c0",
+      "core/raptr/node/src/config.rs": "c7be57b008f3f5d42920d44c891ed58fc447669a771eec7346b3871948070147",
+      "core/raptr/node/src/dissemination.rs": "e40243e33f6ab70a0144c5021d1dad9923d7677e011ec058a93b89c922a0b437",
+      "core/raptr/node/src/factory.rs": "642ade7d77a3a41ea4fae4f32aae05cfca35e520ecaa7bdbb1e60dae84d2ea9f",
+      "core/raptr/node/src/latency.rs": "3cea0d4edf2ef56120f02655cc4be3acddf5392fd8bc7815c0723a8f4d2e4679",
+      "core/raptr/node/src/lib.rs": "bf3200c56acdcf1706f2dde1c6c58589fb870e883c9970d3f954620593a1aca4",
+      "core/raptr/node/src/network.rs": "f882768fe4bf6dca04bd107c68625f1f1b922ae684d76693b5888195ce62732d",
+      "core/raptr/node/src/network_fault.rs": "dc35b5cde5bd2611682aa917c7b56298a0869481dd93830e1f302e050b4a5f62",
+      "core/raptr/node/src/output.rs": "3f81c089f8aafaaeb5b4b4f59e70d2d91c1979d2191f2f7806d68d2537a211f6",
+      "core/raptr/node/src/timer.rs": "fb8abfa408bac35e7a521f53946f5aa0eecbd2f14a811d214d6f8e76c7896fca",
+      "core/raptr/node/src/verify.rs": "76d27a72acdf023bd0d444c9419e6a1ae2a48fab25f1a124447ae450f59b1995",
+      "core/raptr/node/src/workload.rs": "b859993d74c6ea0ee839b6642c52883b1c57b1a694ad94aa810b42a452de1d70",
+      "core/raptr/node/tests/application.rs": "fc6d62033d86a9a74411c685ea3d3bb816a67940455999e16f397c987e08b957",
+      "core/raptr/qs/Cargo.lock": "8d5c5cebdea59d3efca9c403f984b96f00304f5e62994d44f8fe6c5485f5cae8",
+      "core/raptr/qs/Cargo.toml": "aceefe2be00437b0f8ea8110c7b5f4a68530c07b85aebd28871f7dc16536ce13",
+      "core/raptr/qs/src/assembly.rs": "f9f31d6386ba7c4828d933f91da63529430409c3d19e12590f490b9d1c3831bb",
+      "core/raptr/qs/src/counters.rs": "ac5adc81c734cfd8f27436b91576ba29474676b8efdfe2ab5ae1bd15cf0fed79",
+      "core/raptr/qs/src/error.rs": "b2ac9004e1fe46745839af8e02d75453f56f2ea168df93762f947cb43e845367",
+      "core/raptr/qs/src/latency.rs": "85a76dea3425850f93af2aeb66619ccd8d89ba736a32ffd3528f862fa611e06b",
+      "core/raptr/qs/src/lib.rs": "1b445aac962bb51b05f04482feede89ff73148383fae4e7c900d3c9288dca6a7",
+      "core/raptr/qs/src/liveness/mod.rs": "e49284068fd7e590a43044bd5d6ebe758d6de3b7094bb2e0d00cb74b503804c7",
+      "core/raptr/qs/src/liveness/proposal_status_tracker.rs": "6651302da7aec5bb80be3e2cf5fe56466f31f5756ebeeb758be34346f38cd1d8",
+      "core/raptr/qs/src/liveness/round_state.rs": "c1808559efc84c36afb6a0b0c87d881464225a0f818cfdd50c93d2c961607432",
+      "core/raptr/qs/src/logging.rs": "aca08036129d7aa811766a624014d342e41c6fe56f4814ebaea5f858c45ccfc4",
+      "core/raptr/qs/src/mempool.rs": "4d9feff5d775963225b341142b7edd6bd1ffbe181b947597b2e662e40681647c",
+      "core/raptr/qs/src/network.rs": "357c18680075c275aa766eea43262a0a0bdaf0ff0e35f3ab49a00cf4ea5d96cc",
+      "core/raptr/qs/src/payload_client/mod.rs": "e2c14d8aa5b6c727f6f8ec39327343f9b3ac677d30c54a7acc45456141be973a",
+      "core/raptr/qs/src/payload_client/user/mod.rs": "5b4407b6d7224bdf27f4fad723c1ba102ddba1c583d9543fc865f7db2fd025d8",
+      "core/raptr/qs/src/payload_client/user/quorum_store_client.rs": "0f2ec8dde5aa7343fedbfc69c8a8d1e694b3997fa1cf2728f49635b46b560dd1",
+      "core/raptr/qs/src/payload_manager/mod.rs": "39c63d665b3750e49f37a9cf05b138110005b61adef867c92cd85870b674b1bf",
+      "core/raptr/qs/src/payload_manager/quorum_store_payload_manager.rs": "4aa9eddd99b4c4e638fc118d576bac33aab218affb8dd4a9166708e5ebbd21ab",
+      "core/raptr/qs/src/payload_metadata.rs": "0db58ef112875e7430e51366d9d88d97f5a1a3518832cfcfd55338c9202dc5f8",
+      "core/raptr/qs/src/quorum_store/batch_coordinator.rs": "a0f3884b773108ca9ab58dcafb100484f8a849dc69be529a8cce59761f325a9e",
+      "core/raptr/qs/src/quorum_store/batch_generator.rs": "4819c319d4dbffaa83423a1eb8dffcf38020775eb45eadfd8e4ff4e103259678",
+      "core/raptr/qs/src/quorum_store/batch_proof_queue.rs": "ef288598ddb1ec1ba65ce6b455302c33697270551f64313ab934ed1f333a957d",
+      "core/raptr/qs/src/quorum_store/batch_requester.rs": "f23668db4ca981d4cd14e7a47ec64909950204caeaa19e4ddd69a5b9d349655b",
+      "core/raptr/qs/src/quorum_store/batch_store.rs": "03eec37bbc400e263897d23708de771401967ce7db47944f99943bcf3d573a0e",
+      "core/raptr/qs/src/quorum_store/counters.rs": "3b359819ae2d7a3b827bf94994bc9a4a235e7f5d6c74782f44ac444c09cad11a",
+      "core/raptr/qs/src/quorum_store/mod.rs": "606f09189185f0a0901df63b29cd62f06e8d85500af97cfeb28481dc4052b48c",
+      "core/raptr/qs/src/quorum_store/network_listener.rs": "18c71db84dfff77fe08533551beb2ab0452ac9995e6d09a799f70f6371c9e5b0",
+      "core/raptr/qs/src/quorum_store/proof_coordinator.rs": "16a09367eed9ba6eadb4737da7b9439df294addc5c41c7fbd5f282c5e106eb6c",
+      "core/raptr/qs/src/quorum_store/proof_manager.rs": "7016d607864d77bbd01afa0a7202944478342ae6138cd4729d25ad8ac9fefe31",
+      "core/raptr/qs/src/quorum_store/quorum_store_coordinator.rs": "f274bb1cea36f0018f6fe2a146ecb70f8d8299f2e86b8b523602933a5f719482",
+      "core/raptr/qs/src/quorum_store/quorum_store_db.rs": "7e81fe2f8930a8d8b42ef7a2df0576160fd51e4302d5f7693f9d8a8abc564e34",
+      "core/raptr/qs/src/quorum_store/tests/batch_requester_test.rs": "acefc10894f5b7f6156374a07434cf14ef17c579d64ed493676926e88a90aca6",
+      "core/raptr/qs/src/quorum_store/tests/byte_ranges_test.rs": "c8e91d3c05768913daedf0e21c06979965a4df3eebcd1bd21798ef6ee3dd1a18",
+      "core/raptr/qs/src/quorum_store/tests/mod.rs": "b1010ff1607ef28dee0a02ea26b573f533ea527a8212f11c5703dce2942ccad7",
+      "core/raptr/qs/src/quorum_store/tests/policy_test.rs": "4792cd8a2bd54f681b9b96727b005b83ba386cbe242694fd7a61c33190a4d069",
+      "core/raptr/qs/src/quorum_store/tests/types_test.rs": "0f32eef78eaf55fba5168d92372250a856b55f15f41023f308db8d91e9a5ed4a",
+      "core/raptr/qs/src/quorum_store/tracing.rs": "99999f732553fecda006e2d74d36877014686c846e1296ad97141a8498aa436a",
+      "core/raptr/qs/src/quorum_store/types.rs": "acbccb3ec67378a2b05db17822d4f3592b8edd1329907209151f5298002f7f3d",
+      "core/raptr/qs/src/quorum_store/utils.rs": "9f52d7c3dcf0a5aab2873466801e00bff8d2fa2bb627a8f4cda29a4c8ce52370",
+      "core/raptr/qs/src/round_manager.rs": "1328da461e12b44a1de210842475e0f848c845bc8eca962cc7ebb979cdcf49e1",
+      "core/raptr/qs/src/test_utils.rs": "c61dca53dd665e5d15125d61fcbc1fedae1d9f3792e9fe37ab88e6369ea0a3fd",
+      "core/raptr/src/latency.rs": "fd84c4e040dc39ab6ed38c5a4c37a4a149b61072ed07beea679e8a49b01fe022",
+      "core/raptr/src/lib.rs": "5d588e72147a99ba5e1923ce374bf207942da566aa9a860424cf9f295063cc2c",
+      "core/raptr/src/output.rs": "572d3f0bbc0ed650cc00c5fe05a25643aed6768d4f4d4f591754e7c30641effd",
+      "core/raptr/transport/Cargo.lock": "8873975a3f8dd5658a3823f99fd81a6fa7a04a11e5e31841e371c1535b4b987f",
+      "core/raptr/transport/Cargo.toml": "08fbbba618457c0482687aef7ffc03b88b178f15f9d12a050cff70a7dae78bbe",
+      "core/raptr/transport/src/lib.rs": "a7031a2bc742920fcbb0ecd26b2790aef368955f8bd8165333b23a0f2b454a90",
+      "core/raptr/transport/tests/tcp.rs": "86a0d2e6a99dbfee4d84f29f454b440144074bf8947de39ea051c23cb8d73835",
+      "node/Cargo.toml": "483a8caa08abbcee1d545f65317a5e7cf510f5d9656fd9b407a74ddbc3f7872b",
+      "node/src/lib.rs": "f9df8933a1f11d6a23aad472dba3d0e7968b25ed97c32e657ca899c7b58cfa00",
+      "node/src/main.rs": "e356bc2dea770f4b04c7ca73d3404f56338f9ec2f0cb15bbba99879151bedce1",
+      "node/src/shared_main.rs": "5c37d19e73cbdae5b61c8479a9cd506bc1847e26c9b77eb7521f387415a4042a",
+      "scripts/baselines/raptr_artifacts.py": "6ed46cc7e764fc4cba65e9597f6f4190e82cc4c9f4d6850d3086f8949f83c6cb",
+      "scripts/build_raptr_shared.py": "2b58b7a7d41a20d6b58f9cbfb88e50e97f11deeb58785a189a5ddfe73b8ccb31",
+      "scripts/run_raptr_shared_local.py": "35a14eba695297f42575c1e4ee9120708e576da616198dadc482d9ab19ea159f",
+      "shared/crypto-aptos/Cargo.toml": "373023e157babb301409bfb70af396662ae59f5a54e43dce94884234f7d63967",
+      "shared/crypto-aptos/src/lib.rs": "e91ba943d808b30b38d61b0ec6c9a1154cb08d8007b3559cc385634bf0eefe30",
+      "shared/crypto/Cargo.toml": "e119b365a54d6429b7bbdea7a7515ea1f974fe9e90ad8bb62cd594ee4420b456",
+      "shared/crypto/src/lib.rs": "b92c27b945f5e670f5dc6af1e4168ca5709005a71bf913e9d39abac26c55f289",
+      "shared/mempool/Cargo.toml": "b7fd4216e35b5dbbe9ca5a23ab519b135709f9e6cd0cb974f6cd53acf09a3b7c",
+      "shared/mempool/src/lib.rs": "0cae5dcc68d05d1209abf531d49329893629ae481fc30f138907394c78b5b930",
+      "shared/metrics/Cargo.toml": "d00a855e3ce02ab1d70143ce2891ed9bb99bcb116c5d406df672311fe66b4ffe",
+      "shared/metrics/src/lib.rs": "700471d3e31dde209907aab7a78011933cf37ba1ccc1ef8655c3ad89e9511274",
+      "shared/network-async/Cargo.toml": "b9ede73b5035cf69901e9bd2e63160e9f419f14e1ddce8c00617864166af7779",
+      "shared/network-async/src/lib.rs": "72bbd110fa41531722c059cc9e804e30c79228b4613207de20ea875f1f448efb",
+      "shared/network/Cargo.toml": "37e3c5fbdbd8200a3f7970b0f9162860ec7be23a90b1c704b9872bd36d0b37e7",
+      "shared/network/src/lib.rs": "8ceaf08b93d0c251d70088005c041ccb0714c266482f3578816aa83b02599b7d",
+      "shared/network/src/tests.rs": "dcb3be53c25322a652194344948d94d6f89140148367f2e6f4ddb3704edcd713",
+      "shared/output/Cargo.toml": "b583670fd247cdf313a40c6cec3b667907a81473013cec80f4bf069d7a042a60",
+      "shared/output/src/lib.rs": "b3c7b34001aec3770021747b2ac365021716cc1dffbde920bd5d031f054c1b2b",
+      "shared/runtime-async/Cargo.lock": "3dc3ba07aa653d8954bc04ef015a0da7b0871f10d88a59be6ffb5d0ae051509a",
+      "shared/runtime-async/Cargo.toml": "727472838fae7968c9eb08c03b4625093c0dff64e2e900e1bb736dedcba29497",
+      "shared/runtime-async/src/executor.rs": "3a1a0e5a30d39ea0441ad2e5fdd5682e77e1500c358c046ab7c7d4bb7e630c39",
+      "shared/runtime-async/src/lib.rs": "eb540f9e4ab39c3d2fb077aed80bbe932dd929b0529414b7cb2637b7ce991808",
+      "shared/runtime-async/src/timer.rs": "9871f0b11010ea528117c5a34f49076a7de337b618aa2986ddaad9242b8c6089",
+      "shared/runtime-async/tests/rayon.rs": "dc51fbb78c79a5a57176f834ec0081b7710213433f27c9216cd916076b6ac8a5",
+      "shared/runtime/Cargo.toml": "536ec1798aee11b388eb8f736cc26ece59abe3779f4be7a8379afa0b8450a51e",
+      "shared/runtime/src/lib.rs": "5923550ceb69993223e1746dc4f8580af291e2d1fa5cc20d2cd09c1c6ce56948",
+      "shared/store-rocksdb/Cargo.lock": "bad76ddfd53b8c9581ff20001755cb86bcd536fc666735f8bd34efa79c7e93f7",
+      "shared/store-rocksdb/Cargo.toml": "613608fb675407052f809f4b54c5b302e493ad7823a27dd024a34bcf50906bf7",
+      "shared/store-rocksdb/src/backend.rs": "d83454b8a50bfc8966374eee210c1447f25f0481fb8325390b0ce42e0d930ff9",
+      "shared/store-rocksdb/src/lib.rs": "7a6cb2dfd5f93b14698b18d43a2493172ff543444de662b34623e9699b2e272f",
+      "shared/store-rocksdb/tests/backend.rs": "d17e48ff23c0478d6f051cd9c7f8eb4c0161455a0816ab9152091272a92d0441",
+      "shared/store/Cargo.toml": "7c30a4a50181638f6625e2f5201f4e7a4748e8ce335fe497b61e55ffb2dedef6",
+      "shared/store/src/lib.rs": "893938da9b1f88b384d463067431876f4b957e7cb8258887c0f924fef3917007"
+    },
+    "profiles": {
+      "provenance/shared-services-v1.json": "be251ad1844b9347df20251e89ada8d6cdfdb17e84a7701c9aaad15797090608",
+      "shared/store-rocksdb/native-profile.json": "855f3814a714469d8cdb7c0cfd4cd9f2b061d2d8b66ab68dab16eb01b21bbb87"
+    },
+    "tests": {
+      "rust_release_passed": 28,
+      "failed": 0,
+      "log": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/source/results/cloud-build/test/cargo.log",
+        "sha256": "35177ad1527f5f848fb7e9fe9b7ab306688b3aca48174906a4a5b89d25ab2b85",
+        "bytes": 64199
+      },
+      "linux_supervisor_passed": 5,
+      "supervisor_log": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/logs/linux-supervisor-tests.log",
+        "sha256": "35a3369f62e7b74a27216a10a1f63edd0db9141245c945c5ea8483187262dbab",
+        "bytes": 104
+      }
+    },
+    "remote_target_removed": true
+  },
+  "network_all_pairs_preflight": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-freshness-wan-20261030/network-matrix.json",
+    "sha256": "761a5e20cb53c4793fd021fdbb4e9f5299d05a6d0e747933ca7c042a0a8372d9",
+    "bytes": 8726
+  },
+  "cleanup": {
+    "testbed": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/testbed.json",
+      "sha256": "cd788ba5f6e5e1d3eee53fa9af3804625a5521a44ac14959a65a110457db5e4f",
+      "bytes": 717
+    },
+    "all_four_instances_deleted": true,
+    "all_four_security_groups_deleted": true,
+    "leases": [
+      {
+        "region": "ap-southeast-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-0.json",
+          "sha256": "435469b86da9891d1db35756f2ae450237884d5a3dd6e30c641984346e047944",
+          "bytes": 6955
+        },
+        "start": "2026-10-29T16:07:17.734027+00:00",
+        "end": "2026-10-29T16:45:35.417633+00:00",
+        "elapsed_seconds": 2297.683606,
+        "hourly_quote_cny": 5.8333,
+        "quote_estimate_cny": 3.7230771607999444,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      },
+      {
+        "region": "eu-central-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-1.json",
+          "sha256": "dfe6cf27685b65f46bc043e624692969012c5dbf37b83c40b5a12c1030b58252",
+          "bytes": 6954
+        },
+        "start": "2026-10-29T16:07:49.247225+00:00",
+        "end": "2026-10-29T16:45:43.020774+00:00",
+        "elapsed_seconds": 2273.773549,
+        "hourly_quote_cny": 5.74714,
+        "quote_estimate_cny": 3.629915253999961,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      },
+      {
+        "region": "eu-west-1",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-2.json",
+          "sha256": "6f50525f7acc37b6c708f3af4604a203985e9ea1551e7a60c33a48a1a78520f4",
+          "bytes": 6952
+        },
+        "start": "2026-10-29T16:08:23.013335+00:00",
+        "end": "2026-10-29T16:45:50.824472+00:00",
+        "elapsed_seconds": 2247.811137,
+        "hourly_quote_cny": 3.92384,
+        "quote_estimate_cny": 2.4500142366128,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      },
+      {
+        "region": "ap-northeast-2",
+        "lease": {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-3.json",
+          "sha256": "702328aae0bc03a0e4c24d0b5efc7a7b06904daddb9ea570ab78daf1512eb9a0",
+          "bytes": 6955
+        },
+        "start": "2026-10-29T16:08:56.266079+00:00",
+        "end": "2026-10-29T16:45:57.362146+00:00",
+        "elapsed_seconds": 2221.096067,
+        "hourly_quote_cny": 5.79978,
+        "quote_estimate_cny": 3.5782968187403497,
+        "instances_deleted": true,
+        "security_group_delete_acknowledged": true
+      }
+    ],
+    "quote_estimate_cny": 13.381303470153055,
+    "cost_basis": "Fresh full-profile hourly quotes times launch-ack to security-group-delete-ack elapsed; includes build/setup; estimate pending final provider billing. Prior unsettled reservations retained."
+  },
+  "local_cleanup": {
+    "scope": "duplicate extracted native source archives only; verified recoverable from retained build-evidence.tar; executables, publication, receipts, logs and raw benchmark evidence retained",
+    "bytes_reclaimed": 263761920,
+    "removed": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/source/results/cloud-build/build/native-source.tar",
+        "bytes": 131880960,
+        "sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+        "recoverable_from_member": "source/results/cloud-build/build/native-source.tar"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/files/source/results/cloud-build/test/native-source.tar",
+        "bytes": 131880960,
+        "sha256": "a3da363be4fe6e93eef27c81e5ba30cc8182e73cd468ea72792d5215ad437932",
+        "recoverable_from_member": "source/results/cloud-build/test/native-source.tar"
+      }
+    ],
+    "retained_archive": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/builds/5c7057ff9a7c90c531ceed671678c396ea85e0d7/collected/build-evidence.tar",
+    "remote_compiler_target_removed": true
+  },
+  "budget": {
+    "new_fleet_cap_cny": 80,
+    "estimated_actual_cny": 13.381303470153055,
+    "provider_billing_final": false,
+    "old_unsettled_reservations_preserved": true,
+    "authorization": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-freshness-wan-20261030/authorization.json",
+      "sha256": "518f22323815c99bbdb37eac5c72460d9281b3b9ca188fc57a6b32ccf351293c",
+      "bytes": 742
+    }
+  },
+  "earlier_failed_create": {
+    "record": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-freshness-wan-20261029/blocked-record.json",
+      "sha256": "612bbfa67f64c6ffab3eada528a68abe222f0e4f3dce177abdeabba7aee047cd",
+      "bytes": 4469
+    },
+    "instances": 0,
+    "workloads": 0,
+    "owned_setup_group_deleted": true
+  },
+  "saved_raptr_record": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/record.json",
+    "sha256": "d3e1f72437ba43f2b5e534cb5dca17e678e6260e2aad83daeccba98e86d7aef5",
+    "bytes": 8208
+  },
+  "report_outputs": {
+    "README.md": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/README.md",
+      "sha256": "2638cb642e91c46b422ec8b2a3b3b0fe1c06bb2c5cf6af6af72a355a28f38318",
+      "bytes": 10006
+    },
+    "cleanup-cost.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/cleanup-cost.json",
+      "sha256": "7d51e729172e94442da4d95d84ae4320fce5475fcc7b9e98610c2abc01205bc6",
+      "bytes": 3035
+    },
+    "common-stages.csv": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/common-stages.csv",
+      "sha256": "30e1cd634418ecb7f68c9dc7874305c0124870edc7463cabcdbc480d6e00f1e3",
+      "bytes": 944
+    },
+    "comparison.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/comparison.json",
+      "sha256": "f9d98962364bafb3dc2a69133e15c2562acb673ec5a00dfea0bf83707561fe7c",
+      "bytes": 189060
+    },
+    "delugi-healthy-decomposition.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/delugi-healthy-decomposition.json",
+      "sha256": "8c74ca400e32f0ada17a84a0cd2f90d2a83ce27b225ef4c4648bb9f2532f00b6",
+      "bytes": 3499
+    },
+    "delugi-silent-first-leader-decomposition.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/delugi-silent-first-leader-decomposition.json",
+      "sha256": "34a0b2164928dc3a810e264b3d1cc47699149040fcb447524b58630eeb780861",
+      "bytes": 3072
+    },
+    "latency-decomposition-comparison.pdf": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/latency-decomposition-comparison.pdf",
+      "sha256": "2344d889b7c20d5861374655ffd6c9eb5789b4988a193d346abef407424fe748",
+      "bytes": 35482
+    },
+    "latency-decomposition-comparison.png": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/latency-decomposition-comparison.png",
+      "sha256": "c44bcddb5635bc51fcbf67ac71972cc8194550d5243ab135960bc6665d0604d0",
+      "bytes": 180439
+    },
+    "latency-decomposition-comparison.svg": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/latency-decomposition-comparison.svg",
+      "sha256": "f0a7f819fb1e6d76be9dd91c71218a0b50b9a80f04a5748f0edd29c822fbc821",
+      "bytes": 21122
+    },
+    "mechanism-audit.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/mechanism-audit.json",
+      "sha256": "145b7433d65276b75daf6dc67d6c67cc2244a4a487dd5c6c52b16c456b89bd36",
+      "bytes": 1098139
+    },
+    "mechanism-audit.md": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/mechanism-audit.md",
+      "sha256": "bff363024dc1e3479d28f19640815da7730e98b3a71e54c915b8ea387070f791",
+      "bytes": 7564
+    },
+    "mechanism_audit.py": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/mechanism_audit.py",
+      "sha256": "9ba200628a0a3ea119a68821c8f0a1fe266fdc268fcee9012e343e6f9244f220",
+      "bytes": 15450
+    },
+    "parameters.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/parameters.json",
+      "sha256": "de51ff997f72261662d6ce300e3c8246d36edc5754b28f62bd2cef1629105614",
+      "bytes": 1502
+    },
+    "plot_comparison.py": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/plot_comparison.py",
+      "sha256": "f213fa16d7348336eeb3557151af971571b31237c985ef939d6022684fe40b02",
+      "bytes": 13811
+    },
+    "summary.csv": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/summary.csv",
+      "sha256": "e2cb6da9022358c488d165aad456d6abb87bd50acd262c76f56acd7e76f59aa6",
+      "bytes": 6058
+    },
+    "summary.json": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/summary.json",
+      "sha256": "f1756d381c303959bedcb25e7b0cd188b855bd54ff633a6ddffee04827244287",
+      "bytes": 11642
+    },
+    "summary.txt": {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/summary.txt",
+      "sha256": "450be1fe2fe30201fb2af89789ba088b6670d61f7d8e945c77684bacd9cc9367",
+      "bytes": 632
+    }
+  },
+  "limitations": [
+    "One run per case at one low offered rate; no saturation sweep or repetition confidence interval.",
+    "Raptr is a saved independent WAN run, with2992/3000 scheduled silent-case requests admitted and completed.",
+    "Native batching, 7Delta/4Delta timers, and faulty identities/locations differ.",
+    "Current transaction midpoint is local acceptance, not first leader-emission time.",
+    "Clock-start uncertainty and full per-stage/cohort definitions are retained in comparison.json.",
+    "Residual observation-cutoff waits remain; the scheduling correction is not a universal freshness bound."
+  ]
+}

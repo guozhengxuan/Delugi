@@ -108,8 +108,16 @@ delay matrix, healthy mean latency changes from 635.09 to 560.38 ms and silent
 latency from 10,607.02 to 3,866.22 ms. All eight paired uniform/asymmetric
 healthy/silent runs complete 1,000/1,000 requests. These memory-storage,
 userspace-delay diagnostics do not replace WAN results. The saved cloud
-publication predates this core change and is rejected by source validation;
-build a new shared Linux publication before another deployment.
+publication from that earlier run predates the core change. The current shared
+Linux publication is now **5c7057f**, including correction **8d84dec**, and its
+[30 October corrected Delugi WAN check](../benchmarks/results/delugi-freshness-wan-2026-10-30/README.md)
+completed exactly two 30-second healthy/silent runs at 100 tx/s. Both completed
+and fully traced 3,000/3,000 requests. Means are **511.03 / 4,093.18 ms**, versus
+saved Raptr's 448.58 / 2,985.65 ms. Prefix waiting in the silent case falls from
+6,655.11 to 246.42 ms. All four instances and security groups are deleted; the
+quote-based build/setup/run cost estimate is CNY13.38, pending billing. The
+publication and matching local verifier remain selected for reuse while their
+source bindings match.
 
 ## Run and reuse
 
@@ -202,8 +210,9 @@ been exhausted; a new bounded remote matrix must be selected before more runs.
 
 Delugi also supports bounded latency-stage tracing and offline `fab decompose`.
 See [the stage boundaries, trace settings and REPORT scheduling revision](../docs/evaluation/latency-decomposition.md).
-The `history_ready` REPORT schedule is the default; `admission` retains the old
-composition schedule for explicit comparisons. Both are recorded in results.
+The `pipeline` REPORT schedule with canonical immediate PROG is the default.
+`history_ready` and `admission` retain earlier preparation schedules for
+explicit comparisons; the selected schedule is recorded in results.
 
 `bench/logs.py` and `bench/plot.py` adopt Narwhal's separation of per-run parsing,
 summary export and publication figures ([logs.py](https://github.com/asonnino/narwhal/blob/master/benchmark/benchmark/logs.py),

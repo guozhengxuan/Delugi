@@ -1,6 +1,34 @@
 # Delugi implementation and evaluation plan
 
-Updated **29 October 2026**. The premature REPORT preparation exposed by the
+Updated **30 October 2026**. The corrected Delugi four-region WAN verification
+is complete. Exactly two workloads ran: healthy and silent leader, each 30 s
+at 100 tx/s on Singapore, Frankfurt, London and Seoul, with Δ=1,000 ms,
+one useful byte and 20 Mbps. Both completed and fully traced **3,000/3,000**
+requests with correct output agreement. The shared Linux publication is built
+from **5c7057f**, includes runtime correction **8d84dec**, and passed 28 release
+checks plus five Linux supervisor checks. Its local verifier matches all 165
+stamped source files.
+
+| WAN mean admission → verified output, ms | Corrected Delugi | Prior pipeline Delugi | Saved Raptr |
+|---|---:|---:|---:|
+| Healthy | **511.03** | 617.37 | 448.58 |
+| Persistent silent leader | **4,093.18** | 10,742.39 | 2,985.65 |
+
+The correction removes the extra silent-cycle wait: prefix waiting falls from
+6,655.11 to **246.42 ms**, and third-anchor execution rises from 183 to
+**2,891 of 3,000** requests. Delugi remains 13.9% slower healthy and 37.1% slower
+under silence than saved Raptr; the remaining aggregate gap is before proposal
+acceptance. The transaction midpoint is origin-local verified proposal
+acceptance, not leader handoff. Native batching, 7Δ/4Δ timers and faulty-node
+placement remain different and are reported explicitly.
+
+All four instances and security groups are deleted. The full build/setup/run
+quote-based estimate is **CNY13.38**, pending billing. Remote compiler targets
+were removed; local duplicate extraction cleanup reclaimed 263.76 MB while
+retaining the publication, raw archive and logs. See the
+[corrected WAN comparison and mechanism audit](benchmarks/results/delugi-freshness-wan-2026-10-30/README.md).
+
+The preceding local implementation checkpoint follows. The premature REPORT preparation exposed by the
 WAN rerun is corrected in **8d84dec**. Speculative preparation for opportunity
 `k` now requires both own completed prefix `k-4` and **full validation of
 PROPOSE(k-3)**. Round 4 uses the completed genesis prefix plus valid PROPOSE(1).
@@ -33,23 +61,16 @@ and δ=99 ms / Δ=100 ms recovery remain passing. **276 Rust tests** pass (20
 explicitly ignored), together with **58 relevant Python checks**.
 See the [fix and matched local evidence](benchmarks/results/freshness-fix-2026-10-29/README.md).
 
-The requested four-region rerun was attempted on 29 October, with the same
-two 30-second, 100 tx/s Delugi cases and an ¥80 fleet cap. Aliyun rejected
-the first instance with `InvalidAccountStatus.NotEnoughBalance`; the live
-account balance was ¥87.16. No VM or workload started. The owned setup
-security group was deleted and all four lease records were closed. The
-matched settings and saved Raptr comparison are prepared under
-`results/local/delugi-freshness-wan-20261029`; resume after the account top-up.
-The fresh local shared verifier is built and validated against all 165 stamped
-sources at `837bf09`; its receipt is saved under
-`results/local/delugi-freshness-wan-local-build-20261029`. Local compiler
-cleanup reclaimed 2.16 GB. The Linux publication still needs rebuilding.
+The initial 29 October create request was rejected for account balance before
+any VM or workload started; its setup security group was deleted. Funding was
+confirmed on 30 October and the completed two-case run above used a fresh
+fleet and source-bound Linux publication. The failed attempt remains under
+`results/local/delugi-freshness-wan-20261029`, and the completed deployment
+record is under `results/local/delugi-freshness-wan-20261030`.
 
-No cloud workload was run for this correction. A fresh shared Linux build is
-required before the requested WAN check; the previous publication is
-source-stale and must remain historical evidence. Selective Byzantine delivery
-of a valid predecessor can still trigger early preparation before a later
-timeout, so the correction is not a universal transaction-freshness bound.
+Selective Byzantine delivery of a valid predecessor can still trigger early
+preparation before a later timeout, so this correction is not a universal
+transaction-freshness bound.
 
 The following is the preceding pipeline implementation and WAN checkpoint.
 The intended one-δ Delugi proposal pipeline is
@@ -126,8 +147,8 @@ Next evaluation work:
 
 1. Qualify the corrected preparation guard under selective valid-proposal
    withholding and asymmetric message schedules. Preserve the passing silent
-   freshness and healthy cadence regressions. Rebuild the shared release before
-   a separately requested WAN comparison; do not reuse the stale publication.
+   freshness and healthy cadence regressions. The corrected 5c7057f shared
+   publication is current; rebuild only after a bound runtime source changes.
 2. Align both protocols' primary transaction split at **first valid leader
    proposal finalization/handoff**, with exact batch membership. The new
    leader-local PROPOSE→CER measurement proves Delugi's pipeline but is not
@@ -139,7 +160,8 @@ Next evaluation work:
 4. Review the updated composition trigger with the paper and refresh its
    reviewed provenance only after that source change is accepted. Future cloud
    work uses the established Fabric configuration and budget controls. The
-   requested two-case WAN check is complete; no rate sweep was run.
+   corrected two-case WAN check is complete; no rate sweep or Raptr rerun was
+   performed.
 
 The following WAN results and earlier implementation checkpoints are retained
 as historical comparison evidence.

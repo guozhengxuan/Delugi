@@ -1,0 +1,73 @@
+{
+  "testbed": {
+    "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/testbed.json",
+    "sha256": "cd788ba5f6e5e1d3eee53fa9af3804625a5521a44ac14959a65a110457db5e4f",
+    "bytes": 717
+  },
+  "all_four_instances_deleted": true,
+  "all_four_security_groups_deleted": true,
+  "leases": [
+    {
+      "region": "ap-southeast-1",
+      "lease": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-0.json",
+        "sha256": "435469b86da9891d1db35756f2ae450237884d5a3dd6e30c641984346e047944",
+        "bytes": 6955
+      },
+      "start": "2026-10-29T16:07:17.734027+00:00",
+      "end": "2026-10-29T16:45:35.417633+00:00",
+      "elapsed_seconds": 2297.683606,
+      "hourly_quote_cny": 5.8333,
+      "quote_estimate_cny": 3.7230771607999444,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    },
+    {
+      "region": "eu-central-1",
+      "lease": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-1.json",
+        "sha256": "dfe6cf27685b65f46bc043e624692969012c5dbf37b83c40b5a12c1030b58252",
+        "bytes": 6954
+      },
+      "start": "2026-10-29T16:07:49.247225+00:00",
+      "end": "2026-10-29T16:45:43.020774+00:00",
+      "elapsed_seconds": 2273.773549,
+      "hourly_quote_cny": 5.74714,
+      "quote_estimate_cny": 3.629915253999961,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    },
+    {
+      "region": "eu-west-1",
+      "lease": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-2.json",
+        "sha256": "6f50525f7acc37b6c708f3af4604a203985e9ea1551e7a60c33a48a1a78520f4",
+        "bytes": 6952
+      },
+      "start": "2026-10-29T16:08:23.013335+00:00",
+      "end": "2026-10-29T16:45:50.824472+00:00",
+      "elapsed_seconds": 2247.811137,
+      "hourly_quote_cny": 3.92384,
+      "quote_estimate_cny": 2.4500142366128,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    },
+    {
+      "region": "ap-northeast-2",
+      "lease": {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/testbeds/4/8046a78595484dc2ae3cb09ecfae3bc2/lease-3.json",
+        "sha256": "702328aae0bc03a0e4c24d0b5efc7a7b06904daddb9ea570ab78daf1512eb9a0",
+        "bytes": 6955
+      },
+      "start": "2026-10-29T16:08:56.266079+00:00",
+      "end": "2026-10-29T16:45:57.362146+00:00",
+      "elapsed_seconds": 2221.096067,
+      "hourly_quote_cny": 5.79978,
+      "quote_estimate_cny": 3.5782968187403497,
+      "instances_deleted": true,
+      "security_group_delete_acknowledged": true
+    }
+  ],
+  "quote_estimate_cny": 13.381303470153055,
+  "cost_basis": "Fresh full-profile hourly quotes times launch-ack to security-group-delete-ack elapsed; includes build/setup; estimate pending final provider billing. Prior unsettled reservations retained."
+}

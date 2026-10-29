@@ -1,0 +1,405 @@
+{
+  "schema": 1,
+  "plan_sha256": "a4aca7324071ef783b5dce9a8fcaf99938b88f8f01113ef7b4f9c45677a5cc3d",
+  "status": "completed",
+  "rows": [
+    {
+      "trial_id": "b02e64f55f4e7fa0598860f6",
+      "protocol": "delugi",
+      "nodes": 4,
+      "case": "healthy",
+      "rate": 100,
+      "status": "passed",
+      "error": null,
+      "duration_s": 30,
+      "useful_transaction_bytes": 1,
+      "faults": 0,
+      "scheduled": 3000,
+      "admitted": 3000,
+      "completed": 3000,
+      "unfinished": 0,
+      "admission_fraction": 1.0,
+      "completion_fraction": 1.0,
+      "goodput_tps": 98.66666666666666,
+      "pending_at_end": 40,
+      "p50_ms": 504.29,
+      "p95_ms": 694.959,
+      "p99_ms": 735.894,
+      "p95_status": "observed",
+      "stability": {
+        "boundary": "half-open intervals; pending immediately before each boundary; scheduled_not_output retains rejected and not-yet-admitted requests",
+        "clock": "equal fractions of each origin's own measurement window, floored to microseconds; no cross-host timestamp subtraction",
+        "intervals": [
+          {
+            "admitted": 300,
+            "completed": 250,
+            "interval": 0,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 305,
+            "interval": 1,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 287,
+            "interval": 2,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 304,
+            "interval": 3,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 315,
+            "interval": 4,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 289,
+            "interval": 5,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 302,
+            "interval": 6,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 288,
+            "interval": 7,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 304,
+            "interval": 8,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 316,
+            "interval": 9,
+            "rejected": 0,
+            "scheduled": 300
+          }
+        ],
+        "origin_duration_us": {
+          "0": 30000000,
+          "1": 30000000,
+          "2": 30000000,
+          "3": 30000000
+        },
+        "samples": [
+          {
+            "boundary": 0,
+            "pending_admitted": 0,
+            "scheduled_not_output": 0
+          },
+          {
+            "boundary": 1,
+            "pending_admitted": 50,
+            "scheduled_not_output": 50
+          },
+          {
+            "boundary": 2,
+            "pending_admitted": 45,
+            "scheduled_not_output": 45
+          },
+          {
+            "boundary": 3,
+            "pending_admitted": 58,
+            "scheduled_not_output": 58
+          },
+          {
+            "boundary": 4,
+            "pending_admitted": 54,
+            "scheduled_not_output": 54
+          },
+          {
+            "boundary": 5,
+            "pending_admitted": 39,
+            "scheduled_not_output": 39
+          },
+          {
+            "boundary": 6,
+            "pending_admitted": 50,
+            "scheduled_not_output": 50
+          },
+          {
+            "boundary": 7,
+            "pending_admitted": 48,
+            "scheduled_not_output": 48
+          },
+          {
+            "boundary": 8,
+            "pending_admitted": 60,
+            "scheduled_not_output": 60
+          },
+          {
+            "boundary": 9,
+            "pending_admitted": 56,
+            "scheduled_not_output": 56
+          },
+          {
+            "boundary": 10,
+            "pending_admitted": 40,
+            "scheduled_not_output": 40
+          }
+        ],
+        "schema": 1,
+        "subwindows": 10
+      },
+      "traffic_measurement_written_bytes": 39598346,
+      "traffic_sampled_total_written_bytes": 45815146,
+      "traffic_window_quality": "sampled host-local boundaries; inspect per-replica timestamps",
+      "traffic_boundary": "successful_replica_tcp_stream_writes",
+      "cohort_status": "all_completed",
+      "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+      "end_to_end_p50_ms": 504.296,
+      "end_to_end_p50_lower_bound_ms": 504.296,
+      "end_to_end_p50_status": "observed",
+      "end_to_end_p95_ms": 695.01,
+      "end_to_end_p95_lower_bound_ms": 695.01,
+      "end_to_end_p95_status": "observed",
+      "end_to_end_p99_ms": 735.951,
+      "end_to_end_p99_lower_bound_ms": 735.951,
+      "end_to_end_p99_status": "observed",
+      "admission_p50_ms": 504.29,
+      "admission_p50_lower_bound_ms": 504.29,
+      "admission_p50_status": "observed",
+      "admission_p95_ms": 694.959,
+      "admission_p95_lower_bound_ms": 694.959,
+      "admission_p95_status": "observed",
+      "admission_p99_ms": 735.894,
+      "admission_p99_lower_bound_ms": 735.894,
+      "admission_p99_status": "observed",
+      "measurement_completion_count": 2960,
+      "cohort_completion_fraction": 1.0,
+      "result_sha256": "05b589eeea28ef629966d0af6c7b48287c4a1e5daa25c555bfd42776ad6be0c4"
+    },
+    {
+      "trial_id": "d22bcc884402d1e925c4eed8",
+      "protocol": "delugi",
+      "nodes": 4,
+      "case": "silent-first-leader",
+      "rate": 100,
+      "status": "passed",
+      "error": null,
+      "duration_s": 30,
+      "useful_transaction_bytes": 1,
+      "faults": 1,
+      "scheduled": 3000,
+      "admitted": 3000,
+      "completed": 3000,
+      "unfinished": 0,
+      "admission_fraction": 1.0,
+      "completion_fraction": 1.0,
+      "goodput_tps": 88.19999999999999,
+      "pending_at_end": 354,
+      "p50_ms": 4188.393,
+      "p95_ms": 7241.671,
+      "p99_ms": 7586.742,
+      "p95_status": "observed",
+      "stability": {
+        "boundary": "half-open intervals; pending immediately before each boundary; scheduled_not_output retains rejected and not-yet-admitted requests",
+        "clock": "equal fractions of each origin's own measurement window, floored to microseconds; no cross-host timestamp subtraction",
+        "intervals": [
+          {
+            "admitted": 300,
+            "completed": 0,
+            "interval": 0,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 497,
+            "interval": 1,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 0,
+            "interval": 2,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 0,
+            "interval": 3,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 724,
+            "interval": 4,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 0,
+            "interval": 5,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 700,
+            "interval": 6,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 0,
+            "interval": 7,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 725,
+            "interval": 8,
+            "rejected": 0,
+            "scheduled": 300
+          },
+          {
+            "admitted": 300,
+            "completed": 0,
+            "interval": 9,
+            "rejected": 0,
+            "scheduled": 300
+          }
+        ],
+        "origin_duration_us": {
+          "1": 30000000,
+          "2": 30000000,
+          "3": 30000000
+        },
+        "samples": [
+          {
+            "boundary": 0,
+            "pending_admitted": 0,
+            "scheduled_not_output": 0
+          },
+          {
+            "boundary": 1,
+            "pending_admitted": 300,
+            "scheduled_not_output": 300
+          },
+          {
+            "boundary": 2,
+            "pending_admitted": 103,
+            "scheduled_not_output": 103
+          },
+          {
+            "boundary": 3,
+            "pending_admitted": 403,
+            "scheduled_not_output": 403
+          },
+          {
+            "boundary": 4,
+            "pending_admitted": 703,
+            "scheduled_not_output": 703
+          },
+          {
+            "boundary": 5,
+            "pending_admitted": 279,
+            "scheduled_not_output": 279
+          },
+          {
+            "boundary": 6,
+            "pending_admitted": 579,
+            "scheduled_not_output": 579
+          },
+          {
+            "boundary": 7,
+            "pending_admitted": 179,
+            "scheduled_not_output": 179
+          },
+          {
+            "boundary": 8,
+            "pending_admitted": 479,
+            "scheduled_not_output": 479
+          },
+          {
+            "boundary": 9,
+            "pending_admitted": 54,
+            "scheduled_not_output": 54
+          },
+          {
+            "boundary": 10,
+            "pending_admitted": 354,
+            "scheduled_not_output": 354
+          }
+        ],
+        "schema": 1,
+        "subwindows": 10
+      },
+      "traffic_measurement_written_bytes": 8552148,
+      "traffic_sampled_total_written_bytes": 9264730,
+      "traffic_window_quality": "sampled host-local boundaries; inspect per-replica timestamps",
+      "traffic_boundary": "successful_replica_tcp_stream_writes",
+      "cohort_status": "all_completed",
+      "endpoint_contract": "admission_to_origin_local_payload_verified_contiguous_output_v1",
+      "end_to_end_p50_ms": 4188.449,
+      "end_to_end_p50_lower_bound_ms": 4188.449,
+      "end_to_end_p50_status": "observed",
+      "end_to_end_p95_ms": 7241.732,
+      "end_to_end_p95_lower_bound_ms": 7241.732,
+      "end_to_end_p95_status": "observed",
+      "end_to_end_p99_ms": 7586.798,
+      "end_to_end_p99_lower_bound_ms": 7586.798,
+      "end_to_end_p99_status": "observed",
+      "admission_p50_ms": 4188.393,
+      "admission_p50_lower_bound_ms": 4188.393,
+      "admission_p50_status": "observed",
+      "admission_p95_ms": 7241.671,
+      "admission_p95_lower_bound_ms": 7241.671,
+      "admission_p95_status": "observed",
+      "admission_p99_ms": 7586.742,
+      "admission_p99_lower_bound_ms": 7586.742,
+      "admission_p99_status": "observed",
+      "measurement_completion_count": 2646,
+      "cohort_completion_fraction": 1.0,
+      "result_sha256": "7365f3604d1672b7c6d485ae7006364c71a9b39f7a4a846ea992c7374efbccf2"
+    }
+  ],
+  "source": "hash-checked trial results and retained per-replica journals",
+  "measurement_duration_s": 30,
+  "drain_s": 15,
+  "parameters": {
+    "nodes": [
+      4
+    ],
+    "tx_bytes": 1,
+    "Delta_ms": 1000,
+    "egress_mbps": 20,
+    "added_delay_ms": 0,
+    "network_modes": [
+      "observed-wan-v1"
+    ]
+  }
+}

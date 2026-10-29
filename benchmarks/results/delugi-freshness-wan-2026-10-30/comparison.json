@@ -1,0 +1,6333 @@
+{
+  "schema": 1,
+  "comparison": {
+    "healthy": {
+      "delugi_pipeline_saved": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 617.3704563333333,
+        "mean_schedule_to_admission_ms": 0.04275866666666667,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6404273333333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 424.002048
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 187.55037533333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 5.1776056666666666
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6404273333333333
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 424.002048
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 187.55037533333333
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 5.023091333333333
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.061961333333333334
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 0.092553
+          }
+        ]
+      },
+      "raptr_saved": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 448.5812526666666,
+        "mean_schedule_to_admission_ms": 0.123979,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 74.67178433333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 190.54134933333336
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 180.86884433333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 2.4992746666666665
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "sum_us": 224015353,
+            "mean_ms": 74.67178433333333
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "sum_us": 571624048,
+            "mean_ms": 190.54134933333336
+          },
+          {
+            "stage": "Consensus",
+            "sum_us": 542606533,
+            "mean_ms": 180.86884433333333
+          },
+          {
+            "stage": "Payload retrieval / validation",
+            "sum_us": 1323262,
+            "mean_ms": 0.44108733333333333
+          },
+          {
+            "stage": "Contiguous output wait",
+            "sum_us": 22820,
+            "mean_ms": 0.007606666666666666
+          },
+          {
+            "stage": "Output consumer wait",
+            "sum_us": 4120732,
+            "mean_ms": 1.3735773333333334
+          },
+          {
+            "stage": "Application acceptance",
+            "sum_us": 2031010,
+            "mean_ms": 0.6770033333333333
+          }
+        ]
+      },
+      "delugi_freshness": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 511.03350466666666,
+        "mean_schedule_to_admission_ms": 0.047973999999999996,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6019840000000001
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 336.5073776666666
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 173.81332433333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 0.11081866666666668
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6019840000000001
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 336.5073776666666
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 173.81332433333333
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 0.010971333333333335
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.029301333333333332
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 0.07054600000000001
+          }
+        ]
+      }
+    },
+    "silent-first-leader": {
+      "delugi_pipeline_saved": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 10742.390426000002,
+        "mean_schedule_to_admission_ms": 0.055050666666666664,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6307556666666667
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 3847.8966413333333
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 236.81708233333333
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 6657.045946666667
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6307556666666667
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 3847.8966413333333
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 236.81708233333333
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 6655.110620666667
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 0.4249193333333333
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 1.5104066666666667
+          }
+        ]
+      },
+      "raptr_saved": {
+        "scheduled": 3000,
+        "completed": 2992,
+        "covered": 2992,
+        "excluded": {
+          "unfinished_or_not_admitted": 8
+        },
+        "mean_admission_to_append_ms": 2985.6508880347596,
+        "mean_schedule_to_admission_ms": 19.637057486631015,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 89.62530815508022
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 2268.627160427807
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 275.4728228609626
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 351.9255965909091
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "sum_us": 268158922,
+            "mean_ms": 89.62530815508022
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "sum_us": 6787732464,
+            "mean_ms": 2268.627160427807
+          },
+          {
+            "stage": "Consensus",
+            "sum_us": 824214686,
+            "mean_ms": 275.4728228609626
+          },
+          {
+            "stage": "Payload retrieval / validation",
+            "sum_us": 119544727,
+            "mean_ms": 39.95478843582888
+          },
+          {
+            "stage": "Contiguous output wait",
+            "sum_us": 68129,
+            "mean_ms": 0.022770387700534758
+          },
+          {
+            "stage": "Output consumer wait",
+            "sum_us": 64056790,
+            "mean_ms": 21.409354946524065
+          },
+          {
+            "stage": "Application acceptance",
+            "sum_us": 869291739,
+            "mean_ms": 290.5386828208556
+          }
+        ]
+      },
+      "delugi_freshness": {
+        "scheduled": 3000,
+        "completed": 3000,
+        "covered": 3000,
+        "excluded": {},
+        "mean_admission_to_append_ms": 4093.175381,
+        "mean_schedule_to_admission_ms": 0.055440666666666666,
+        "common_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6531786666666667
+          },
+          {
+            "stage": "Dissemination / inclusion",
+            "mean_ms": 3600.8764466666667
+          },
+          {
+            "stage": "Consensus",
+            "mean_ms": 242.65143533333332
+          },
+          {
+            "stage": "Output processing",
+            "mean_ms": 248.99432033333335
+          }
+        ],
+        "native_stages": [
+          {
+            "stage": "Batch formation",
+            "mean_ms": 0.6531786666666667
+          },
+          {
+            "stage": "Await execution proposal",
+            "mean_ms": 3600.8764466666667
+          },
+          {
+            "stage": "Agreement",
+            "mean_ms": 242.65143533333332
+          },
+          {
+            "stage": "Contiguous prefix wait",
+            "mean_ms": 246.42039333333335
+          },
+          {
+            "stage": "Payload wait",
+            "mean_ms": 1.0537180000000002
+          },
+          {
+            "stage": "Application append",
+            "mean_ms": 1.5202090000000001
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "delugi_pipeline_saved": {
+      "healthy": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "goodput_tps": 97.93333333333334,
+        "pending_at_end": 62,
+        "end_to_end_p50_lower_bound_ms": 612.708,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 612.708,
+        "end_to_end_p95_lower_bound_ms": 800.754,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 800.754,
+        "end_to_end_p99_lower_bound_ms": 839.981,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 839.981,
+        "admission_p50_lower_bound_ms": 612.671,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 612.671,
+        "admission_p95_lower_bound_ms": 800.697,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 800.697,
+        "admission_p99_lower_bound_ms": 839.954,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 839.954,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 159.32066550000002,
+            "samples_ms": [
+              159.333873,
+              159.35228,
+              159.32136,
+              159.332465,
+              159.316522,
+              159.358676,
+              159.295053,
+              159.298674,
+              159.31669,
+              159.333232,
+              159.310196,
+              159.317953,
+              159.33799,
+              159.329627,
+              159.277307,
+              159.319971,
+              159.323602,
+              159.314392,
+              159.357822,
+              159.316798
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 14.0730635,
+            "samples_ms": [
+              14.072727,
+              14.087438,
+              14.076995,
+              14.059618,
+              14.0734,
+              14.073639,
+              14.065648,
+              14.070871,
+              14.081761,
+              14.081793,
+              14.080905,
+              14.061006,
+              14.069695,
+              14.08733,
+              14.080337,
+              14.079376,
+              14.063269,
+              14.055072,
+              14.059747,
+              14.053055
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.25611400000003,
+            "samples_ms": [
+              239.31731,
+              239.221878,
+              239.276571,
+              239.231536,
+              239.237314,
+              239.260146,
+              239.24122,
+              239.262751,
+              239.258842,
+              239.257799,
+              239.255366,
+              239.253358,
+              239.258591,
+              239.232074,
+              239.251365,
+              239.259442,
+              239.228414,
+              239.257262,
+              239.239784,
+              239.256862
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 62.421561,
+            "samples_ms": [
+              62.46777,
+              62.446691,
+              62.437509,
+              62.416588,
+              62.4492,
+              62.42163,
+              62.399789,
+              62.421492,
+              62.427716,
+              62.410666,
+              62.393683,
+              62.409299,
+              62.422452,
+              62.389655,
+              62.418493,
+              62.420772,
+              62.418911,
+              62.463052,
+              62.432942,
+              62.42737
+            ],
+            "source": 3
+          }
+        ],
+        "drain_complete": true,
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 3000,
+          "fraction": 1.0,
+          "unfinished": 0
+        },
+        "tcp_written_bytes": 37679270,
+        "load_start_alignment": {
+          "acknowledgments": [
+            {
+              "accepted_start_unix_us": 1793286302509176,
+              "duration_us": 104426,
+              "replica": 0,
+              "request_id": "request-5",
+              "start_monotonic_ns": 5108589556718208
+            },
+            {
+              "accepted_start_unix_us": 1793286302564087,
+              "duration_us": 839265,
+              "replica": 1,
+              "request_id": "request-6",
+              "start_monotonic_ns": 5108589557129250
+            },
+            {
+              "accepted_start_unix_us": 1793286302588236,
+              "duration_us": 390931,
+              "replica": 2,
+              "request_id": "request-7",
+              "start_monotonic_ns": 5108589557477916
+            },
+            {
+              "accepted_start_unix_us": 1793286302509678,
+              "duration_us": 192600,
+              "replica": 3,
+              "request_id": "request-8",
+              "start_monotonic_ns": 5108589557978541
+            }
+          ],
+          "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+          "controller_target_monotonic_ns": 5108591682001791,
+          "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+          "lead_us": 2125814,
+          "max_sample_age_us": 5000000,
+          "max_sample_rtt_us": 2000000,
+          "maximum_pairwise_start_uncertainty_us": 472984,
+          "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+          "replicas": [
+            {
+              "controller_midpoint_ns": 5108589042985166,
+              "remote_observed_unix_us": 1793286299870160,
+              "remote_wall_minus_controller_monotonic_us": 1788177710827174,
+              "replica": 0,
+              "request_id": "request-1",
+              "requested_start_unix_us": 1793286302509176,
+              "rtt_us": 102863,
+              "sample_age_us": 461771,
+              "uncertainty_us": 51432
+            },
+            {
+              "controller_midpoint_ns": 5108589273652875,
+              "remote_observed_unix_us": 1793286300155739,
+              "remote_wall_minus_controller_monotonic_us": 1788177710882086,
+              "replica": 1,
+              "request_id": "request-2",
+              "requested_start_unix_us": 1793286302564087,
+              "rtt_us": 562907,
+              "sample_age_us": 1081,
+              "uncertainty_us": 281454
+            },
+            {
+              "controller_midpoint_ns": 5108589184334833,
+              "remote_observed_unix_us": 1793286300090570,
+              "remote_wall_minus_controller_monotonic_us": 1788177710906235,
+              "replica": 2,
+              "request_id": "request-3",
+              "requested_start_unix_us": 1793286302588236,
+              "rtt_us": 383060,
+              "sample_age_us": 180322,
+              "uncertainty_us": 191530
+            },
+            {
+              "controller_midpoint_ns": 5108589087489666,
+              "remote_observed_unix_us": 1793286299915166,
+              "remote_wall_minus_controller_monotonic_us": 1788177710827676,
+              "replica": 3,
+              "request_id": "request-4",
+              "requested_start_unix_us": 1793286302509678,
+              "rtt_us": 188228,
+              "sample_age_us": 374584,
+              "uncertainty_us": 94114
+            }
+          ]
+        },
+        "trial_id": "b02e64f55f4e7fa0598860f6",
+        "result_sha256": "de448555b91879634ee5f8830bec951c551148e5b028918b5af14a38ac920ee5",
+        "scheduling": {
+          "bundling": "immediate_no_fill_timer",
+          "ordering_mode": "canonical",
+          "originating_prog": "immediate",
+          "release_deadline_ms": null,
+          "report_schedule": "pipeline",
+          "report_schedule_scope": "bounded pipeline: admitted leader prepares after own outcome prefix r-4, f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=4; two-delay preparation overlaps history; fixed observations/inputs and ordering guards/timers are unchanged",
+          "required_ablation_cell": "immediate/bundle-on",
+          "theorem_scope": "canonical ordering with bounded pipeline composition; input readiness is measured from its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions",
+          "transport": "bounded_pipelined_authenticated_tcp"
+        }
+      },
+      "silent-first-leader": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "goodput_tps": 65.69999999999999,
+        "pending_at_end": 1029,
+        "end_to_end_p50_lower_bound_ms": 10880.517,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 10880.517,
+        "end_to_end_p95_lower_bound_ms": 13874.655,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 13874.655,
+        "end_to_end_p99_lower_bound_ms": 14174.611,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 14174.611,
+        "admission_p50_lower_bound_ms": 10880.461,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 10880.461,
+        "admission_p95_lower_bound_ms": 13874.599,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 13874.599,
+        "admission_p99_lower_bound_ms": 14174.554,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 14174.554,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 159.316799,
+            "samples_ms": [
+              159.325074,
+              159.303595,
+              159.354586,
+              159.344458,
+              159.283922,
+              159.304801,
+              159.327829,
+              159.316916,
+              159.309016,
+              159.316682,
+              159.310781,
+              159.330992,
+              159.330517,
+              159.336906,
+              159.29338,
+              159.288125,
+              159.321323,
+              159.322172,
+              159.311524,
+              159.300554
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 14.0825195,
+            "samples_ms": [
+              14.113557,
+              14.100222,
+              14.086778,
+              14.079852,
+              14.094631,
+              14.097438,
+              14.083183,
+              14.100023,
+              14.081032,
+              14.113662,
+              14.097982,
+              14.079262,
+              14.071289,
+              14.079581,
+              14.068168,
+              14.082427,
+              14.082612,
+              14.06465,
+              14.067654,
+              14.067004
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.253261,
+            "samples_ms": [
+              239.255998,
+              239.241987,
+              239.244373,
+              239.252559,
+              239.266405,
+              239.253963,
+              239.249362,
+              239.26448,
+              239.276406,
+              239.243646,
+              239.266109,
+              239.280435,
+              239.257626,
+              239.265482,
+              239.237792,
+              239.260377,
+              239.230277,
+              239.24035,
+              239.236579,
+              239.24289
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 62.4257815,
+            "samples_ms": [
+              62.423891,
+              62.401219,
+              62.412534,
+              62.436181,
+              62.409055,
+              62.399781,
+              62.420905,
+              62.428028,
+              62.427729,
+              62.417965,
+              62.393512,
+              62.430255,
+              62.892476,
+              62.425782,
+              62.435235,
+              62.425781,
+              62.441081,
+              62.407416,
+              62.439929,
+              62.442504
+            ],
+            "source": 3
+          }
+        ],
+        "drain_complete": true,
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ],
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 3000,
+          "fraction": 1.0,
+          "unfinished": 0
+        },
+        "tcp_written_bytes": 7811900,
+        "load_start_alignment": {
+          "acknowledgments": [
+            {
+              "accepted_start_unix_us": 1793286610598054,
+              "duration_us": 100297,
+              "replica": 0,
+              "request_id": "request-5",
+              "start_monotonic_ns": 5108897653430791
+            },
+            {
+              "accepted_start_unix_us": 1793286610652252,
+              "duration_us": 835186,
+              "replica": 1,
+              "request_id": "request-6",
+              "start_monotonic_ns": 5108897653808250
+            },
+            {
+              "accepted_start_unix_us": 1793286610676173,
+              "duration_us": 380578,
+              "replica": 2,
+              "request_id": "request-7",
+              "start_monotonic_ns": 5108897654118333
+            },
+            {
+              "accepted_start_unix_us": 1793286610599186,
+              "duration_us": 187877,
+              "replica": 3,
+              "request_id": "request-8",
+              "start_monotonic_ns": 5108897654579583
+            }
+          ],
+          "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+          "controller_target_monotonic_ns": 5108899769466583,
+          "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+          "lead_us": 2116576,
+          "max_sample_age_us": 5000000,
+          "max_sample_rtt_us": 2000000,
+          "maximum_pairwise_start_uncertainty_us": 467622,
+          "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+          "replicas": [
+            {
+              "controller_midpoint_ns": 5108897143349541,
+              "remote_observed_unix_us": 1793286607971937,
+              "remote_wall_minus_controller_monotonic_us": 1788177710828587,
+              "replica": 0,
+              "request_id": "request-1",
+              "requested_start_unix_us": 1793286610598054,
+              "rtt_us": 100981,
+              "sample_age_us": 459050,
+              "uncertainty_us": 50491
+            },
+            {
+              "controller_midpoint_ns": 5108897372668958,
+              "remote_observed_unix_us": 1793286608255455,
+              "remote_wall_minus_controller_monotonic_us": 1788177710882786,
+              "replica": 1,
+              "request_id": "request-2",
+              "requested_start_unix_us": 1793286610652252,
+              "rtt_us": 558288,
+              "sample_age_us": 1077,
+              "uncertainty_us": 279144
+            },
+            {
+              "controller_midpoint_ns": 5108897282436208,
+              "remote_observed_unix_us": 1793286608189143,
+              "remote_wall_minus_controller_monotonic_us": 1788177710906706,
+              "replica": 2,
+              "request_id": "request-3",
+              "requested_start_unix_us": 1793286610676173,
+              "rtt_us": 376956,
+              "sample_age_us": 181976,
+              "uncertainty_us": 188478
+            },
+            {
+              "controller_midpoint_ns": 5108897185509666,
+              "remote_observed_unix_us": 1793286608015230,
+              "remote_wall_minus_controller_monotonic_us": 1788177710829720,
+              "replica": 3,
+              "request_id": "request-4",
+              "requested_start_unix_us": 1793286610599186,
+              "rtt_us": 181467,
+              "sample_age_us": 376647,
+              "uncertainty_us": 90734
+            }
+          ]
+        },
+        "trial_id": "d22bcc884402d1e925c4eed8",
+        "result_sha256": "ab330956155ffe0ed538a1bfc82e399513ffa7e615d637eea6fdba368ec4bfc5",
+        "scheduling": {
+          "bundling": "immediate_no_fill_timer",
+          "ordering_mode": "canonical",
+          "originating_prog": "immediate",
+          "release_deadline_ms": null,
+          "report_schedule": "pipeline",
+          "report_schedule_scope": "bounded pipeline: admitted leader prepares after own outcome prefix r-4, f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=4; two-delay preparation overlaps history; fixed observations/inputs and ordering guards/timers are unchanged",
+          "required_ablation_cell": "immediate/bundle-on",
+          "theorem_scope": "canonical ordering with bounded pipeline composition; input readiness is measured from its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions",
+          "transport": "bounded_pipelined_authenticated_tcp"
+        }
+      }
+    },
+    "raptr_saved": {
+      "healthy": {
+        "trial_id": "9b65f5c790b85b8186317c0f",
+        "result_sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "goodput_tps": 98.5,
+        "end_to_end_p50_lower_bound_ms": 445.8,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 445.8,
+        "end_to_end_p95_lower_bound_ms": 595.427,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 595.427,
+        "end_to_end_p99_lower_bound_ms": 652.63,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 652.63,
+        "admission_p50_lower_bound_ms": 445.726,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 445.726,
+        "admission_p95_lower_bound_ms": 595.368,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 595.368,
+        "admission_p99_lower_bound_ms": 652.548,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 652.548,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 156.833966,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              156.807196,
+              156.834672,
+              156.848347,
+              156.850257,
+              156.82345,
+              156.790012,
+              156.79562,
+              156.816431,
+              156.823668,
+              156.83326,
+              156.839954,
+              156.803594,
+              156.794845,
+              156.835604,
+              156.842118,
+              156.834969,
+              156.80955,
+              156.83864,
+              156.834926,
+              156.836559
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.8074165,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              13.824247,
+              13.810998,
+              13.805516,
+              13.921571,
+              13.800736,
+              13.803737,
+              13.792083,
+              13.789899,
+              13.804158,
+              13.797955,
+              13.795587,
+              13.814343,
+              13.811621,
+              13.81752,
+              13.800257,
+              13.815974,
+              13.811201,
+              13.809317,
+              13.833615,
+              13.794066
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.72324400000002,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              239.7253,
+              239.733037,
+              240.143548,
+              239.706004,
+              239.721188,
+              239.738815,
+              239.713247,
+              239.742376,
+              239.749855,
+              239.734161,
+              239.718757,
+              239.707894,
+              239.706527,
+              239.736429,
+              239.752387,
+              239.740869,
+              239.711667,
+              239.694663,
+              239.720068,
+              239.707967
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.427061,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              64.437764,
+              64.414313,
+              64.461257,
+              64.442073,
+              64.43421,
+              64.443021,
+              64.401571,
+              64.427849,
+              64.431298,
+              64.387718,
+              64.441204,
+              64.430385,
+              64.43678,
+              64.426273,
+              64.392702,
+              64.38931,
+              64.413901,
+              64.391144,
+              64.383758,
+              64.423451
+            ],
+            "source": 3
+          }
+        ]
+      },
+      "silent-first-leader": {
+        "trial_id": "174bff299bdb5a912b6ed52e",
+        "result_sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+        "scheduled": 3000,
+        "admitted": 2992,
+        "completed": 2992,
+        "goodput_tps": 82.53333333333333,
+        "end_to_end_p50_lower_bound_ms": 2971.277,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 2971.277,
+        "end_to_end_p95_lower_bound_ms": 5291.944,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 5291.944,
+        "end_to_end_p99_lower_bound_ms": 5580.0,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 5580.0,
+        "admission_p50_lower_bound_ms": 2969.765,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 2969.765,
+        "admission_p95_lower_bound_ms": 4950.903,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 4950.903,
+        "admission_p99_lower_bound_ms": 5523.405,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 5523.405,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 156.86266999999998,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              156.802213,
+              156.819405,
+              156.847011,
+              156.808143,
+              156.821587,
+              156.81419,
+              156.866092,
+              156.914562,
+              156.885171,
+              156.843687,
+              156.863172,
+              156.888986,
+              156.878214,
+              156.864313,
+              156.834983,
+              156.877324,
+              156.852839,
+              156.862168,
+              156.924523,
+              156.878832
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.808060999999999,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              13.820978,
+              13.805998,
+              13.824671,
+              13.822483,
+              13.806707,
+              13.822951,
+              13.791903,
+              13.809804,
+              13.809415,
+              13.809969,
+              13.804702,
+              13.803039,
+              13.812979,
+              13.804818,
+              13.861157,
+              13.792769,
+              13.801949,
+              13.789652,
+              13.79159,
+              13.810362
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.72807999999998,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              239.704096,
+              241.088326,
+              239.726507,
+              239.744953,
+              239.770794,
+              239.72976,
+              239.674036,
+              239.719622,
+              239.710949,
+              239.727319,
+              239.70292,
+              239.745021,
+              239.73862,
+              239.728841,
+              239.71168,
+              239.700079,
+              239.762838,
+              239.788083,
+              239.709159,
+              239.760955
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.40693350000001,
+            "protocol_role_index": 0,
+            "samples_ms": [
+              64.398141,
+              64.417576,
+              64.429085,
+              64.437961,
+              64.424217,
+              64.418214,
+              64.426204,
+              64.399969,
+              64.387408,
+              64.401984,
+              64.392189,
+              64.415617,
+              64.36794,
+              64.421598,
+              64.411883,
+              64.3955,
+              64.422041,
+              64.397882,
+              64.399672,
+              64.384643
+            ],
+            "source": 3
+          }
+        ]
+      }
+    },
+    "delugi_freshness": {
+      "healthy": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "goodput_tps": 98.66666666666666,
+        "pending_at_end": 40,
+        "end_to_end_p50_lower_bound_ms": 504.296,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 504.296,
+        "end_to_end_p95_lower_bound_ms": 695.01,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 695.01,
+        "end_to_end_p99_lower_bound_ms": 735.951,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 735.951,
+        "admission_p50_lower_bound_ms": 504.29,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 504.29,
+        "admission_p95_lower_bound_ms": 694.959,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 694.959,
+        "admission_p99_lower_bound_ms": 735.894,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 735.894,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 159.240213,
+            "samples_ms": [
+              159.277984,
+              159.205321,
+              159.251092,
+              159.239503,
+              159.193064,
+              159.288807,
+              159.297676,
+              159.249462,
+              159.223149,
+              159.240923,
+              159.242775,
+              159.245124,
+              159.267214,
+              159.236436,
+              159.181898,
+              159.191693,
+              159.243919,
+              159.231326,
+              159.233449,
+              159.223904
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.4794585,
+            "samples_ms": [
+              13.506169,
+              13.479284,
+              13.466265,
+              13.528306,
+              13.474746,
+              13.553579,
+              13.479633,
+              13.505544,
+              13.471061,
+              13.487483,
+              13.473291,
+              13.493837,
+              13.466195,
+              13.466343,
+              13.505752,
+              13.476201,
+              13.470078,
+              13.463223,
+              13.48538,
+              13.867749
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.6175595,
+            "samples_ms": [
+              239.619938,
+              239.598749,
+              239.600646,
+              239.61371,
+              239.622299,
+              239.633501,
+              239.609055,
+              239.598767,
+              239.657489,
+              239.634678,
+              239.604488,
+              239.583453,
+              239.629512,
+              239.61905,
+              239.610569,
+              239.598319,
+              239.624166,
+              239.647686,
+              239.632109,
+              239.616069
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.347972,
+            "samples_ms": [
+              64.349929,
+              64.344126,
+              64.339183,
+              64.356465,
+              64.335948,
+              64.378565,
+              64.346167,
+              64.341765,
+              64.347648,
+              64.938496,
+              64.342332,
+              64.361745,
+              64.328366,
+              64.336929,
+              64.350793,
+              64.348296,
+              64.325079,
+              64.365535,
+              66.39939,
+              64.350687
+            ],
+            "source": 3
+          }
+        ],
+        "drain_complete": true,
+        "correct_replicas": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 3000,
+          "fraction": 1.0,
+          "unfinished": 0
+        },
+        "tcp_written_bytes": 39598346,
+        "load_start_alignment": {
+          "acknowledgments": [
+            {
+              "accepted_start_unix_us": 1793291995281049,
+              "duration_us": 102003,
+              "replica": 0,
+              "request_id": "request-5",
+              "start_monotonic_ns": 5114282288843833
+            },
+            {
+              "accepted_start_unix_us": 1793291995335463,
+              "duration_us": 836034,
+              "replica": 1,
+              "request_id": "request-6",
+              "start_monotonic_ns": 5114282289283000
+            },
+            {
+              "accepted_start_unix_us": 1793291995358261,
+              "duration_us": 564252,
+              "replica": 2,
+              "request_id": "request-7",
+              "start_monotonic_ns": 5114282289887208
+            },
+            {
+              "accepted_start_unix_us": 1793291995279951,
+              "duration_us": 90196,
+              "replica": 3,
+              "request_id": "request-8",
+              "start_monotonic_ns": 5114282290501166
+            }
+          ],
+          "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+          "controller_target_monotonic_ns": 5114284408511291,
+          "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+          "lead_us": 2120304,
+          "max_sample_age_us": 5000000,
+          "max_sample_rtt_us": 2000000,
+          "maximum_pairwise_start_uncertainty_us": 468136,
+          "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+          "replicas": [
+            {
+              "controller_midpoint_ns": 5114281777119333,
+              "remote_observed_unix_us": 1793291992649658,
+              "remote_wall_minus_controller_monotonic_us": 1788177710872538,
+              "replica": 0,
+              "request_id": "request-1",
+              "requested_start_unix_us": 1793291995281049,
+              "rtt_us": 101363,
+              "sample_age_us": 460406,
+              "uncertainty_us": 50682
+            },
+            {
+              "controller_midpoint_ns": 5114282007029708,
+              "remote_observed_unix_us": 1793291992933982,
+              "remote_wall_minus_controller_monotonic_us": 1788177710926952,
+              "replica": 1,
+              "request_id": "request-2",
+              "requested_start_unix_us": 1793291995335463,
+              "rtt_us": 560152,
+              "sample_age_us": 1101,
+              "uncertainty_us": 280076
+            },
+            {
+              "controller_midpoint_ns": 5114281915436500,
+              "remote_observed_unix_us": 1793291992865187,
+              "remote_wall_minus_controller_monotonic_us": 1788177710949750,
+              "replica": 2,
+              "request_id": "request-3",
+              "requested_start_unix_us": 1793291995358261,
+              "rtt_us": 376120,
+              "sample_age_us": 184710,
+              "uncertainty_us": 188060
+            },
+            {
+              "controller_midpoint_ns": 5114281771900083,
+              "remote_observed_unix_us": 1793291992643340,
+              "remote_wall_minus_controller_monotonic_us": 1788177710871439,
+              "replica": 3,
+              "request_id": "request-4",
+              "requested_start_unix_us": 1793291995279951,
+              "rtt_us": 87234,
+              "sample_age_us": 472690,
+              "uncertainty_us": 43617
+            }
+          ]
+        },
+        "trial_id": "b02e64f55f4e7fa0598860f6",
+        "result_sha256": "05b589eeea28ef629966d0af6c7b48287c4a1e5daa25c555bfd42776ad6be0c4",
+        "scheduling": {
+          "bundling": "immediate_no_fill_timer",
+          "ordering_mode": "canonical",
+          "originating_prog": "immediate",
+          "release_deadline_ms": null,
+          "report_schedule": "pipeline",
+          "report_schedule_scope": "validated-predecessor pipeline: admitted leader prepares after own outcome prefix r-4 and fully validated PROPOSE(r-3), or own completed prefix r-3, f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=3; round 4 uses genesis prefix plus validated PROPOSE(1); two-delay preparation overlaps history; fixed observations/inputs and ordering guards/timers are unchanged",
+          "required_ablation_cell": "immediate/bundle-on",
+          "theorem_scope": "canonical ordering with bounded pipeline composition; input readiness is measured from its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions",
+          "transport": "bounded_pipelined_authenticated_tcp"
+        }
+      },
+      "silent-first-leader": {
+        "scheduled": 3000,
+        "admitted": 3000,
+        "completed": 3000,
+        "unfinished": 0,
+        "goodput_tps": 88.19999999999999,
+        "pending_at_end": 354,
+        "end_to_end_p50_lower_bound_ms": 4188.449,
+        "end_to_end_p50_status": "observed",
+        "end_to_end_p50_value_ms": 4188.449,
+        "end_to_end_p95_lower_bound_ms": 7241.732,
+        "end_to_end_p95_status": "observed",
+        "end_to_end_p95_value_ms": 7241.732,
+        "end_to_end_p99_lower_bound_ms": 7586.798,
+        "end_to_end_p99_status": "observed",
+        "end_to_end_p99_value_ms": 7586.798,
+        "admission_p50_lower_bound_ms": 4188.393,
+        "admission_p50_status": "observed",
+        "admission_p50_value_ms": 4188.393,
+        "admission_p95_lower_bound_ms": 7241.671,
+        "admission_p95_status": "observed",
+        "admission_p95_value_ms": 7241.671,
+        "admission_p99_lower_bound_ms": 7586.742,
+        "admission_p99_status": "observed",
+        "admission_p99_value_ms": 7586.742,
+        "observed_rtt": [
+          {
+            "destination": 1,
+            "median_rtt_ms": 159.24165599999998,
+            "samples_ms": [
+              159.287611,
+              159.230196,
+              159.23378,
+              159.252608,
+              159.249254,
+              159.239318,
+              159.254883,
+              159.271031,
+              159.264708,
+              159.228664,
+              159.286222,
+              159.21283,
+              159.208731,
+              159.258336,
+              159.25515,
+              159.222113,
+              159.243994,
+              159.228262,
+              159.235575,
+              159.228407
+            ],
+            "source": 0
+          },
+          {
+            "destination": 2,
+            "median_rtt_ms": 13.487948,
+            "samples_ms": [
+              13.487849,
+              13.495374,
+              13.477977,
+              13.508704,
+              13.501133,
+              13.508608,
+              13.488771,
+              13.474642,
+              13.484381,
+              13.4835,
+              13.506839,
+              13.494729,
+              13.508887,
+              13.48109,
+              13.472787,
+              13.50724,
+              13.485837,
+              13.484395,
+              13.488047,
+              13.487005
+            ],
+            "source": 1
+          },
+          {
+            "destination": 3,
+            "median_rtt_ms": 239.6178985,
+            "samples_ms": [
+              239.587442,
+              239.626808,
+              239.618259,
+              239.636163,
+              239.636967,
+              239.635069,
+              239.623058,
+              239.598034,
+              239.617538,
+              239.613781,
+              239.63435,
+              239.619637,
+              239.609433,
+              239.595582,
+              239.611299,
+              239.645966,
+              239.613813,
+              239.59886,
+              239.636246,
+              239.608464
+            ],
+            "source": 2
+          },
+          {
+            "destination": 0,
+            "median_rtt_ms": 64.358192,
+            "samples_ms": [
+              64.371981,
+              64.3344,
+              64.373928,
+              64.343296,
+              64.367623,
+              64.357778,
+              64.34012,
+              64.341195,
+              64.362251,
+              64.353088,
+              64.359332,
+              64.340833,
+              64.350532,
+              64.381819,
+              64.36321,
+              64.36468,
+              64.348239,
+              64.339665,
+              64.358606,
+              64.37719
+            ],
+            "source": 3
+          }
+        ],
+        "drain_complete": true,
+        "correct_replicas": [
+          1,
+          2,
+          3
+        ],
+        "all_correct_collection": {
+          "boundary": "final exact output collection; not remote event latency",
+          "completed": 3000,
+          "fraction": 1.0,
+          "unfinished": 0
+        },
+        "tcp_written_bytes": 8552148,
+        "load_start_alignment": {
+          "acknowledgments": [
+            {
+              "accepted_start_unix_us": 1793292236312569,
+              "duration_us": 102765,
+              "replica": 0,
+              "request_id": "request-5",
+              "start_monotonic_ns": 5114523317101583
+            },
+            {
+              "accepted_start_unix_us": 1793292236367478,
+              "duration_us": 834664,
+              "replica": 1,
+              "request_id": "request-6",
+              "start_monotonic_ns": 5114523317564916
+            },
+            {
+              "accepted_start_unix_us": 1793292236390660,
+              "duration_us": 563190,
+              "replica": 2,
+              "request_id": "request-7",
+              "start_monotonic_ns": 5114523318053416
+            },
+            {
+              "accepted_start_unix_us": 1793292236313237,
+              "duration_us": 93717,
+              "replica": 3,
+              "request_id": "request-8",
+              "start_monotonic_ns": 5114523318900708
+            }
+          ],
+          "clock_assumption": "remote realtime clock does not step after its start reply; actual starts may differ within reported RTT uncertainty",
+          "controller_target_monotonic_ns": 5114525438193833,
+          "latency_scope": "alignment only; every input schedule and latency interval remains origin-local monotonic",
+          "lead_us": 2121752,
+          "max_sample_age_us": 5000000,
+          "max_sample_rtt_us": 2000000,
+          "maximum_pairwise_start_uncertainty_us": 468986,
+          "method": "remote_start_reply_midpoint_to_common_controller_monotonic_epoch_v1",
+          "replicas": [
+            {
+              "controller_midpoint_ns": 5114522804804291,
+              "remote_observed_unix_us": 1793292233679180,
+              "remote_wall_minus_controller_monotonic_us": 1788177710874375,
+              "replica": 0,
+              "request_id": "request-1",
+              "requested_start_unix_us": 1793292236312569,
+              "rtt_us": 102047,
+              "sample_age_us": 460614,
+              "uncertainty_us": 51024
+            },
+            {
+              "controller_midpoint_ns": 5114523034916875,
+              "remote_observed_unix_us": 1793292233964202,
+              "remote_wall_minus_controller_monotonic_us": 1788177710929285,
+              "replica": 1,
+              "request_id": "request-2",
+              "requested_start_unix_us": 1793292236367478,
+              "rtt_us": 560876,
+              "sample_age_us": 1086,
+              "uncertainty_us": 280438
+            },
+            {
+              "controller_midpoint_ns": 5114522943670500,
+              "remote_observed_unix_us": 1793292233896137,
+              "remote_wall_minus_controller_monotonic_us": 1788177710952466,
+              "replica": 2,
+              "request_id": "request-3",
+              "requested_start_unix_us": 1793292236390660,
+              "rtt_us": 377096,
+              "sample_age_us": 184223,
+              "uncertainty_us": 188548
+            },
+            {
+              "controller_midpoint_ns": 5114522802874625,
+              "remote_observed_unix_us": 1793292233677918,
+              "remote_wall_minus_controller_monotonic_us": 1788177710875043,
+              "replica": 3,
+              "request_id": "request-4",
+              "requested_start_unix_us": 1793292236313237,
+              "rtt_us": 94636,
+              "sample_age_us": 466249,
+              "uncertainty_us": 47318
+            }
+          ]
+        },
+        "trial_id": "d22bcc884402d1e925c4eed8",
+        "result_sha256": "7365f3604d1672b7c6d485ae7006364c71a9b39f7a4a846ea992c7374efbccf2",
+        "scheduling": {
+          "bundling": "immediate_no_fill_timer",
+          "ordering_mode": "canonical",
+          "originating_prog": "immediate",
+          "release_deadline_ms": null,
+          "report_schedule": "pipeline",
+          "report_schedule_scope": "validated-predecessor pipeline: admitted leader prepares after own outcome prefix r-4 and fully validated PROPOSE(r-3), or own completed prefix r-3, f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=3; round 4 uses genesis prefix plus validated PROPOSE(1); two-delay preparation overlaps history; fixed observations/inputs and ordering guards/timers are unchanged",
+          "required_ablation_cell": "immediate/bundle-on",
+          "theorem_scope": "canonical ordering with bounded pipeline composition; input readiness is measured from its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions",
+          "transport": "bounded_pipelined_authenticated_tcp"
+        }
+      }
+    }
+  },
+  "leader_diagnostics": {
+    "delugi_pipeline_saved": {
+      "healthy": {
+        "frozen_input_age_ms": {
+          "count": 360,
+          "mean_ms": 48.16195,
+          "median_ms": 0.3395
+        },
+        "admission_to_proposal_ms": {
+          "count": 360,
+          "mean_ms": 4701.814647222222,
+          "median_ms": 4685.2565
+        },
+        "report_to_input_ms": {
+          "count": 360,
+          "mean_ms": 185.7811611111111,
+          "median_ms": 189.1645
+        },
+        "history_assembly_ms": {
+          "count": 47,
+          "mean_ms": 0.10804255319148937,
+          "median_ms": 0.113
+        },
+        "leader_outbox_to_direct_ms": {
+          "count": 358,
+          "mean_ms": 208.46477932960894,
+          "median_ms": 208.1155
+        },
+        "first_history_report_to_quorum_ms": {
+          "count": 357,
+          "mean_ms": 60.96421848739495,
+          "median_ms": 75.945
+        },
+        "population": "all retained sampled leader rounds, not transaction weighted or restricted to the input window; each metric retains its own count",
+        "report_before_history_count": 357
+      },
+      "silent-first-leader": {
+        "frozen_input_age_ms": {
+          "count": 20,
+          "mean_ms": 2065.38035,
+          "median_ms": 243.8295
+        },
+        "admission_to_proposal_ms": {
+          "count": 20,
+          "mean_ms": 21206.4345,
+          "median_ms": 20291.0995
+        },
+        "report_to_input_ms": {
+          "count": 20,
+          "mean_ms": 234.70045,
+          "median_ms": 243.981
+        },
+        "history_assembly_ms": {
+          "count": 5,
+          "mean_ms": 0.039400000000000004,
+          "median_ms": 0.011
+        },
+        "leader_outbox_to_direct_ms": {
+          "count": 20,
+          "mean_ms": 238.7253,
+          "median_ms": 241.64499999999998
+        },
+        "first_history_report_to_quorum_ms": {
+          "count": 18,
+          "mean_ms": 166.33533333333332,
+          "median_ms": 225.28199999999998
+        },
+        "population": "all retained sampled leader rounds, not transaction weighted or restricted to the input window; each metric retains its own count",
+        "report_before_history_count": 18
+      }
+    },
+    "delugi_freshness": {
+      "healthy": {
+        "frozen_input_age_ms": {
+          "count": 371,
+          "mean_ms": 3.585733153638814,
+          "median_ms": 0.28
+        },
+        "admission_to_proposal_ms": {
+          "count": 371,
+          "mean_ms": 3528.8691132075473,
+          "median_ms": 3531.103
+        },
+        "report_to_input_ms": {
+          "count": 371,
+          "mean_ms": 176.48447169811323,
+          "median_ms": 176.06
+        },
+        "history_assembly_ms": {
+          "count": 47,
+          "mean_ms": 0.10642553191489361,
+          "median_ms": 0.114
+        },
+        "leader_outbox_to_direct_ms": {
+          "count": 370,
+          "mean_ms": 189.35637567567568,
+          "median_ms": 182.63850000000002
+        },
+        "first_history_report_to_quorum_ms": {
+          "count": 368,
+          "mean_ms": 80.48876086956523,
+          "median_ms": 79.731
+        },
+        "population": "all retained sampled leader rounds, not transaction weighted or restricted to the input window; each metric retains its own count",
+        "report_before_history_count": 368
+      },
+      "silent-first-leader": {
+        "frozen_input_age_ms": {
+          "count": 17,
+          "mean_ms": 1.7865882352941176,
+          "median_ms": 0.262
+        },
+        "admission_to_proposal_ms": {
+          "count": 17,
+          "mean_ms": 17935.302941176473,
+          "median_ms": 20210.361
+        },
+        "report_to_input_ms": {
+          "count": 17,
+          "mean_ms": 239.95805882352943,
+          "median_ms": 242.994
+        },
+        "history_assembly_ms": {
+          "count": 5,
+          "mean_ms": 0.037,
+          "median_ms": 0.01
+        },
+        "leader_outbox_to_direct_ms": {
+          "count": 17,
+          "mean_ms": 238.04576470588236,
+          "median_ms": 241.959
+        },
+        "first_history_report_to_quorum_ms": {
+          "count": 15,
+          "mean_ms": 166.72533333333334,
+          "median_ms": 239.822
+        },
+        "population": "all retained sampled leader rounds, not transaction weighted or restricted to the input window; each metric retains its own count",
+        "report_before_history_count": 15
+      }
+    }
+  },
+  "report_preparation_markers": {
+    "healthy": {
+      "count": 374,
+      "with_validated_predecessor": 304,
+      "population": "all retained leader REPORT markers, including setup and drain; not request weighted",
+      "markers": [
+        {
+          "replica": 0,
+          "round": 1,
+          "at_us": 2907090,
+          "admitted": 1,
+          "local_report_horizon": 0,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [],
+          "exact_history_ready": true
+        },
+        {
+          "replica": 0,
+          "round": 5,
+          "at_us": 3595579,
+          "admitted": 5,
+          "local_report_horizon": 1,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 9,
+          "at_us": 3937415,
+          "admitted": 9,
+          "local_report_horizon": 6,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            0
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 13,
+          "at_us": 4330504,
+          "admitted": 13,
+          "local_report_horizon": 9,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 17,
+          "at_us": 4723622,
+          "admitted": 19,
+          "local_report_horizon": 13,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 21,
+          "at_us": 5117372,
+          "admitted": 23,
+          "local_report_horizon": 17,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 25,
+          "at_us": 5510700,
+          "admitted": 28,
+          "local_report_horizon": 21,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 29,
+          "at_us": 5903621,
+          "admitted": 33,
+          "local_report_horizon": 25,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 33,
+          "at_us": 6296742,
+          "admitted": 38,
+          "local_report_horizon": 29,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 37,
+          "at_us": 6689948,
+          "admitted": 43,
+          "local_report_horizon": 33,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 41,
+          "at_us": 7083973,
+          "admitted": 48,
+          "local_report_horizon": 37,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 45,
+          "at_us": 7486324,
+          "admitted": 53,
+          "local_report_horizon": 41,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 49,
+          "at_us": 7879578,
+          "admitted": 58,
+          "local_report_horizon": 45,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 53,
+          "at_us": 8274502,
+          "admitted": 63,
+          "local_report_horizon": 49,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 57,
+          "at_us": 8669810,
+          "admitted": 68,
+          "local_report_horizon": 53,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 61,
+          "at_us": 9064079,
+          "admitted": 73,
+          "local_report_horizon": 57,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 65,
+          "at_us": 9457509,
+          "admitted": 77,
+          "local_report_horizon": 61,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 69,
+          "at_us": 9850720,
+          "admitted": 83,
+          "local_report_horizon": 65,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 73,
+          "at_us": 10246521,
+          "admitted": 87,
+          "local_report_horizon": 69,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 77,
+          "at_us": 10641542,
+          "admitted": 93,
+          "local_report_horizon": 73,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 81,
+          "at_us": 11035733,
+          "admitted": 97,
+          "local_report_horizon": 77,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 85,
+          "at_us": 11429610,
+          "admitted": 102,
+          "local_report_horizon": 81,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 89,
+          "at_us": 11823278,
+          "admitted": 107,
+          "local_report_horizon": 85,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 93,
+          "at_us": 12217792,
+          "admitted": 112,
+          "local_report_horizon": 89,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 97,
+          "at_us": 12612668,
+          "admitted": 117,
+          "local_report_horizon": 93,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 101,
+          "at_us": 13007549,
+          "admitted": 122,
+          "local_report_horizon": 97,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 105,
+          "at_us": 13402681,
+          "admitted": 127,
+          "local_report_horizon": 101,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 109,
+          "at_us": 13797758,
+          "admitted": 132,
+          "local_report_horizon": 105,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 113,
+          "at_us": 14191514,
+          "admitted": 137,
+          "local_report_horizon": 109,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 117,
+          "at_us": 14586122,
+          "admitted": 141,
+          "local_report_horizon": 113,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 121,
+          "at_us": 14979349,
+          "admitted": 147,
+          "local_report_horizon": 117,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 125,
+          "at_us": 15374217,
+          "admitted": 151,
+          "local_report_horizon": 121,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 129,
+          "at_us": 15769594,
+          "admitted": 157,
+          "local_report_horizon": 125,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 133,
+          "at_us": 16164379,
+          "admitted": 161,
+          "local_report_horizon": 129,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 137,
+          "at_us": 16559038,
+          "admitted": 166,
+          "local_report_horizon": 133,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 141,
+          "at_us": 16951248,
+          "admitted": 171,
+          "local_report_horizon": 137,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 145,
+          "at_us": 17346059,
+          "admitted": 176,
+          "local_report_horizon": 141,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 149,
+          "at_us": 17741427,
+          "admitted": 181,
+          "local_report_horizon": 145,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 153,
+          "at_us": 18136539,
+          "admitted": 186,
+          "local_report_horizon": 149,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 157,
+          "at_us": 18530739,
+          "admitted": 191,
+          "local_report_horizon": 153,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 161,
+          "at_us": 18924284,
+          "admitted": 196,
+          "local_report_horizon": 157,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 165,
+          "at_us": 19317699,
+          "admitted": 201,
+          "local_report_horizon": 161,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 169,
+          "at_us": 19711505,
+          "admitted": 206,
+          "local_report_horizon": 165,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 173,
+          "at_us": 20105285,
+          "admitted": 211,
+          "local_report_horizon": 169,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 177,
+          "at_us": 20497545,
+          "admitted": 215,
+          "local_report_horizon": 173,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 181,
+          "at_us": 20893249,
+          "admitted": 221,
+          "local_report_horizon": 177,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 185,
+          "at_us": 21288736,
+          "admitted": 225,
+          "local_report_horizon": 181,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 189,
+          "at_us": 21684244,
+          "admitted": 231,
+          "local_report_horizon": 185,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 193,
+          "at_us": 22077800,
+          "admitted": 235,
+          "local_report_horizon": 189,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 197,
+          "at_us": 22472381,
+          "admitted": 240,
+          "local_report_horizon": 193,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 201,
+          "at_us": 22866362,
+          "admitted": 245,
+          "local_report_horizon": 197,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 205,
+          "at_us": 23259517,
+          "admitted": 250,
+          "local_report_horizon": 201,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 209,
+          "at_us": 23653576,
+          "admitted": 255,
+          "local_report_horizon": 205,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 213,
+          "at_us": 24047012,
+          "admitted": 260,
+          "local_report_horizon": 209,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 217,
+          "at_us": 24441404,
+          "admitted": 265,
+          "local_report_horizon": 213,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 221,
+          "at_us": 24835381,
+          "admitted": 270,
+          "local_report_horizon": 217,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 225,
+          "at_us": 25229390,
+          "admitted": 275,
+          "local_report_horizon": 221,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 229,
+          "at_us": 25622720,
+          "admitted": 279,
+          "local_report_horizon": 225,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 233,
+          "at_us": 26017078,
+          "admitted": 285,
+          "local_report_horizon": 229,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 237,
+          "at_us": 26410164,
+          "admitted": 289,
+          "local_report_horizon": 233,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 241,
+          "at_us": 26805521,
+          "admitted": 294,
+          "local_report_horizon": 237,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 245,
+          "at_us": 27198552,
+          "admitted": 299,
+          "local_report_horizon": 241,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 249,
+          "at_us": 27592277,
+          "admitted": 304,
+          "local_report_horizon": 245,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 253,
+          "at_us": 27987695,
+          "admitted": 309,
+          "local_report_horizon": 249,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 257,
+          "at_us": 28382766,
+          "admitted": 314,
+          "local_report_horizon": 253,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 261,
+          "at_us": 28776830,
+          "admitted": 319,
+          "local_report_horizon": 257,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 265,
+          "at_us": 29170936,
+          "admitted": 324,
+          "local_report_horizon": 261,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 269,
+          "at_us": 29565065,
+          "admitted": 329,
+          "local_report_horizon": 265,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 273,
+          "at_us": 29959158,
+          "admitted": 333,
+          "local_report_horizon": 269,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 277,
+          "at_us": 30352417,
+          "admitted": 338,
+          "local_report_horizon": 273,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 281,
+          "at_us": 30745933,
+          "admitted": 343,
+          "local_report_horizon": 277,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 285,
+          "at_us": 31140201,
+          "admitted": 348,
+          "local_report_horizon": 281,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 289,
+          "at_us": 31536371,
+          "admitted": 353,
+          "local_report_horizon": 285,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 293,
+          "at_us": 31930775,
+          "admitted": 358,
+          "local_report_horizon": 289,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 297,
+          "at_us": 32323286,
+          "admitted": 363,
+          "local_report_horizon": 293,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 301,
+          "at_us": 32716445,
+          "admitted": 368,
+          "local_report_horizon": 297,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 305,
+          "at_us": 33111256,
+          "admitted": 373,
+          "local_report_horizon": 301,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 309,
+          "at_us": 33504428,
+          "admitted": 378,
+          "local_report_horizon": 305,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 313,
+          "at_us": 33897606,
+          "admitted": 383,
+          "local_report_horizon": 309,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 317,
+          "at_us": 34293018,
+          "admitted": 388,
+          "local_report_horizon": 313,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 321,
+          "at_us": 34687104,
+          "admitted": 393,
+          "local_report_horizon": 317,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 325,
+          "at_us": 35081940,
+          "admitted": 397,
+          "local_report_horizon": 321,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 329,
+          "at_us": 35474849,
+          "admitted": 402,
+          "local_report_horizon": 325,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 333,
+          "at_us": 35868539,
+          "admitted": 407,
+          "local_report_horizon": 329,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 337,
+          "at_us": 36262625,
+          "admitted": 412,
+          "local_report_horizon": 333,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 341,
+          "at_us": 36656897,
+          "admitted": 417,
+          "local_report_horizon": 337,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 345,
+          "at_us": 37049779,
+          "admitted": 422,
+          "local_report_horizon": 341,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 349,
+          "at_us": 37442829,
+          "admitted": 427,
+          "local_report_horizon": 345,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 353,
+          "at_us": 37835686,
+          "admitted": 432,
+          "local_report_horizon": 349,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 357,
+          "at_us": 38229717,
+          "admitted": 437,
+          "local_report_horizon": 353,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 361,
+          "at_us": 38622998,
+          "admitted": 442,
+          "local_report_horizon": 357,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 365,
+          "at_us": 39017016,
+          "admitted": 447,
+          "local_report_horizon": 361,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 369,
+          "at_us": 39410094,
+          "admitted": 451,
+          "local_report_horizon": 365,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 0,
+          "round": 373,
+          "at_us": 39804044,
+          "admitted": 457,
+          "local_report_horizon": 369,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 2,
+          "at_us": 562649,
+          "admitted": 2,
+          "local_report_horizon": 0,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [],
+          "exact_history_ready": true
+        },
+        {
+          "replica": 1,
+          "round": 6,
+          "at_us": 1047410,
+          "admitted": 6,
+          "local_report_horizon": 2,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 10,
+          "at_us": 1436075,
+          "admitted": 10,
+          "local_report_horizon": 6,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 14,
+          "at_us": 1829703,
+          "admitted": 15,
+          "local_report_horizon": 10,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 18,
+          "at_us": 2222911,
+          "admitted": 20,
+          "local_report_horizon": 14,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 22,
+          "at_us": 2615311,
+          "admitted": 25,
+          "local_report_horizon": 18,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 26,
+          "at_us": 3007576,
+          "admitted": 30,
+          "local_report_horizon": 22,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 30,
+          "at_us": 3402792,
+          "admitted": 35,
+          "local_report_horizon": 26,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 34,
+          "at_us": 3797884,
+          "admitted": 40,
+          "local_report_horizon": 30,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 38,
+          "at_us": 4189349,
+          "admitted": 44,
+          "local_report_horizon": 34,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 42,
+          "at_us": 4585303,
+          "admitted": 50,
+          "local_report_horizon": 38,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 46,
+          "at_us": 4985939,
+          "admitted": 54,
+          "local_report_horizon": 42,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 50,
+          "at_us": 5379195,
+          "admitted": 60,
+          "local_report_horizon": 46,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 54,
+          "at_us": 5772501,
+          "admitted": 64,
+          "local_report_horizon": 50,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 58,
+          "at_us": 6168065,
+          "admitted": 70,
+          "local_report_horizon": 54,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 62,
+          "at_us": 6562512,
+          "admitted": 74,
+          "local_report_horizon": 58,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 66,
+          "at_us": 6956939,
+          "admitted": 79,
+          "local_report_horizon": 62,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 70,
+          "at_us": 7349105,
+          "admitted": 84,
+          "local_report_horizon": 66,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 74,
+          "at_us": 7744392,
+          "admitted": 89,
+          "local_report_horizon": 70,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 78,
+          "at_us": 8139867,
+          "admitted": 94,
+          "local_report_horizon": 74,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 82,
+          "at_us": 8535871,
+          "admitted": 99,
+          "local_report_horizon": 78,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 86,
+          "at_us": 8928852,
+          "admitted": 104,
+          "local_report_horizon": 82,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 90,
+          "at_us": 9323139,
+          "admitted": 109,
+          "local_report_horizon": 86,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 94,
+          "at_us": 9718407,
+          "admitted": 114,
+          "local_report_horizon": 90,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 98,
+          "at_us": 10112453,
+          "admitted": 118,
+          "local_report_horizon": 94,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 102,
+          "at_us": 10506612,
+          "admitted": 124,
+          "local_report_horizon": 98,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 106,
+          "at_us": 10902613,
+          "admitted": 128,
+          "local_report_horizon": 102,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 110,
+          "at_us": 11295649,
+          "admitted": 134,
+          "local_report_horizon": 106,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 114,
+          "at_us": 11688824,
+          "admitted": 138,
+          "local_report_horizon": 110,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 118,
+          "at_us": 12083818,
+          "admitted": 143,
+          "local_report_horizon": 114,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 122,
+          "at_us": 12478269,
+          "admitted": 148,
+          "local_report_horizon": 118,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 126,
+          "at_us": 12871651,
+          "admitted": 153,
+          "local_report_horizon": 122,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 130,
+          "at_us": 13267008,
+          "admitted": 158,
+          "local_report_horizon": 126,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 134,
+          "at_us": 13663633,
+          "admitted": 163,
+          "local_report_horizon": 130,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 138,
+          "at_us": 14057433,
+          "admitted": 168,
+          "local_report_horizon": 134,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 142,
+          "at_us": 14451215,
+          "admitted": 173,
+          "local_report_horizon": 138,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 146,
+          "at_us": 14845946,
+          "admitted": 178,
+          "local_report_horizon": 142,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 150,
+          "at_us": 15237873,
+          "admitted": 182,
+          "local_report_horizon": 146,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 154,
+          "at_us": 15635694,
+          "admitted": 188,
+          "local_report_horizon": 150,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 158,
+          "at_us": 16028595,
+          "admitted": 192,
+          "local_report_horizon": 154,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 162,
+          "at_us": 16423917,
+          "admitted": 198,
+          "local_report_horizon": 158,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 166,
+          "at_us": 16816523,
+          "admitted": 202,
+          "local_report_horizon": 162,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 170,
+          "at_us": 17209661,
+          "admitted": 207,
+          "local_report_horizon": 166,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 174,
+          "at_us": 17603007,
+          "admitted": 212,
+          "local_report_horizon": 170,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 178,
+          "at_us": 17998590,
+          "admitted": 217,
+          "local_report_horizon": 174,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 182,
+          "at_us": 18390899,
+          "admitted": 222,
+          "local_report_horizon": 178,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 186,
+          "at_us": 18787981,
+          "admitted": 227,
+          "local_report_horizon": 182,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 190,
+          "at_us": 19182289,
+          "admitted": 232,
+          "local_report_horizon": 186,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 194,
+          "at_us": 19575262,
+          "admitted": 237,
+          "local_report_horizon": 190,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 198,
+          "at_us": 19970646,
+          "admitted": 242,
+          "local_report_horizon": 194,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 202,
+          "at_us": 20367646,
+          "admitted": 247,
+          "local_report_horizon": 198,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 206,
+          "at_us": 20760298,
+          "admitted": 252,
+          "local_report_horizon": 202,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 210,
+          "at_us": 21154249,
+          "admitted": 256,
+          "local_report_horizon": 206,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 214,
+          "at_us": 21548546,
+          "admitted": 262,
+          "local_report_horizon": 210,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 218,
+          "at_us": 21939247,
+          "admitted": 266,
+          "local_report_horizon": 214,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 222,
+          "at_us": 22333774,
+          "admitted": 272,
+          "local_report_horizon": 218,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 226,
+          "at_us": 22728717,
+          "admitted": 276,
+          "local_report_horizon": 222,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 230,
+          "at_us": 23122020,
+          "admitted": 281,
+          "local_report_horizon": 226,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 234,
+          "at_us": 23517152,
+          "admitted": 286,
+          "local_report_horizon": 230,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 238,
+          "at_us": 23912970,
+          "admitted": 291,
+          "local_report_horizon": 234,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 242,
+          "at_us": 24305575,
+          "admitted": 296,
+          "local_report_horizon": 238,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 246,
+          "at_us": 24696933,
+          "admitted": 300,
+          "local_report_horizon": 242,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 250,
+          "at_us": 25091578,
+          "admitted": 306,
+          "local_report_horizon": 246,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 254,
+          "at_us": 25487239,
+          "admitted": 310,
+          "local_report_horizon": 250,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 258,
+          "at_us": 25881138,
+          "admitted": 316,
+          "local_report_horizon": 254,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 262,
+          "at_us": 26277801,
+          "admitted": 320,
+          "local_report_horizon": 258,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 266,
+          "at_us": 26671115,
+          "admitted": 325,
+          "local_report_horizon": 262,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 270,
+          "at_us": 27063212,
+          "admitted": 330,
+          "local_report_horizon": 266,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 274,
+          "at_us": 27457137,
+          "admitted": 335,
+          "local_report_horizon": 270,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 278,
+          "at_us": 27853047,
+          "admitted": 340,
+          "local_report_horizon": 274,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 282,
+          "at_us": 28245444,
+          "admitted": 345,
+          "local_report_horizon": 278,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 286,
+          "at_us": 28639527,
+          "admitted": 350,
+          "local_report_horizon": 282,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 290,
+          "at_us": 29035160,
+          "admitted": 355,
+          "local_report_horizon": 286,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 294,
+          "at_us": 29429157,
+          "admitted": 360,
+          "local_report_horizon": 290,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 298,
+          "at_us": 29822958,
+          "admitted": 365,
+          "local_report_horizon": 294,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 302,
+          "at_us": 30217167,
+          "admitted": 370,
+          "local_report_horizon": 298,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 306,
+          "at_us": 30609133,
+          "admitted": 374,
+          "local_report_horizon": 302,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 310,
+          "at_us": 31005135,
+          "admitted": 379,
+          "local_report_horizon": 306,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 314,
+          "at_us": 31398905,
+          "admitted": 384,
+          "local_report_horizon": 310,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 318,
+          "at_us": 31789841,
+          "admitted": 389,
+          "local_report_horizon": 314,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 322,
+          "at_us": 32184822,
+          "admitted": 394,
+          "local_report_horizon": 318,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 326,
+          "at_us": 32579797,
+          "admitted": 399,
+          "local_report_horizon": 322,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 330,
+          "at_us": 32974159,
+          "admitted": 404,
+          "local_report_horizon": 326,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 334,
+          "at_us": 33368052,
+          "admitted": 409,
+          "local_report_horizon": 330,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 338,
+          "at_us": 33761244,
+          "admitted": 414,
+          "local_report_horizon": 334,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 342,
+          "at_us": 34153293,
+          "admitted": 419,
+          "local_report_horizon": 338,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 346,
+          "at_us": 34548095,
+          "admitted": 424,
+          "local_report_horizon": 342,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 350,
+          "at_us": 34941048,
+          "admitted": 428,
+          "local_report_horizon": 346,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 354,
+          "at_us": 35333982,
+          "admitted": 434,
+          "local_report_horizon": 350,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 358,
+          "at_us": 35727637,
+          "admitted": 438,
+          "local_report_horizon": 354,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 362,
+          "at_us": 36121415,
+          "admitted": 443,
+          "local_report_horizon": 358,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 366,
+          "at_us": 36514301,
+          "admitted": 448,
+          "local_report_horizon": 362,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 370,
+          "at_us": 36909083,
+          "admitted": 453,
+          "local_report_horizon": 366,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 374,
+          "at_us": 37301359,
+          "admitted": 458,
+          "local_report_horizon": 370,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 3,
+          "at_us": 1821869,
+          "admitted": 3,
+          "local_report_horizon": 0,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [],
+          "exact_history_ready": true
+        },
+        {
+          "replica": 2,
+          "round": 7,
+          "at_us": 2227502,
+          "admitted": 8,
+          "local_report_horizon": 5,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 11,
+          "at_us": 2621237,
+          "admitted": 13,
+          "local_report_horizon": 9,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 15,
+          "at_us": 3014633,
+          "admitted": 18,
+          "local_report_horizon": 13,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 19,
+          "at_us": 3407259,
+          "admitted": 22,
+          "local_report_horizon": 17,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 23,
+          "at_us": 3800314,
+          "admitted": 28,
+          "local_report_horizon": 21,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 27,
+          "at_us": 4193820,
+          "admitted": 32,
+          "local_report_horizon": 25,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 31,
+          "at_us": 4588726,
+          "admitted": 37,
+          "local_report_horizon": 29,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 35,
+          "at_us": 4980912,
+          "admitted": 42,
+          "local_report_horizon": 33,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 39,
+          "at_us": 5375044,
+          "admitted": 47,
+          "local_report_horizon": 37,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 43,
+          "at_us": 5777102,
+          "admitted": 52,
+          "local_report_horizon": 41,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 47,
+          "at_us": 6169888,
+          "admitted": 57,
+          "local_report_horizon": 45,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 51,
+          "at_us": 6563950,
+          "admitted": 62,
+          "local_report_horizon": 49,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 55,
+          "at_us": 6959126,
+          "admitted": 67,
+          "local_report_horizon": 51,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 59,
+          "at_us": 7354084,
+          "admitted": 72,
+          "local_report_horizon": 55,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 63,
+          "at_us": 7747619,
+          "admitted": 77,
+          "local_report_horizon": 61,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 67,
+          "at_us": 8140355,
+          "admitted": 82,
+          "local_report_horizon": 65,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 71,
+          "at_us": 8536107,
+          "admitted": 86,
+          "local_report_horizon": 69,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 75,
+          "at_us": 8930855,
+          "admitted": 92,
+          "local_report_horizon": 73,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 79,
+          "at_us": 9326386,
+          "admitted": 96,
+          "local_report_horizon": 77,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 83,
+          "at_us": 9720087,
+          "admitted": 102,
+          "local_report_horizon": 81,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 87,
+          "at_us": 10115189,
+          "admitted": 106,
+          "local_report_horizon": 85,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 91,
+          "at_us": 10508817,
+          "admitted": 111,
+          "local_report_horizon": 89,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 95,
+          "at_us": 10903701,
+          "admitted": 116,
+          "local_report_horizon": 93,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 99,
+          "at_us": 11296902,
+          "admitted": 121,
+          "local_report_horizon": 95,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 103,
+          "at_us": 11692880,
+          "admitted": 126,
+          "local_report_horizon": 101,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 107,
+          "at_us": 12087594,
+          "admitted": 131,
+          "local_report_horizon": 105,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 111,
+          "at_us": 12480927,
+          "admitted": 136,
+          "local_report_horizon": 109,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 115,
+          "at_us": 12875149,
+          "admitted": 141,
+          "local_report_horizon": 113,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 119,
+          "at_us": 13270012,
+          "admitted": 146,
+          "local_report_horizon": 117,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 123,
+          "at_us": 13663682,
+          "admitted": 150,
+          "local_report_horizon": 121,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 127,
+          "at_us": 14057789,
+          "admitted": 156,
+          "local_report_horizon": 125,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 131,
+          "at_us": 14454542,
+          "admitted": 160,
+          "local_report_horizon": 129,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 135,
+          "at_us": 14848364,
+          "admitted": 166,
+          "local_report_horizon": 133,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 139,
+          "at_us": 15243079,
+          "admitted": 170,
+          "local_report_horizon": 137,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 143,
+          "at_us": 15636446,
+          "admitted": 175,
+          "local_report_horizon": 141,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 147,
+          "at_us": 16029933,
+          "admitted": 180,
+          "local_report_horizon": 145,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 151,
+          "at_us": 16426930,
+          "admitted": 185,
+          "local_report_horizon": 149,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 155,
+          "at_us": 16820345,
+          "admitted": 190,
+          "local_report_horizon": 153,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 159,
+          "at_us": 17215474,
+          "admitted": 195,
+          "local_report_horizon": 157,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 163,
+          "at_us": 17608602,
+          "admitted": 200,
+          "local_report_horizon": 161,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 167,
+          "at_us": 18001269,
+          "admitted": 205,
+          "local_report_horizon": 165,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 171,
+          "at_us": 18394575,
+          "admitted": 210,
+          "local_report_horizon": 167,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 175,
+          "at_us": 18788890,
+          "admitted": 215,
+          "local_report_horizon": 171,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 179,
+          "at_us": 19181808,
+          "admitted": 220,
+          "local_report_horizon": 177,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 183,
+          "at_us": 19578156,
+          "admitted": 224,
+          "local_report_horizon": 179,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 187,
+          "at_us": 19973354,
+          "admitted": 230,
+          "local_report_horizon": 185,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 191,
+          "at_us": 20366868,
+          "admitted": 234,
+          "local_report_horizon": 189,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 195,
+          "at_us": 20761377,
+          "admitted": 240,
+          "local_report_horizon": 193,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 199,
+          "at_us": 21157039,
+          "admitted": 244,
+          "local_report_horizon": 195,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 203,
+          "at_us": 21550175,
+          "admitted": 249,
+          "local_report_horizon": 199,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 207,
+          "at_us": 21943850,
+          "admitted": 254,
+          "local_report_horizon": 205,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 211,
+          "at_us": 22338666,
+          "admitted": 259,
+          "local_report_horizon": 207,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 215,
+          "at_us": 22730481,
+          "admitted": 264,
+          "local_report_horizon": 213,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 219,
+          "at_us": 23124956,
+          "admitted": 269,
+          "local_report_horizon": 217,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 223,
+          "at_us": 23519920,
+          "admitted": 274,
+          "local_report_horizon": 221,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 227,
+          "at_us": 23913026,
+          "admitted": 279,
+          "local_report_horizon": 225,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 231,
+          "at_us": 24307247,
+          "admitted": 284,
+          "local_report_horizon": 229,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 235,
+          "at_us": 24703183,
+          "admitted": 288,
+          "local_report_horizon": 233,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 239,
+          "at_us": 25096706,
+          "admitted": 293,
+          "local_report_horizon": 237,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 243,
+          "at_us": 25488947,
+          "admitted": 298,
+          "local_report_horizon": 241,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 247,
+          "at_us": 25882370,
+          "admitted": 303,
+          "local_report_horizon": 245,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 251,
+          "at_us": 26277822,
+          "admitted": 308,
+          "local_report_horizon": 249,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 255,
+          "at_us": 26671865,
+          "admitted": 313,
+          "local_report_horizon": 253,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 259,
+          "at_us": 27067595,
+          "admitted": 318,
+          "local_report_horizon": 257,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 263,
+          "at_us": 27461640,
+          "admitted": 323,
+          "local_report_horizon": 261,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 267,
+          "at_us": 27854131,
+          "admitted": 328,
+          "local_report_horizon": 263,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 271,
+          "at_us": 28248646,
+          "admitted": 333,
+          "local_report_horizon": 269,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 275,
+          "at_us": 28643899,
+          "admitted": 338,
+          "local_report_horizon": 273,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 279,
+          "at_us": 29036285,
+          "admitted": 342,
+          "local_report_horizon": 277,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 283,
+          "at_us": 29429256,
+          "admitted": 347,
+          "local_report_horizon": 279,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 287,
+          "at_us": 29824853,
+          "admitted": 352,
+          "local_report_horizon": 285,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 291,
+          "at_us": 30219988,
+          "admitted": 357,
+          "local_report_horizon": 289,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 295,
+          "at_us": 30613698,
+          "admitted": 362,
+          "local_report_horizon": 293,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 299,
+          "at_us": 31008072,
+          "admitted": 367,
+          "local_report_horizon": 297,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 303,
+          "at_us": 31400479,
+          "admitted": 372,
+          "local_report_horizon": 299,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 307,
+          "at_us": 31795667,
+          "admitted": 377,
+          "local_report_horizon": 303,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 311,
+          "at_us": 32188911,
+          "admitted": 382,
+          "local_report_horizon": 307,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 315,
+          "at_us": 32581268,
+          "admitted": 387,
+          "local_report_horizon": 313,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 319,
+          "at_us": 32976627,
+          "admitted": 392,
+          "local_report_horizon": 317,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 323,
+          "at_us": 33370602,
+          "admitted": 397,
+          "local_report_horizon": 319,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 327,
+          "at_us": 33765482,
+          "admitted": 402,
+          "local_report_horizon": 323,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 331,
+          "at_us": 34159462,
+          "admitted": 406,
+          "local_report_horizon": 329,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 335,
+          "at_us": 34552106,
+          "admitted": 411,
+          "local_report_horizon": 331,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 339,
+          "at_us": 34946415,
+          "admitted": 416,
+          "local_report_horizon": 337,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 343,
+          "at_us": 35340251,
+          "admitted": 421,
+          "local_report_horizon": 341,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 347,
+          "at_us": 35732537,
+          "admitted": 426,
+          "local_report_horizon": 345,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 351,
+          "at_us": 36125573,
+          "admitted": 431,
+          "local_report_horizon": 349,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 355,
+          "at_us": 36519261,
+          "admitted": 436,
+          "local_report_horizon": 353,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 359,
+          "at_us": 36913398,
+          "admitted": 441,
+          "local_report_horizon": 357,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 363,
+          "at_us": 37306552,
+          "admitted": 446,
+          "local_report_horizon": 361,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 367,
+          "at_us": 37700679,
+          "admitted": 451,
+          "local_report_horizon": 365,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 371,
+          "at_us": 38093646,
+          "admitted": 456,
+          "local_report_horizon": 369,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            2
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 4,
+          "at_us": 3573090,
+          "admitted": 4,
+          "local_report_horizon": 0,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 8,
+          "at_us": 3964460,
+          "admitted": 9,
+          "local_report_horizon": 6,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 12,
+          "at_us": 4357584,
+          "admitted": 13,
+          "local_report_horizon": 9,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 16,
+          "at_us": 4750610,
+          "admitted": 19,
+          "local_report_horizon": 13,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 20,
+          "at_us": 5144461,
+          "admitted": 23,
+          "local_report_horizon": 17,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 24,
+          "at_us": 5537757,
+          "admitted": 28,
+          "local_report_horizon": 21,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 28,
+          "at_us": 5930670,
+          "admitted": 33,
+          "local_report_horizon": 25,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 32,
+          "at_us": 6323658,
+          "admitted": 38,
+          "local_report_horizon": 29,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 36,
+          "at_us": 6716936,
+          "admitted": 43,
+          "local_report_horizon": 33,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 40,
+          "at_us": 7119857,
+          "admitted": 48,
+          "local_report_horizon": 38,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 44,
+          "at_us": 7513461,
+          "admitted": 53,
+          "local_report_horizon": 41,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 48,
+          "at_us": 7906520,
+          "admitted": 58,
+          "local_report_horizon": 45,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 52,
+          "at_us": 8301598,
+          "admitted": 63,
+          "local_report_horizon": 49,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 56,
+          "at_us": 8696927,
+          "admitted": 68,
+          "local_report_horizon": 53,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 60,
+          "at_us": 9091175,
+          "admitted": 73,
+          "local_report_horizon": 57,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 64,
+          "at_us": 9484587,
+          "admitted": 77,
+          "local_report_horizon": 61,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 68,
+          "at_us": 9877724,
+          "admitted": 83,
+          "local_report_horizon": 65,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 72,
+          "at_us": 10273561,
+          "admitted": 87,
+          "local_report_horizon": 69,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 76,
+          "at_us": 10668403,
+          "admitted": 93,
+          "local_report_horizon": 73,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 80,
+          "at_us": 11062836,
+          "admitted": 97,
+          "local_report_horizon": 77,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 84,
+          "at_us": 11456586,
+          "admitted": 102,
+          "local_report_horizon": 81,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 88,
+          "at_us": 11850566,
+          "admitted": 107,
+          "local_report_horizon": 85,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 92,
+          "at_us": 12244943,
+          "admitted": 112,
+          "local_report_horizon": 89,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 96,
+          "at_us": 12639611,
+          "admitted": 117,
+          "local_report_horizon": 93,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 100,
+          "at_us": 13034501,
+          "admitted": 122,
+          "local_report_horizon": 97,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 104,
+          "at_us": 13430024,
+          "admitted": 127,
+          "local_report_horizon": 101,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 108,
+          "at_us": 13824712,
+          "admitted": 132,
+          "local_report_horizon": 105,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 112,
+          "at_us": 14218663,
+          "admitted": 137,
+          "local_report_horizon": 109,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 116,
+          "at_us": 14613045,
+          "admitted": 141,
+          "local_report_horizon": 113,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 120,
+          "at_us": 15006439,
+          "admitted": 147,
+          "local_report_horizon": 117,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 124,
+          "at_us": 15401307,
+          "admitted": 151,
+          "local_report_horizon": 121,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 128,
+          "at_us": 15796709,
+          "admitted": 157,
+          "local_report_horizon": 125,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 132,
+          "at_us": 16191052,
+          "admitted": 161,
+          "local_report_horizon": 129,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 136,
+          "at_us": 16586006,
+          "admitted": 166,
+          "local_report_horizon": 133,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 140,
+          "at_us": 16978236,
+          "admitted": 171,
+          "local_report_horizon": 137,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 144,
+          "at_us": 17373292,
+          "admitted": 176,
+          "local_report_horizon": 141,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 148,
+          "at_us": 17768534,
+          "admitted": 181,
+          "local_report_horizon": 145,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 152,
+          "at_us": 18163598,
+          "admitted": 186,
+          "local_report_horizon": 149,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 156,
+          "at_us": 18557859,
+          "admitted": 191,
+          "local_report_horizon": 153,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 160,
+          "at_us": 18951322,
+          "admitted": 196,
+          "local_report_horizon": 157,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 164,
+          "at_us": 19344885,
+          "admitted": 201,
+          "local_report_horizon": 161,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 168,
+          "at_us": 19738631,
+          "admitted": 206,
+          "local_report_horizon": 165,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 172,
+          "at_us": 20132226,
+          "admitted": 211,
+          "local_report_horizon": 169,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 176,
+          "at_us": 20524636,
+          "admitted": 215,
+          "local_report_horizon": 173,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 180,
+          "at_us": 20920282,
+          "admitted": 221,
+          "local_report_horizon": 177,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 184,
+          "at_us": 21315829,
+          "admitted": 225,
+          "local_report_horizon": 181,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 188,
+          "at_us": 21711244,
+          "admitted": 231,
+          "local_report_horizon": 185,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 192,
+          "at_us": 22104905,
+          "admitted": 235,
+          "local_report_horizon": 189,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 196,
+          "at_us": 22499548,
+          "admitted": 240,
+          "local_report_horizon": 193,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 200,
+          "at_us": 22893504,
+          "admitted": 245,
+          "local_report_horizon": 197,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 204,
+          "at_us": 23286755,
+          "admitted": 250,
+          "local_report_horizon": 201,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 208,
+          "at_us": 23680716,
+          "admitted": 255,
+          "local_report_horizon": 205,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 212,
+          "at_us": 24074124,
+          "admitted": 260,
+          "local_report_horizon": 209,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 216,
+          "at_us": 24468334,
+          "admitted": 265,
+          "local_report_horizon": 213,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 220,
+          "at_us": 24862487,
+          "admitted": 270,
+          "local_report_horizon": 217,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 224,
+          "at_us": 25256494,
+          "admitted": 275,
+          "local_report_horizon": 221,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 228,
+          "at_us": 25649919,
+          "admitted": 279,
+          "local_report_horizon": 225,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 232,
+          "at_us": 26044140,
+          "admitted": 285,
+          "local_report_horizon": 229,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 236,
+          "at_us": 26437215,
+          "admitted": 289,
+          "local_report_horizon": 233,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 240,
+          "at_us": 26832693,
+          "admitted": 294,
+          "local_report_horizon": 237,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 244,
+          "at_us": 27225562,
+          "admitted": 299,
+          "local_report_horizon": 241,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 248,
+          "at_us": 27619296,
+          "admitted": 304,
+          "local_report_horizon": 245,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 252,
+          "at_us": 28014771,
+          "admitted": 309,
+          "local_report_horizon": 249,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 256,
+          "at_us": 28409870,
+          "admitted": 314,
+          "local_report_horizon": 253,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 260,
+          "at_us": 28803938,
+          "admitted": 319,
+          "local_report_horizon": 257,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 264,
+          "at_us": 29198013,
+          "admitted": 324,
+          "local_report_horizon": 261,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 268,
+          "at_us": 29592024,
+          "admitted": 329,
+          "local_report_horizon": 265,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 272,
+          "at_us": 29986276,
+          "admitted": 333,
+          "local_report_horizon": 269,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 276,
+          "at_us": 30379440,
+          "admitted": 338,
+          "local_report_horizon": 273,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 280,
+          "at_us": 30772880,
+          "admitted": 343,
+          "local_report_horizon": 277,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 284,
+          "at_us": 31167202,
+          "admitted": 348,
+          "local_report_horizon": 281,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 288,
+          "at_us": 31563336,
+          "admitted": 353,
+          "local_report_horizon": 285,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 292,
+          "at_us": 31957778,
+          "admitted": 358,
+          "local_report_horizon": 289,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 296,
+          "at_us": 32350652,
+          "admitted": 363,
+          "local_report_horizon": 293,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 300,
+          "at_us": 32743468,
+          "admitted": 368,
+          "local_report_horizon": 297,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 304,
+          "at_us": 33138377,
+          "admitted": 373,
+          "local_report_horizon": 301,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 308,
+          "at_us": 33531285,
+          "admitted": 378,
+          "local_report_horizon": 305,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 312,
+          "at_us": 33924703,
+          "admitted": 383,
+          "local_report_horizon": 309,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 316,
+          "at_us": 34319985,
+          "admitted": 388,
+          "local_report_horizon": 313,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 320,
+          "at_us": 34714025,
+          "admitted": 393,
+          "local_report_horizon": 317,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 324,
+          "at_us": 35108938,
+          "admitted": 397,
+          "local_report_horizon": 321,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 328,
+          "at_us": 35501968,
+          "admitted": 402,
+          "local_report_horizon": 325,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 332,
+          "at_us": 35895645,
+          "admitted": 407,
+          "local_report_horizon": 329,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 336,
+          "at_us": 36289759,
+          "admitted": 412,
+          "local_report_horizon": 333,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 340,
+          "at_us": 36683830,
+          "admitted": 417,
+          "local_report_horizon": 337,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 344,
+          "at_us": 37076789,
+          "admitted": 422,
+          "local_report_horizon": 341,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 348,
+          "at_us": 37469759,
+          "admitted": 427,
+          "local_report_horizon": 345,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 352,
+          "at_us": 37862771,
+          "admitted": 432,
+          "local_report_horizon": 349,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 356,
+          "at_us": 38256793,
+          "admitted": 437,
+          "local_report_horizon": 353,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 360,
+          "at_us": 38650001,
+          "admitted": 442,
+          "local_report_horizon": 357,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 364,
+          "at_us": 39044029,
+          "admitted": 447,
+          "local_report_horizon": 361,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 368,
+          "at_us": 39437038,
+          "admitted": 451,
+          "local_report_horizon": 365,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 372,
+          "at_us": 39831073,
+          "admitted": 457,
+          "local_report_horizon": 369,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        }
+      ]
+    },
+    "silent-first-leader": {
+      "count": 17,
+      "with_validated_predecessor": 10,
+      "population": "all retained leader REPORT markers, including setup and drain; not request weighted",
+      "markers": [
+        {
+          "replica": 1,
+          "round": 2,
+          "at_us": 595710,
+          "admitted": 2,
+          "local_report_horizon": 0,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [],
+          "exact_history_ready": true
+        },
+        {
+          "replica": 1,
+          "round": 6,
+          "at_us": 7982237,
+          "admitted": 62,
+          "local_report_horizon": 3,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            1
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 10,
+          "at_us": 15012229,
+          "admitted": 120,
+          "local_report_horizon": 7,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            1
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 14,
+          "at_us": 22225712,
+          "admitted": 180,
+          "local_report_horizon": 11,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            1
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 18,
+          "at_us": 29255949,
+          "admitted": 238,
+          "local_report_horizon": 15,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            1
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 1,
+          "round": 22,
+          "at_us": 36468312,
+          "admitted": 298,
+          "local_report_horizon": 19,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [
+            1
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 3,
+          "at_us": 1985053,
+          "admitted": 3,
+          "local_report_horizon": 0,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [],
+          "exact_history_ready": true
+        },
+        {
+          "replica": 2,
+          "round": 7,
+          "at_us": 9229979,
+          "admitted": 64,
+          "local_report_horizon": 3,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 11,
+          "at_us": 16473043,
+          "admitted": 124,
+          "local_report_horizon": 7,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 15,
+          "at_us": 23476871,
+          "admitted": 182,
+          "local_report_horizon": 11,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 19,
+          "at_us": 30714187,
+          "admitted": 242,
+          "local_report_horizon": 15,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 2,
+          "round": 23,
+          "at_us": 37717360,
+          "admitted": 300,
+          "local_report_horizon": 19,
+          "predecessor_proposal_validated": true,
+          "closed_signers": [],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 4,
+          "at_us": 10525600,
+          "admitted": 61,
+          "local_report_horizon": 3,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 8,
+          "at_us": 17766665,
+          "admitted": 121,
+          "local_report_horizon": 7,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            1,
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 12,
+          "at_us": 24768782,
+          "admitted": 179,
+          "local_report_horizon": 11,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 16,
+          "at_us": 32008910,
+          "admitted": 239,
+          "local_report_horizon": 15,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            1,
+            3
+          ],
+          "exact_history_ready": false
+        },
+        {
+          "replica": 3,
+          "round": 20,
+          "at_us": 39010708,
+          "admitted": 297,
+          "local_report_horizon": 19,
+          "predecessor_proposal_validated": false,
+          "closed_signers": [
+            3
+          ],
+          "exact_history_ready": false
+        }
+      ]
+    }
+  },
+  "source_files": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/plot_comparison.py",
+      "sha256": "de6fc9312aedeee1ff3f241222aee9f3b1db5b09cee830155393f3d589c9da87",
+      "bytes": 16638
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/comparison.json",
+      "sha256": "72ea098c561530643b0044ea32e8a9f73da1bed7df5e39eb5243c0686a1ec615",
+      "bytes": 60103
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-pipeline-wan-2026-10-29/record.json",
+      "sha256": "a2f0d208e00dc866bce86d5b97fa803708ace778550704722aee60e395f968a3",
+      "bytes": 33451
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/latency_decomposition.py",
+      "sha256": "32dcc1f35006a540e5f241c5ab858a9afe0a53bae1469648149d7afac8753aee",
+      "bytes": 14765
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/scripts/raptr_latency_decomposition.py",
+      "sha256": "75b4488e5f99a64f16004553f80d92d65ed62714dbe0b4cc6201e821845eb771",
+      "bytes": 21825
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/plot_comparison.py",
+      "sha256": "836e6a8f3ceb662de417a25be0e3aec7ec2842af83017d4c61d107de33a6ef4d",
+      "bytes": 15479
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/record.json",
+      "sha256": "d3e1f72437ba43f2b5e534cb5dca17e678e6260e2aad83daeccba98e86d7aef5",
+      "bytes": 8208
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/raptr-wan-stages-2026-10-29/comparison.json",
+      "sha256": "1efafd854dfd5c3d7b2de119b9c5e9b257a821d61d5c5fd71ae2536a62bf58cc",
+      "bytes": 37778
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/decomposition-summary.json",
+      "sha256": "cbcb79c517becf084d9731bea33fc99751871a39b51c55137a5f3faf11a5486c",
+      "bytes": 6266
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/record.json",
+      "sha256": "32084b1c3d9e7f1a8f6e2c590b968a8c75d7b93719cc6e204e9262f8a04a6a1b",
+      "bytes": 30022
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/fabric-wan-30s-2026-10-28/summary.json",
+      "sha256": "9f6526b436b1d39c2e2f24ede4fbcf54073c4c3f8f610f0e6f4c95619219d2e8",
+      "bytes": 22944
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/result.json",
+      "sha256": "c01e41824114eef65102375057d38ebba9dacfb96341f16e53a34fcbeef8eca8",
+      "bytes": 134620
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-0.json",
+      "sha256": "04439f5d654a25f815ec00562f8eccd51a17fb90730030d8deb6946e0ea42754",
+      "bytes": 2252035
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-1.json",
+      "sha256": "fc29072b3816545fd1556beea322b9d79c72d2da6dea22d7cd3a218f4aac67f0",
+      "bytes": 2249041
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-2.json",
+      "sha256": "632f8cbccde19051770dc0529e2eb137fefe6726066c0c6987921b1cc17f850b",
+      "bytes": 2248844
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-3.json",
+      "sha256": "615d156eae1996aaab6132799bbbe91b394831ef0812ceb35ddecadaa03440b5",
+      "bytes": 2243246
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/result.json",
+      "sha256": "5f1ec47ed4f5621de8a6d7f11e0dd39454e943958e471fc861445c41a9161a95",
+      "bytes": 159646
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-1.json",
+      "sha256": "69da976df5711f2daa9b865c5f7558661750afe4259aefee9301ddefb985285b",
+      "bytes": 1176942
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-2.json",
+      "sha256": "78b779ec5ea9797c51f4b1dd3b7bd438010d30989b50348a464bf762974bdf7c",
+      "bytes": 1175134
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-raptr-wan-30s-20261028/trials/b5619611ae844d5a1d749182/trial/causal-traces/replica-3.json",
+      "sha256": "f18f1f1b4d4fa707bc492854918921da73e3fcdb9780993cf96352c2a231424b",
+      "bytes": 1172896
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/state.json",
+      "sha256": "178de693aeef91299fad6f812bc7f004622a4dbe2837cce955a3b7cd0634570c",
+      "bytes": 12463
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/plan.json",
+      "sha256": "7e1054f8c7a80bacffd8287cb724ce0976f84c5933d466cd35c46c31cccc17e5",
+      "bytes": 2816
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/result.json",
+      "sha256": "6906da909cb4b4a6011ce077880ee02e4367a6a8ed8a898a3d71fc64dc627348",
+      "bytes": 90198
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/174bff299bdb5a912b6ed52e/result.json",
+      "sha256": "f12c9f83492d6242e62530ab07c2bddfc60ca51ebf3f3f33e92670487099ec06",
+      "bytes": 63955
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/state.json",
+      "sha256": "805b3bf03a771b317b1c6cdb073a614bcf8708b674b4c702307fb070d964d9eb",
+      "bytes": 12304
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/plan.json",
+      "sha256": "bf97ad0128975fa9dd9c8a2660d372c606a4dcfe607e3a5b3f8730ae2cbd96fa",
+      "bytes": 2784
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/result.json",
+      "sha256": "de448555b91879634ee5f8830bec951c551148e5b028918b5af14a38ac920ee5",
+      "bytes": 138957
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/cohorts/index.json",
+      "sha256": "8c839de7e43f11a2160e729d41d510f395474ab6c08f346f286fa8da875eae49",
+      "bytes": 12946
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-0.json",
+      "sha256": "b8061dd0a841b5b24d47f7bbf1b900d7d5a1fa20fb867fd82f0fa2f971e41797",
+      "bytes": 2890390
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-1.json",
+      "sha256": "f9f20bc3c976ccfd3ed54340bb084591a5d45bf3ef93cd5db1b4d9d512ad70c4",
+      "bytes": 2900080
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-2.json",
+      "sha256": "be14a563c0a90daff4a073526017eba416833d677eeab6b46e5dccc346bb3c2e",
+      "bytes": 2900912
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-3.json",
+      "sha256": "a681b7f3fed7182c01412b455ca42f74f0705b7533e5c0c8668bc871f229e723",
+      "bytes": 2892893
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/result.json",
+      "sha256": "ab330956155ffe0ed538a1bfc82e399513ffa7e615d637eea6fdba368ec4bfc5",
+      "bytes": 153925
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/cohorts/index.json",
+      "sha256": "5817e4d4cad6e62bfd0f7c4b3887c834c351c1e9799cadaa4135fabb06a63827",
+      "bytes": 11026
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-0.json",
+      "sha256": "138eacd5a6dc14dce60cf05ac7e226ad5b1a8804f8fb1bde18d9d7f3c7d82010",
+      "bytes": 603
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-1.json",
+      "sha256": "55e2405465af05b470471664fd9e086a1a14fcc87ae8dbe17e92030dc51e060a",
+      "bytes": 1353274
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-2.json",
+      "sha256": "776c525128ee2e8cbb696af51ad6eef68592744c633545ae354927ffa84cebad",
+      "bytes": 1351602
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-pipeline-wan-20261029-clock-aligned/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-3.json",
+      "sha256": "e60940cfc00aac6d08e78c70d33d5dfc5a80b9478fb8d5fd4f531e5bc98b318f",
+      "bytes": 1350683
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/state.json",
+      "sha256": "370930a08ee39315a0663d278d1bc76acdf49744e83b428f1a8e837fcaf88664",
+      "bytes": 12376
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/plan.json",
+      "sha256": "bf97ad0128975fa9dd9c8a2660d372c606a4dcfe607e3a5b3f8730ae2cbd96fa",
+      "bytes": 2784
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/result.json",
+      "sha256": "05b589eeea28ef629966d0af6c7b48287c4a1e5daa25c555bfd42776ad6be0c4",
+      "bytes": 138505
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/cohorts/index.json",
+      "sha256": "a921395bad9e32d9beafd1702a1561afad03694dc3c7f03aa84ff22b3e6e6869",
+      "bytes": 12951
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-0.json",
+      "sha256": "45ff974e1a8dc5a7074384febedd7f4623b041d9e0e4994aae9524de247aaf6e",
+      "bytes": 2944929
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-1.json",
+      "sha256": "1af56df93ff0d3000e6c8ebcf341198d38a48493394abac1756410a62fd232d0",
+      "bytes": 2945044
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-2.json",
+      "sha256": "c1e593720d0ace691f22429ece6c9a726c04e8d78d22f71e1d93a2415a7bbff0",
+      "bytes": 2941453
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/b02e64f55f4e7fa0598860f6/trial/causal-traces/replica-3.json",
+      "sha256": "13ef1ec1272355f79d59bc9a4e17b1b0f9f73a52be4f9641aeaa2ed65fbf2fc2",
+      "bytes": 2937994
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/result.json",
+      "sha256": "7365f3604d1672b7c6d485ae7006364c71a9b39f7a4a846ea992c7374efbccf2",
+      "bytes": 165585
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/trial/cohorts/index.json",
+      "sha256": "4889774f1e8f16397941d1cc16c7a37cc8664c9597c8ee35b90853d943ccd408",
+      "bytes": 11010
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-0.json",
+      "sha256": "3b59541688155cf06162223a5729f582e42290e5359931ad2f7a78b4e11e7b2e",
+      "bytes": 598
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-1.json",
+      "sha256": "3f354fc6a0061f44d491e482aaeee46116307e4b6527526c97251e3d396ddd59",
+      "bytes": 1293586
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-2.json",
+      "sha256": "e18f454f0c88c830c760887190fc4fffb6676efcd3d3190e7ff2562017b28435",
+      "bytes": 1290989
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delugi-freshness-wan-20261030/trials/d22bcc884402d1e925c4eed8/trial/causal-traces/replica-3.json",
+      "sha256": "0d3cac2cb39049ab0a1e5f4fc82321275316123a26a16a6f4c0c08bebf67deeb",
+      "bytes": 1292476
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmarks/results/delugi-freshness-wan-2026-10-30/plot_comparison.py",
+      "sha256": "f213fa16d7348336eeb3557151af971571b31237c985ef939d6022684fe40b02",
+      "bytes": 13811
+    }
+  ],
+  "metric_populations": "Stage means use covered completed intended requests. Full scheduled-cohort quantiles retain unfinished requests. Stage means are additive; quantiles are not.",
+  "limitations": [
+    "Only corrected Delugi was rerun. Raptr and previous-pipeline Delugi are saved independent WAN runs; host and network conditions are not contemporaneous.",
+    "Start is successful origin-local admission; end is origin-local verified contiguous application output before diagnostic journaling. Consensus starts at origin-local valid proposal acceptance; proposal transit belongs to the preceding stage.",
+    "Native batching remains: Delugi maximum wait 10 ms; Raptr Quorum Store 150 ms polling with 80 ms minimum nonempty and 300 ms maximum.",
+    "Equal Delta does not equalize recovery: Raptr uses 4Delta from round entry; Delugi uses eligible 7Delta main and independent 3Delta catch-up timers.",
+    "Delugi silences protocol participation at replica0/Singapore with transport ACKs active; Raptr pauses replica1/Frankfurt. Faulty identities keep repeated leadership slots.",
+    "Output groups different internal phase orderings: Delugi releases descriptors before payload materialization; Raptr validates payloads before FIFO release.",
+    "Saved Raptr silent case has eight requests cancelled before admission, retained in scheduled-cohort statistics but absent from completed-stage means.",
+    "One run per case at one low offered load, with unquantified observer overhead; this is deployment and latency verification, not a full throughput study.",
+    "Remote load starts use one controller monotonic epoch mapped into each replica wall clock, with measured RTT uncertainty retained; all transaction latency intervals use only one origin monotonic clock.",
+    "Retained REPORT markers confirm the predecessor-validation field is present, not a full proof reconstructed from complete authenticated messages. Detailed handler spans remain sampled."
+  ]
+}
