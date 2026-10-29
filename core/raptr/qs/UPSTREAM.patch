@@ -310,7 +310,21 @@
          }
      }
  
-@@ -582,7 +587,7 @@
+@@ -494,6 +499,13 @@
+         let mut signed_infos = vec![];
+         for persist_request in persist_requests.into_iter() {
+             if let Some(signed_info) = self.persist_inner(persist_request.clone()) {
++                // Batch formation ends once this replica's complete native
++                // payload is stored and its custody signature is available.
++                if persist_request.author() == self.validator_signer.author()
++                    && persist_request.payload().is_some()
++                {
++                    crate::latency::batch_stored(persist_request.batch_info());
++                }
+                 self.notify_subscribers(persist_request);
+                 signed_infos.push(signed_info);
+             }
+@@ -582,7 +594,7 @@
                  .boxed()
                  .shared();
  
@@ -376,6 +390,18 @@
              Err(_) => Err(SignedBatchInfoError::UnableToAggregate),
          }
      }
+@@ -254,6 +252,11 @@
+                     let _timer = counters::SIGNED_BATCH_INFO_VERIFY_DURATION.start_timer();
+                     value.aggregate_and_verify(validator_verifier)?
+                 };
++                // Record the actual verified quorum, not a send/receipt guess.
++                // Optimistic proposal handling may precede this observation.
++                if proof.info().author() == self.peer_id {
++                    crate::latency::availability_quorum(proof.info());
++                }
+                 // proof validated locally, so adding to cache
+                 self.proof_cache
+                     .insert(proof.info().clone(), proof.multi_signature().clone());
 --- a/consensus/src/quorum_store/types.rs
 +++ b/core/raptr/qs/src/quorum_store/types.rs
 @@ -118,6 +118,80 @@

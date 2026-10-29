@@ -5,6 +5,8 @@ pub mod delays;
 pub mod framework;
 pub mod leader_schedule;
 pub mod metrics;
+/// Optional node-installed monotonic timing recorder; protocol decisions never read it.
+pub use delugi_raptr_core::latency;
 pub mod raptr;
 /// Shared-service assembly; the imported protocol handlers remain unchanged.
 #[cfg(not(feature = "sim-types"))]

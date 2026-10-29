@@ -55,11 +55,12 @@
       "upstream_sha256": "b3ee35a158ca51d2739b2010853a92b8420ecfe1dce092c0895735207297e00a",
       "local": "src/quorum_store/batch_store.rs",
       "substitutions": [],
-      "local_sha256": "dee728ba0767f836e0181797956d409a1814fe4305cf08527d60da7a61aa276b",
+      "local_sha256": "03eec37bbc400e263897d23708de771401967ce7db47944f99943bcf3d573a0e",
       "byte_identical": false,
       "reviewed_adaptations": [
         "Wrap identical native SignedBatchInfo construction in enclosing shared signing accounting; persist-before-sign unchanged.",
-        "Inject shared TaskGroup for prior-epoch GC, cache bootstrap GC, certified-time GC and shared fetch future spawn. Native quotas, get/fetch, persist-before-sign, cache and epoch policies unchanged."
+        "Inject shared TaskGroup for prior-epoch GC, cache bootstrap GC, certified-time GC and shared fetch future spawn. Native quotas, get/fetch, persist-before-sign, cache and epoch policies unchanged.",
+        "Optional bounded monotonic BatchStored observation after successful own-payload persistence and custody signing; no protocol or storage predicate reads the recorder."
       ]
     },
     {
@@ -75,11 +76,12 @@
       "upstream_sha256": "6c7cd01b6acddf8e404bf12814071a511abc0a529b5a16aea8232c237b8c6786",
       "local": "src/quorum_store/proof_coordinator.rs",
       "substitutions": [],
-      "local_sha256": "7403c1a7bb353ab169c6c9c59ffac815eb6148164ae3cabf37d1437f1f1e8c5a",
+      "local_sha256": "16a09367eed9ba6eadb4737da7b9439df294addc5c41c7fbd5f282c5e106eb6c",
       "byte_identical": false,
       "reviewed_adaptations": [
         "Wrap identical native aggregate_and_verify in enclosing shared crypto accounting; native cache/quorum policy unchanged.",
-        "Import exact pinned Tokio time primitives through shared-runtime-async; proof poll period and timeout policy unchanged."
+        "Import exact pinned Tokio time primitives through shared-runtime-async; proof poll period and timeout policy unchanged.",
+        "Optional bounded monotonic AvailabilityQuorum observation after own-batch proof aggregation and verification; no quorum predicate or broadcast policy change."
       ]
     },
     {

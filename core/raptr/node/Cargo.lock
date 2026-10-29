@@ -5890,6 +5890,7 @@ dependencies = [
  "chrono",
  "claims",
  "dashmap",
+ "delugi-raptr-core",
  "fail",
  "futures",
  "futures-channel",

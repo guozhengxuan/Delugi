@@ -33,7 +33,7 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
     contract.integer(rate,1,80000,'total honest tx/s')
     cap=capabilities(protocol);batch=config['batching'];proposal=config['proposal_budget']
     options=config['protocol_options'][protocol]
-    allowed={'transport','arrival_queue_capacity','resource_profile','report_schedule','causal_trace'} if protocol=='delugi' else {'transport','limits','consensus','quorum_store'} if protocol=='raptr' else {'batching','startup_seconds'}
+    allowed={'transport','arrival_queue_capacity','resource_profile','report_schedule','causal_trace'} if protocol=='delugi' else {'transport','limits','consensus','quorum_store','latency_trace'} if protocol=='raptr' else {'batching','startup_seconds'}
     if set(options)-allowed:raise ValueError('unreviewed or unsupported protocol option: '+str(sorted(set(options)-allowed)))
     from evaluation_parameters import transport
     if 'batching' in options:
@@ -84,7 +84,7 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
         effective['batching']={'policy':'native Quorum Store defaults; effective-profile.json is authoritative'}
         effective['timing']['policy']='native Raptr relationships; effective-profile.json is authoritative'
         from evaluation_parameters import raptr_options
-        effective['node_options']=raptr_options({k:options[k] for k in ('limits','consensus','quorum_store') if k in options})
+        effective['node_options']=raptr_options({k:options[k] for k in ('limits','consensus','quorum_store','latency_trace') if k in options})
     elif protocol.startswith('simpleit'):
         effective['storage']='native RocksDB; fresh database'
         from run_simpleit_local import parameters

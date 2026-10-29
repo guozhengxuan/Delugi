@@ -39,6 +39,7 @@ serde={workspace=true}
 thiserror={workspace=true}
 tokio={workspace=true}
 raptr={path="../native"}
+delugi-raptr-core={path=".."}
 shared-store-rocksdb={path="../../../shared/store-rocksdb"}
 shared-crypto-aptos={path="../../../shared/crypto-aptos"}
 shared-runtime-async={path="../../../shared/runtime-async"}

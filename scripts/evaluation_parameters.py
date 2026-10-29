@@ -28,6 +28,7 @@ def load_transport(path):
 # These are fields consumed by the pinned native factory, not invented aliases.
 # Protocol-selection switches and unused Aptos settings are intentionally absent.
 RAPTR_FIELDS = {
+    'latency_trace': {'max_events':1_000_000},
     'limits': {'max_wire_bytes':2**20, 'inbox_frames':100000, 'inbox_bytes':128*2**20,
         'maximum_rpcs':100000, 'ingress_capacity':100000, 'output_capacity':100000,
         'max_journal_bytes':4*2**30, 'max_async_tasks':1000000, 'max_blocking_tasks':100000,

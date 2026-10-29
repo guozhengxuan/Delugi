@@ -403,7 +403,8 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
                 "requests.jsonl",
                 "output.jsonl",
                 "effective-profile.json",
-                "planned.jsonl"
+                "planned.jsonl",
+                "latency-trace.json"
             ]
             .contains(&row.name.as_str()),
             "unrecognized receipt file"
@@ -414,8 +415,14 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
         );
     }
     ensure!(
-        records.len() == if config.schema == 2 { 5 } else { 4 },
+        records.len()
+            == (if config.schema == 2 { 5 } else { 4 })
+                + usize::from(config.latency_trace.is_some()),
         "missing receipt file"
+    );
+    ensure!(
+        records.contains_key("latency-trace.json") == config.latency_trace.is_some(),
+        "latency trace file/configuration mismatch"
     );
     ensure!(
         config.schema == 2 || !records.contains_key("planned.jsonl"),
@@ -428,6 +435,33 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
     let (profile, hash, size) =
         json_file(&relative(root, "effective-profile.json")?, RECEIPT_LIMIT)?;
     check_record(&records["effective-profile.json"], &hash, size, 1)?;
+    if let Some(settings) = &config.latency_trace {
+        let (trace, hash, size) =
+            json_file(&relative(root, "latency-trace.json")?, MANIFEST_LIMIT)?;
+        check_record(&records["latency-trace.json"], &hash, size, 1)?;
+        ensure!(
+            string(&trace, "schema")? == "raptr-latency-trace-v1"
+                && string(&trace, "run_id")? == config.run_id
+                && string(&trace, "configuration_sha256")? == config::digest(raw)
+                && uint(&trace, "replica")? == signer as u64
+                && string(&trace, "clock")? == "CLOCK_MONOTONIC"
+                && uint(&trace, "max_events")? == settings.max_events as u64
+                && array(&trace, "events")?.len() <= settings.max_events,
+            "latency trace binding or envelope mismatch"
+        );
+        // Overflow remains valid raw evidence, but the stage reducer refuses
+        // incomplete traces; it must never fabricate absent boundaries.
+        uint(&trace, "dropped")?;
+    }
+    let endpoint_v2 = profile.get("output_endpoint").is_some();
+    if endpoint_v2 {
+        ensure!(
+            string(&profile, "output_endpoint")? == workload::OUTPUT_ENDPOINT
+                && profile.get("latency_trace").cloned().unwrap_or(Value::Null)
+                    == serde_json::to_value(&config.latency_trace)?,
+            "output observer profile mismatch"
+        );
+    }
     ensure!(
         string(&profile, "profile")? == config::PROFILE
             && string(&profile, "committee_sha256")? == committee_hash
@@ -611,6 +645,20 @@ fn verify_inner(raw: &[u8], path: &Path) -> Result<Verified> {
                 "output section ordinal gap"
             );
             let time = uint(&section, "append_us")?;
+            if endpoint_v2 {
+                ensure!(
+                    string(&section, "timing_contract")? == workload::OUTPUT_ENDPOINT
+                        && uint(&section, "app_processing_start_us")? <= time
+                        && time <= uint(&section, "journal_constructed_us")?
+                        && uint(&section, "journal_constructed_us")? <= freeze,
+                    "invalid pre-journal application timing boundary"
+                );
+            } else {
+                ensure!(
+                    section.get("timing_contract").is_none(),
+                    "unbound output timing contract"
+                );
+            }
             let event_id = uint(&section, "event")?;
             ensure!(
                 time >= epoch && time < deadline,

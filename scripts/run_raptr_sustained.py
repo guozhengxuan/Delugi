@@ -85,9 +85,11 @@ def bound_files(config, correct, *, replica_directory=None):
         receipt = native.bounded_json(directory/'final.json')
         body = receipt['body']
         descriptors = body['files']
-        if (len(descriptors)!=5 or {d['name'] for d in descriptors} !=
-            {'workload-manifest.json','planned.jsonl','requests.jsonl','output.jsonl','effective-profile.json'}):
-            raise ValueError('sustained receipt must bind all five evidence files')
+        expected = {'workload-manifest.json','planned.jsonl','requests.jsonl','output.jsonl','effective-profile.json'}
+        if config.get('latency_trace') is not None:
+            expected.add('latency-trace.json')
+        if len(descriptors)!=len(expected) or {d['name'] for d in descriptors} != expected:
+            raise ValueError('sustained receipt must bind the configured evidence files')
         files[str(directory/'final.json')] = native.file_record(directory/'final.json')
         for descriptor in descriptors:
             path = native.safe_file(directory, descriptor['name'])
@@ -269,6 +271,11 @@ def execute(binary, receipt, output, **settings):
         before=bound_files(config,correct)
         record['authentication']=native.verify_archive(executable,path,config,correct,output,deadline)
         record['reduction']=normalize(config,correct,output,case)
+        if config.get('latency_trace') is not None:
+            from raptr_latency_decomposition import analyze
+            record['latency_decomposition']=analyze(path,Path(config['output_directory']),correct,
+                authentication=record['authentication'])
+            native.atomic_json(output/'latency-decomposition.json',record['latency_decomposition'])
         if before!=bound_files(config,correct) or native.sha256(path)!=config_hash:
             raise ValueError('evidence changed across authentication and reduction')
         record['evidence']=before

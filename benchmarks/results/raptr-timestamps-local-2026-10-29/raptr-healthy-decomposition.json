@@ -1,0 +1,270 @@
+{
+  "admitted": 500,
+  "availability_quorum": {
+    "additive": false,
+    "after_execution_proposal": 0,
+    "counts": {
+      "observed": 500
+    },
+    "mean_stored_to_quorum_ms": 11.538374,
+    "population": "same covered requests; observed subset stated separately"
+  },
+  "by_replica": {
+    "0": {
+      "completed": 125,
+      "covered": 125,
+      "scheduled": 125
+    },
+    "1": {
+      "completed": 125,
+      "covered": 125,
+      "scheduled": 125
+    },
+    "2": {
+      "completed": 125,
+      "covered": 125,
+      "scheduled": 125
+    },
+    "3": {
+      "completed": 125,
+      "covered": 125,
+      "scheduled": 125
+    }
+  },
+  "common_stages": [
+    {
+      "mean_ms": 74.844048,
+      "stage": "Batch formation"
+    },
+    {
+      "mean_ms": 27.745804,
+      "stage": "Dissemination / inclusion"
+    },
+    {
+      "mean_ms": 11.663216,
+      "stage": "Consensus"
+    },
+    {
+      "mean_ms": 1.713972,
+      "stage": "Output processing"
+    }
+  ],
+  "completed": 500,
+  "configuration_sha256": "3d1a118ce3d8e84ea3038137fd86ad6771bfe3cb0c69b7f97465fd5ac274ca97",
+  "contract": [
+    "Origin-local CLOCK_MONOTONIC only; no cross-host subtraction.",
+    "Arithmetic transaction-weighted means on one identical completed and instrumented cohort.",
+    "Join exact batch identity and the block/section that first credits the request.",
+    "Dissemination / inclusion includes availability and proposal waiting; quorum duration is a separate overlapping diagnostic.",
+    "Consensus starts when the locally verified full execution proposal is accepted by the core, including prior verified-inbox queue delay in dissemination/inclusion, and ends at its exact committed output slice.",
+    "Output includes native payload validation, contiguous FIFO release, consumer scheduling, mutex wait and application identity/dedup validation.",
+    "Application acceptance is measured before diagnostic journal construction; failed publication invalidates the run.",
+    "Missing and nonsequential boundaries exclude requests from stage means but retain cohort counts."
+  ],
+  "covered": 500,
+  "endpoint_contract": "verified_contiguous_application_acceptance_v2",
+  "excluded": {},
+  "journal_construction_after_endpoint": {
+    "covered": 500,
+    "mean_ms": 0.261384
+  },
+  "mean_admission_to_append_ms": 115.96704,
+  "mean_schedule_to_admission_ms": 0.31014800000000003,
+  "mean_schedule_to_append_ms": 116.277188,
+  "run_id": "e25d97d158a8b018c741c29e34984d5773d778778ef70323e4c4d2bc67e20d2f",
+  "scheduled": 500,
+  "schema": "raptr-latency-decomposition-v1",
+  "serial_quorum_cohort": {
+    "completed": 500,
+    "contract": "Separate same-request cohort satisfying stored <= availability quorum <= proposal; this observed order is not a protocol quorum gate. Do not compare these means to primary-cohort stage means as if their populations were identical.",
+    "covered": 500,
+    "excluded": {},
+    "excluded_from_primary_covered": {},
+    "mean_admission_to_append_ms": 115.96704,
+    "mean_schedule_to_append_ms": 116.277188,
+    "primary_covered": 500,
+    "scheduled": 500,
+    "stages": [
+      {
+        "mean_ms": 74.844048,
+        "stage": "Batch formation",
+        "sum_us": 37422024
+      },
+      {
+        "mean_ms": 11.538374,
+        "stage": "Dissemination to availability quorum",
+        "sum_us": 5769187
+      },
+      {
+        "mean_ms": 16.20743,
+        "stage": "Quorum \u2192 inclusion",
+        "sum_us": 8103715
+      },
+      {
+        "mean_ms": 11.663216,
+        "stage": "Consensus",
+        "sum_us": 5831608
+      },
+      {
+        "mean_ms": 0.5456019999999999,
+        "stage": "Payload retrieval / validation",
+        "sum_us": 272801
+      },
+      {
+        "mean_ms": 0.016673999999999998,
+        "stage": "Contiguous output wait",
+        "sum_us": 8337
+      },
+      {
+        "mean_ms": 0.046048,
+        "stage": "Output consumer wait",
+        "sum_us": 23024
+      },
+      {
+        "mean_ms": 1.105648,
+        "stage": "Application acceptance",
+        "sum_us": 552824
+      }
+    ]
+  },
+  "sources": [
+    {
+      "bytes": 90344,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-0/final.json",
+      "sha256": "1a936320d2b00662fef4f4b2528a70587075d100c1d227aeb22804f943d86b2b"
+    },
+    {
+      "bytes": 2603147,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-0/latency-trace.json",
+      "sha256": "e89c8a55f51e494c35e15c9acd0420ebeff5d77aa4dd049e683631f57f0ccc91"
+    },
+    {
+      "bytes": 15508,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-0/effective-profile.json",
+      "sha256": "15a0a9ec8eb429d93b7aaf7c330f79df72fa0a409212fbc020b4bc32de7f7993"
+    },
+    {
+      "bytes": 61702,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-0/requests.jsonl",
+      "sha256": "5b5996aa1411a1a2ef17786abf3af71ed4c7917291e9417416f35b5fb0dac071"
+    },
+    {
+      "bytes": 3418119,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-0/output.jsonl",
+      "sha256": "1bfd4e575f3dd586a24011e1aeb23722972237a81f39ecdd6c02010ee3837adf"
+    },
+    {
+      "bytes": 90344,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-1/final.json",
+      "sha256": "021de1aa9b3d634cfea83a09d5daf1473be2f7746ce9912697405d9fb53d0137"
+    },
+    {
+      "bytes": 2602384,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-1/latency-trace.json",
+      "sha256": "74a5e4248e1e958d04e9ce5856a83453c4d7e0c6224ee65042981fde602bf86b"
+    },
+    {
+      "bytes": 15508,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-1/effective-profile.json",
+      "sha256": "3e3c4838359d4aa788e5a93147b956c0a1e0688553a0b13b1af175eba02cacfb"
+    },
+    {
+      "bytes": 61703,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-1/requests.jsonl",
+      "sha256": "5c289c148d62f8f241635749488f16f8496b6a62f52646760bad69b728c70ee9"
+    },
+    {
+      "bytes": 3418118,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-1/output.jsonl",
+      "sha256": "7548d742a846b815b32de7ba1ee5f0a94b1edbd4ec0b083902d098b785b57c09"
+    },
+    {
+      "bytes": 90341,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-2/final.json",
+      "sha256": "532292185f4051748a67e66a0bd8b1869deb756c2716d9d91bedcaa6477d4794"
+    },
+    {
+      "bytes": 2602384,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-2/latency-trace.json",
+      "sha256": "80b10f8add91e2c54284aac5e3604919f1efd6a552ead31667cbd66b0e3c01f4"
+    },
+    {
+      "bytes": 15508,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-2/effective-profile.json",
+      "sha256": "7fe587678cac2a28a9b459acce4302ea7de375af4c0a4576e8b997d4107d711d"
+    },
+    {
+      "bytes": 61703,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-2/requests.jsonl",
+      "sha256": "a491963553f0fb25d02b4a4830862a61e14a673e464403151e64bd98711a944f"
+    },
+    {
+      "bytes": 3418118,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-2/output.jsonl",
+      "sha256": "97abb96c46d73a55741be337e7e09d0226f22e0e7c89096f0e8a6da9e6ebfe13"
+    },
+    {
+      "bytes": 90332,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-3/final.json",
+      "sha256": "a851cdb417234972bb477f52cd3c3069aab12ff715ada616f6b2956697644cb7"
+    },
+    {
+      "bytes": 2602384,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-3/latency-trace.json",
+      "sha256": "a4c06a4224a3db0c9c930d67c482ad038ed1e08ef5939320545e024ddb7fc7e2"
+    },
+    {
+      "bytes": 15508,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-3/effective-profile.json",
+      "sha256": "b128f8ecf8b5a310c54e0dea4b71942c8dddfa9aac96cc3b5096d0303bb73eb8"
+    },
+    {
+      "bytes": 61704,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-3/requests.jsonl",
+      "sha256": "68f786e7e640a5ebb49a104ef7db3bb6a5513620f3e395a972239ca2d248921d"
+    },
+    {
+      "bytes": 3418116,
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/raptr-timestamps-20261029-healthy/replicas/node-3/output.jsonl",
+      "sha256": "b7903ad409a16e2674a5d509283e9601374768a0070e5f0f198bab0cad24dc01"
+    }
+  ],
+  "stages": [
+    {
+      "mean_ms": 74.844048,
+      "stage": "Batch formation",
+      "sum_us": 37422024
+    },
+    {
+      "mean_ms": 27.745804,
+      "stage": "Dissemination / inclusion",
+      "sum_us": 13872902
+    },
+    {
+      "mean_ms": 11.663216,
+      "stage": "Consensus",
+      "sum_us": 5831608
+    },
+    {
+      "mean_ms": 0.5456019999999999,
+      "stage": "Payload retrieval / validation",
+      "sum_us": 272801
+    },
+    {
+      "mean_ms": 0.016673999999999998,
+      "stage": "Contiguous output wait",
+      "sum_us": 8337
+    },
+    {
+      "mean_ms": 0.046048,
+      "stage": "Output consumer wait",
+      "sum_us": 23024
+    },
+    {
+      "mean_ms": 1.105648,
+      "stage": "Application acceptance",
+      "sum_us": 552824
+    }
+  ],
+  "verification": "Source hashes rechecked against the saved native verifier receipt hashes and signed file descriptors; signatures are not reverified by this reducer."
+}

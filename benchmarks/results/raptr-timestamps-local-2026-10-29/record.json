@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "date": "2026-10-29",
+  "scope": "local instrumentation validation; unoptimized common binary; no cloud operations",
+  "settings": {
+    "nodes": 4,
+    "input_tps": 100,
+    "duration_s": 5,
+    "drain_s": 3,
+    "useful_tx_bytes": 1,
+    "Delta_ms": 100,
+    "added_delay_ms": 0,
+    "network": "loopback"
+  },
+  "output_endpoint": "verified_contiguous_application_acceptance_v2",
+  "tests": [
+    {
+      "protocol": "raptr",
+      "case": "healthy",
+      "status": "completed",
+      "manifest": "results/local/raptr-timestamps-20261029-healthy/manifest.json",
+      "manifest_sha256": "26f1631ae990d9f144d7e304a818b81cf5981426079d6ea41f30e74d35c24ca0",
+      "scheduled": 500,
+      "completed": 500,
+      "covered": 500,
+      "dropped": 0,
+      "maximum_output_round_by_replica": {
+        "0": 736,
+        "1": 736,
+        "2": 736,
+        "3": 736
+      },
+      "mean_admission_to_append_ms": 115.96704
+    },
+    {
+      "protocol": "delugi",
+      "case": "healthy",
+      "status": "passed",
+      "manifest": "results/local/delugi-timestamps-20261029-healthy/manifest.json",
+      "manifest_sha256": "3361098dbfe2cab8173b6b07a08e330e800eb8ddb754b95701112ccb40e38701",
+      "scheduled": 500,
+      "completed": 500,
+      "covered": 500,
+      "dropped": 0,
+      "maximum_output_round_by_replica": {
+        "3": 261,
+        "2": 262,
+        "1": 262,
+        "0": 262
+      },
+      "mean_admission_to_append_ms": 72.060988
+    },
+    {
+      "protocol": "raptr",
+      "case": "silent",
+      "status": "completed",
+      "manifest": "results/local/raptr-timestamps-20261029-silent/manifest.json",
+      "manifest_sha256": "3a916e2f5c89be9fea70f85ab2dfa4a5aac8e34e15c333998df59add443968d2",
+      "scheduled": 500,
+      "completed": 500,
+      "covered": 500,
+      "dropped": 0,
+      "maximum_output_round_by_replica": {
+        "0": 68,
+        "2": 68,
+        "3": 68
+      },
+      "mean_admission_to_append_ms": 321.437852
+    },
+    {
+      "protocol": "delugi",
+      "case": "silent",
+      "status": "passed",
+      "manifest": "results/local/delugi-timestamps-20261029-silent/manifest.json",
+      "manifest_sha256": "9b6deaa1fa3c114382e9aeb451599890141987928fcb11341dfd9f152cc187e8",
+      "scheduled": 500,
+      "completed": 500,
+      "covered": 500,
+      "dropped": 0,
+      "maximum_output_round_by_replica": {
+        "3": 36,
+        "2": 36,
+        "1": 36
+      },
+      "mean_admission_to_append_ms": 412.97839
+    }
+  ],
+  "native_test_receipt": "benchmarks/results/raptr-timestamps-local-2026-10-29/build-test-fixed/build-receipt.json",
+  "native_test_receipt_sha256": "dacbc1e9b84906f52c54bbcdab9d182018b02f8fdac7735386005c597593cebc",
+  "build_receipt": "benchmarks/results/raptr-timestamps-local-2026-10-29/build/build-receipt.json",
+  "build_receipt_sha256": "aa7459e2606161bb12d30cf55cc5d538b86a69d5882a6a8965c97e14ed4f0c1f",
+  "rust_tests": {
+    "native_node_unit": 18,
+    "native_archive_integration": 10,
+    "bounded_recorder": 3,
+    "pure_output_contract": 10
+  },
+  "python_tests": {
+    "patterns": [
+      "raptr_latency_decomposition_test.py",
+      "latency_decomposition_test.py",
+      "raptr_sustained_test.py",
+      "raptr_shared_local_test.py",
+      "fabric*test.py",
+      "common_cloud_export_test.py",
+      "common_sustained_remote_test.py",
+      "campaign_adapters_test.py",
+      "build_raptr_shared_test.py",
+      "shared_core_conformance_test.py"
+    ],
+    "run": 135,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 135
+  },
+  "fabric_offline_smoke": {
+    "status": "passed",
+    "scheduled": 500,
+    "covered": 500,
+    "cloud_calls": false
+  },
+  "build_cleanup": {
+    "removed": [
+      "core/raptr/.native-deps/target/debug/deps",
+      "core/raptr/.native-deps/target/debug/build",
+      "core/raptr/.native-deps/target/debug/.fingerprint",
+      "core/raptr/.native-deps/target/debug/incremental",
+      "core/raptr/.native-deps/target/debug/examples",
+      "core/raptr/target"
+    ],
+    "logical_bytes_removed": 2217117051,
+    "retained_common_binary_sha256": "e5c532e63d3154d02663709c1fa2bc01344b655cbc0b5a0e97fc7426ed6f40d1",
+    "raw_logs_and_build_receipts_retained": true
+  }
+}

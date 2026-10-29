@@ -1,6 +1,20 @@
 # Delugi implementation and evaluation plan
 
-Updated **28 October 2026**. The modified common Linux release **`cef4e22` has
+Updated **29 October 2026**. Raptr now has bounded, opt-in timestamps for exact
+batch storage, availability quorum, verified proposal acceptance, commit slices,
+payload validation and contiguous release. Its application endpoint now precedes
+diagnostic serialization, matching Delugi's verified contiguous-output boundary.
+Both protocols passed local healthy and silent-leader checks: four processes,
+100 tx/s, one useful byte, Δ=100 ms, five seconds input plus three seconds drain;
+all four runs completed and fully decomposed **500/500** requests with zero trace
+drops. Validation passed **41 Rust and 135 Python tests**. `fab decompose` now
+supports either protocol using downloaded signed evidence. See the
+[local timing validation](benchmarks/results/raptr-timestamps-local-2026-10-29/README.md).
+This change has **not** been deployed on Aliyun; the old WAN measurements retain
+their original post-journal Raptr endpoint. Observer-overhead qualification and
+matching fault placement/method remain required before a formal comparison.
+
+The modified common Linux release **`cef4e22` has
 completed four-region verification** through Fabric: exactly four **30-second**
 runs, one healthy and one silent-first-leader case per protocol, at 100 tx/s,
 one useful byte and Δ=1,000 ms. Singapore, Frankfurt, London and Seoul used

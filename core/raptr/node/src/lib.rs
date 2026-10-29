@@ -3,6 +3,7 @@ pub mod archive;
 pub mod config;
 pub mod dissemination;
 pub mod factory;
+pub mod latency;
 pub mod network;
 pub mod output;
 pub mod timer;

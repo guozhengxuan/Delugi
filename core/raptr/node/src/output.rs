@@ -8,7 +8,10 @@ use delugi_raptr_core::{
     Reservation,
 };
 use raptr::raptr::dissemination::CommittedPayload;
-use std::sync::{Arc, Mutex};
+use std::{
+    collections::BTreeMap,
+    sync::{Arc, Mutex},
+};
 use tokio::sync::mpsc;
 
 pub fn describe(
@@ -85,6 +88,8 @@ pub struct Materializer {
     inner: Arc<Mutex<OutputContract<SignedTransaction>>>,
     published: mpsc::Sender<PublishedSection<SignedTransaction>>,
     delay: Arc<Mutex<DelayTelemetry>>,
+    // Used only with the optional observer, under the inner contract lock.
+    pending_trace: Arc<Mutex<BTreeMap<output::Ticket, Vec<output::Section>>>>,
 }
 
 #[derive(Clone, Default, serde::Serialize)]
@@ -109,16 +114,34 @@ impl Materializer {
                 inner: Arc::new(Mutex::new(OutputContract::new(limits))),
                 published,
                 delay: Arc::new(Mutex::new(DelayTelemetry::default())),
+                pending_trace: Arc::new(Mutex::new(BTreeMap::new())),
             },
             receiver,
         )
     }
     pub fn reserve(&self, slice: CommitSlice) -> Result<Reservation> {
-        self.inner
-            .lock()
-            .unwrap()
+        let mut inner = self.inner.lock().unwrap();
+        let sections = if output::latency::enabled() {
+            Some(
+                slice
+                    .canonical_sections()
+                    .map_err(|error| anyhow!("native section shape: {error:?}"))?,
+            )
+        } else {
+            None
+        };
+        let reservation = inner
             .reserve(slice)
-            .map_err(|error| anyhow!("native output reservation: {error:?}"))
+            .map_err(|error| anyhow!("native output reservation: {error:?}"))?;
+        if !reservation.duplicate {
+            if let Some(sections) = sections {
+                self.pending_trace
+                    .lock()
+                    .unwrap()
+                    .insert(reservation.ticket, sections);
+            }
+        }
+        Ok(reservation)
     }
     pub fn resolve(
         &self,
@@ -138,9 +161,30 @@ impl Materializer {
         inner
             .resolve_native_fetch(reservation.ticket, transactions, &NativeBatchVerifier)
             .map_err(|error| anyhow!("native output payload validation: {error:?}"))?;
+        if output::latency::enabled() {
+            if let Some(sections) = self
+                .pending_trace
+                .lock()
+                .unwrap()
+                .remove(&reservation.ticket)
+            {
+                for section in sections {
+                    output::latency::record(|| output::latency::EventKind::PayloadReady {
+                        round: section.block.round,
+                        digest: section.block.digest,
+                        section: section.kind,
+                    });
+                }
+            }
+        }
         // Serialize publication under the same lock as FIFO release. Concurrent
         // fetch completions must not reverse two already-ready output groups.
         for section in inner.take_ready() {
+            output::latency::record(|| output::latency::EventKind::PrefixReleased {
+                round: section.block.round,
+                digest: section.block.digest,
+                section: section.kind,
+            });
             self.published
                 .try_send(section)
                 .map_err(|_| anyhow!("application output envelope exhausted or closed"))?;

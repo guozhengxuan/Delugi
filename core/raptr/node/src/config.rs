@@ -21,6 +21,13 @@ use std::{
 
 pub const PROFILE: &str = "raptr-shared-consensus-only-v1";
 
+/// Optional bounded observer; it never changes native protocol decisions.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct LatencyTraceConfig {
+    pub max_events: usize,
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct WorkloadConfig {
@@ -111,12 +118,20 @@ pub struct Config {
     pub materialization_delay_ms: u64,
     #[serde(default)]
     pub payload_fault: Option<PayloadFault>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub latency_trace: Option<LatencyTraceConfig>,
 }
 impl Config {
     pub fn parse(bytes: &[u8], id: u32) -> Result<Self> {
         let config: Self = serde_json::from_slice(bytes)?;
         let n = config.addresses.len();
         let l = &config.limits;
+        if let Some(trace) = &config.latency_trace {
+            ensure!(
+                (1..=1_000_000).contains(&trace.max_events),
+                "invalid latency trace event bound"
+            );
+        }
         ensure!(
             ((config.schema == 1 && config.sustained_workload.is_none())
                 || (config.schema == 2 && config.sustained_workload.is_some()))

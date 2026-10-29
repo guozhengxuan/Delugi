@@ -188,6 +188,10 @@ def run_raptr(resolved, inventory, output, connection_factory=cloud.Connection, 
             shutil.copytree(collected/'replicas'/f'node-{i}',replicas/f'node-{i}')
         before=raptr.bound_files(config,correct,replica_directory=replicas)
         result['reduction']=raptr.normalize(config,correct,output,case,replica_directory=replicas,public_directory=public)
+        if config.get('latency_trace') is not None:
+            from raptr_latency_decomposition import analyze
+            result['latency_decomposition']=analyze(output/'config.json',replicas,correct,
+                authentication=result['authentication'])
         if before!=raptr.bound_files(config,correct,replica_directory=replicas):raise ValueError('evidence changed during reduction')
         result['evidence']=before;result['status']='completed'
     except BaseException as error:result.update(status='failed',error=f'{type(error).__name__}: {error}')

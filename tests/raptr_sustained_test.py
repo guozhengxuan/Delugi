@@ -66,5 +66,25 @@ class SustainedTests(unittest.TestCase):
             (node/'planned.jsonl').write_text('{"foreign":1}\n')
             with self.assertRaises(ValueError):runner.bound_files(cfg,[0])
 
+    def test_latency_trace_is_explicit_bounded_and_receipt_bound(self):
+        self.assertNotIn('latency_trace', self.config())
+        cfg=self.config(node_options={'latency_trace':{'max_events':100000}})
+        self.assertEqual(cfg['latency_trace'], {'max_events':100000})
+        for value in (0,1000001,True):
+            with self.assertRaises(ValueError):
+                self.config(node_options={'latency_trace':{'max_events':value}})
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);node=root/'node-0';node.mkdir()
+            files=[]
+            for name in ('planned.jsonl','requests.jsonl','output.jsonl','effective-profile.json',
+                         'workload-manifest.json','latency-trace.json'):
+                path=node/name;path.write_text('{}\n')
+                files.append({'name':name,**runner.native.file_record(path)})
+            (node/'final.json').write_text(json.dumps({'body':{'files':files}}))
+            cfg['output_directory']=str(root)
+            self.assertEqual(len(runner.bound_files(cfg,[0])),7)
+            (node/'latency-trace.json').write_text('{"changed":true}\n')
+            with self.assertRaises(ValueError):runner.bound_files(cfg,[0])
+
 
 if __name__=='__main__':unittest.main()

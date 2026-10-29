@@ -379,7 +379,7 @@ def export(request):
     # Abort may win the prepare race, leaving only a tombstone and a confirmed
     # cleanup receipt. Export that bounded diagnostic without requiring a run.
     saved = read(root / 'request.json') if (root / 'request.json').exists() else {}
-    allowed = {'ready.json', 'final.json', 'requests.jsonl', 'output.jsonl', 'effective-profile.json', 'workload-manifest.json'}
+    allowed = {'ready.json', 'final.json', 'requests.jsonl', 'output.jsonl', 'effective-profile.json', 'workload-manifest.json', 'latency-trace.json'}
     if saved.get('evaluation_profile') == COMPACT: allowed.add('planned.jsonl')
     if (root / 'replicas').exists():
         names += [p.relative_to(root).as_posix() for p in sorted((root / 'replicas').glob('node-*/*'))

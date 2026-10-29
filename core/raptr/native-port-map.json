@@ -120,7 +120,7 @@
     },
     {
       "path": "native/src/lib.rs",
-      "sha256": "52be3e9f0b1a703b8b5d35bb07f289e55b53123431ca7d18a0a7606e1cea9ae9",
+      "sha256": "13c2e4f0bf1d4daadf1f2bb2e981c01eecd090639d030b98c1a4bbfad2d3e8dc",
       "pinned_sha256": "19a8cd52e26c501ef38a934d495638952d09f1ef736bec3d032e646239832e2b",
       "unchanged": false
     },
@@ -186,7 +186,7 @@
     },
     {
       "path": "native/src/raptr/protocol.rs",
-      "sha256": "0f3502cc82de59d29238c38e9a6debb8cd30af019f1f295232012b56c0276ebf",
+      "sha256": "dafed0e224fad0aefb0d2386bcefcb920ccdb11adb9f6da3952574f87fc34918",
       "pinned_sha256": "498da9546f0a7a3b5ee529566a6bbb142e121a70df720ecc0c22af2f832e55b7",
       "unchanged": false
     },
@@ -216,13 +216,13 @@
     },
     {
       "path": "native/src/rehost/tests.rs",
-      "sha256": "38a5e0e4fb25eb0f25dd0c0ee8109e14a5898406d209c26452916fb3c98da007",
+      "sha256": "18460ec8df5641f8310f5a303d5d6e0212e187461973962bfe7692ed11f1bd64",
       "pinned_sha256": null,
       "unchanged": false
     },
     {
       "path": "native/src/rehost.rs",
-      "sha256": "8094a02b041839d06bc5c43e6cdc6edd3755e20d31b0814139d003dfdabf3e75",
+      "sha256": "8223d9b2ccf026b07b9a7f523fad75fa020601aead848e330076716a09b2c98f",
       "pinned_sha256": null,
       "unchanged": false
     },

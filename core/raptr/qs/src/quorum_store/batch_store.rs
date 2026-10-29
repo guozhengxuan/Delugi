@@ -499,6 +499,13 @@ impl BatchWriter for BatchStore {
         let mut signed_infos = vec![];
         for persist_request in persist_requests.into_iter() {
             if let Some(signed_info) = self.persist_inner(persist_request.clone()) {
+                // Batch formation ends once this replica's complete native
+                // payload is stored and its custody signature is available.
+                if persist_request.author() == self.validator_signer.author()
+                    && persist_request.payload().is_some()
+                {
+                    crate::latency::batch_stored(persist_request.batch_info());
+                }
                 self.notify_subscribers(persist_request);
                 signed_infos.push(signed_info);
             }

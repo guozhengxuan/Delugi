@@ -34,6 +34,20 @@ struct Request {
     sequence: u64,
     useful: Vec<u8>,
 }
+
+/// Logical verified FIFO application acceptance, before diagnostic formatting.
+/// Older journals used the same append_us field after JSON construction.
+pub const OUTPUT_ENDPOINT: &str = "verified_contiguous_application_acceptance_v2";
+
+struct AcceptedTransaction {
+    transaction: SignedTransaction,
+    origin: Option<u32>,
+    sequence: Option<u64>,
+    request_id: Option<String>,
+    eligible: bool,
+    first_seen: bool,
+    own_credit: bool,
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Row {
     pub sequence: u64,
@@ -549,18 +563,28 @@ impl Workload {
         Ok((worker, task))
     }
     pub fn publish(&self, section: PublishedSection<SignedTransaction>) -> Result<()> {
+        self.publish_observed(section, clock, shared_crypto_aptos::encode)
+    }
+    fn publish_observed(
+        &self,
+        section: PublishedSection<SignedTransaction>,
+        mut now: impl FnMut() -> u64,
+        mut diagnostic_encode: impl FnMut(&SignedTransaction) -> Result<Vec<u8>>,
+    ) -> Result<()> {
+        let app_processing_start_us = now();
         let mut state = self.state.lock().unwrap();
-        if state.frozen || clock() >= state.deadline_us {
+        if state.frozen || app_processing_start_us >= state.deadline_us {
             return Ok(());
         }
-        let mut batches = vec![];
+        // Construct the verified, deduplicated application publication first.
+        // Diagnostic BCS copies, hex strings and JSON are deliberately deferred.
+        let mut accepted_batches = vec![];
         let mut completed = vec![];
         let mut new_ids = BTreeSet::new();
         let mut unadmitted = 0_u64;
         for batch in section.batches {
             let mut transactions = vec![];
             for tx in batch.transactions {
-                let native_bcs = shared_crypto_aptos::encode(&tx)?;
                 let identity = identify(&self.config, &self.committee, &tx);
                 let (origin, sequence, request_id, eligible, first_seen, own_credit) =
                     match identity {
@@ -578,35 +602,68 @@ impl Workload {
                             } else if origin == self.id && first {
                                 unadmitted += 1;
                             }
-                            (Some(origin), Some(seq), key, true, first, credit)
+                            (Some(origin), Some(seq), Some(key), true, first, credit)
                         }
-                        Err(_) => (None, None, config::digest(&native_bcs), false, false, false),
+                        Err(_) => (None, None, None, false, false, false),
                     };
+                transactions.push(AcceptedTransaction {
+                    transaction: tx,
+                    origin,
+                    sequence,
+                    request_id,
+                    eligible,
+                    first_seen,
+                    own_credit,
+                });
+            }
+            accepted_batches.push((batch.info, batch.first_occurrence, transactions));
+        }
+        // The immutable accepted publication is the linearization point under
+        // the workload lock. Bookkeeping is committed only after its diagnostic
+        // archive succeeds, so an encoding/capacity/write failure never partially
+        // credits a section. Freeze/admission cannot interleave in between.
+        let append_us = now();
+        if append_us >= state.deadline_us {
+            return Ok(());
+        }
+        let mut batches = vec![];
+        for (info, first_occurrence, accepted) in accepted_batches {
+            let mut transactions = vec![];
+            for accepted in accepted {
+                let native_bcs = diagnostic_encode(&accepted.transaction)?;
+                let AcceptedTransaction {
+                    origin,
+                    sequence,
+                    request_id,
+                    eligible,
+                    first_seen,
+                    own_credit,
+                    ..
+                } = accepted;
+                let request_id = request_id.unwrap_or_else(|| config::digest(&native_bcs));
                 transactions.push(json!({"native_transaction_bcs_hex":config::hex(&native_bcs),"request_id":request_id,"origin":origin,"sequence":sequence,"eligible":eligible,"first_seen":first_seen,"own_credit":own_credit}));
             }
-            let info = &batch.info;
             let key = &info.key;
-            batches.push(json!({"key":{"epoch":key.epoch,"author":config::hex(&key.author),"nonce":key.nonce,"id":key.id,"digest":config::hex(&key.digest)},"native_info_bcs_hex":config::hex(&info.to_native_bcs()),"first_occurrence":batch.first_occurrence,"transactions":transactions}));
+            batches.push(json!({"key":{"epoch":key.epoch,"author":config::hex(&key.author),"nonce":key.nonce,"id":key.id,"digest":config::hex(&key.digest)},"native_info_bcs_hex":config::hex(&info.to_native_bcs()),"first_occurrence":first_occurrence,"transactions":transactions}));
         }
         let kind = match section.kind {
             SectionKind::Proofs => json!({"kind":"proofs"}),
             SectionKind::SubBlock(index) => json!({"kind":"sub_block","index":index}),
         };
         let event = state.next_event;
-        let mut output = json!({"schema":1,"ordinal":section.ordinal,"event":event,"append_us":0,"block":{"epoch":section.block.epoch,"round":section.block.round,"author":config::hex(&section.block.author),"digest":config::hex(&section.block.digest)},"section":kind,"batches":batches});
+        let mut output = json!({"schema":1,"ordinal":section.ordinal,"event":event,"append_us":append_us,"timing_contract":OUTPUT_ENDPOINT,"app_processing_start_us":app_processing_start_us,"journal_constructed_us":0,"block":{"epoch":section.block.epoch,"round":section.block.round,"author":config::hex(&section.block.author),"digest":config::hex(&section.block.digest)},"section":kind,"batches":batches});
         // Bound the cumulative serialized journal separately from unresolved
         // materializer payloads. Failure cannot partially credit this section.
-        // Complete expensive row construction and serialization before sampling
-        // publication. Replacing the integer placeholder only changes its digits.
+        // Construction timing includes diagnostic encoding and size serialization,
+        // but not the subsequent archive insertion/write. It can cross the output
+        // deadline without changing a publication already accepted before it.
         let encoded_bytes = serde_json::to_vec(&output)?.len() as u64;
-        let append_us = clock();
-        if append_us >= state.deadline_us {
-            return Ok(());
-        }
+        let journal_constructed_us = now();
         let journal_bytes = state
             .journal_bytes
             .checked_add(
-                timestamped_row_bytes(encoded_bytes, append_us).context("journal row overflow")?,
+                timestamped_row_bytes(encoded_bytes, journal_constructed_us)
+                    .context("journal row overflow")?,
             )
             .context("journal byte overflow")?;
         ensure!(
@@ -614,9 +671,9 @@ impl Workload {
             "cumulative application journal byte envelope exhausted"
         );
         // The newline adds one byte and the placeholder removed one byte.
-        output["append_us"] = append_us.into();
-        state.journal_bytes = journal_bytes;
+        output["journal_constructed_us"] = journal_constructed_us.into();
         state.output.push(output)?;
+        state.journal_bytes = journal_bytes;
         for index in new_ids {
             state.seen.insert(index);
         }
@@ -740,6 +797,211 @@ impl NativeCommitSink for Workload {
 #[cfg(test)]
 mod endpoint_tests {
     use super::*;
+
+    struct PublicationFixture {
+        root: std::path::PathBuf,
+        workload: Workload,
+        author: aptos_consensus_types::common::Author,
+    }
+    impl PublicationFixture {
+        fn new() -> Result<Self> {
+            static NEXT: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+            let root = std::env::temp_dir().join(format!(
+                "raptr-output-boundary-{}-{}-{}",
+                std::process::id(),
+                clock(),
+                NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+            ));
+            std::fs::create_dir(&root)?;
+            config::generate_keys(&root.join("keys"), 4)?;
+            let keys = config::Keys::load(&root.join("keys"), 0)?;
+            let raw = serde_json::to_vec(&json!({"schema":1,"epoch":1,"run_id":"11".repeat(32),
+                "key_directory":root.join("keys"),"addresses":["127.0.0.1:29001","127.0.0.1:29002","127.0.0.1:29003","127.0.0.1:29004"],
+                "output_directory":root,"arm_path":root.join("arm.json"),"delta_ms":100,"measurement_duration_ms":1000,"drain_ms":0,
+                "finite_workload":{"counts":[1,0,0,0],"useful_bytes":32,"interval_us":1,"start_delay_ms":0}}))?;
+            let workload = Workload::prepare(
+                Arc::new(Config::parse(&raw, 0)?),
+                Arc::new(keys.committee.clone()),
+                0,
+                &keys.transport,
+            )?;
+            workload.state.lock().unwrap().deadline_us = 100;
+            Ok(Self {
+                root,
+                workload,
+                author: keys.authors[0],
+            })
+        }
+        fn admit(&self) -> Result<()> {
+            let mut times = [10, 11].into_iter();
+            admit(
+                &mut self.workload.state.lock().unwrap(),
+                1,
+                0,
+                || Ok(()),
+                || times.next().unwrap(),
+            )
+        }
+        fn section(&self, ordinal: usize) -> Result<PublishedSection<SignedTransaction>> {
+            use aptos_consensus_types::proof_of_store::BatchId;
+            use delugi_raptr_core::{BatchInfo, BlockId, PublishedBatch};
+            use raptr_qs::quorum_store::types::Batch;
+            let tx = self.workload.transactions.get(0)?;
+            let batch = Batch::new(
+                BatchId::new_for_test(1),
+                vec![tx.clone()],
+                1,
+                u64::MAX,
+                self.author,
+                0,
+            );
+            let info =
+                BatchInfo::from_native_bcs(&shared_crypto_aptos::encode(batch.batch_info())?)
+                    .map_err(|e| anyhow!("fixture native batch: {e:?}"))?;
+            Ok(PublishedSection {
+                ordinal,
+                block: BlockId {
+                    epoch: 1,
+                    round: 1,
+                    author: self.author.into_bytes(),
+                    digest: [9; 32],
+                },
+                kind: SectionKind::Proofs,
+                batches: vec![PublishedBatch {
+                    info,
+                    first_occurrence: ordinal == 0,
+                    transactions: vec![tx],
+                }],
+            })
+        }
+    }
+    impl Drop for PublicationFixture {
+        fn drop(&mut self) {
+            std::fs::remove_dir_all(&self.root).unwrap();
+        }
+    }
+
+    #[test]
+    fn publication_endpoint_precedes_diagnostics_even_when_diagnostics_cross_deadline() -> Result<()>
+    {
+        let fixture = PublicationFixture::new()?;
+        fixture.admit()?;
+        let calls = std::cell::Cell::new(0);
+        let stamps = [20, 21, 180];
+        fixture.workload.publish_observed(
+            fixture.section(0)?,
+            || {
+                let i = calls.get();
+                calls.set(i + 1);
+                stamps[i]
+            },
+            |tx| {
+                assert_eq!(
+                    calls.get(),
+                    2,
+                    "diagnostic encoding must follow acceptance timestamp"
+                );
+                shared_crypto_aptos::encode(tx)
+            },
+        )?;
+        let (_, rows, output, counts) = fixture.workload.freeze();
+        assert_eq!(calls.get(), 3);
+        assert_eq!(rows[0].first_materialized_us, Some(21));
+        assert_eq!(rows[0].first_materialized_event, Some(2));
+        assert_eq!(output[0]["append_us"], 21);
+        assert_eq!(output[0]["app_processing_start_us"], 20);
+        assert_eq!(output[0]["journal_constructed_us"], 180);
+        assert_eq!(output[0]["timing_contract"], OUTPUT_ENDPOINT);
+        assert_eq!(counts["origin_completed"], 1);
+        assert_eq!(counts["unique_recognized_output"], 1);
+        Ok(())
+    }
+
+    #[test]
+    fn expired_publication_does_not_encode_or_credit() -> Result<()> {
+        let fixture = PublicationFixture::new()?;
+        fixture.admit()?;
+        let mut stamps = [99, 100].into_iter();
+        fixture.workload.publish_observed(
+            fixture.section(0)?,
+            || stamps.next().unwrap(),
+            |_| panic!("expired application output must not construct diagnostics"),
+        )?;
+        let (_, rows, output, counts) = fixture.workload.freeze();
+        assert!(output.is_empty());
+        assert!(rows[0].first_materialized_us.is_none());
+        assert_eq!(counts["unique_recognized_output"], 0);
+        Ok(())
+    }
+
+    #[test]
+    fn failed_diagnostic_construction_does_not_partially_credit_publication() -> Result<()> {
+        let fixture = PublicationFixture::new()?;
+        fixture.admit()?;
+        let mut stamps = [20, 21].into_iter();
+        let result = fixture.workload.publish_observed(
+            fixture.section(0)?,
+            || stamps.next().unwrap(),
+            |_| Err(anyhow!("injected diagnostic failure")),
+        );
+        assert!(result
+            .unwrap_err()
+            .to_string()
+            .contains("injected diagnostic failure"));
+        let (_, rows, output, counts) = fixture.workload.freeze();
+        assert!(output.is_empty());
+        assert!(rows[0].first_materialized_us.is_none());
+        assert_eq!(counts["unique_recognized_output"], 0);
+        Ok(())
+    }
+
+    #[test]
+    fn publication_preplay_and_repeated_output_never_gain_retroactive_credit() -> Result<()> {
+        let fixture = PublicationFixture::new()?;
+        let mut stamps = [20, 21, 22].into_iter();
+        fixture.workload.publish_observed(
+            fixture.section(0)?,
+            || stamps.next().unwrap(),
+            shared_crypto_aptos::encode,
+        )?;
+        let mut admission = [24, 25].into_iter();
+        admit(
+            &mut fixture.workload.state.lock().unwrap(),
+            1,
+            0,
+            || Ok(()),
+            || admission.next().unwrap(),
+        )?;
+        let mut stamps = [30, 31, 32].into_iter();
+        fixture.workload.publish_observed(
+            fixture.section(1)?,
+            || stamps.next().unwrap(),
+            shared_crypto_aptos::encode,
+        )?;
+        let (_, rows, output, counts) = fixture.workload.freeze();
+        assert_eq!(rows[0].admitted_us, Some(25));
+        assert!(rows[0].first_materialized_us.is_none());
+        assert_eq!(
+            output[0]["batches"][0]["transactions"][0]["first_seen"],
+            true
+        );
+        assert_eq!(
+            output[1]["batches"][0]["transactions"][0]["first_seen"],
+            false
+        );
+        assert_eq!(
+            output[0]["batches"][0]["transactions"][0]["own_credit"],
+            false
+        );
+        assert_eq!(
+            output[1]["batches"][0]["transactions"][0]["own_credit"],
+            false
+        );
+        assert_eq!(counts["origin_completed"], 0);
+        assert_eq!(counts["unadmitted_first_outputs"], 1);
+        Ok(())
+    }
+
     fn fixture_state() -> State {
         State {
             rows: Rows::Memory(vec![Row {

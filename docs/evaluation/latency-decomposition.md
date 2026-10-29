@@ -99,6 +99,129 @@ older diagnostic workflows; configured and environment tracing cannot be enabled
 together. Only explicitly selected legacy traces may bypass the newer run-ID
 binding; their report records that limitation.
 
+## Raptr instrumentation and the shared application boundary
+
+Raptr now records batch storage, verified availability quorum, acceptance of a
+locally verified full proposal, native commit slices, payload validation, and contiguous output
+release. Enable the bounded recorder through `protocol_options.raptr` (or the
+local runner's `--node-options-json`):
+
+```json
+{"latency_trace": {"max_events": 100000}}
+```
+
+The recorder is disabled when this option is absent. Its `latency-trace.json`
+is bound to the run, configuration, replica and monotonic clock, and hashed in
+the final signed receipt. The configured cap bounds retained events; any dropped
+event invalidates the decomposition. Collection and trace serialization occur
+after the observer freezes.
+
+For each originating replica, the Raptr reducer joins the request's **first
+credited output** to the exact native batch identity (epoch, author, nonce, batch
+ID and digest), full proposal digest, and native proof/sub-block section. Native
+prefix extensions have separate commit boundaries: a later section does not
+inherit an earlier prefix's commit timestamp.
+
+| Raptr additive stage | Start → end |
+|---|---|
+| Batch formation | Request admitted → full local batch persisted |
+| Dissemination / inclusion | Batch persisted → locally verified execution proposal accepted by the core |
+| Consensus | Verified proposal accepted → commit decision for the exact output slice |
+| Payload retrieval / validation | Commit decision → exact slice's native payload validated |
+| Contiguous output wait | Payload validated → FIFO output section released |
+| Output consumer wait | FIFO release → application consumer starts processing |
+| Application acceptance | Consumer starts → request identity, eligibility and deduplication accepted |
+
+All seven means use the same completed, fully instrumented request cohort and
+sum to its admission-to-application latency. Scheduled-to-admitted delay is
+reported separately. Missing boundaries and locally nonsequential observations
+are counted as exclusions rather than replaced with zero. Batch storage and
+availability are recovered from exact-batch trace events; the legacy nullable
+`own_batch_ready_us` field is not repurposed.
+
+Availability-quorum timing is also retained as a separate stored-to-quorum
+diagnostic. Raptr can reference a streaming batch before its availability quorum
+has formed, so this duration can overlap proposal processing and consensus. The
+report states how many covered requests have a local quorum timestamp and how
+many quorums occur after the execution proposal. This overlapping duration is
+not added to the primary bars.
+
+The optional `serial_quorum_cohort` gives a separate eight-stage decomposition
+for exactly those covered requests whose observed timestamps satisfy
+`stored <= availability quorum <= proposal`. It splits dissemination/inclusion
+into stored-to-quorum and quorum-to-proposal, and reports its own coverage,
+exclusions and same-cohort means. This observed ordering does not imply that the
+protocol waits for a quorum before proposing a streaming batch. Requests with
+late or absent quorum timestamps retain their primary seven-stage decomposition.
+Add `--serial-quorum-figure /absolute/figures/raptr-serial-quorum.png` only when
+that subset is nonempty to render this alternative breakdown.
+
+For a cross-protocol overview, the report additionally groups the seven means
+into batch formation, dissemination/inclusion, consensus, and output processing.
+Delugi's corresponding first three stages are batch formation, awaiting the
+execution proposal, and agreement; its prefix/payload/application stages form
+output processing. Raw payload and prefix stages remain protocol-specific:
+Delugi releases an ordered descriptor before materializing its payload, whereas
+Raptr's application adapter validates payloads before releasing its FIFO section.
+Raptr's proposal acceptance timestamp follows full network verification and any
+verified-inbox queue delay. That queue delay belongs to dissemination/inclusion;
+the consensus bar does not begin at the network verifier's return.
+
+The Raptr application endpoint is now versioned as
+`verified_contiguous_application_acceptance_v2`. It occurs inside the serialized
+application consumer, after native payload validation and application
+identity/eligibility/deduplication checks, and **before diagnostic BCS/JSON journal
+construction**. Consumer queue delay and workload-mutex wait remain included.
+This matches Delugi's semantic boundary: a verified, contiguous application
+output accepted before its diagnostic journal is constructed. Both are
+consensus-only synthetic workloads, not VM execution measurements.
+
+Each Raptr output section retains `app_processing_start_us`, `append_us`, and
+`journal_constructed_us`. The last minus the middle is reported separately as
+observer construction overhead; it is not added to end-to-end latency. A section
+accepted before the deadline can finish constructing its journal after the
+deadline. Publication or envelope failure invalidates the run. The new
+`timing_contract` on each output section and `output_endpoint` in the effective
+profile prevent old and new endpoints from being silently mixed.
+
+Older archives retain their original endpoint after journal construction. In
+particular, the 28 October WAN logs cannot acquire the new stages retroactively;
+their [offline partial decomposition](../../benchmarks/results/raptr-offline-decomposition-2026-10-29/README.md)
+remains unchanged.
+
+The [29 October local validation](../../benchmarks/results/raptr-timestamps-local-2026-10-29/README.md)
+completed healthy and silent-leader runs for both protocols with full 500-request
+coverage in every run. Fabric also supports this offline path:
+
+```sh
+fab decompose --protocol=raptr --config=/absolute/trial/config.json \
+  --replicas=/absolute/trial/replicas --verification=/absolute/trial/manifest.json \
+  --output=/absolute/figures
+```
+
+For downloaded remote archives, `--verification` can name their completed
+`result.json`. Collection includes the signed `latency-trace.json` whenever
+Raptr's `node.protocol_options.raptr.latency_trace` is configured. No deployment
+or protocol run is triggered by decomposition.
+
+After the native archive verifier has succeeded, the local-only reducer accepts
+its saved result or manifest and rechecks all receipt/file hash bindings:
+
+```sh
+python3 scripts/raptr_latency_decomposition.py \
+  --config /absolute/trial/config.json \
+  --replicas /absolute/trial/replicas \
+  --verification /absolute/trial/manifest.json \
+  --output /absolute/figures/raptr-decomposition.json \
+  --figure /absolute/figures/raptr-decomposition.png
+```
+
+The reducer does not launch replicas or reverify native signatures. It checks
+the previously verified receipt hashes, exact signed source files, endpoint
+version, trace completeness, request/output endpoint agreement and additive
+stage accounting. Raw local tests validate those boundaries; observer overhead
+and matched fault placement still need to be measured for a formal comparison.
+
 ## Composition scheduling correction
 
 The old composition issued REPORT at round admission. PROG pacing can admit

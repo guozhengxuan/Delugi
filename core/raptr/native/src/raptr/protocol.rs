@@ -431,6 +431,13 @@ impl<DL: DisseminationLayer> RaptrNode<DL> {
             return;
         }
 
+        // Full Propose and FetchResp blocks have passed native verification by
+        // this point. Observe before parent-QC handling can commit this block.
+        crate::latency::record(|| crate::latency::EventKind::ProposalValidated {
+            round: block.round(),
+            digest: *block.digest.as_ref(),
+        });
+
         if is_fetch {
             observe_block(block.data.timestamp_usecs, "FETCHRECEIVED");
         } else {
@@ -739,6 +746,13 @@ impl<DL: DisseminationLayer> RaptrNode<DL> {
                 commit_reason,
             ));
 
+            crate::latency::record(|| crate::latency::EventKind::Committed {
+                round: qc.round(),
+                digest: *qc.block_digest().as_ref(),
+                include_proofs: false,
+                from_prefix: self.committed_qc.prefix(),
+                to_prefix: qc.prefix(),
+            });
             res.push(CommittedPayload {
                 block_digest: *qc.block_digest(),
                 include_proofs: false,
@@ -782,6 +796,13 @@ impl<DL: DisseminationLayer> RaptrNode<DL> {
                 commit_reason,
             ));
 
+            crate::latency::record(|| crate::latency::EventKind::Committed {
+                round: qc.round(),
+                digest: *qc.block_digest().as_ref(),
+                include_proofs: true,
+                from_prefix: 0,
+                to_prefix: qc.prefix(),
+            });
             res.push(CommittedPayload {
                 block_digest: *qc.block_digest(),
                 include_proofs: true,

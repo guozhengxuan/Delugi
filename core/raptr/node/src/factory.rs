@@ -137,6 +137,16 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     );
     let directory = config.output_directory.join(format!("node-{id}"));
     fs::create_dir(&directory)?; // A result directory is never reused or overwritten.
+    let latency_trace = config
+        .latency_trace
+        .as_ref()
+        .map(|settings| {
+            delugi_raptr_core::latency::install(settings.max_events, || {
+                shared_runtime::monotonic_us().expect("host monotonic clock")
+            })
+            .map_err(anyhow::Error::msg)
+        })
+        .transpose()?;
     let committee = Arc::new(keys.committee.clone());
     let end_guard_seconds = if config.schema == 2 {
         55 + (config.measurement_duration_ms + config.drain_ms + 999) / 1000
@@ -314,7 +324,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     let snapshot = sender.shared().snapshot();
     config::write_json_new(
         &directory.join("effective-profile.json"),
-        &json!({"schema":1,"profile":PROFILE,"native_policy_commit":"a4c98047cf8aeae3571168d02fb7e343140d2948","transport":snapshot.transport,"consensus":consensus,"quorum_store":qs_config,"crypto":"nativeBCS/BLS/SHA3; ordinaryEd25519outertransport","storage":"blob-lz4-pipelined-v1 Written WAL enabled syncfalse","tokio_workers":2,"maximum_blocking_threads":32,"rayon_workers":2,"task_executor":"shared global queued-plus-running budgets; group-owned shutdown","endpoint_clock":"CLOCK_MONOTONIC; admission after successful enqueue/publication; output after verification and journal construction","proof_cache_entries":10000,"native_end_guard_seconds":end_guard_seconds,"configured_delta_ms":config.delta_ms,"injected_delay_ms":0,"native_timer_multipliers":{"leader":4.0,"partial_qc":0.1,"fetch":2.0,"round_sync":15.0},"execution":"consensus-only, signed synthetic Script payload; no Aptos VM/state-sync; fixed quorum-signed genesis ledger","genesis_ledger_sha256":keys.committee.genesis_ledger_sha256,"committee_sha256":config::hex(&keys.public_hash),"materialization_delay_ms":config.materialization_delay_ms,"payload_fault":config.payload_fault,"limits":limits}),
+        &json!({"schema":1,"profile":PROFILE,"native_policy_commit":"a4c98047cf8aeae3571168d02fb7e343140d2948","transport":snapshot.transport,"consensus":consensus,"quorum_store":qs_config,"crypto":"nativeBCS/BLS/SHA3; ordinaryEd25519outertransport","storage":"blob-lz4-pipelined-v1 Written WAL enabled syncfalse","tokio_workers":2,"maximum_blocking_threads":32,"rayon_workers":2,"task_executor":"shared global queued-plus-running budgets; group-owned shutdown","endpoint_clock":"CLOCK_MONOTONIC; admission after successful enqueue/publication; verified contiguous application acceptance before diagnostic serialization","output_endpoint":crate::workload::OUTPUT_ENDPOINT,"latency_trace":config.latency_trace,"proof_cache_entries":10000,"native_end_guard_seconds":end_guard_seconds,"configured_delta_ms":config.delta_ms,"injected_delay_ms":0,"native_timer_multipliers":{"leader":4.0,"partial_qc":0.1,"fetch":2.0,"round_sync":15.0},"execution":"consensus-only, signed synthetic Script payload; no Aptos VM/state-sync; fixed quorum-signed genesis ledger","genesis_ledger_sha256":keys.committee.genesis_ledger_sha256,"committee_sha256":config::hex(&keys.public_hash),"materialization_delay_ms":config.materialization_delay_ms,"payload_fault":config.payload_fault,"limits":limits}),
         false,
     )?;
     config::write_json_new(
@@ -385,6 +395,7 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     }
     let snapshot_completed_us = clock()?;
     let materialized = materializer.freeze();
+    let frozen_latency = latency_trace.as_ref().map(|recorder| recorder.freeze());
     let transport = sender.shared().snapshot();
     if let Some(error) = &transport.terminal_error {
         result = Err(anyhow!("transport failed at observer freeze: {error}"));
@@ -435,6 +446,17 @@ async fn run(config: Arc<Config>, raw: &[u8], id: u32) -> Result<()> {
     }
     files.push(file_record(&directory, "workload-manifest.json")?);
     files.push(file_record(&directory, "effective-profile.json")?);
+    if let Some(snapshot) = frozen_latency {
+        let mut bytes = serde_json::to_vec(&crate::latency::document(
+            snapshot,
+            &config,
+            &configuration_sha256,
+            id,
+        ))?;
+        bytes.push(b'\n');
+        config::write_new(&directory.join("latency-trace.json"), &bytes, false)?;
+        files.push(file_record(&directory, "latency-trace.json")?);
+    }
     let body = json!({"schema":1,"profile":PROFILE,"run_id":config.run_id,"configuration_sha256":configuration_sha256,"committee_sha256":config::hex(&keys.public_hash),"id":id,"epoch_us":arm.epoch_us,"deadline_us":deadline_us,"freeze_us":freeze_us,"snapshot_completed_us":snapshot_completed_us,"snapshot_copy_us":snapshot_completed_us.saturating_sub(freeze_us),"executor_at_freeze":executor_at_freeze,"executor_at_cleanup":executor_at_cleanup,"deadline_lateness_us":freeze_us.saturating_sub(deadline_us),"status":if result.is_ok(){"completed"}else{"failed"},"error":result.as_ref().err().map(|e|format!("{e:#}")),"files":files,"counts":counts,"transport":transport.transport,"traffic_windows":traffic_windows,"async_transport":{"leased_bytes":transport.leased_bytes,"maximum_leased_bytes":transport.maximum_leased_bytes,"pending_bytes":transport.pending_bytes,"maximum_pending_bytes":transport.maximum_pending_bytes,"maximum_extra_pending_bytes":transport.maximum_extra_pending_bytes,"self_frames":transport.self_frames,"inbound_frames":transport.inbound_frames,"terminal_error":transport.terminal_error},"output_snapshot":output_snapshot(materialized),"materializer":materializer.delay_telemetry(),"payload_fault":payload_fault,"metrics":costs});
     let body_bcs = shared_crypto_aptos::encode(&serde_json::to_vec(&body)?)?;
     let mut signed = b"delugi-shared-observer-receipt-v1\0".to_vec();

@@ -816,6 +816,8 @@ def validate_output(path, epoch, freeze, committee, replica):
         canonical = json.loads(json.dumps(row))
         canonical.pop("append_us")
         canonical.pop("event")
+        for field in ('timing_contract', 'app_processing_start_us', 'journal_constructed_us'):
+            canonical.pop(field, None)
         for batch in canonical["batches"]:
             for tx in batch["transactions"]:
                 tx.pop("first_seen")
@@ -844,6 +846,8 @@ def evidence_snapshot(config, correct):
     for replica in correct:
         directory = Path(config["output_directory"]) / f"node-{replica}"
         paths.extend(safe_file(directory, name) for name in ("final.json", "workload-manifest.json", "effective-profile.json", "requests.jsonl", "output.jsonl"))
+        if config.get('latency_trace') is not None:
+            paths.append(safe_file(directory, 'latency-trace.json'))
     return {str(path): file_record(path) for path in paths}
 
 
@@ -1066,10 +1070,13 @@ def validate_results(config, correct, output, config_hash, epoch, case, *, requi
         if body.get("deadline_us") != deadline or freeze < deadline:
             raise ValueError("signed observation endpoint differs from the configured deadline")
         files = body.get("files")
-        if not isinstance(files, list) or len(files) != 4:
+        expected_files = {"workload-manifest.json", "effective-profile.json", "requests.jsonl", "output.jsonl"}
+        if config.get('latency_trace') is not None:
+            expected_files.add('latency-trace.json')
+        if not isinstance(files, list) or len(files) != len(expected_files):
             raise ValueError("signed receipt must bind finite workload/output and effective-profile files")
         descriptors = {item.get("name"): item for item in files}
-        if set(descriptors) != {"workload-manifest.json", "effective-profile.json", "requests.jsonl", "output.jsonl"}:
+        if set(descriptors) != expected_files:
             raise ValueError("signed evidence file set differs")
         for name, entry in descriptors.items():
             path = safe_file(directory, name)

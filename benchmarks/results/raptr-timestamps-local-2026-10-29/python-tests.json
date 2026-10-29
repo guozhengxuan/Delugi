@@ -1,0 +1,19 @@
+{
+  "patterns": [
+    "raptr_latency_decomposition_test.py",
+    "latency_decomposition_test.py",
+    "raptr_sustained_test.py",
+    "raptr_shared_local_test.py",
+    "fabric*test.py",
+    "common_cloud_export_test.py",
+    "common_sustained_remote_test.py",
+    "campaign_adapters_test.py",
+    "build_raptr_shared_test.py",
+    "shared_core_conformance_test.py"
+  ],
+  "run": 135,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": 135
+}

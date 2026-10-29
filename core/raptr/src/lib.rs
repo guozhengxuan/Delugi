@@ -7,5 +7,6 @@
 //! See CONTRACT.txt and source-map.json for the exact upstream mapping.
 
 mod output;
+pub mod latency;
 
 pub use output::*;

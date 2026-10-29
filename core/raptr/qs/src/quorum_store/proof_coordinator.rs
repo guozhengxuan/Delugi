@@ -252,6 +252,11 @@ impl ProofCoordinator {
                     let _timer = counters::SIGNED_BATCH_INFO_VERIFY_DURATION.start_timer();
                     value.aggregate_and_verify(validator_verifier)?
                 };
+                // Record the actual verified quorum, not a send/receipt guess.
+                // Optimistic proposal handling may precede this observation.
+                if proof.info().author() == self.peer_id {
+                    crate::latency::availability_quorum(proof.info());
+                }
                 // proof validated locally, so adding to cache
                 self.proof_cache
                     .insert(proof.info().clone(), proof.multi_signature().clone());

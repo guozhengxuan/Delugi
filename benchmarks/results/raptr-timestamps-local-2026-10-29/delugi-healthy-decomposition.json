@@ -1,0 +1,102 @@
+{
+  "schema": "delugi-latency-decomposition-v1",
+  "scheduled": 500,
+  "completed": 500,
+  "covered": 500,
+  "excluded": {},
+  "by_replica": {
+    "0": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    },
+    "1": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    },
+    "2": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    },
+    "3": {
+      "scheduled": 125,
+      "completed": 125,
+      "covered": 125
+    }
+  },
+  "stages": [
+    {
+      "stage": "Batch formation",
+      "mean_ms": 3.088398
+    },
+    {
+      "stage": "Await execution proposal",
+      "mean_ms": 48.81226
+    },
+    {
+      "stage": "Agreement",
+      "mean_ms": 19.471919999999997
+    },
+    {
+      "stage": "Contiguous prefix wait",
+      "mean_ms": 0.105894
+    },
+    {
+      "stage": "Payload wait",
+      "mean_ms": 0.301902
+    },
+    {
+      "stage": "Application append",
+      "mean_ms": 0.280614
+    }
+  ],
+  "mean_admission_to_append_ms": 72.060988,
+  "mean_schedule_to_admission_ms": 0.106416,
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-timestamps-20261029-healthy/trial/causal-traces/replica-0.json",
+      "sha256": "83a4dae182d2566be3e91ae00dae17b81b6b1b3ba2cf6966de5b29957484a276",
+      "events": 10516,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-timestamps-20261029-healthy/trial/causal-traces/replica-1.json",
+      "sha256": "1e10a1c9823cf2c4dcf11dbfa9278a0240dbc6d36494930314f6bab31228f067",
+      "events": 10498,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-timestamps-20261029-healthy/trial/causal-traces/replica-2.json",
+      "sha256": "484f831e9405684a5a4d8d5776f3aae501fa71bbda310c242600684caf4209ca",
+      "events": 10507,
+      "dropped": 0,
+      "run_bound": true
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/delugi-timestamps-20261029-healthy/trial/causal-traces/replica-3.json",
+      "sha256": "fe5c7e3e9d7c4bfe1bfa7d6e80640609f6e04355e50c1a658ae7d30aabe22ff5",
+      "events": 10475,
+      "dropped": 0,
+      "run_bound": true
+    }
+  ],
+  "cohort_index_sha256": "66c5bc7af8315cb814ce665a9d7eca1dff7894ca13d37bfd0bb32e5d2c1bbfe0",
+  "contract": [
+    "Origin-local monotonic timestamps only; no subtraction across replicas.",
+    "Arithmetic transaction-weighted means on one identical completed and instrumented cohort.",
+    "Await execution proposal includes dissemination and inclusion waits, which run in parallel.",
+    "Proposal boundary is local full validation of the exact proposal whose round releases the batch.",
+    "Agreement ends at the first final scanner classification; indirect commits remain identifiable in raw traces.",
+    "The agreement bar starts after local full validation, so proposal transit belongs to the preceding stage; leader outbox-to-direct spans separately measure the complete logical PROPOSE-to-CER-quorum cycle.",
+    "Unfinished or missing boundaries are counted separately, never converted to zero latency.",
+    "Leader history/report spans are diagnostics and overlap the request stages."
+  ],
+  "full_diagnostics": {
+    "path": "results/local/delugi-timestamps-20261029-healthy/latency-decomposition-full.json",
+    "sha256": "ea19de37678db36c4f2c455e9887d87e0eaf24a0709227cfa17f29a570eef11f"
+  }
+}

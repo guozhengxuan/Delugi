@@ -82,16 +82,20 @@ class FabricBenchmark(unittest.TestCase):
 
     def test_raptr_generated_config_and_real_cli_receive_overrides(self):
         self.params['node']['protocol_options']['raptr']={'transport':{'connect_timeout_ms':9000},
-            'quorum_store':{'sender_max_batch_txns':100},'limits':{'ingress_capacity':2000}}
+            'quorum_store':{'sender_max_batch_txns':100},'limits':{'ingress_capacity':2000},
+            'latency_trace':{'max_events':100000}}
         self.write();row=next(r for r in self.bench().resolved if r['protocol']=='raptr')
         e=row['effective']
         cfg=run_raptr_sustained.make_config(self.root,nodes=4,addresses=[f'127.0.0.1:{20000+i}' for i in range(4)],transport=e['transport'],node_options=e['node_options'])
         self.assertEqual(cfg['transport']['connect_timeout_ms'],9000)
         self.assertEqual(cfg['quorum_store']['sender_max_batch_txns'],100)
         self.assertEqual(cfg['limits']['ingress_capacity'],2000)
+        self.assertEqual(cfg['latency_trace'], {'max_events':100000})
         command=campaign_adapters.local_command(row,{'binary':'/node','build_receipt':'/receipt'},self.root/'trial')
         actual=json.loads(command[command.index('--transport-json')+1])
         self.assertEqual(actual,cfg['transport'])
+        self.assertEqual(json.loads(command[command.index('--node-options-json')+1])['latency_trace'],
+                         cfg['latency_trace'])
         with self.assertRaises(ValueError):raptr_options({'quorum_store':{'batch_sze':100}})
         with self.assertRaises(ValueError):transport({'connect_timeout_ms':True})
 

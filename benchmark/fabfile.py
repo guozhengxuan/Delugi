@@ -61,15 +61,26 @@ def plot(ctx, settings='settings.json', params='parameters.json', name=None, end
 
 
 @task
-def decompose(ctx, cohorts, traces, output='latency-decomposition'):
-    """Offline stage reduction and figure from already downloaded Delugi logs."""
+def decompose(ctx, cohorts=None, traces=None, output='latency-decomposition', protocol='delugi', config=None, replicas=None, verification=None):
+    """Offline stage reduction and figure from already downloaded protocol logs."""
     from pathlib import Path
-    from latency_decomposition import analyze, render
-    report=analyze(cohorts,traces)
+    if protocol=='delugi':
+        if not cohorts or not traces:raise ValueError('Delugi requires --cohorts and --traces')
+        from latency_decomposition import analyze, render
+        report=analyze(cohorts,traces)
+    elif protocol=='raptr':
+        if not config or not replicas or not verification:raise ValueError('Raptr requires --config, --replicas and --verification')
+        from raptr_latency_decomposition import analyze, render
+        from run_raptr_shared_local import bounded_json
+        verified=bounded_json(Path(verification),limit=64*1024**2)
+        if verified.get('status') not in ('completed','passed'):raise ValueError('completed verified run required')
+        report=analyze(config,replicas,verified['correct_replicas'],
+            authentication=verified.get('authentication',verified.get('offline_verification',{})))
+    else:raise ValueError('choose delugi or raptr')
     root=Path(output);root.mkdir(parents=True,exist_ok=True)
     (root/'decomposition.json').write_text(json.dumps(report,indent=2)+'\n')
     show({'report':str(root/'decomposition.json'),
-          'figure':render({'Delugi':report},root/'decomposition.png'),
+          'figure':render({protocol.title():report},root/'decomposition.png'),
           'covered':report['covered'],'scheduled':report['scheduled'],'no_cloud_calls':True})
 
 
