@@ -101,6 +101,12 @@ proposal construction therefore does not account for the long bar. The selected
 reinstating the old early immutable snapshot would reintroduce the previously
 observed stale-input problem.
 
+A short constructor does not rule out missing source/proof state: construction
+can promptly select equality or an earlier target and leave a batch for another
+opportunity. The 90.576 ms before the execution round's REPORT is measured
+waiting, not established avoidable delay. Small post-admission preparation also
+does not rule out history-dependent timing before admission.
+
 For all 3,000 Delugi requests, a same-origin chronology splits the 336.206 ms into
 **156.373 ms from sealing to that origin's OBS snapshot for the execution round**
 and **179.834 ms from that snapshot to the accepted proposal**. The origin's OBS
@@ -155,20 +161,62 @@ batch-to-proposal bound. The pinned source and hashes are recorded under
 
 ## Next local diagnostic
 
-Before changing scheduling, log exact batch custody arrival, OBS snapshot
-frontiers and signer identities, frozen-pool membership, earliest legal WA/input
-readiness, and the reason a candidate misses an opportunity. For Raptr, log
-leader batch receipt/eligibility/pull, optimistic-versus-proof inclusion, and
-individual storage-signature receipts. Keep local spans and exact identities;
-do not subtract timestamps from different host clocks.
+Before changing scheduling, record Delugi's exact fixed base, batch custody
+arrival, OBS snapshot branch/checkpoint identities and signer arrival order,
+frozen-pool membership, selected WA witnesses/target, and leader-held source
+suffix/proof readiness. Record why a candidate misses an opportunity: insufficient
+support, missing source/proof state, a frozen snapshot, prior base coverage or an
+eligibility/limit rule. Distinguish early coordinate readiness from complete
+input readiness: two actual current observations and locally available proof
+state are only a subcondition. Their relation to the exact base and final fixed
+pool must be checked; arbitrary custodians outside that pool do not establish a
+legal input. Do not use future observations or payloads to infer past readiness.
 
-Then use a small local controlled-delay test with identical batching and arrivals,
-first with homogeneous links and then with the two-region-pair delay pattern.
-Retain native quorum rules. A separately labeled optimistic/certified Raptr
-control can test overlap; it changes policy and must not silently replace the
-default counterpart. Any Delugi optimization must preserve current-opportunity
-freshness and the one-REPORT/one-OBS obligations. No threshold change or new
-instrumentation is implemented by this audit.
+For Raptr, record proposer-local batch receipt, minimum-age eligibility,
+payload-pull opportunities, optimistic-versus-proof selection, proposer-local
+PoA availability and individual storage-signature receipts. Producer-local PoA
+time alone does not reveal what the proposer knew. For both protocols, separate
+proposal enqueue/send and origin receipt/validation. Keep local spans and exact
+message identities; do not subtract different host clocks. Report batch- and
+opportunity-weighted results alongside request-weighted latency.
+
+The first controlled local comparison should retain each implementation's
+existing behavior and native quorum rules, use a four-process two-cluster delay
+profile and fixed arrival seeds, and vary arrival phase across repetitions. A
+separate Raptr optimistic/certified-only control can test overlap while holding
+its batching, age settings, timers and networking fixed. Use a supported control
+if available; otherwise treat it as an explicit future ablation. It must not
+silently replace the default counterpart. Test batching sensitivity separately,
+checking actual batch sizes and release cadence rather than only config labels.
+
+Preserve `HistoryReady`, once-only REPORT/OBS, immutable snapshots and the first
+valid frozen pool. Prompt payload processing and proof-state indexing may help
+productive readiness before the existing snapshot, if traces establish that
+cause. This audit implements no threshold, scheduling or instrumentation change.
+
+## Review with GPT-6 Pro
+
+The requested discussion in [delugi eval context](https://chatgpt.com/c/6ad0826d-7048-83ec-b309-e09c2dca6590)
+completed on 29 October 2026. The [verbatim prompt and response](pro-consultation.json)
+record the chat/turn/message identities and source audit commit. The existing
+chat's model was retained. Pro reviewed the supplied audit; it did not rerun the
+experiments or independently reproduce the archive analysis.
+
+The review supports opportunity timing plus Delugi's exposed pool barrier,
+contrasted with Raptr's optimistic certification overlap, as the leading
+explanation. It rejects the two-signature versus three-signature PoA premise and
+endorses the 71.627 ms common admission-to-proposal comparison. The avoidable
+portion remains unmeasured. In particular, 87% optimistic output does not mean
+87% realizes a full round-trip saving, and a proposal arriving after PoA does not
+prove that it waited for PoA.
+
+The next diagnostics above incorporate the review's main additions: exact
+source/proof readiness and exclusion reasons, proposer-local Raptr state,
+proposal transport/validation boundaries, and batch/opportunity weighting.
+The saved WAN runs occurred on separate days; regional reweighting does not
+control day-to-day variation. Requests sharing batches or opportunities are
+not independent observations. The observed 136.761 ms second-remote-OBS wait is
+not a prediction for a semantics-preserving optimization.
 
 ## Reproduce
 
