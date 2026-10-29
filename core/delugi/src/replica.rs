@@ -24,24 +24,27 @@ mod round_barrier_tests {
         replica_in_mode(id, inputs, PacingMode::RoundBarrier)
     }
 
-    fn replica_in_mode(id: Id, inputs: Inputs, mode: PacingMode) -> Replica {
+    fn unconfigured_replica(id: Id, inputs: Inputs) -> Replica {
         let committee = Committee::new(
             [93; 32],
             (0..4).map(|i| wire::fixture_key(i).public).collect(),
         )
         .unwrap();
-        let mut n = Replica::new(
+        Replica::new(
             committee,
             id,
             wire::fixture_key(id),
             100,
             inputs,
             |_, x, _| x != b"invalid",
-        );
+        )
+    }
+
+    fn replica_in_mode(id: Id, inputs: Inputs, mode: PacingMode) -> Replica {
+        let mut n = unconfigured_replica(id, inputs);
         match mode {
             PacingMode::RoundBarrier => n.enable_round_barrier(100).unwrap(),
-            // Exercise the actual constructor default throughout the paced tests.
-            PacingMode::ProgressOnly => {}
+            PacingMode::ProgressOnly => n.enable_progress_pacing(100).unwrap(),
         }
         n
     }
@@ -145,7 +148,7 @@ mod round_barrier_tests {
     }
 
     #[test]
-    fn constructor_default_uses_bound_and_explicit_comparison_override_is_once_before_start() {
+    fn constructor_default_is_immediate_and_comparison_override_is_once_before_start() {
         for bound in [17, 100] {
             let c = Committee::new(
                 [93; 32],
@@ -161,47 +164,18 @@ mod round_barrier_tests {
                 |_, _, _| true,
             )
             .unwrap();
-            assert_eq!(
-                n.ordering_schedule(),
-                OrderingSchedule::ProgressPacing {
-                    release_delay_ms: bound
-                }
-            );
-            assert_eq!(n.snapshot()["ordering_schedule"], "progress_pacing");
-            assert_eq!(n.snapshot()["progress_pacing"]["release_delay_ms"], bound);
+            assert_eq!(n.ordering_schedule(), OrderingSchedule::Canonical);
+            assert_eq!(n.snapshot()["ordering_schedule"], "canonical");
             assert!(!n.schedule_configured);
-            // Rejected configuration neither changes the default nor consumes
-            // the one explicit comparison override.
             assert!(n.enable_progress_pacing(0).is_err());
             assert!(n.enable_progress_pacing(bound + 1).is_err());
-            assert!(n.enable_round_barrier(bound + 1).is_err());
             assert!(!n.schedule_configured);
-            assert_eq!(
-                n.ordering_schedule(),
-                OrderingSchedule::ProgressPacing {
-                    release_delay_ms: bound
-                }
-            );
             n.start(0).unwrap();
-            enter(&mut n, 3, 2);
-            assert_eq!(
-                n.round_barriers.as_ref().unwrap().pending[&1].deadline,
-                3 + bound
-            );
-            assert_eq!(sent(&n.tick(2 + bound).unwrap(), "PROG", 2), 0);
-            assert_eq!(sent(&n.tick(3 + bound).unwrap(), "PROG", 2), 1);
+            assert_eq!(sent(&enter(&mut n, 3, 2), "PROG", 2), 1);
+            assert!(n.round_barriers.is_none());
             assert!(n.configure_ordering(OrderingSchedule::Canonical).is_err());
         }
-        let mut canonical = replica_in_mode(0, Inputs::new(), PacingMode::ProgressOnly);
-        canonical
-            .configure_ordering(OrderingSchedule::Canonical)
-            .unwrap();
-        assert_eq!(canonical.snapshot()["ordering_schedule"], "canonical");
-        assert!(canonical.snapshot().get("progress_pacing").is_none());
-        assert!(canonical.enable_progress_pacing(100).is_err());
-        canonical.start(0).unwrap();
-        assert_eq!(sent(&enter(&mut canonical, 0, 2), "PROG", 2), 1);
-        let mut explicit = replica_in_mode(0, Inputs::new(), PacingMode::ProgressOnly);
+        let mut explicit = unconfigured_replica(0, Inputs::new());
         explicit.enable_progress_pacing(37).unwrap();
         assert_eq!(
             explicit.ordering_schedule(),
@@ -2030,11 +2004,11 @@ struct Timer {
     acted: bool,
 }
 
-/// Outgoing scheduling policy. New replicas use progress pacing with a release
-/// deadline equal to their configured partial-synchrony bound.
+/// Outgoing scheduling policy. New replicas emit PROG immediately on admission;
+/// availability preparation overlaps ordering without delaying round progress.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum OrderingSchedule {
-    /// Original immediate PROG emission, retained for comparisons.
+    /// Immediate PROG emission from the reference ordering algorithm (default).
     Canonical,
     /// Delay only originating PROG until a full neighboring proposal or deadline.
     ProgressPacing { release_delay_ms: u64 },
@@ -2223,7 +2197,7 @@ impl Replica {
             progress: BTreeMap::new(),
             closed: BTreeMap::new(),
             progress_sent: BTreeSet::new(),
-            round_barriers: Some(RoundBarriers::new(PacingMode::ProgressOnly, bound, 0)),
+            round_barriers: None,
             schedule_configured: false,
             closed_sent: BTreeMap::new(),
             proposal_sent: BTreeSet::new(),
@@ -2344,6 +2318,35 @@ impl Replica {
             && self.leader(round) == self.id
             && (round <= 3
                 || self.reports.get(&(round - 3)).map_or(0, BTreeMap::len) >= self.quorum())
+    }
+    /// Last locally completed, authenticated outcome prefix. HISTORY3 is sent
+    /// before this prefix becomes visible to the composition layer.
+    pub fn own_report_horizon(&self) -> u64 {
+        self.own_reports.keys().next_back().copied().unwrap_or(0)
+    }
+    /// Prepare two proposal positions ahead of the healthy send wave. At the
+    /// boundary emitting P(r-2), own CER/HISTORY3(r-4) enables REPORT(r), whose
+    /// two-message exchange completes alongside history for P(r). The
+    /// own-prefix branch permits only opportunities through that prefix + 4.
+    /// f+1 CLOSED(r-3) or exact history readiness retain timely recovery when
+    /// local outcomes lag: each has at least one honest completed-prefix sender.
+    /// Thus every prepared round is at most the greatest correct prefix + 4.
+    pub fn pipeline_preparation_ready(&self, round: u64) -> bool {
+        round > 0
+            && round <= self.current
+            && self.leader(round) == self.id
+            && (round <= 4
+                || self.own_reports.contains_key(&(round - 4))
+                || self.closed.get(&(round - 3)).map_or(0, BTreeMap::len) >= self.amplification()
+                || self.input_preparation_ready(round))
+    }
+    /// Authenticated distinct CLOSED senders supporting preparation recovery.
+    pub fn preparation_closed_signers(&self, round: u64) -> Vec<Id> {
+        round
+            .checked_sub(3)
+            .and_then(|h| self.closed.get(&h))
+            .map(|s| s.keys().copied().collect())
+            .unwrap_or_default()
     }
     pub fn last_delivered(&self) -> u64 {
         self.cursor
@@ -2809,6 +2812,11 @@ impl Replica {
                 }
                 Kind::Closed => {
                     let count = self.closed[&r].len();
+                    if count == self.amplification() {
+                        if let Some(round) = r.checked_add(3).filter(|r| *r <= wire::MAX_ROUND) {
+                            self.notice("pipeline_preparation_ready", round);
+                        }
+                    }
                     if let Some(trace) = &self.causal {
                         if count == self.amplification() || count == self.quorum() {
                             trace.mark(
@@ -3122,6 +3130,16 @@ impl Replica {
                 self.send_progress(r)?;
             }
             if n >= self.quorum() {
+                if let Some(trace) = &self.causal {
+                    trace.mark(
+                        "progress_quorum",
+                        r,
+                        json!({
+                            "signers":self.progress[&r].keys().copied().collect::<Vec<_>>(),
+                            "admit":r+1
+                        }),
+                    );
+                }
                 self.enter(r + 1)?;
             }
         }
@@ -3183,6 +3201,11 @@ impl Replica {
             let closed = self.signed(Kind::Closed, h, None);
             self.closed_sent.insert(h, closed.clone());
             self.send(None, Message::Closed(closed))?;
+            // Wake the two-step-ahead availability opportunity even when its
+            // admission happened earlier. This notice changes no evidence.
+            if let Some(round) = h.checked_add(4).filter(|r| *r <= wire::MAX_ROUND) {
+                self.notice("pipeline_preparation_ready", round);
+            }
         }
         Ok(())
     }
@@ -3677,6 +3700,9 @@ impl Replica {
             let closed = self.signed(Kind::Closed, h, None);
             self.closed_sent.insert(h, closed.clone());
             self.send(None, Message::Closed(closed))?;
+            if let Some(round) = h.checked_add(4).filter(|r| *r <= wire::MAX_ROUND) {
+                self.notice("pipeline_preparation_ready", round);
+            }
         }
         Ok(())
     }

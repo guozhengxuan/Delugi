@@ -82,7 +82,7 @@ def run_delugi(resolved, inventory, verifier, output, *, network_mode='controlle
         max_batch_transactions=e['batching']['max_transactions'],bound_ms=e['timing']['Delta_ms'],
         drain_seconds=e['duration']['drain_s'],nodes=resolved['nodes'],resource_profile=e['resource_profile'],
         global_arrivals=True,silent_first_leader=case=='silent-first-leader',
-        report_schedule=e.get('report_schedule','history_ready'),causal_trace=e.get('causal_trace'),
+        report_schedule=e.get('report_schedule','pipeline'),causal_trace=e.get('causal_trace'),
         storage_profile=delugi.STORAGE_PROFILES[1],
         deployment=DelugiDeployment(hosts),transport=e.get("transport"),
         arrival_queue_capacity=e.get("arrival_queue_capacity",65536),**fault)

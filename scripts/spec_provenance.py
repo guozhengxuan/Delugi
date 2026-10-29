@@ -115,10 +115,17 @@ def scheduling_provenance(options, *, transport="bounded_pipelined_authenticated
             "bundling": "immediate_no_fill_timer" if bundling else "off",
             "transport": transport, "release_deadline_ms": options.get("progress_pacing_ms", options.get("round_barrier_ms")),
             "report_schedule": options.get("report_schedule", "unrecorded"),
-            "report_schedule_scope": ("composition scheduling variant: delay the one REPORT until exact HISTORY3 is ready; "
+            "report_schedule_scope": ("bounded pipeline: admitted leader prepares after own outcome prefix r-4, "
+                "f+1 CLOSED(r-3), or exact HISTORY3(r-3); startup r<=4; two-delay preparation overlaps history; "
+                "fixed observations/inputs and ordering guards/timers are unchanged"
+                if options.get("report_schedule") == "pipeline" else
+                "composition scheduling variant: delay the one REPORT until exact HISTORY3 is ready; "
                 "ordering guards/timers and immutable Q are unchanged; this differs from the pinned paper's entry trigger"
                 if options.get("report_schedule") == "history_ready" else "historical admission trigger or unrecorded"),
             "required_ablation_cell": ("immediate" if mode == "canonical" else "paced") +
                 ("/bundle-on" if bundling else "/bundle-off") if mode != "barrier" else None,
-            "theorem_scope": "canonical schedule; measured performance still requires stated model conditions" if mode == "canonical" else
+            "theorem_scope": ("canonical ordering with bounded pipeline composition; input readiness is measured from "
+                "its evidence trigger, not arbitrary admission; actual timing requires the stated model conditions")
+                if mode == "canonical" and options.get("report_schedule") == "pipeline" else
+                "canonical schedule; measured performance still requires stated model conditions" if mode == "canonical" else
                 "implementation variant; conformance tests do not establish the canonical timing theorem"}

@@ -274,7 +274,7 @@ def run_trial(binary, directory, total_rate, warmup_seconds, measurement_seconds
               fault_replica=None, fault_scope="payload", fault_after=0, fault_duration=0, fault_peers=None,
               measure_costs=False, deployment=None, fault_batches=0, fault_batch_transactions=64, fault_payload_bytes=472,
               cohort_observer="full", storage_profile=STORAGE_PROFILES[0], global_arrivals=False,
-              silent_first_leader=False, transport=None, report_schedule="history_ready", causal_trace=None):
+              silent_first_leader=False, transport=None, report_schedule="pipeline", causal_trace=None):
     directory = Path(directory)
     directory.mkdir(parents=True, exist_ok=False)
     if deployment is not None and storage_profile != STORAGE_PROFILES[0] and not getattr(deployment,'shared_storage',False):

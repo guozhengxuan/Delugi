@@ -40,7 +40,7 @@ def main():
         "accounting": "Every nonself packet, including silent recipients, injected duplicates, and control traffic beyond workload; serialization bytes exclude transport overhead",
         "warmup": "None; finite semantic traces, not performance trials",
         "gate": "correctness_conformance_only",
-        "scheduling": scheduling_provenance({"ordering_mode": "progress", "ordering_batch": False, "progress_pacing_ms": 100},
+        "scheduling": scheduling_provenance({"ordering_mode": "canonical", "ordering_batch": False},
                                              transport="deterministic_event_queue"),
     }
 

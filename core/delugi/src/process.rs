@@ -264,8 +264,10 @@ impl Config {
             .ordering_mode
             .unwrap_or(if self.round_barrier_ms.is_some() {
                 OrderingMode::Barrier
-            } else {
+            } else if self.progress_pacing_ms.is_some() {
                 OrderingMode::Progress
+            } else {
+                OrderingMode::Canonical
             });
         match mode {
             OrderingMode::Canonical
@@ -2637,7 +2639,7 @@ mod tests {
     }
 
     #[test]
-    fn bundled_progress_is_default_and_comparison_modes_are_explicit_and_bounded() {
+    fn bundled_canonical_is_default_and_comparison_modes_are_explicit_and_bounded() {
         let value = json!({"instance":(vec![1u8;32]), "addresses":["127.0.0.1:12001","127.0.0.1:12002","127.0.0.1:12003","127.0.0.1:12004"],
             "control_addresses":["127.0.0.1:12005","127.0.0.1:12006","127.0.0.1:12007","127.0.0.1:12008"],
             "control_token":"01234567890123456789012345678901",
@@ -2648,10 +2650,9 @@ mod tests {
         assert!(config.ordering_batch);
         assert_eq!(
             config.ordering_schedule().unwrap(),
-            OrderingSchedule::ProgressPacing {
-                release_delay_ms: 100
-            }
+            OrderingSchedule::Canonical
         );
+        assert_eq!(config.report_schedule, composed::ReportSchedule::Pipeline);
         assert!(config.round_barrier_ms.is_none());
         assert!(config.progress_pacing_ms.is_none());
         config.validate(0).unwrap();

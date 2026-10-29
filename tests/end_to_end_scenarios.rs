@@ -39,9 +39,7 @@ fn assert_complete(run: &Run) {
     for node in &correct {
         assert_eq!(
             node.ordering.ordering_schedule(),
-            delugi::replica::OrderingSchedule::ProgressPacing {
-                release_delay_ms: run.config.bound
-            }
+            delugi::replica::OrderingSchedule::Canonical
         );
         assert_eq!(node.executed, correct[0].executed);
         assert_eq!(node.state_hash(), correct[0].state_hash());
@@ -123,7 +121,7 @@ fn silent_first_leader_preserves_three_honest_anchors_and_their_batches() {
 }
 
 #[test]
-fn default_progress_pacing_materializes_round_four_and_silent_recovery_near_delay_bound() {
+fn default_pipeline_materializes_round_four_and_silent_recovery_near_delay_bound() {
     for silent in [None, Some(0)] {
         let run = end_to_end::run(Config {
             delta: 99,
@@ -146,8 +144,8 @@ fn default_progress_pacing_materializes_round_four_and_silent_recovery_near_dela
                 }
             }
             assert_eq!(
-                node.ordering.snapshot()["progress_pacing"]["peak_held_messages"],
-                0
+                node.ordering.snapshot()["ordering_schedule"],
+                "canonical"
             );
         }
     }

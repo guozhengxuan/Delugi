@@ -36,11 +36,11 @@ def main():
         "crypto_keys": "Public deterministic fixture_key(id) seeds; never deployment keys",
         "event_order": "Arrival tick then increasing insertion sequence; synchronous engine self-delivery",
         "storage": "In-memory evidence and once-only state, retained for full run; no crash recovery",
-        "input_readiness": "Finite batch workload is prepared before ordering starts; each leader automatically requests reports on entry; all-current construction with empty fallback; readiness and proposal time recorded separately",
+        "input_readiness": "Finite batch workload is prepared before ordering starts; bounded pipeline evidence triggers each leader's once-only report request; all-current construction with empty fallback; readiness and proposal time recorded separately",
         "accounting": "Every nonself packet, including silent recipients, injected duplicates, and control traffic beyond workload; serialization bytes exclude transport overhead",
         "warmup": "None; finite semantic traces, not performance trials",
         "gate": "correctness_conformance_only",
-        "scheduling": scheduling_provenance({"ordering_mode": "progress", "ordering_batch": False, "progress_pacing_ms": 100},
+        "scheduling": scheduling_provenance({"ordering_mode": "canonical", "ordering_batch": False, "report_schedule": "pipeline"},
                                              transport="deterministic_event_queue"),
     }
 

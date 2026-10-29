@@ -114,8 +114,8 @@ mod streaming_regression {
     use super::*;
 
     #[test]
-    fn repeated_silence_keeps_inputs_fresh_and_covers_batches_arriving_after_admission() {
-        let run = run_with_production_interval(
+    fn history_ready_comparison_keeps_inputs_fresh_after_admission() {
+        let run = run_with_schedules(
             Config {
                 rounds: 12,
                 silent: Some(0),
@@ -123,6 +123,8 @@ mod streaming_regression {
                 ..Config::default()
             },
             100,
+            crate::replica::OrderingSchedule::ProgressPacing { release_delay_ms: 100 },
+            composed::ReportSchedule::HistoryReady,
         )
         .unwrap();
         assert_eq!(run.summary()["pass"], true);
@@ -175,6 +177,12 @@ mod streaming_regression {
 }
 
 fn run_with_production_interval(config: Config, production_interval: u64) -> Result<Run, String> {
+    run_with_schedules(config, production_interval,
+        crate::replica::OrderingSchedule::Canonical, composed::ReportSchedule::Pipeline)
+}
+
+fn run_with_schedules(config: Config, production_interval: u64,
+    ordering: crate::replica::OrderingSchedule, reporting: composed::ReportSchedule) -> Result<Run, String> {
     if !matches!(config.nodes, 4 | 7)
         || config.rounds == 0
         || config.rounds > 32
@@ -229,6 +237,8 @@ fn run_with_production_interval(config: Config, production_interval: u64) -> Res
                 availability.clone(),
                 config.chunk_capacity,
             )?;
+            node.ordering.configure_ordering(ordering)?;
+            node.configure_report_schedule(reporting)?;
             node.set_opportunity_limit(config.rounds)?;
             Ok::<_, String>(node)
         })

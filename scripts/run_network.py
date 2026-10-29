@@ -720,7 +720,7 @@ def aggregate_traffic(snapshots, silent, workload_rounds=4):
 
 def ordering_options(bound_ms, ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None,
                      ordering_mode=None):
-    """Resolve and record the default bundled PROG schedule or an explicit comparison."""
+    """Resolve immediate canonical PROG or an explicitly selected comparison."""
     if bound_ms <= 0:
         raise ValueError("bound_ms must be positive")
     if round_barrier_ms is not None and progress_pacing_ms is not None:
@@ -728,7 +728,8 @@ def ordering_options(bound_ms, ordering_batch=True, round_barrier_ms=None, progr
     for deadline in (round_barrier_ms, progress_pacing_ms):
         if deadline is not None and not 0 < deadline <= bound_ms:
             raise ValueError("ordering release deadline must be positive and at most bound_ms")
-    mode = ordering_mode or ("barrier" if round_barrier_ms is not None else "progress")
+    mode = ordering_mode or ("barrier" if round_barrier_ms is not None else
+                             "progress" if progress_pacing_ms is not None else "canonical")
     options = {"ordering_batch": bool(ordering_batch), "ordering_mode": mode}
     if mode == "progress" and round_barrier_ms is None:
         options["progress_pacing_ms"] = progress_pacing_ms if progress_pacing_ms is not None else bound_ms
@@ -740,10 +741,10 @@ def ordering_options(bound_ms, ordering_batch=True, round_barrier_ms=None, progr
 
 
 def add_ordering_arguments(parser):
-    parser.add_argument("--report-schedule", choices=("history_ready", "admission"), default="history_ready",
-                        help="availability REPORT trigger; admission retains the historical schedule for ablations")
+    parser.add_argument("--report-schedule", choices=("pipeline", "history_ready", "admission"), default="pipeline",
+                        help="availability REPORT trigger; pipeline prepares two proposal positions ahead")
     parser.add_argument("--ordering-mode", choices=("progress", "canonical", "barrier"),
-                        help="ordering schedule (default: progress; a barrier deadline selects barrier)")
+                        help="ordering schedule (default: canonical; explicit deadlines select their comparison mode)")
     batching = parser.add_mutually_exclusive_group()
     batching.add_argument("--ordering-batch", action="store_true", default=True,
                           help="immediately bundle enabled ordering messages (default)")
@@ -757,7 +758,7 @@ def add_ordering_arguments(parser):
 
 def run_trial(binary, directory, scenario, bound_ms, timeout, transaction_bytes,
               ordering_batch=True, round_barrier_ms=None, progress_pacing_ms=None, ordering_mode=None,
-              storage_profile=STORAGE_PROFILES[0], report_schedule="history_ready"):
+              storage_profile=STORAGE_PROFILES[0], report_schedule="pipeline"):
     directory.mkdir(parents=True, exist_ok=False)
     result = {"label": directory.name, "scenario": scenario, "status": "incomplete", "pass": False}
     children = []

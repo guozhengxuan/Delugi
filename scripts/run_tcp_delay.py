@@ -411,6 +411,31 @@ def verify_archived_ordering_config(output):
         raise RuntimeError("archived binary predates explicit ordering modes; replay it with its original archived harness")
 
 
+def current_source_paths(build_stamp):
+    """Archive the same modular source closure that authenticates the binary."""
+    return [ROOT / name for name in sorted(build_stamp["inputs"]["sources"])]
+
+
+def trial_options(args):
+    """Keep the finite and sustained fixtures on the same explicit schedule."""
+    return {name: getattr(args, name) for name in (
+        "ordering_batch", "round_barrier_ms", "progress_pacing_ms", "ordering_mode", "report_schedule")}
+
+
+def run_finite(binary, directory, silent, args):
+    return run_network.run_trial(binary, directory, {"silent": silent}, args.bound_ms, 30, 32,
+                                 **trial_options(args))
+
+
+def run_load(binary, directory, args):
+    return run_sustained.run_trial(binary, directory, args.rate, args.warmup, args.duration,
+                                  args.transaction_size, args.ingress_batch_ms, args.bound_ms, args.drain,
+                                  **trial_options(args),
+                                  silent_first_leader=args.silent_first_leader,
+                                  causal_trace={"detail_stride": args.trace_stride,
+                                                "max_events": args.trace_max_events} if args.causal_trace else None)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True)
@@ -427,6 +452,12 @@ def main():
     parser.add_argument("--warmup", type=float, default=2)
     parser.add_argument("--duration", type=float, default=5)
     parser.add_argument("--drain", type=float, default=30)
+    parser.add_argument("--silent-first-leader", action="store_true",
+                        help="sustained scenario: omit the first leader's protocol messages; finite always runs both cases")
+    parser.add_argument("--causal-trace", action="store_true",
+                        help="collect bounded sustained stage events after quiescence")
+    parser.add_argument("--trace-stride", type=int, default=1)
+    parser.add_argument("--trace-max-events", type=int, default=200000)
     parser.add_argument("--scenario", choices=("all", "finite", "sustained"), default="all")
     args = parser.parse_args()
     output = args.output.resolve()
@@ -435,15 +466,15 @@ def main():
                 "started_utc": datetime.now(timezone.utc).isoformat(),
                 "classification": "independent_replica_processes_userspace_tcp_byte_stream_delay_diagnostic",
                 "method": {"delay": "Each chunk waits at least delay_ms after proxy read, independently in both directions; reader and writer run concurrently; no frame or ACK parsing, no per-chunk round-trip gate",
-                           "replicas": "four independent real replica processes, real protocol and transport signatures; bundled PROG pacing by default; resolved ordering settings recorded explicitly",
+                           "replicas": "four independent real replica processes, real protocol and transport signatures; resolved ordering and dissemination schedules recorded explicitly",
                            "routing": "each replica binds its own backend address; every peer destination points to the destination proxy; control addresses are direct",
                            "limitations": "Userspace stream chunks, not IP packets or kernel shaping; TCP handshakes are not artificially delayed; real CPU/event-loop/OS scheduling may add delay; no bandwidth limit or packet loss; proxy scheduling metrics and RTT calibration retained",
-                           "latency": "sustained: originating replica insertion before batch production to post-handler local materialization, completed-in-window; finite preloaded test endpoints are separately retained by the existing runner",
+                           "latency": "sustained: admission to originating replica's payload-verified contiguous append; finite exact request cohorts and completed-in-window aggregates retained separately; finite preloaded test endpoints are separately retained by the existing runner",
                            "traffic": "native counters include signed data frames and ACK stream bytes once at replica sockets; exclude proxy duplicate writes, control, TCP/IP headers and kernel retries"},
                 "settings": {k: v for k, v in vars(args).items() if k not in ("output", "binary", "archived_build_manifest", "spec_snapshot", "paper_repository")},
-                "scheduling": run_network.scheduling_provenance(run_network.ordering_options(
+                "scheduling": run_network.scheduling_provenance({**run_network.ordering_options(
                     args.bound_ms, args.ordering_batch, args.round_barrier_ms,
-                    args.progress_pacing_ms, args.ordering_mode)),
+                    args.progress_pacing_ms, args.ordering_mode), "report_schedule": args.report_schedule}),
                 "machine": run_network.machine_metadata(), "source_files": [], "trials": []}
     try:
         manifest["specification"] = run_network.archive_spec(args.spec_snapshot, output / "snapshot", args.paper_repository)
@@ -459,13 +490,13 @@ def main():
                                       text=True, check=True).stdout.strip()
             manifest["build_stamp"] = run_sustained.verify_build_stamp(binary, compiler)
             manifest["binary_source_scope"] = "current working tree verified against release build stamp"
-            sources = [ROOT / "Cargo.toml", ROOT / "Cargo.lock"] + sorted((ROOT / "src").rglob("*.rs"))
+            sources = current_source_paths(manifest["build_stamp"])
         manifest["binary"] = {"path": str(binary), "sha256": run_network.sha(binary.read_bytes())}
         manifest["harness_git_head"] = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True,
                                                      text=True, check=True).stdout.strip()
         if not args.archived_build_manifest:
             manifest["binary_git_head"] = manifest["harness_git_head"]
-        sources += [ROOT / name for name in ("scripts/run_tcp_delay.py", "scripts/run_network.py", "scripts/run_sustained.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/spec_provenance.py", "tests/tcp_delay_test.py")]
+        sources += [ROOT / name for name in ("scripts/run_tcp_delay.py", "scripts/run_network.py", "scripts/run_sustained.py", "scripts/network_delay.py", "scripts/timing_calibration.py", "scripts/spec_provenance.py", "scripts/shared_core_conformance.py", "scripts/cohort_metrics.py", "scripts/cohort_store.py", "scripts/observer_receipts.py", "scripts/latency_decomposition.py", "scripts/evaluation_parameters.py", "tests/tcp_delay_test.py")]
         for source in sources:
             relative, data = source.relative_to(ROOT), source.read_bytes()
             destination = output / "snapshot" / relative
@@ -477,17 +508,14 @@ def main():
             for label, silent in (("honest-round4", None), ("silent-leader-three-anchors", 0)):
                 directory = output / label
                 result = run_proxied(binary, directory, args.delay_ms,
-                                     lambda: run_network.run_trial(binary, directory, {"silent": silent}, args.bound_ms, 30, 32,
-                                                                   args.ordering_batch, args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode))
+                                     lambda: run_finite(binary, directory, silent, args))
                 manifest["trials"].append({"label": label, "result": result})
                 if result["status"] != "passed":
                     raise AssertionError(f"{label} failed: {result.get('error', result.get('proxy_error'))}")
         if args.scenario in ("all", "sustained"):
             directory = output / "sustained"
             result = run_proxied(binary, directory, args.delay_ms,
-                                 lambda: run_sustained.run_trial(binary, directory, args.rate, args.warmup, args.duration,
-                                                                args.transaction_size, args.ingress_batch_ms, args.bound_ms, args.drain,
-                                                                args.ordering_batch, args.round_barrier_ms, args.progress_pacing_ms, args.ordering_mode))
+                                 lambda: run_load(binary, directory, args))
             manifest["trials"].append({"label": "sustained", "result": result})
             manifest["comparison"] = result.get("comparison")
             if result["status"] != "passed":

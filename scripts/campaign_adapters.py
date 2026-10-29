@@ -59,8 +59,8 @@ def resolve(config,protocol,nodes,rate,case='healthy'):
         'timing':{'Delta_ms':delta},'faulty_identities':[] if faulty is None else [faulty]}
     if selected_transport is not None:effective['transport']=selected_transport
     if protocol=='delugi':
-        effective['report_schedule']=options.get('report_schedule','history_ready')
-        if effective['report_schedule'] not in ('history_ready','admission'):raise ValueError('unknown Delugi REPORT schedule')
+        effective['report_schedule']=options.get('report_schedule','pipeline')
+        if effective['report_schedule'] not in ('pipeline','history_ready','admission'):raise ValueError('unknown Delugi REPORT schedule')
         effective['causal_trace']=options.get('causal_trace')
         if effective['causal_trace'] is not None:
             trace=effective['causal_trace']

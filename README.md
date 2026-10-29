@@ -280,14 +280,20 @@ tracks repeated validation and retained-history work on the delivery path,
 causal timing, and sustained reruns with the same transport and timer settings.
 
 The default process configuration and the network, sustained, and TCP-delay
-runners use **PROG-only pacing plus immediate per-peer ordering bundling**.
-Originating PROG(`k`) waits after entry to `k` until a complete valid proposal at
-`k-1` or `k` is available, or until the release deadline Δ expires. PROG(1) and
-`f+1` PROG amplification remain immediate. PROPOSE, VOTE, CER, HISTORY3, and
-CLOSED leave as soon as their original guards enable them. The same-round
-proposal escape prevents a missing predecessor from forcing an otherwise valid
-proposal to wait for the deadline. This rule changes the paper's PROG-origin
-timing; it is now the implementation default.
+runners use **immediate canonical PROG, bounded pipeline preparation, and
+immediate per-peer ordering bundling**. In a healthy send wave producing
+PROPOSE(`r`), replicas also send OBS(`r+1`), the next leader opens REPORT(`r+2`),
+and enabled VOTE/CER/HISTORY3/CLOSED messages leave immediately. Preparation
+overlaps the preceding two proposals instead of waiting for the target
+proposal's complete HISTORY3.
+
+An admitted leader opens REPORT(`k`) once when `k <= 4`, its own completed
+outcome prefix reaches `k-4`, or it has `f+1` authenticated CLOSED(`k-3`) or
+`n-f` exact HISTORY3(`k-3`). The last two conditions preserve recovery when
+its local outcomes lag peers. This bounds prepared opportunities by the
+greatest correct completed prefix plus four, while PROG admission remains
+independent. Fixed observations, authenticated bases, Q, vote/certificate
+thresholds, and the `7Δ`/`3Δ` outcome timers are unchanged.
 
 Immediate bundling combines already-enabled ordering messages for each recipient
 at the end of an effect drain, without a batching timer or waiting for additional
@@ -297,10 +303,13 @@ HISTORY3 remains unicast to its collector.
 Logical message counters and physical frame/ACK byte counters are retained
 separately; trace packet identities include a bundle member index.
 
-The explicit comparison modes are `--ordering-mode canonical`, which uses the
-original PROG-origin rule, and `--ordering-mode barrier`, which uses the full
-outgoing round barrier described below. `--ordering-mode progress` selects the
-default explicitly. Bundling stays enabled in every mode unless
+The explicit comparison modes are `--ordering-mode progress`, which holds
+originating PROG until a neighboring valid proposal or the configured deadline,
+and `--ordering-mode barrier`, which uses the full outgoing round barrier
+described below. `--ordering-mode canonical` selects the default explicitly.
+`--report-schedule pipeline` selects the default preparation rule;
+`history_ready` and `admission` retain the previous preparation policies.
+Bundling stays enabled in every mode unless
 `--no-ordering-batch` is supplied; canonical scheduling with that flag reproduces
 the scheduling and framing choices of the earlier canonical comparisons.
 Archived binaries from before explicit ordering modes must use their archived
@@ -308,30 +317,32 @@ harness; the current delay runner rejects them before starting a trial.
 `--ordering-batch` remains accepted as an explicit enable flag.
 
 Process JSON uses `ordering_mode` (`progress`, `canonical`, or `barrier`) and
-`ordering_batch` (default `true`). Omitted mode selects `progress`, except that
-`round_barrier_ms` selects `barrier` when no mode is given. The optional
+`ordering_batch` (default `true`) and `report_schedule` (default `pipeline`).
+Omitted ordering mode selects `canonical`. The optional
 `progress_pacing_ms` and `round_barrier_ms` deadline aliases select the corresponding
 mode and override its Δ default; each must be positive and at most `bound_ms`.
 Conflicting modes or both deadline aliases are rejected. With `--bound-ms 100`,
-the default pacing deadline is 100 ms.
+an explicitly selected pacing mode defaults to a 100 ms deadline.
 
 For example, after building and stamping the release binary, the default run is:
 
 ```sh
-python3 scripts/run_tcp_delay.py --spec-snapshot provenance/spec-2026-10-19.json --output results/local/progress-trial \
+python3 scripts/run_tcp_delay.py --spec-snapshot provenance/spec-2026-10-19.json \
+  --paper-repository results/local/migration-acceptance-n4-ablation-canonical-unbundled-20261019/snapshot/paper \
+  --output results/local/pipeline-trial \
   --scenario sustained --rate 4000 --transaction-size 512 \
   --ingress-batch-ms 100 --warmup 10 --duration 30 \
   --delay-ms 10 --bound-ms 100
 ```
 
-The [measured comparison](PROGRESS.md#ordering-pacing-experiments-and-measured-backlog-removal)
-was collected before this default change, with PROG pacing and bundling explicitly
-enabled. It removed observed backlog growth and measured approximately 33 ms
-PROPOSE-to-direct-commit latency at 10 ms one-way delay. The default change does
-not extend the paper's canonical latency theorem: the aligned 3δ path requires
-origin PROG for the round to have been released by proposal broadcast. The
-independent `7Δ` and `3Δ` timers, signature/Q checks, and terminal outcome guards
-are unchanged.
+The [earlier measured comparison](PROGRESS.md#ordering-pacing-experiments-and-measured-backlog-removal)
+used PROG pacing and bundling, measuring approximately 33 ms PROPOSE-to-direct-commit
+latency at 10 ms one-way delay. It remains historical evidence for that schedule.
+The new pipeline tests exercise actual signed composed-core messages, twelve
+healthy proposals one δ apart, three-delay direct commitment, Byzantine forks,
+and repeated silent leaders. The input-readiness contract is now measured from
+the bounded evidence trigger, rather than arbitrary early admission. See the
+[pipeline proof and local measurements](benchmarks/results/pipeline-2026-10-29/README.md).
 
 [Fresh default validation](PROGRESS.md#default-ordering-schedule) passed the full
 test suite and real-process recovery checks, and sustained 4,000 tx/s at 71.0 ms

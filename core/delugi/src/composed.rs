@@ -66,15 +66,18 @@ pub struct MaterializedBatch {
     pub payload: Vec<u8>,
 }
 
-/// Availability opportunity scheduling; neither variant changes ordering guards.
+/// Availability opportunity scheduling; these policies preserve ordering guards.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ReportSchedule {
     /// Historical paper/implementation schedule, retained for explicit ablations.
     Admission,
     /// Freeze observations only after the exact ordering history is available.
-    #[default]
     HistoryReady,
+    /// Two-step-ahead preparation bounded by own completed outcomes, with
+    /// authenticated CLOSED/history evidence when local outcomes lag peers.
+    #[default]
+    Pipeline,
 }
 
 pub struct Node {
@@ -297,9 +300,9 @@ impl Node {
             self.committee.keys.len(),
         ))
     }
-    /// Open one signed REPORT once admission and exact HISTORY3 readiness both
-    /// hold. Freezing OBS on admission alone lets future inputs age behind a
-    /// silent leader's timeout chain. No already fixed input is ever refreshed.
+    /// Open one signed REPORT at the configured preparation boundary. Pipeline
+    /// overlaps the exchange with history collection while bounding speculative
+    /// opportunities by authenticated outcome progress. No fixed input is refreshed.
     pub fn report(&mut self, now: u64, round: u64) -> Result<Vec<Effect>, String> {
         if round == 0 || round > wire::MAX_ROUND {
             return Err("invalid reporting opportunity".into());
@@ -309,6 +312,8 @@ impl Node {
             || round > self.ordering.current_round()
             || (self.report_schedule == ReportSchedule::HistoryReady
                 && !self.ordering.input_preparation_ready(round))
+            || (self.report_schedule == ReportSchedule::Pipeline
+                && !self.ordering.pipeline_preparation_ready(round))
             || self.report_sent.contains(&round)
         {
             return Ok(Vec::new());
@@ -325,7 +330,11 @@ impl Node {
             trace.mark(
                 "dissemination_outbox",
                 round,
-                json!({"kind":"REPORT","signer":self.id,"to":null,"base":base.identity}),
+                json!({"kind":"REPORT","signer":self.id,"to":null,"base":base.identity,
+                    "schedule":self.report_schedule,"admitted":self.ordering.current_round(),
+                    "local_report_horizon":self.ordering.own_report_horizon(),
+                    "closed_signers":self.ordering.preparation_closed_signers(round),
+                    "exact_history_ready":self.ordering.input_preparation_ready(round)}),
             );
         }
         let mut effects = vec![Effect::Send { to: None, message }];
@@ -402,7 +411,13 @@ impl Node {
                 .insert(round, received.values().cloned().collect());
             self.pending_input_rounds.insert(round);
             if let Some(trace) = &self.causal {
-                trace.mark("observation_pool_fixed", round, json!({}));
+                trace.mark(
+                    "observation_pool_fixed",
+                    round,
+                    json!({
+                        "signers":received.keys().copied().collect::<Vec<_>>()
+                    }),
+                );
             }
         }
         Ok(())
@@ -586,7 +601,10 @@ impl Node {
                 self.pending_ordered.push_back((delivery.round, descriptor));
             }
             if let OrderingEffect::Notice { kind, round } = &effect {
-                if kind == "admission" || kind == "proposal_history_ready" {
+                if kind == "admission"
+                    || kind == "proposal_history_ready"
+                    || kind == "pipeline_preparation_ready"
+                {
                     ready_opportunities.insert(*round);
                 }
             }

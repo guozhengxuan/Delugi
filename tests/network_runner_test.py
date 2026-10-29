@@ -69,11 +69,11 @@ def fixture(silent=None):
 
 
 class OutputValidation(unittest.TestCase):
-    def test_bundled_progress_is_default_and_comparison_modes_are_explicit(self):
+    def test_bundled_canonical_is_default_and_comparison_modes_are_explicit(self):
         self.assertEqual(runner.ordering_options(100),
-                         {"ordering_batch": True, "ordering_mode": "progress", "progress_pacing_ms": 100})
+                         {"ordering_batch": True, "ordering_mode": "canonical"})
         self.assertEqual(runner.ordering_options(250),
-                         {"ordering_batch": True, "ordering_mode": "progress", "progress_pacing_ms": 250})
+                         {"ordering_batch": True, "ordering_mode": "canonical"})
         self.assertEqual(runner.ordering_options(100, True, 100),
                          {"ordering_batch": True, "ordering_mode": "barrier", "round_barrier_ms": 100})
         self.assertEqual(runner.ordering_options(100, False, 50),
@@ -100,6 +100,7 @@ class OutputValidation(unittest.TestCase):
         parser = argparse.ArgumentParser()
         runner.add_ordering_arguments(parser)
         defaults = parser.parse_args([])
+        self.assertEqual(defaults.report_schedule, "pipeline")
         self.assertTrue(defaults.ordering_batch)
         self.assertIsNone(defaults.ordering_mode)
         reference = parser.parse_args(["--ordering-mode", "canonical", "--no-ordering-batch"])

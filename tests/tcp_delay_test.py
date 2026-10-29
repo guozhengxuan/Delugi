@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
@@ -66,6 +67,38 @@ class Pipeline(unittest.IsolatedAsyncioTestCase):
 
 
 class Harness(unittest.TestCase):
+    def test_source_snapshot_covers_modular_binary_inputs(self):
+        stamp = {"inputs": runner.run_sustained.build_inputs("test compiler")}
+        paths = {str(path.relative_to(runner.ROOT)) for path in runner.current_source_paths(stamp)}
+        self.assertIn("core/delugi/src/composed.rs", paths)
+        self.assertIn("shared/network/src/lib.rs", paths)
+        self.assertIn("core/delugi/Cargo.toml", paths)
+        self.assertIn("Cargo.lock", paths)
+
+    def test_both_real_runner_adapters_forward_composed_pipeline_schedule(self):
+        args = SimpleNamespace(bound_ms=100, ordering_batch=True, round_barrier_ms=None,
+                               progress_pacing_ms=None, ordering_mode="canonical", report_schedule="pipeline",
+                               rate=100, warmup=2, duration=20, transaction_size=64, ingress_batch_ms=1,
+                               drain=30, silent_first_leader=True, causal_trace=True,
+                               trace_stride=1, trace_max_events=200000)
+        with patch.object(runner.run_network, "run_trial") as finite, \
+                patch.object(runner.run_sustained, "run_trial") as sustained:
+            runner.run_finite(Path("binary"), Path("finite"), 0, args)
+            runner.run_load(Path("binary"), Path("sustained"), args)
+        for trial in (finite, sustained):
+            self.assertEqual(trial.call_args.kwargs["ordering_mode"], "canonical")
+            self.assertEqual(trial.call_args.kwargs["report_schedule"], "pipeline")
+        self.assertEqual(finite.call_args.args[2], {"silent": 0})
+        self.assertTrue(sustained.call_args.kwargs["silent_first_leader"])
+        self.assertEqual(sustained.call_args.kwargs["causal_trace"],
+                         {"detail_stride": 1, "max_events": 200000})
+        args.causal_trace = False
+        args.silent_first_leader = False
+        with patch.object(runner.run_sustained, "run_trial") as sustained:
+            runner.run_load(Path("binary"), Path("healthy"), args)
+        self.assertIsNone(sustained.call_args.kwargs["causal_trace"])
+        self.assertFalse(sustained.call_args.kwargs["silent_first_leader"])
+
     def test_old_archive_requires_original_harness_without_silent_default_changes(self):
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary)
