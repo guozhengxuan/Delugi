@@ -1,0 +1,955 @@
+{
+  "scope": "Real unchanged Delugi Node; deterministic virtual time, signed serialized messages, all proposal Q checks; excludes CPU/disk/network transport queueing. WAN links use half mean directional median RTT, assuming symmetry, not measured protocol one-way delay. A region-cycle permutation, arrival phase and link scaling probe sensitivity. Selection counterfactual removes OBS requirement ONLY in read-only analysis at fixed actual proposal times and input construction snapshots; it is neither a valid altered Delugi execution nor Raptr performance.",
+  "checks": {
+    "eligible_but_omitted": 0,
+    "pool_size": 3,
+    "reconstructed_inputs_match_actual_proposals": true,
+    "wa_support": 2
+  },
+  "runs": [
+    {
+      "by_origin": [
+        {
+          "broadcast_to_execution_acceptance_ms": 32.5,
+          "broadcast_to_first_proposal_ms": 25.0,
+          "n": 40,
+          "origin": 0
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 32.5,
+          "broadcast_to_first_proposal_ms": 25.0,
+          "n": 40,
+          "origin": 1
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 32.5,
+          "broadcast_to_first_proposal_ms": 25.0,
+          "n": 40,
+          "origin": 2
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 32.5,
+          "broadcast_to_first_proposal_ms": 25.0,
+          "n": 40,
+          "origin": 3
+        }
+      ],
+      "label": "uniform_tagged_phase_sweep",
+      "links_us": [
+        [
+          0,
+          10000,
+          10000,
+          10000
+        ],
+        [
+          10000,
+          0,
+          10000,
+          10000
+        ],
+        [
+          10000,
+          10000,
+          0,
+          10000
+        ],
+        [
+          10000,
+          10000,
+          10000,
+          0
+        ]
+      ],
+      "means_ms": {
+        "broadcast_to_execution_acceptance": 32.5,
+        "broadcast_to_first_acceptance": 32.5,
+        "broadcast_to_first_proposal": 25.0,
+        "broadcast_to_output": 55.0,
+        "selection_counterfactual_broadcast_to_acceptance": 17.5,
+        "selection_counterfactual_broadcast_to_proposal": 12.5,
+        "selection_counterfactual_proposal_gain": 12.5
+      },
+      "n": 160,
+      "batch_opportunity_exclusion_counts": {
+        "insufficient_snapshot_support": 320
+      },
+      "first_proposer_counts": {
+        "3": 40,
+        "0": 40,
+        "1": 40,
+        "2": 40
+      },
+      "first_execution_counts": {
+        "3": 40,
+        "0": 40,
+        "1": 40,
+        "2": 40
+      },
+      "midpoint_reassigned_requests": 0,
+      "mean_midpoint_reassignment_ms": 0.0,
+      "examples": []
+    },
+    {
+      "by_origin": [
+        {
+          "broadcast_to_execution_acceptance_ms": 375.39999999999833,
+          "broadcast_to_first_proposal_ms": 294.1743999999992,
+          "n": 250,
+          "origin": 0
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 272.6195999999988,
+          "broadcast_to_first_proposal_ms": 263.9305999999989,
+          "n": 250,
+          "origin": 1
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 278.9359999999987,
+          "broadcast_to_first_proposal_ms": 271.3279999999988,
+          "n": 250,
+          "origin": 2
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 396.91519999999895,
+          "broadcast_to_first_proposal_ms": 310.9871999999991,
+          "n": 250,
+          "origin": 3
+        }
+      ],
+      "configuration": {
+        "aggregate_tx_per_second": 100,
+        "chunk_capacity": 64,
+        "empty_startup_us": 2000000,
+        "link_scale": [
+          1,
+          1
+        ],
+        "load_duration_us": 10000000,
+        "load_offset_us": 0,
+        "origin_stagger_us": [
+          0,
+          10000,
+          20000,
+          30000
+        ],
+        "per_origin_interval_us": 40000,
+        "physical_region_per_replica": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "transactions_per_batch": 1,
+        "useful_bytes_per_transaction": 1
+      },
+      "label": "wan_symmetric_rtt_proxy",
+      "links_us": [
+        [
+          0,
+          80000,
+          87500,
+          32200
+        ],
+        [
+          80000,
+          0,
+          6750,
+          97000
+        ],
+        [
+          87500,
+          6750,
+          0,
+          120000
+        ],
+        [
+          32200,
+          97000,
+          120000,
+          0
+        ]
+      ],
+      "means_ms": {
+        "broadcast_to_execution_acceptance": 330.96770000000544,
+        "broadcast_to_first_acceptance": 309.59920000000443,
+        "broadcast_to_first_proposal": 285.1050500000041,
+        "broadcast_to_output": 502.5231500000079,
+        "selection_counterfactual_broadcast_to_acceptance": 142.6023999999994,
+        "selection_counterfactual_broadcast_to_proposal": 122.03644999999848,
+        "selection_counterfactual_proposal_gain": 163.0686
+      },
+      "n": 1000,
+      "batch_opportunity_exclusion_counts": {
+        "insufficient_snapshot_support": 2127,
+        "source_or_proof_unready": 3
+      },
+      "first_proposer_counts": {
+        "2": 545,
+        "0": 172,
+        "3": 64,
+        "1": 219
+      },
+      "first_execution_counts": {
+        "2": 545,
+        "3": 236,
+        "1": 219
+      },
+      "midpoint_reassigned_requests": 469,
+      "mean_midpoint_reassignment_ms": 21.3685,
+      "examples": [
+        {
+          "batch": {
+            "batch_at_us": 2070000,
+            "broadcast_to_execution_acceptance_ms": 321.0,
+            "broadcast_to_first_acceptance_ms": 302.2,
+            "broadcast_to_first_proposal_ms": 270.0,
+            "broadcast_to_output_ms": 530.2,
+            "execution_leader": 3,
+            "execution_round": 24,
+            "first_input_round": 25,
+            "first_input_us": 2340000,
+            "first_proposal_leader": 0,
+            "first_proposal_round": 25,
+            "first_proposal_us": 2340000,
+            "height": 2,
+            "label": "sustained_100txps",
+            "missed_inputs": {
+              "insufficient_snapshot_support": 2
+            },
+            "origin": 3,
+            "selection_counterfactual_broadcast_to_acceptance_ms": 302.2,
+            "selection_counterfactual_broadcast_to_proposal_ms": 226.95,
+            "selection_counterfactual_eligibility": [
+              1,
+              1,
+              false,
+              true
+            ],
+            "selection_counterfactual_input_us": 2296950,
+            "selection_counterfactual_proposal_gain_ms": 43.05,
+            "selection_counterfactual_proposal_round": 23
+          },
+          "opportunities": [
+            {
+              "base": 21,
+              "fixed_us": 2391000,
+              "frontier": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "leader": 3,
+              "pool": [
+                {
+                  "heights": [
+                    6,
+                    4,
+                    4,
+                    5
+                  ],
+                  "signer": 0,
+                  "snapshot_us": 2229200
+                },
+                {
+                  "heights": [
+                    6,
+                    8,
+                    7,
+                    5
+                  ],
+                  "signer": 1,
+                  "snapshot_us": 2294000
+                },
+                {
+                  "heights": [
+                    5,
+                    3,
+                    2,
+                    5
+                  ],
+                  "signer": 3,
+                  "snapshot_us": 2197000
+                }
+              ],
+              "report_us": 2197000,
+              "round": 24,
+              "targets": [
+                6,
+                4,
+                4,
+                5
+              ]
+            },
+            {
+              "base": 21,
+              "fixed_us": 2340000,
+              "frontier": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "leader": 0,
+              "pool": [
+                {
+                  "heights": [
+                    5,
+                    3,
+                    2,
+                    3
+                  ],
+                  "signer": 0,
+                  "snapshot_us": 2180000
+                },
+                {
+                  "heights": [
+                    5,
+                    7,
+                    6,
+                    4
+                  ],
+                  "signer": 1,
+                  "snapshot_us": 2260000
+                },
+                {
+                  "heights": [
+                    5,
+                    3,
+                    2,
+                    5
+                  ],
+                  "signer": 3,
+                  "snapshot_us": 2212200
+                }
+              ],
+              "report_us": 2180000,
+              "round": 25,
+              "targets": [
+                5,
+                3,
+                2,
+                4
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "by_origin": [
+        {
+          "broadcast_to_execution_acceptance_ms": 375.36599999999834,
+          "broadcast_to_first_proposal_ms": 294.5827999999992,
+          "n": 250,
+          "origin": 0
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 272.31279999999884,
+          "broadcast_to_first_proposal_ms": 263.2357999999989,
+          "n": 250,
+          "origin": 1
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 280.1879999999988,
+          "broadcast_to_first_proposal_ms": 272.63399999999876,
+          "n": 250,
+          "origin": 2
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 397.666399999999,
+          "broadcast_to_first_proposal_ms": 311.94239999999917,
+          "n": 250,
+          "origin": 3
+        }
+      ],
+      "configuration": {
+        "aggregate_tx_per_second": 100,
+        "chunk_capacity": 64,
+        "empty_startup_us": 2000000,
+        "link_scale": [
+          1,
+          1
+        ],
+        "load_duration_us": 10000000,
+        "load_offset_us": 5000,
+        "origin_stagger_us": [
+          0,
+          10000,
+          20000,
+          30000
+        ],
+        "per_origin_interval_us": 40000,
+        "physical_region_per_replica": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "transactions_per_batch": 1,
+        "useful_bytes_per_transaction": 1
+      },
+      "label": "wan_arrival_phase_plus_5ms",
+      "links_us": [
+        [
+          0,
+          80000,
+          87500,
+          32200
+        ],
+        [
+          80000,
+          0,
+          6750,
+          97000
+        ],
+        [
+          87500,
+          6750,
+          0,
+          120000
+        ],
+        [
+          32200,
+          97000,
+          120000,
+          0
+        ]
+      ],
+      "means_ms": {
+        "broadcast_to_execution_acceptance": 331.3833000000054,
+        "broadcast_to_first_acceptance": 310.0049000000044,
+        "broadcast_to_first_proposal": 285.5987500000041,
+        "broadcast_to_output": 502.97120000000785,
+        "selection_counterfactual_broadcast_to_acceptance": 143.4732999999994,
+        "selection_counterfactual_broadcast_to_proposal": 122.77074999999847,
+        "selection_counterfactual_proposal_gain": 162.828
+      },
+      "n": 1000,
+      "batch_opportunity_exclusion_counts": {
+        "insufficient_snapshot_support": 2130,
+        "source_or_proof_unready": 3
+      },
+      "first_proposer_counts": {
+        "2": 547,
+        "0": 172,
+        "3": 68,
+        "1": 213
+      },
+      "first_execution_counts": {
+        "2": 547,
+        "3": 240,
+        "1": 213
+      },
+      "midpoint_reassigned_requests": 470,
+      "mean_midpoint_reassignment_ms": 21.378400000000003,
+      "examples": [
+        {
+          "batch": {
+            "batch_at_us": 2035000,
+            "broadcast_to_execution_acceptance_ms": 356.0,
+            "broadcast_to_first_acceptance_ms": 337.2,
+            "broadcast_to_first_proposal_ms": 305.0,
+            "broadcast_to_output_ms": 565.2,
+            "execution_leader": 3,
+            "execution_round": 24,
+            "first_input_round": 25,
+            "first_input_us": 2340000,
+            "first_proposal_leader": 0,
+            "first_proposal_round": 25,
+            "first_proposal_us": 2340000,
+            "height": 1,
+            "label": "sustained_100txps",
+            "missed_inputs": {
+              "insufficient_snapshot_support": 2
+            },
+            "origin": 3,
+            "selection_counterfactual_broadcast_to_acceptance_ms": 337.2,
+            "selection_counterfactual_broadcast_to_proposal_ms": 261.95,
+            "selection_counterfactual_eligibility": [
+              1,
+              1,
+              false,
+              true
+            ],
+            "selection_counterfactual_input_us": 2296950,
+            "selection_counterfactual_proposal_gain_ms": 43.05,
+            "selection_counterfactual_proposal_round": 23
+          },
+          "opportunities": [
+            {
+              "base": 21,
+              "fixed_us": 2391000,
+              "frontier": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "leader": 3,
+              "pool": [
+                {
+                  "heights": [
+                    6,
+                    4,
+                    3,
+                    5
+                  ],
+                  "signer": 0,
+                  "snapshot_us": 2229200
+                },
+                {
+                  "heights": [
+                    6,
+                    7,
+                    7,
+                    5
+                  ],
+                  "signer": 1,
+                  "snapshot_us": 2294000
+                },
+                {
+                  "heights": [
+                    4,
+                    3,
+                    2,
+                    5
+                  ],
+                  "signer": 3,
+                  "snapshot_us": 2197000
+                }
+              ],
+              "report_us": 2197000,
+              "round": 24,
+              "targets": [
+                6,
+                4,
+                3,
+                5
+              ]
+            },
+            {
+              "base": 21,
+              "fixed_us": 2340000,
+              "frontier": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "leader": 0,
+              "pool": [
+                {
+                  "heights": [
+                    5,
+                    3,
+                    2,
+                    3
+                  ],
+                  "signer": 0,
+                  "snapshot_us": 2180000
+                },
+                {
+                  "heights": [
+                    5,
+                    7,
+                    6,
+                    4
+                  ],
+                  "signer": 1,
+                  "snapshot_us": 2260000
+                },
+                {
+                  "heights": [
+                    5,
+                    3,
+                    2,
+                    5
+                  ],
+                  "signer": 3,
+                  "snapshot_us": 2212200
+                }
+              ],
+              "report_us": 2180000,
+              "round": 25,
+              "targets": [
+                5,
+                3,
+                2,
+                4
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "by_origin": [
+        {
+          "broadcast_to_execution_acceptance_ms": 188.14799999999914,
+          "broadcast_to_first_proposal_ms": 147.4331999999996,
+          "n": 250,
+          "origin": 0
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 136.5471999999994,
+          "broadcast_to_first_proposal_ms": 132.34269999999944,
+          "n": 250,
+          "origin": 1
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 139.65609999999938,
+          "broadcast_to_first_proposal_ms": 135.6120999999994,
+          "n": 250,
+          "origin": 2
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 198.6867999999995,
+          "broadcast_to_first_proposal_ms": 156.11079999999959,
+          "n": 250,
+          "origin": 3
+        }
+      ],
+      "configuration": {
+        "aggregate_tx_per_second": 100,
+        "chunk_capacity": 64,
+        "empty_startup_us": 2000000,
+        "link_scale": [
+          1,
+          2
+        ],
+        "load_duration_us": 10000000,
+        "load_offset_us": 0,
+        "origin_stagger_us": [
+          0,
+          10000,
+          20000,
+          30000
+        ],
+        "per_origin_interval_us": 40000,
+        "physical_region_per_replica": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "transactions_per_batch": 1,
+        "useful_bytes_per_transaction": 1
+      },
+      "label": "wan_half_link_delays",
+      "links_us": [
+        [
+          0,
+          40000,
+          43750,
+          16100
+        ],
+        [
+          40000,
+          0,
+          3375,
+          48500
+        ],
+        [
+          43750,
+          3375,
+          0,
+          60000
+        ],
+        [
+          16100,
+          48500,
+          60000,
+          0
+        ]
+      ],
+      "means_ms": {
+        "broadcast_to_execution_acceptance": 165.7595250000027,
+        "broadcast_to_first_acceptance": 155.0255500000022,
+        "broadcast_to_first_proposal": 142.874700000002,
+        "broadcast_to_output": 251.57982500000395,
+        "selection_counterfactual_broadcast_to_acceptance": 71.50149999999967,
+        "selection_counterfactual_broadcast_to_proposal": 61.24734999999924,
+        "selection_counterfactual_proposal_gain": 81.62734999999999
+      },
+      "n": 1000,
+      "batch_opportunity_exclusion_counts": {
+        "insufficient_snapshot_support": 2130,
+        "source_or_proof_unready": 3
+      },
+      "first_proposer_counts": {
+        "0": 173,
+        "2": 548,
+        "1": 214,
+        "3": 65
+      },
+      "first_execution_counts": {
+        "3": 238,
+        "2": 548,
+        "1": 214
+      },
+      "midpoint_reassigned_requests": 470,
+      "mean_midpoint_reassignment_ms": 10.733975000000001,
+      "examples": [
+        {
+          "batch": {
+            "batch_at_us": 2000000,
+            "broadcast_to_execution_acceptance_ms": 181.6,
+            "broadcast_to_first_acceptance_ms": 140.0,
+            "broadcast_to_first_proposal_ms": 140.0,
+            "broadcast_to_output_ms": 268.725,
+            "execution_leader": 3,
+            "execution_round": 44,
+            "first_input_round": 45,
+            "first_input_us": 2140000,
+            "first_proposal_leader": 0,
+            "first_proposal_round": 45,
+            "first_proposal_us": 2140000,
+            "height": 1,
+            "label": "sustained_100txps",
+            "missed_inputs": {
+              "insufficient_snapshot_support": 2
+            },
+            "origin": 0,
+            "selection_counterfactual_broadcast_to_acceptance_ms": 140.0,
+            "selection_counterfactual_broadcast_to_proposal_ms": 118.475,
+            "selection_counterfactual_eligibility": [
+              1,
+              1,
+              false,
+              true
+            ],
+            "selection_counterfactual_input_us": 2118475,
+            "selection_counterfactual_proposal_gain_ms": 21.525,
+            "selection_counterfactual_proposal_round": 43
+          },
+          "opportunities": [
+            {
+              "base": 41,
+              "fixed_us": 2165500,
+              "frontier": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "leader": 3,
+              "pool": [
+                {
+                  "heights": [
+                    3,
+                    1,
+                    1,
+                    1
+                  ],
+                  "signer": 0,
+                  "snapshot_us": 2084600
+                },
+                {
+                  "heights": [
+                    2,
+                    3,
+                    3,
+                    1
+                  ],
+                  "signer": 1,
+                  "snapshot_us": 2117000
+                },
+                {
+                  "heights": [
+                    2,
+                    1,
+                    0,
+                    1
+                  ],
+                  "signer": 3,
+                  "snapshot_us": 2068500
+                }
+              ],
+              "report_us": 2068500,
+              "round": 44,
+              "targets": [
+                2,
+                1,
+                1,
+                1
+              ]
+            },
+            {
+              "base": 41,
+              "fixed_us": 2140000,
+              "frontier": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "leader": 0,
+              "pool": [
+                {
+                  "heights": [
+                    2,
+                    1,
+                    0,
+                    1
+                  ],
+                  "signer": 0,
+                  "snapshot_us": 2060000
+                },
+                {
+                  "heights": [
+                    2,
+                    3,
+                    2,
+                    1
+                  ],
+                  "signer": 1,
+                  "snapshot_us": 2100000
+                },
+                {
+                  "heights": [
+                    2,
+                    1,
+                    0,
+                    2
+                  ],
+                  "signer": 3,
+                  "snapshot_us": 2076100
+                }
+              ],
+              "report_us": 2060000,
+              "round": 45,
+              "targets": [
+                2,
+                1,
+                0,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "by_origin": [
+        {
+          "broadcast_to_execution_acceptance_ms": 288.38999999999936,
+          "broadcast_to_first_proposal_ms": 269.858,
+          "n": 250,
+          "origin": 0
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 307.7155999999992,
+          "broadcast_to_first_proposal_ms": 287.094,
+          "n": 250,
+          "origin": 1
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 362.682,
+          "broadcast_to_first_proposal_ms": 259.074,
+          "n": 250,
+          "origin": 2
+        },
+        {
+          "broadcast_to_execution_acceptance_ms": 341.226,
+          "broadcast_to_first_proposal_ms": 246.102,
+          "n": 250,
+          "origin": 3
+        }
+      ],
+      "configuration": {
+        "aggregate_tx_per_second": 100,
+        "chunk_capacity": 64,
+        "empty_startup_us": 2000000,
+        "link_scale": [
+          1,
+          1
+        ],
+        "load_duration_us": 10000000,
+        "load_offset_us": 0,
+        "origin_stagger_us": [
+          0,
+          10000,
+          20000,
+          30000
+        ],
+        "per_origin_interval_us": 40000,
+        "physical_region_per_replica": [
+          0,
+          3,
+          2,
+          1
+        ],
+        "transactions_per_batch": 1,
+        "useful_bytes_per_transaction": 1
+      },
+      "label": "wan_reversed_region_cycle",
+      "links_us": [
+        [
+          0,
+          32200,
+          87500,
+          80000
+        ],
+        [
+          32200,
+          0,
+          120000,
+          97000
+        ],
+        [
+          87500,
+          120000,
+          0,
+          6750
+        ],
+        [
+          80000,
+          97000,
+          6750,
+          0
+        ]
+      ],
+      "means_ms": {
+        "broadcast_to_execution_acceptance": 325.00340000000153,
+        "broadcast_to_first_acceptance": 284.03015000000124,
+        "broadcast_to_first_proposal": 265.532,
+        "broadcast_to_output": 502.48125000000203,
+        "selection_counterfactual_broadcast_to_acceptance": 119.46789999999962,
+        "selection_counterfactual_broadcast_to_proposal": 103.5565,
+        "selection_counterfactual_proposal_gain": 161.9755
+      },
+      "n": 1000,
+      "batch_opportunity_exclusion_counts": {
+        "insufficient_snapshot_support": 2164,
+        "source_or_proof_unready": 3
+      },
+      "first_proposer_counts": {
+        "1": 232,
+        "3": 187,
+        "0": 349,
+        "2": 232
+      },
+      "first_execution_counts": {
+        "1": 450,
+        "3": 187,
+        "0": 349,
+        "2": 14
+      },
+      "midpoint_reassigned_requests": 232,
+      "mean_midpoint_reassignment_ms": 40.97325,
+      "examples": []
+    }
+  ],
+  "source": {
+    "path": "results/local/phase-verification-20261030/core/signed-core.json",
+    "bytes": 6529807,
+    "sha256": "590b64272115857e8677d362d4a4795157c7c26b285798ca1410a3c5672474f9"
+  },
+  "build_record": {
+    "path": "results/local/phase-verification-20261030/core/build-record.json",
+    "bytes": 3469,
+    "sha256": "5f2dba788d37c8300e234bdd5086d505600dd68c7fda2989f6abcc925de58c62"
+  }
+}

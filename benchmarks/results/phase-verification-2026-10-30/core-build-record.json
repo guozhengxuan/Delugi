@@ -1,0 +1,50 @@
+{
+  "schema": 1,
+  "runtime_git_revision": "3e4f35f2967205db1d44abe16a69c98678b21e44",
+  "rustc": "rustc 1.94.0-nightly (31010ca61 2025-12-16)",
+  "cargo": "cargo 1.94.0-nightly (e91b2baa6 2025-12-13)",
+  "build_command": "CARGO_TARGET_DIR=/private/tmp/delugi-phase-eligibility-target cargo test --offline -p delugi-core --test phase_eligibility --release --no-run",
+  "run_command": "DELUGI_PHASE_REPORT=results/local/phase-verification-20261030/core/signed-core.json results/local/phase-verification-20261030/core/phase-eligibility-test --ignored --nocapture",
+  "run_exit_code": 0,
+  "production_core_diff_empty": true,
+  "harness": {
+    "path": "core/delugi/tests/phase_eligibility.rs",
+    "sha256": "d5473b9c7fcd1107571cee9feaa5954b3bc85bbfe40ef5d114830822ad740239"
+  },
+  "executable": {
+    "path": "results/local/phase-verification-20261030/core/phase-eligibility-test",
+    "bytes": 2819264,
+    "sha256": "5545b1969472643249e6fe5e537a4552303843911964eea8eece9c7dfb96f59a"
+  },
+  "files": {
+    "signed-core.json": "590b64272115857e8677d362d4a4795157c7c26b285798ca1410a3c5672474f9",
+    "run.stdout.txt": "bfa57c301aa165a3f8eaff7c263fbcc7bcdba8f73552b940665342c3a80d6f7b",
+    "build.stdout.txt": "6d3a378415b3bc8b9345682edc59ac7d7465ff6d5176f3cfc8121479c63dad65",
+    "README.md": "ad7957d4c1a06d9c38569feaa93e0b09b4d405b52f0e6f1a5e2c04673f7b320d"
+  },
+  "production_sources": {
+    "core/delugi/src/availability.rs": "f25cad0531195716e10a8ed73c2d11c8171b4ef1aa0486d1cbde6c87914ba71e",
+    "core/delugi/src/batch.rs": "9d434f1dc9a4df8f3006ce59b2b1a00ccec574e3c4df1f80d3402904e85a17e6",
+    "core/delugi/src/causal.rs": "4c836b825e2487422b90dbc0ea52fac2bd5c73448da80415b38461c8fff29735",
+    "core/delugi/src/composed.rs": "47c164d69f0b070b067cf9e89762c677168d0f501db2abca41ac000c9218056f",
+    "core/delugi/src/end_to_end.rs": "eefc1eab69ead449b30551530ef44ac601dd917c59827452753c6a76242a674a",
+    "core/delugi/src/factory.rs": "b59a75e23e2f44d145ca47628616a43d4b55461fa95c46219a488818b287da14",
+    "core/delugi/src/history.rs": "13a46eb19cc1b9fc02262714313a3102d62b779ad03fcf055427ed7e893e98e8",
+    "core/delugi/src/ledger.rs": "b4cfeb84caecae3923f3eeb9820d025a9ac86a5803035da0d88588ae3fb99339",
+    "core/delugi/src/lib.rs": "eb868e4c4ba83e85d0c9d823aaba3231eeaf9f542567af15e7840fe4f424f20b",
+    "core/delugi/src/mmr.rs": "5a6010fb1d59d0ea96c3bb1bc0a5f277e3987c0260246de4e9778ef8e291541f",
+    "core/delugi/src/process.rs": "7b717983a23b97ef6cee63e0f77c31d736a486bb2cb912ea9b9b8b13313c2edc",
+    "core/delugi/src/record_store.rs": "8ac4001f86f309ceefca00c860cc972007ceace6c8326712c26567d8ed2c2bd2",
+    "core/delugi/src/replica.rs": "fb3b9ab7e0b87fbffa7d99979b5bc0d1ad846ccfb118993664db21d83651c694",
+    "core/delugi/src/scanner.rs": "f5e92967ceeec4b9d1504e74409e23ed8c40692fc45fe60400d716c2abc95ee9",
+    "core/delugi/src/simulation.rs": "e8cb387871a8c135998d2bc035c77dce2df2df47b87f34e0342da52a9d8336f3",
+    "core/delugi/src/slot.rs": "189cd88eead31697cc30db8094b24983f426aecd092639f7f97c519e76ef8335",
+    "core/delugi/src/transport.rs": "d45aa933acc67355b5c6650c7f35ad1931c18ca2525f891790527c00698b82d1",
+    "core/delugi/src/wire.rs": "5637cd816dc0a3d7ced69ceeb4abf3be84d9edd0db8c9b1fd7cc67b5798af39d",
+    "core/delugi/src/workload.rs": "8b3bafd056d8567036b305e8c3780d310cbf2d4a70a34a5768eac4c91f574899"
+  },
+  "cleanup": {
+    "created_build_directory": "/private/tmp/delugi-phase-eligibility-target",
+    "intermediates_removed": true
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "kind": "first-local-validated-inclusion-midpoint-bound-v1",
+  "all": {
+    "n": 3000,
+    "potentially_affected": 1515,
+    "mean_max_midpoint_shift_ms": 23.139476,
+    "maximum_shift_ms": 93.867,
+    "associated_preproposal_ms": 337.10936166666664,
+    "first_local_acceptance_lower_bound_ms": 313.96988566666664
+  },
+  "by_origin": {
+    "0": {
+      "n": 750,
+      "potentially_affected": 727,
+      "mean_max_midpoint_shift_ms": 59.649129333333335,
+      "maximum_shift_ms": 93.867,
+      "associated_preproposal_ms": 381.062612,
+      "first_local_acceptance_lower_bound_ms": 321.41348266666665
+    },
+    "1": {
+      "n": 750,
+      "potentially_affected": 40,
+      "mean_max_midpoint_shift_ms": 3.2562493333333333,
+      "maximum_shift_ms": 77.303,
+      "associated_preproposal_ms": 277.826568,
+      "first_local_acceptance_lower_bound_ms": 274.57031866666665
+    },
+    "2": {
+      "n": 750,
+      "potentially_affected": 24,
+      "mean_max_midpoint_shift_ms": 2.573984,
+      "maximum_shift_ms": 87.022,
+      "associated_preproposal_ms": 286.2082706666667,
+      "first_local_acceptance_lower_bound_ms": 283.63428666666664
+    },
+    "3": {
+      "n": 750,
+      "potentially_affected": 724,
+      "mean_max_midpoint_shift_ms": 27.078541333333334,
+      "maximum_shift_ms": 45.062,
+      "associated_preproposal_ms": 403.339996,
+      "first_local_acceptance_lower_bound_ms": 376.2614546666667
+    }
+  },
+  "by_execution_leader": {
+    "1": {
+      "n": 665,
+      "potentially_affected": 0,
+      "mean_max_midpoint_shift_ms": 0.0,
+      "maximum_shift_ms": 0.0,
+      "associated_preproposal_ms": 274.0648616541353,
+      "first_local_acceptance_lower_bound_ms": 274.0648616541353
+    },
+    "2": {
+      "n": 1641,
+      "potentially_affected": 821,
+      "mean_max_midpoint_shift_ms": 21.146374162096283,
+      "maximum_shift_ms": 51.615,
+      "associated_preproposal_ms": 380.24535283363804,
+      "first_local_acceptance_lower_bound_ms": 359.0989786715417
+    },
+    "3": {
+      "n": 694,
+      "potentially_affected": 694,
+      "mean_max_midpoint_shift_ms": 50.0248242074928,
+      "maximum_shift_ms": 93.867,
+      "associated_preproposal_ms": 295.5220864553314,
+      "first_local_acceptance_lower_bound_ms": 245.49726224783862
+    }
+  },
+  "round_gap": {
+    "0": 1485,
+    "2": 821,
+    "1": 694
+  },
+  "raptr_first_local_acceptance_upper_bound_ms": 265.2131336666667,
+  "minimum_remaining_delugi_minus_raptr_gap_ms": 48.75675199999995,
+  "limits": [
+    "All candidates conservatively treated as containing the batch, although membership is not retained.",
+    "First local validated acceptance, not first leader emission or pure dissemination.",
+    "No cross-replica clock subtraction.",
+    "Healthy all-Commit output-prefix evidence is essential; this argument does not transfer to Raptr partial-prefix semantics."
+  ]
+}

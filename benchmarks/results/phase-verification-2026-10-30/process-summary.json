@@ -1,0 +1,212 @@
+[
+  {
+    "label": "uniform10",
+    "scope": "Finite four-process same-source local diagnostic with full signed proposal proofs; not a WAN performance rerun. All durations use one origin clock. Pool support counts do not establish leader source readiness.",
+    "count": 16,
+    "settings": {
+      "delay_ms": 10,
+      "matrix_ms": null,
+      "bound_ms": 100,
+      "rate": 100,
+      "count": 16,
+      "warmup_s": 0.06,
+      "opportunity_limit": 32
+    },
+    "means_ms": {
+      "seal_to_first_local_proposal_ms": 93.49275,
+      "seal_to_execution_proposal_ms": 97.759,
+      "midpoint_reassignment_ms": 4.266249999999999,
+      "seal_to_materialization_ms": 164.0514375
+    },
+    "first_execution_leaders": {
+      "1": 6,
+      "2": 8,
+      "3": 1,
+      "0": 1
+    },
+    "first_local_inclusion_leaders": {
+      "1": 6,
+      "0": 2,
+      "2": 5,
+      "3": 3
+    },
+    "earlier_excluded_batch_opportunities": {
+      "insufficient_covering_snapshots": 37
+    },
+    "timer_expiries_by_replica": {
+      "0": {
+        "catchup_timer_expiry": 3
+      },
+      "1": {
+        "catchup_timer_expiry": 5
+      },
+      "2": {
+        "catchup_timer_expiry": 5
+      },
+      "3": {
+        "catchup_timer_expiry": 4
+      }
+    },
+    "membership_assumption": "All honest, one checked consecutive nonforking producer chain per origin. Descriptor target heights establish inclusion; OBS witness mentions alone never count as proposal inclusion.",
+    "timing_limit": "Native debug binary, full JSON proposal logging and finite startup. Timer expiries are reported. These durations are not an ideal delta model or a WAN performance estimate.",
+    "no_dropped_traces": true,
+    "matching_output_order": true,
+    "binary_sha256": "aa06d7d91ab749b3e16d263aa663cb667867ca71bc1ff37edf64f92439f31812",
+    "sources": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/result.json",
+        "sha256": "7287e8f042f27cf34e4b2b009f7c06eff6e54f04b59c4d3490ff29e0ee39725f"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/trace-0.json",
+        "sha256": "305c41ce8cbfffcf171046a9035175cf05919ba504b4e2f0348c010d04442887"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/trace-1.json",
+        "sha256": "c8407f9b1e4fef85aca378fd83e16bb674ff2d213f8dedb4e3386fe2c9ceb5dc"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/trace-2.json",
+        "sha256": "2ae9b11ad3c5db03bcd5d77e5625fc99d59345ea9435a18352999e3a693b2562"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/trace-3.json",
+        "sha256": "884bbb05d718752811d2ae846ae7cb8ebec26ec3fb8aa8d7b705ea64ae2aecb9"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/replica-0.stdout.jsonl",
+        "sha256": "cbd877a10d98834b9616e2ac04a6141c27e88f7d89552214afeaa1d86d5251ad"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/replica-1.stdout.jsonl",
+        "sha256": "66ee5112fda41a2ffe054adcd562184087c8efd4b3bdda562c2060a7b720a261"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/replica-2.stdout.jsonl",
+        "sha256": "67de44d1be866e58dd89841b599d278ee91d6d2ad5a356a40f3a5ff588d395c6"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/uniform10/replica-3.stdout.jsonl",
+        "sha256": "c523ae62fd3fa05a6df5a29d1945ae89aae1a469003cfc863171c67b12989c7d"
+      }
+    ],
+    "source": {
+      "path": "results/local/phase-verification-20261030/process/uniform10/analysis.json",
+      "bytes": 8928,
+      "sha256": "200c160084692898086f7c42161681d9c351dc543bcd490369ec1c3eebbf2548"
+    }
+  },
+  {
+    "label": "wan-symmetric",
+    "scope": "Finite four-process same-source local diagnostic with full signed proposal proofs; not a WAN performance rerun. All durations use one origin clock. Pool support counts do not establish leader source readiness.",
+    "count": 80,
+    "settings": {
+      "delay_ms": null,
+      "matrix_ms": [
+        [
+          0.0,
+          80.0,
+          87.5,
+          32.2
+        ],
+        [
+          80.0,
+          0.0,
+          6.75,
+          97.0
+        ],
+        [
+          87.5,
+          6.75,
+          0.0,
+          120.0
+        ],
+        [
+          32.2,
+          97.0,
+          120.0,
+          0.0
+        ]
+      ],
+      "bound_ms": 1000,
+      "rate": 100,
+      "count": 80,
+      "warmup_s": 0.7,
+      "opportunity_limit": 32
+    },
+    "means_ms": {
+      "seal_to_first_local_proposal_ms": 375.7265875,
+      "seal_to_execution_proposal_ms": 392.834775,
+      "midpoint_reassignment_ms": 17.1081875,
+      "seal_to_materialization_ms": 616.384125
+    },
+    "first_execution_leaders": {
+      "1": 20,
+      "2": 45,
+      "3": 15
+    },
+    "first_local_inclusion_leaders": {
+      "1": 20,
+      "0": 18,
+      "2": 22,
+      "3": 20
+    },
+    "earlier_excluded_batch_opportunities": {
+      "insufficient_covering_snapshots": 202
+    },
+    "timer_expiries_by_replica": {
+      "0": {},
+      "1": {},
+      "2": {},
+      "3": {}
+    },
+    "membership_assumption": "All honest, one checked consecutive nonforking producer chain per origin. Descriptor target heights establish inclusion; OBS witness mentions alone never count as proposal inclusion.",
+    "timing_limit": "Native debug binary, full JSON proposal logging and finite startup. Timer expiries are reported. These durations are not an ideal delta model or a WAN performance estimate.",
+    "no_dropped_traces": true,
+    "matching_output_order": true,
+    "binary_sha256": "aa06d7d91ab749b3e16d263aa663cb667867ca71bc1ff37edf64f92439f31812",
+    "sources": [
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/result.json",
+        "sha256": "fa62d16633c0b4689cc01cae31f1400da55238936375aeb699aa7a04750d8d69"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/trace-0.json",
+        "sha256": "5e63cac4e0a48b693a930ca73c6c26691762cfe98712cf869a564f3b2aabac6e"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/trace-1.json",
+        "sha256": "fb9b09a8a923f59e3d9fae49fa4c1f2be53bb7eae7c9b5ac01eadae73e434299"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/trace-2.json",
+        "sha256": "fb08d6670d433a3388d12f0844caf47c44c12fdfe69f860fd9380ea9cedf2f06"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/trace-3.json",
+        "sha256": "9658b2cbb74272544b4dae6e33cfbff12c41c16c42851807bd520ff994ff7830"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/replica-0.stdout.jsonl",
+        "sha256": "bb3b980de64228a09a27dacf8c6a3b62e9da522bbd71c52d9b164fd11432deca"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/replica-1.stdout.jsonl",
+        "sha256": "14b9aad39a2e637f63739a266414254c35c5e6343ef79bdc71473907d2646123"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/replica-2.stdout.jsonl",
+        "sha256": "3b1823c4b3d4811d3fec9871b82e57370cfbb1fceef8d9ff505c14830ec3df70"
+      },
+      {
+        "path": "/Users/zhengxuanguo/gitrepo/Delugi/results/local/phase-verification-20261030/process/wan-symmetric/replica-3.stdout.jsonl",
+        "sha256": "822a72264dd249f9932b7041bf118c04ba1f1f341e7f1559e1f89b6e320399d3"
+      }
+    ],
+    "source": {
+      "path": "results/local/phase-verification-20261030/process/wan-symmetric/analysis.json",
+      "bytes": 30111,
+      "sha256": "771f9bbf6d362e3bca5242eb066025a9a8b83ad6cfe112cace1936773063bac9"
+    }
+  }
+]

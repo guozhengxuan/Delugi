@@ -1,0 +1,299 @@
+{
+  "kind": "raptr-healthy-first-local-inclusion-offline-audit",
+  "validated": {
+    "requests": 3000,
+    "excluded": {}
+  },
+  "nodes": [
+    {
+      "node": 0,
+      "covered_requests": 750,
+      "validated_proposals": 294,
+      "fully_committed_proposals": 293,
+      "complete_membership_blocks": 293,
+      "uncovered_terminal_rounds": [
+        294
+      ],
+      "latest_cohort_proposal_round": 196,
+      "distinct_output_batches": 812,
+      "batch_occurrence_histogram": {
+        "1": 812
+      },
+      "stored_events_by_author": {
+        "0": 404
+      },
+      "uncovered_proposals_after_every_cohort_associated_proposal": true,
+      "first_locally_accepted_inclusion_matches_execution_associated": true
+    },
+    {
+      "node": 1,
+      "covered_requests": 750,
+      "validated_proposals": 295,
+      "fully_committed_proposals": 294,
+      "complete_membership_blocks": 294,
+      "uncovered_terminal_rounds": [
+        295
+      ],
+      "latest_cohort_proposal_round": 200,
+      "distinct_output_batches": 812,
+      "batch_occurrence_histogram": {
+        "1": 812
+      },
+      "stored_events_by_author": {
+        "1": 406
+      },
+      "uncovered_proposals_after_every_cohort_associated_proposal": true,
+      "first_locally_accepted_inclusion_matches_execution_associated": true
+    },
+    {
+      "node": 2,
+      "covered_requests": 750,
+      "validated_proposals": 295,
+      "fully_committed_proposals": 294,
+      "complete_membership_blocks": 294,
+      "uncovered_terminal_rounds": [
+        295
+      ],
+      "latest_cohort_proposal_round": 200,
+      "distinct_output_batches": 812,
+      "batch_occurrence_histogram": {
+        "1": 812
+      },
+      "stored_events_by_author": {
+        "2": 408
+      },
+      "uncovered_proposals_after_every_cohort_associated_proposal": true,
+      "first_locally_accepted_inclusion_matches_execution_associated": true
+    },
+    {
+      "node": 3,
+      "covered_requests": 750,
+      "validated_proposals": 295,
+      "fully_committed_proposals": 293,
+      "complete_membership_blocks": 293,
+      "uncovered_terminal_rounds": [
+        294,
+        295
+      ],
+      "latest_cohort_proposal_round": 198,
+      "distinct_output_batches": 812,
+      "batch_occurrence_histogram": {
+        "1": 812
+      },
+      "stored_events_by_author": {
+        "3": 406
+      },
+      "uncovered_proposals_after_every_cohort_associated_proposal": true,
+      "first_locally_accepted_inclusion_matches_execution_associated": true
+    }
+  ],
+  "own_leader": {
+    "requests": 950,
+    "batch_ms": {
+      "mean": 73.47405052631579,
+      "minimum": 0.762,
+      "maximum": 151.189
+    },
+    "stored_to_proposal_ms": {
+      "mean": 132.89824421052631,
+      "minimum": 35.087,
+      "maximum": 256.646
+    },
+    "stored_to_poa_ms": {
+      "mean": 178.88014736842106,
+      "minimum": 159.363,
+      "maximum": 219.174
+    }
+  },
+  "own_leader_by_node": {
+    "0": {
+      "requests": 197,
+      "batch_ms": {
+        "mean": 68.35449746192893,
+        "minimum": 2.472,
+        "maximum": 143.072
+      },
+      "stored_to_proposal_ms": {
+        "mean": 129.19031979695433,
+        "minimum": 36.972,
+        "maximum": 214.34
+      },
+      "stored_to_poa_ms": {
+        "mean": 161.7982385786802,
+        "minimum": 159.363,
+        "maximum": 168.89
+      }
+    },
+    "1": {
+      "requests": 223,
+      "batch_ms": {
+        "mean": 78.40918834080718,
+        "minimum": 10.26,
+        "maximum": 151.189
+      },
+      "stored_to_proposal_ms": {
+        "mean": 124.76717040358744,
+        "minimum": 38.344,
+        "maximum": 210.809
+      },
+      "stored_to_poa_ms": {
+        "mean": 161.38695515695068,
+        "minimum": 159.568,
+        "maximum": 171.083
+      }
+    },
+    "2": {
+      "requests": 232,
+      "batch_ms": {
+        "mean": 72.15080603448276,
+        "minimum": 0.762,
+        "maximum": 141.832
+      },
+      "stored_to_proposal_ms": {
+        "mean": 124.81412068965517,
+        "minimum": 35.465,
+        "maximum": 210.815
+      },
+      "stored_to_poa_ms": {
+        "mean": 199.94856896551724,
+        "minimum": 198.587,
+        "maximum": 206.235
+      }
+    },
+    "3": {
+      "requests": 298,
+      "batch_ms": {
+        "mean": 74.19555704697987,
+        "minimum": 6.811,
+        "maximum": 141.26
+      },
+      "stored_to_proposal_ms": {
+        "mean": 147.72779865771813,
+        "minimum": 35.087,
+        "maximum": 256.646
+      },
+      "stored_to_poa_ms": {
+        "mean": 186.8608322147651,
+        "minimum": 185.029,
+        "maximum": 219.174
+      }
+    }
+  },
+  "own_leader_batches": 252,
+  "earlier_own_proposals_after_sufficient_age_count": 0,
+  "limitations": [
+    "This proves first locally accepted inclusion for the observed healthy cohort; it does not map leader emission timestamps across hosts.",
+    "All earlier observed proposals have complete committed membership. Terminal uncovered proposals occur after every cohort associated proposal.",
+    "BatchStored events exist only for the producer. Foreign payload-arrival and payload-pull events are absent.",
+    "Minimum optimistic batch age is creation-based wall-clock age, not delay added after receipt; stored+30ms is only a conservative local sufficient-age checkpoint.",
+    "Existing native binary exposes no bind-versus-advertised override through Raptr Config, so unprivileged delay proxy requires a node adapter change/rebuild."
+  ],
+  "sources": [
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/final.json",
+      "bytes": 90575,
+      "sha256": "de27ebc9c29976234514bdc55bd9e1e11c4a74fd2f562cb1f22f1de1e00b5f65"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/latency-trace.json",
+      "bytes": 1159644,
+      "sha256": "ba06e8ff2b491e9201be23b00a14c1f5be7855b05a653772decb4eee951e3690"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "2f0517ec86be55ee9806dbe8b5b3f326abd778eea998160549fde20f041fef4b"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/requests.jsonl",
+      "bytes": 359200,
+      "sha256": "a95c76b4d3ef84f34cda1745e5308757d99d5efce24a1bf05574fcdd8f37039f"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-0/output.jsonl",
+      "bytes": 8242363,
+      "sha256": "95c503d56a0c228eb1cdc410623f6121b68616c25a7dc34a24353531a4b4bac8"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/final.json",
+      "bytes": 96947,
+      "sha256": "2faef29d52db128cefdec82d9b576d5dea8474b45df4d45fc12f69812e7faea6"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/latency-trace.json",
+      "bytes": 1163844,
+      "sha256": "f452fd944682faefdc00c7fe9315359958f2e3584a4917f5c7ce4cfaa8392a3d"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "998ad37b288c35287fb01a85081917916b36944dee8a34cdef8b88435693e76f"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/requests.jsonl",
+      "bytes": 359240,
+      "sha256": "134b206e8d1d6186570db240cbe8125d83dc5795d9874fbad97ff36a27fbaf48"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-1/output.jsonl",
+      "bytes": 8246296,
+      "sha256": "451687c569e78a28e02b4377063fd7a90c7a233d3492573a4404dedb27ab4362"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/final.json",
+      "bytes": 91719,
+      "sha256": "2ed58a64cb9d5e585a9453477b8b54b4002a76452a60ed13a31f910575a92e6a"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/latency-trace.json",
+      "bytes": 1164601,
+      "sha256": "d5c34ea31e514088f9aa7674238a5090ce6dd33edd22b834005f2efe32dc83d3"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "d0cbaf51183351b46c2dcaf056a620cbdaa5dbaab46da50bb571508d8e1369c3"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/requests.jsonl",
+      "bytes": 359230,
+      "sha256": "fa25272ae32ed164008fcbfb5ee87b221410e3792340ba8a22f96ccd51d1f3e5"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-2/output.jsonl",
+      "bytes": 8246305,
+      "sha256": "72cf6898901b0bb544e750c29574cefb4ec19b8fb3ec49b572468eda27f33f83"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/final.json",
+      "bytes": 90611,
+      "sha256": "835725ef5794f9ac5f9299d65de38ff58e17f67d2d07dd0fbf56178307209a7c"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/latency-trace.json",
+      "bytes": 1160539,
+      "sha256": "ddd2b3540279b8cfb0898e98d740d1e43a941171088a38baacbeed30b9d5084d"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/effective-profile.json",
+      "bytes": 15514,
+      "sha256": "f5b50497a58d4243e786fbe3f8ac4c5539a74712f2f23066c42589238250198c"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/requests.jsonl",
+      "bytes": 359208,
+      "sha256": "2389561c8abeca86e8a54317e37498ed3e757e250a3aec5e419d41b067394af0"
+    },
+    {
+      "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/raptr-wan-stages-20261029/trials/9b65f5c790b85b8186317c0f/replicas/node-3/output.jsonl",
+      "bytes": 8242357,
+      "sha256": "e3b1c7fb0593d0d09b514b633fc642866f379d132d237b0563151365040a4e8f"
+    }
+  ],
+  "source_files": {
+    "core/raptr/src/output.rs": "572d3f0bbc0ed650cc00c5fe05a25643aed6768d4f4d4f591754e7c30641effd",
+    "core/raptr/node/src/dissemination.rs": "e40243e33f6ab70a0144c5021d1dad9923d7677e011ec058a93b89c922a0b437",
+    "core/raptr/qs/src/quorum_store/batch_store.rs": "03eec37bbc400e263897d23708de771401967ce7db47944f99943bcf3d573a0e",
+    "core/raptr/qs/src/quorum_store/batch_proof_queue.rs": "ef288598ddb1ec1ba65ce6b455302c33697270551f64313ab934ed1f333a957d"
+  }
+}

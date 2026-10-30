@@ -1,0 +1,29 @@
+{
+  "description": "Illustrative symmetric one-way delays: average of the two directional ICMP RTT medians divided by two. Saved 30 October WAN probes; not measured one-way protocol delays.",
+  "matrix_ms": [
+    [
+      0.0,
+      80.0,
+      87.5,
+      32.2
+    ],
+    [
+      80.0,
+      0.0,
+      6.75,
+      97.0
+    ],
+    [
+      87.5,
+      6.75,
+      0.0,
+      120.0
+    ],
+    [
+      32.2,
+      97.0,
+      120.0,
+      0.0
+    ]
+  ]
+}
