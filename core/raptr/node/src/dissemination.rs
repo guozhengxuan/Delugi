@@ -219,6 +219,10 @@ impl DisseminationLayer for NativeDissemination {
                 }
             }
         }
+        raptr::latency::record(|| raptr::latency::EventKind::ProposalPullStarted {
+            round,
+            minimum_batch_age_us: optqs.as_ref().map(|params| params.minimum_batch_age_usecs),
+        });
         let payload = self
             .payload_client
             .pull(
@@ -245,7 +249,13 @@ impl DisseminationLayer for NativeDissemination {
             )
             .await
             .unwrap_or_else(|_| Payload::Raptr(RaptrPayload::new_empty()));
-        types::Payload::new(round, self.node_id, payload)
+        let payload = types::Payload::new(round, self.node_id, payload);
+        raptr::latency::record(|| raptr::latency::EventKind::ProposalPayloadSelected {
+            round,
+            proof_count: payload.poas().len(),
+            batches: payload.all().map(raptr_qs::latency::key).collect(),
+        });
+        payload
     }
     async fn available_prefix(
         &self,

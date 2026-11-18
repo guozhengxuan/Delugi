@@ -186,7 +186,7 @@
     },
     {
       "path": "native/src/raptr/protocol.rs",
-      "sha256": "dafed0e224fad0aefb0d2386bcefcb920ccdb11adb9f6da3952574f87fc34918",
+      "sha256": "e9bc78af63fe216dee7bafcf1a04c94e61973fde30173f6046418fcb076c0474",
       "pinned_sha256": "498da9546f0a7a3b5ee529566a6bbb142e121a70df720ecc0c22af2f832e55b7",
       "unchanged": false
     },

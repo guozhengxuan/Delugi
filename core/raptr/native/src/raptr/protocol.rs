@@ -497,6 +497,10 @@ impl<DL: DisseminationLayer> RaptrNode<DL> {
                 if let Some(block) = self.blocks.get(new_qc.block_digest()) {
                     observe_block(block.data.timestamp_usecs, "CCVote");
                 }
+                crate::latency::record(|| crate::latency::EventKind::Vote {
+                    kind: crate::latency::VoteKind::CcSent, round: new_qc.round(),
+                    digest: *new_qc.block_digest().as_ref(), prefix: new_qc.prefix(), peer: self.node_id,
+                });
                 ctx.multicast(Message::CcVote(new_qc.clone(), signature))
                     .await;
             }
@@ -622,6 +626,10 @@ impl<DL: DisseminationLayer> RaptrNode<DL> {
                 )
                 .unwrap();
 
+            crate::latency::record(|| crate::latency::EventKind::Vote {
+                kind: crate::latency::VoteKind::QcSent, round: round,
+                digest: *block_digest.as_ref(), prefix: prefix, peer: self.node_id,
+            });
             ctx.multicast(Message::QcVote(
                 round,
                 prefix,
@@ -1081,6 +1089,9 @@ impl<DL: DisseminationLayer> Protocol for RaptrNode<DL> {
                 observe_block(block.data.timestamp_usecs, "Propose");
 
                 self.block_create_time.insert(round, Instant::now());
+                crate::latency::record(|| crate::latency::EventKind::ProposalEmitted {
+                    round, digest: *block.digest.as_ref(),
+                });
                 ctx.multicast(Message::Propose(block)).await;
             }
 
@@ -1180,6 +1191,10 @@ impl<DL: DisseminationLayer> Protocol for RaptrNode<DL> {
         // 2. the node can form the full-prefix QC.
         // Upon forming a QC, execute on_new_qc.
         upon receive [Message::QcVote(round, prefix, block_digest, signature, missing_authors)] from node [p] {
+            crate::latency::record(|| crate::latency::EventKind::Vote {
+                kind: crate::latency::VoteKind::QcReceived, round: round,
+                digest: *block_digest.as_ref(), prefix: prefix, peer: p,
+            });
             let vote_is_non_decreasing = self.qc_votes[round][block_digest].get(&p)
                 .map(|(old_prefix, _, _)| *old_prefix < prefix)
                 .unwrap_or(true);
@@ -1250,6 +1265,10 @@ impl<DL: DisseminationLayer> Protocol for RaptrNode<DL> {
         // Upon having gathered a quorum of commit votes, form a CC,
         // commit the smallest prefix, and execute advance_round.
         upon receive [Message::CcVote(qc, signature)] from node [p] {
+            crate::latency::record(|| crate::latency::EventKind::Vote {
+                kind: crate::latency::VoteKind::CcReceived, round: qc.round(),
+                digest: *qc.block_digest().as_ref(), prefix: qc.prefix(), peer: p,
+            });
             let round = qc.round();
 
             if !self.received_cc_vote[round].contains(&p) {

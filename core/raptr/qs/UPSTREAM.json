@@ -8,10 +8,11 @@
       "upstream_sha256": "7c17638a782d81e3db95e1e5c847a84b932173f070ca338fb05a13b744e7023f",
       "local": "src/quorum_store/batch_coordinator.rs",
       "substitutions": [],
-      "local_sha256": "a0f3884b773108ca9ab58dcafb100484f8a849dc69be529a8cce59761f325a9e",
+      "local_sha256": "fad3c689bba68c2e6b1ef0d9f69dd2a05f846dc674cc3df64d49fada42978681",
       "byte_identical": false,
       "reviewed_adaptations": [
-        "Inject shared TaskGroup at constructor and original detached persistence/blocking launch sites. Successful persist/sign/broadcast order and native body unchanged; shared failure is latched, normal closed/cancelled work exits during owner shutdown."
+        "Inject shared TaskGroup at constructor and original detached persistence/blocking launch sites. Successful persist/sign/broadcast order and native body unchanged; shared failure is latched, normal closed/cancelled work exits during owner shutdown.",
+        "Record each validated batch at the Quorum Store receiver before the existing persistence pipeline."
       ]
     },
     {
@@ -24,10 +25,11 @@
           "after": "use crate::mempool::"
         }
       ],
-      "local_sha256": "4819c319d4dbffaa83423a1eb8dffcf38020775eb45eadfd8e4ff4e103259678",
+      "local_sha256": "4765904766da2a79f7edee953c8898e94f3ead46b23ea1fcda529759f75fbe9a",
       "byte_identical": false,
       "reviewed_adaptations": [
-        "Inject shared TaskGroup at original async/blocking persistence sites; wrap identical Batch::new in native construction provider. Reexport exact pinned Tokio interval type. Native adaptive pull/exclusion/batch boundaries unchanged."
+        "Inject shared TaskGroup at original async/blocking persistence sites; wrap identical Batch::new in native construction provider. Reexport exact pinned Tokio interval type. Native adaptive pull/exclusion/batch boundaries unchanged.",
+        "Record each new batch immediately before the native broadcast call."
       ]
     },
     {
@@ -35,8 +37,11 @@
       "upstream_sha256": "ef288598ddb1ec1ba65ce6b455302c33697270551f64313ab934ed1f333a957d",
       "local": "src/quorum_store/batch_proof_queue.rs",
       "substitutions": [],
-      "local_sha256": "ef288598ddb1ec1ba65ce6b455302c33697270551f64313ab934ed1f333a957d",
-      "byte_identical": true
+      "local_sha256": "ce6e28e6cdf7bca66910f97c830df43cded8c47eec96a1e08376d93a99f7924e",
+      "byte_identical": false,
+      "reviewed_adaptations": [
+        "Record accepted proof or batch queue entries immediately before insertion. Capture the age operands used by the optimistic path without changing the age or pull rules."
+      ]
     },
     {
       "upstream": "consensus/src/quorum_store/batch_requester.rs",
@@ -270,7 +275,7 @@
       "selection": "IntGaugeGuard + monitor macro",
       "local": "src/lib.rs",
       "upstream_sha256": "dc0683ef3b5197ccc0b6346a2f62853871d3fdd06f13cb927e302681413832c4",
-      "local_sha256": "a7c66cada2b0a9f9de0deaabf1a6b6138213e49ec14a9e9bb45c3696bdc375c7"
+      "local_sha256": "907a3a47aed036a8136b7b0ce510f19b07d34aa6aeb2c71eb2e511d61d5bf1b9"
     },
     {
       "upstream": "mempool/src/shared_mempool/types.rs",
@@ -314,11 +319,12 @@
     "src/error.rs",
     "src/round_manager.rs",
     "src/quorum_store/quorum_store_db.rs",
-    "src/quorum_store/tests/policy_test.rs"
+    "src/quorum_store/tests/policy_test.rs",
+    "src/latency.rs"
   ],
   "complete_mapped_file_diff": {
     "path": "UPSTREAM.patch",
-    "sha256": "5fe6d81fe22e82108238d560cca05b63e73c6225d15d97d4a4041021338e2b98",
+    "sha256": "662d4c996dc080e27fd2c849b753d0db684339fb0bb85b0baa5e763370e8538d",
     "scope": "All differences in mapped whole files; support excerpts and new adapters are listed separately."
   },
   "new_adapter_sha256": {
@@ -327,7 +333,8 @@
     "src/error.rs": "b2ac9004e1fe46745839af8e02d75453f56f2ea168df93762f947cb43e845367",
     "src/round_manager.rs": "1328da461e12b44a1de210842475e0f848c845bc8eca962cc7ebb979cdcf49e1",
     "src/quorum_store/quorum_store_db.rs": "7e81fe2f8930a8d8b42ef7a2df0576160fd51e4302d5f7693f9d8a8abc564e34",
-    "src/quorum_store/tests/policy_test.rs": "4792cd8a2bd54f681b9b96727b005b83ba386cbe242694fd7a61c33190a4d069"
+    "src/quorum_store/tests/policy_test.rs": "4792cd8a2bd54f681b9b96727b005b83ba386cbe242694fd7a61c33190a4d069",
+    "src/latency.rs": "74438658599f6004a174c93693cf0769d15be590a66e434981228f6780777144"
   },
   "additional_tests": [
     {

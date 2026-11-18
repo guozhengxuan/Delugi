@@ -45,6 +45,22 @@ class RaptrDecomposition(unittest.TestCase):
         self.assertEqual(availability, {'status': 'observed', 'duration_us': 5,
                                        'relative_to_proposal_us': 2, 'after_proposal': True})
 
+    def test_message_boundaries_preserve_origin_local_stage_endpoints(self):
+        extra = [
+            event('batch_broadcast', 102, batch=self.key),
+            event('batch_received', 103, batch=self.key),
+            event('batch_queued', 103, batch=self.key, creation_wall_us=500, observer_wall_us=510),
+            event('proof_queued', 107, batch=self.key),
+            event('proposal_pull_started', 103, round=5, minimum_batch_age_us=30),
+            event('proposal_payload_selected', 103, round=5, batches=[self.key], proof_count=0),
+            event('proposal_emitted', 104, **self.block),
+        ]
+        extra.extend(event(name, 110, **self.block, prefix=8, peer=2) for name in d.VOTE_BOUNDARIES)
+        self.assertEqual(self.stages(self.events + extra), self.stages())
+        malformed = event('proposal_payload_selected', 999, round=6, batches=[], proof_count=1)
+        with self.assertRaisesRegex(ValueError, 'invalid selected payload membership'):
+            self.stages(self.events + [malformed])
+
     def test_overlapping_or_absent_availability_does_not_invent_a_stage(self):
         without_quorum = [e for e in self.events if e['event'] != 'availability_quorum']
         stages, _, availability = self.stages(without_quorum)

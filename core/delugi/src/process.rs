@@ -1284,7 +1284,7 @@ impl Runtime {
             let enqueue_start = self
                 .causal
                 .as_ref()
-                .filter(|t| round != 0 && t.sampled(round))
+                .filter(|t| kind == "BATCH" || (round != 0 && t.sampled(round)))
                 .map(CausalTrace::now_us);
             let accounting = match kind {
                 // Bincode Record ends with its payload vector. Its length word,
@@ -1298,8 +1298,22 @@ impl Runtime {
                     .send_or_defer_accounted(peer, layer, bytes.clone(), accounting)?;
             let sequence = receipt.sequence;
             if let Some(start) = enqueue_start {
-                self.causal.as_ref().unwrap().span(if receipt.deferred {"transport_deferred_accept"} else {"transport_enqueue"}, round, start,
-                    json!({"kind":kind,"peer":peer,"signer":self.id,"sequence":sequence,"member_index":0,"member_count":1,"payload_bytes":bytes.len(),"deferred":receipt.deferred}));
+                let mut detail = json!({"kind":kind,"peer":peer,"signer":self.id,"sequence":sequence,
+                    "member_index":0,"member_count":1,"payload_bytes":bytes.len(),"deferred":receipt.deferred});
+                if kind == "BATCH" {
+                    detail["producer"] = json!(self.id);
+                    detail["height"] = json!(index);
+                }
+                self.causal.as_ref().unwrap().span(
+                    if receipt.deferred {
+                        "transport_deferred_accept"
+                    } else {
+                        "transport_enqueue"
+                    },
+                    round,
+                    start,
+                    detail,
+                );
             }
             self.by_kind
                 .entry(kind.into())
@@ -2194,12 +2208,16 @@ pub fn run(mut config: Config, id: Id) -> Result<(), String> {
                             .and_then(|m| {
                                 if let Some(trace) = &rt.causal {
                                     let (kind, round, signer) = causal::dissemination_key(&m);
-                                    if trace.sampled(if round == 0 { received.sequence } else { round }) {
+                                    if kind == "BATCH" || trace.sampled(if round == 0 { received.sequence } else { round }) {
                                         trace_key = Some((kind, round));
-                                        trace.at("dispatch", round, dispatch_start.unwrap(), None,
-                                            json!({"kind":kind,"peer":received.from,"signer":signer,
-                                                "sequence":received.sequence,"member_index":member_index,"member_count":member_count,"mailbox_us":trace.offset_us(received.received_at),
-                                                "decode_done_us":trace.now_us()}));
+                                        let mut detail = json!({"kind":kind,"peer":received.from,"signer":signer,
+                                            "sequence":received.sequence,"member_index":member_index,"member_count":member_count,
+                                            "mailbox_us":trace.offset_us(received.received_at),"decode_done_us":trace.now_us()});
+                                        if let composed::Message::Batch(record) = &m {
+                                            detail["producer"] = json!(record.header.body.producer);
+                                            detail["height"] = json!(record.header.body.height);
+                                        }
+                                        trace.at("dispatch", round, dispatch_start.unwrap(), None, detail);
                                     }
                                 }
                                 rt.node.receive(now, received.from, m)

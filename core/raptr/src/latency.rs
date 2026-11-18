@@ -9,6 +9,40 @@ use std::sync::{Arc, Mutex, OnceLock};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EventKind {
+    BatchBroadcast {
+        batch: BatchKey,
+    },
+    BatchReceived {
+        batch: BatchKey,
+    },
+    BatchQueued {
+        batch: BatchKey,
+        creation_wall_us: u64,
+        observer_wall_us: u64,
+    },
+    ProofQueued {
+        batch: BatchKey,
+    },
+    ProposalPullStarted {
+        round: i64,
+        minimum_batch_age_us: Option<u64>,
+    },
+    ProposalPayloadSelected {
+        round: i64,
+        proof_count: usize,
+        batches: Vec<BatchKey>,
+    },
+    ProposalEmitted {
+        round: i64,
+        digest: Digest,
+    },
+    Vote {
+        kind: VoteKind,
+        round: i64,
+        digest: Digest,
+        prefix: usize,
+        peer: usize,
+    },
     BatchStored {
         batch: BatchKey,
     },
@@ -36,6 +70,14 @@ pub enum EventKind {
         digest: Digest,
         section: SectionKind,
     },
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum VoteKind {
+    QcSent,
+    QcReceived,
+    CcSent,
+    CcReceived,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]

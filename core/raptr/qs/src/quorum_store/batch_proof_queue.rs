@@ -194,6 +194,7 @@ impl BatchProofQueue {
             return;
         }
 
+        crate::latency::proof_queued(proof.info());
         let author = proof.author();
         let bucket = proof.gas_bucket_start();
         let num_txns = proof.num_txns();
@@ -285,6 +286,7 @@ impl BatchProofQueue {
                 continue;
             }
 
+            crate::latency::batch_queued(&batch_info, self.batch_expiry_gap_when_init_usecs);
             self.author_to_batches
                 .entry(batch_info.author())
                 .or_default()

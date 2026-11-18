@@ -169,6 +169,23 @@ pub struct ConstructionMetrics {
     pub wholly_empty_with_observed_advance: u64,
 }
 
+/// Optional observations from the real selection loop. Heights identify a prefix
+/// in the non-equivocating benchmark workload. They are not fork identifiers.
+#[derive(Default)]
+pub(crate) struct ConstructionTrace {
+    pub local_heights: Vec<u64>,
+    pub target_heights: Vec<u64>,
+    pub candidates: Vec<CandidateTrace>,
+}
+
+#[derive(Serialize)]
+pub(crate) struct CandidateTrace {
+    producer: Id,
+    height: u64,
+    base_proof: bool,
+    usable_signers: Vec<Id>,
+}
+
 impl ConstructionMetrics {
     pub fn add(&mut self, other: &Self) {
         self.completed_constructions += other.completed_constructions;
@@ -631,6 +648,16 @@ impl AvailabilityConfig {
         pool: &[Signed<Observation>],
         store: &BatchStore,
     ) -> Result<(Vec<u8>, Vec<u8>, ConstructionMetrics), String> {
+        self.build_all_current_traced(base, pool, store, None)
+    }
+
+    pub(crate) fn build_all_current_traced(
+        &self,
+        base: &NamedBase,
+        pool: &[Signed<Observation>],
+        store: &BatchStore,
+        mut trace: Option<&mut ConstructionTrace>,
+    ) -> Result<(Vec<u8>, Vec<u8>, ConstructionMetrics), String> {
         let _cost = crate::meter::measure(crate::meter::Operation::AvailabilityConstruct);
         let mut metrics = ConstructionMetrics {
             frozen_reports: pool.len() as u64,
@@ -665,7 +692,11 @@ impl AvailabilityConfig {
                 pool,
                 store,
                 &mut metrics,
+                trace.as_deref_mut(),
             )?;
+            if let Some(trace) = trace.as_deref_mut() {
+                trace.target_heights.push(target.height);
+            }
             targets.push(target);
             coordinates.push(wa);
         }
@@ -711,7 +742,14 @@ impl AvailabilityConfig {
         pool: &[Signed<Observation>],
         store: &BatchStore,
     ) -> Result<(Checkpoint, WeakAvailability), String> {
-        self.build_coordinate_with_metrics(a, k, pool, store, &mut ConstructionMetrics::default())
+        self.build_coordinate_with_metrics(
+            a,
+            k,
+            pool,
+            store,
+            &mut ConstructionMetrics::default(),
+            None,
+        )
     }
 
     fn build_coordinate_with_metrics(
@@ -721,16 +759,30 @@ impl AvailabilityConfig {
         pool: &[Signed<Observation>],
         store: &BatchStore,
         metrics: &mut ConstructionMetrics,
+        mut trace: Option<&mut ConstructionTrace>,
     ) -> Result<(Checkpoint, WeakAvailability), String> {
         let threshold = (self.committee.keys.len() - 1) / 3 + 1;
         let mut candidates = store.checkpoints(k as Id);
         candidates.retain(|target| target.height > a.height);
         sort_checkpoints(&mut candidates);
+        if let Some(trace) = trace.as_deref_mut() {
+            trace
+                .local_heights
+                .push(candidates.first().map_or(a.height, |cp| cp.height));
+        }
         let local_candidates = candidates.len();
         metrics.indexed_candidates += local_candidates as u64;
         for target in candidates {
             metrics.examined_candidates += 1;
             let Ok(base_to_target) = store.proof(a, &target) else {
+                if let Some(trace) = trace.as_deref_mut() {
+                    trace.candidates.push(CandidateTrace {
+                        producer: a.producer,
+                        height: target.height,
+                        base_proof: false,
+                        usable_signers: Vec::new(),
+                    });
+                }
                 metrics.base_proof_unavailable += 1;
                 continue;
             };
@@ -753,6 +805,14 @@ impl AvailabilityConfig {
                 ));
             }
             usable.sort_by(|left, right| right.0.cmp(&left.0).then_with(|| left.1.cmp(&right.1)));
+            if let Some(trace) = trace.as_deref_mut() {
+                trace.candidates.push(CandidateTrace {
+                    producer: a.producer,
+                    height: target.height,
+                    base_proof: true,
+                    usable_signers: usable.iter().map(|(_, signer, _, _)| *signer).collect(),
+                });
+            }
             if usable.len() < threshold {
                 metrics.source_threshold_unmet += 1;
                 continue;

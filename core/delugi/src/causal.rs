@@ -49,10 +49,18 @@ struct State {
 struct Shared {
     origin: Instant,
     wall_origin_us: u64,
+    host_clock_anchor: HostClockAnchor,
     replica: Id,
     stride: u64,
     cap: usize,
     state: Mutex<State>,
+}
+
+#[derive(Serialize)]
+struct HostClockAnchor {
+    before_us: u64,
+    elapsed_us: u64,
+    after_us: u64,
 }
 
 #[derive(Clone)]
@@ -66,13 +74,13 @@ impl Trace {
         settings: &Settings,
     ) -> Result<Self, String> {
         settings.validate()?;
-        Ok(Self::new(
+        Self::new(
             origin,
             wall_origin_us,
             replica,
             settings.detail_stride,
             settings.max_events,
-        ))
+        )
     }
 
     /// Called only after protocol quiescence by the bounded control collector.
@@ -88,7 +96,7 @@ impl Trace {
         Ok(
             json!({"schema":"delugi-causal-trace-v1","replica":self.0.replica,
             "clock":"microseconds from this replica's monotonic Runtime origin",
-            "wall_origin_us":self.0.wall_origin_us,"detail_stride":self.0.stride,
+            "wall_origin_us":self.0.wall_origin_us,"host_clock_anchor":self.0.host_clock_anchor,"detail_stride":self.0.stride,
             "detail_width":DETAIL_WIDTH.min(self.0.stride),"max_events":self.0.cap,
             "dropped":state.dropped,"counts":state.counts,"run_error":null,
             "offset":offset,"total":state.events.len(),"events":&state.events[offset..end],
@@ -134,25 +142,39 @@ impl Trace {
             ));
         }
         Ok(Some((
-            Self::new(origin, wall_origin_us, replica, stride, cap),
+            Self::new(origin, wall_origin_us, replica, stride, cap)?,
             path,
         )))
     }
 
-    fn new(origin: Instant, wall_origin_us: u64, replica: Id, stride: u64, cap: usize) -> Self {
-        Self(Arc::new(Shared {
+    fn new(
+        origin: Instant,
+        wall_origin_us: u64,
+        replica: Id,
+        stride: u64,
+        cap: usize,
+    ) -> Result<Self, String> {
+        let before_us = shared_runtime::monotonic_us()?;
+        let elapsed_us = origin.elapsed().as_micros() as u64;
+        let after_us = shared_runtime::monotonic_us()?;
+        Ok(Self(Arc::new(Shared {
             origin,
             wall_origin_us,
+            host_clock_anchor: HostClockAnchor {
+                before_us,
+                elapsed_us,
+                after_us,
+            },
             replica,
             stride,
             cap,
             state: Mutex::new(State::default()),
-        }))
+        })))
     }
 
     #[cfg(test)]
     pub(crate) fn for_test() -> Self {
-        Self::new(Instant::now(), 0, 0, DEFAULT_STRIDE, MAX_EVENTS)
+        Self::new(Instant::now(), 0, 0, DEFAULT_STRIDE, MAX_EVENTS).unwrap()
     }
 
     pub(crate) fn now_us(&self) -> u64 {
@@ -227,7 +249,7 @@ impl Trace {
         let state = self.0.state.lock().unwrap();
         let document = json!({"schema":"delugi-causal-trace-v1","replica":self.0.replica,
             "clock":"microseconds from this replica's monotonic Runtime origin",
-            "wall_origin_us":self.0.wall_origin_us,"detail_stride":self.0.stride,
+            "wall_origin_us":self.0.wall_origin_us,"host_clock_anchor":self.0.host_clock_anchor,"detail_stride":self.0.stride,
             "detail_width":DETAIL_WIDTH.min(self.0.stride),"max_events":self.0.cap,
             "dropped":state.dropped,"counts":state.counts,"run_error":outcome.as_ref().err(),
             "notes":["Core readiness and critical outbox events cover every round; detailed spans/dispatch/send events cover eight contiguous rounds per stride bucket.",
@@ -272,7 +294,7 @@ mod tests {
 
     #[test]
     fn recorder_is_bounded_and_samples_contiguous_dependency_windows() {
-        let trace = Trace::new(Instant::now(), 0, 0, 32, 2);
+        let trace = Trace::new(Instant::now(), 0, 0, 32, 2).unwrap();
         for r in 32..40 {
             assert!(trace.sampled(r));
         }

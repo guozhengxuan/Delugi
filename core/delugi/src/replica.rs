@@ -2511,12 +2511,13 @@ impl Replica {
         if let Some(trace) = &self.causal {
             let (kind, round, signer) = causal::ordering_key(&message);
             if matches!(kind, "PROPOSE" | "VOTE" | "CER" | "HISTORY3") || trace.sampled(round) {
-                trace.mark(
-                    "ordering_outbox",
-                    round,
-                    json!({"kind":kind,"signer":signer,"to":to,
-                        "encoded_message_bytes":self.committee.encoded_size(&wire::MessageRef::from(message)).ok()}),
-                );
+                let mut detail = json!({"kind":kind,"signer":signer,"to":to,
+                    "encoded_message_bytes":self.committee.encoded_size(&wire::MessageRef::from(message)).ok()});
+                if let Message::Propose(p) = message {
+                    detail["digest"] = json!(wire::proposal_digest(&p.header.body));
+                    detail["value_hash"] = json!(p.header.body.value_hash);
+                }
+                trace.mark("ordering_outbox", round, detail);
             }
         }
         self.outbox.push(Effect::Send {

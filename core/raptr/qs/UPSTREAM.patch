@@ -48,7 +48,19 @@
              if !signed_batch_infos.is_empty() {
                  if approx_created_ts_usecs > 0 {
                      observe_batch(approx_created_ts_usecs, peer_id, BatchStage::SIGNED);
-@@ -200,13 +208,13 @@
+@@ -160,6 +168,11 @@
+             return;
+         };
+ 
++        if raptr::latency::enabled() {
++            for received in &batches {
++                crate::latency::batch_received(received.batch_info());
++            }
++        }
+         let approx_created_ts_usecs = batch
+             .info()
+             .expiration()
+@@ -200,13 +213,13 @@
                          .send(())
                          .expect("Failed to send shutdown ack to QuorumStoreCoordinator");
                      break;
@@ -149,7 +161,7 @@
              None => false,
          }
      }
-@@ -474,17 +479,18 @@
+@@ -474,19 +479,25 @@
                              let batch_writer = self.batch_writer.clone();
                              let mut network_sender = network_sender.clone();
  
@@ -170,7 +182,32 @@
 +                                }).await.is_err() { return; }
                                  counters::BATCH_CREATION_PERSIST_LATENCY.observe_duration(persist_start.elapsed());
  
++                                if raptr::latency::enabled() {
++                                    for batch in &batches {
++                                        crate::latency::batch_broadcast(batch.batch_info());
++                                    }
++                                }
                                  network_sender.broadcast_batch_msg(batches).await;
+                             });
+                         } else if tick_start.elapsed() > interval.period().checked_div(2).unwrap_or(Duration::ZERO) {
+--- a/consensus/src/quorum_store/batch_proof_queue.rs
++++ b/core/raptr/qs/src/quorum_store/batch_proof_queue.rs
+@@ -194,6 +194,7 @@
+             return;
+         }
+ 
++        crate::latency::proof_queued(proof.info());
+         let author = proof.author();
+         let bucket = proof.gas_bucket_start();
+         let num_txns = proof.num_txns();
+@@ -285,6 +286,7 @@
+                 continue;
+             }
+ 
++            crate::latency::batch_queued(&batch_info, self.batch_expiry_gap_when_init_usecs);
+             self.author_to_batches
+                 .entry(batch_info.author())
+                 .or_default()
 --- a/consensus/src/quorum_store/batch_requester.rs
 +++ b/core/raptr/qs/src/quorum_store/batch_requester.rs
 @@ -16,8 +16,9 @@

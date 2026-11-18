@@ -23,6 +23,10 @@ SERIAL_STAGES = ('Batch formation', 'Dissemination to availability quorum', 'Quo
                  *STAGES[2:])
 EVENTS = {'batch_stored', 'availability_quorum', 'proposal_validated',
           'committed', 'payload_ready', 'prefix_released'}
+BATCH_BOUNDARIES = {'batch_broadcast', 'batch_received', 'batch_queued', 'proof_queued'}
+VOTE_BOUNDARIES = {'qc_vote_sent', 'qc_vote_received', 'cc_vote_sent', 'cc_vote_received'}
+DELTA_EVENTS = BATCH_BOUNDARIES | VOTE_BOUNDARIES | {
+    'proposal_pull_started', 'proposal_payload_selected', 'proposal_emitted'}
 
 
 def timestamp(value):
@@ -57,6 +61,32 @@ def indexes(events):
     batches, proposals, commits, payloads, prefixes = {}, {}, {}, {}, {}
     for event in sorted(events, key=lambda e: timestamp(e['at_us'])):
         name = event.get('event')
+        if name in DELTA_EVENTS:
+            # Additional message boundaries share this archive with the original
+            # stage decomposition, but none changes its established endpoints.
+            if name in BATCH_BOUNDARIES:
+                batch_key(event['batch'])
+                if name == 'batch_queued':
+                    timestamp(event['creation_wall_us'])
+                    timestamp(event['observer_wall_us'])
+            elif name == 'proposal_pull_started':
+                native.uint(event['round'], 'round')
+                if event['minimum_batch_age_us'] is not None:
+                    native.uint(event['minimum_batch_age_us'], 'minimum batch age')
+            elif name == 'proposal_payload_selected':
+                native.uint(event['round'], 'round')
+                if not isinstance(event['batches'], list) or native.uint(
+                        event['proof_count'], 'proof count') > len(event['batches']):
+                    raise ValueError('invalid selected payload membership')
+                for batch in event['batches']:
+                    batch_key(batch)
+            else:
+                block_key(event)
+                if name in VOTE_BOUNDARIES:
+                    if native.uint(event['prefix'], 'prefix') > 8:
+                        raise ValueError('invalid native voting prefix')
+                    native.uint(event['peer'], 'peer')
+            continue
         if name not in EVENTS:
             raise ValueError('unknown latency event')
         if name in ('batch_stored', 'availability_quorum'):

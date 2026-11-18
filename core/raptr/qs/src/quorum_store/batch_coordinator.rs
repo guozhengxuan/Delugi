@@ -168,6 +168,11 @@ impl BatchCoordinator {
             return;
         };
 
+        if raptr::latency::enabled() {
+            for received in &batches {
+                crate::latency::batch_received(received.batch_info());
+            }
+        }
         let approx_created_ts_usecs = batch
             .info()
             .expiration()

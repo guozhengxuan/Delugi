@@ -493,6 +493,11 @@ impl BatchGenerator {
                                 }).await.is_err() { return; }
                                 counters::BATCH_CREATION_PERSIST_LATENCY.observe_duration(persist_start.elapsed());
 
+                                if raptr::latency::enabled() {
+                                    for batch in &batches {
+                                        crate::latency::batch_broadcast(batch.batch_info());
+                                    }
+                                }
                                 network_sender.broadcast_batch_msg(batches).await;
                             });
                         } else if tick_start.elapsed() > interval.period().checked_div(2).unwrap_or(Duration::ZERO) {

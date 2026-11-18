@@ -44,7 +44,7 @@ macro_rules! monitor {
 pub mod payload_client;
 pub mod payload_manager;
 mod payload_metadata;
-mod latency;
+pub mod latency;
 
 #[cfg(test)]
 mod test_utils;

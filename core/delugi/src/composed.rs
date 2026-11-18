@@ -3,8 +3,8 @@
 //! Faulty producers may contribute multiple branches. Payload storage and custody
 //! are retained in memory; cumulative heights never filter unseen batch identities.
 use crate::availability::{
-    genesis_binding, AvailabilityConfig, BaseCertificate, Descriptor, NamedBase, Observation,
-    ReportRequest,
+    genesis_binding, AvailabilityConfig, BaseCertificate, ConstructionTrace, Descriptor, NamedBase,
+    Observation, ReportRequest,
 };
 use crate::batch::{record_digest, BatchHeader, BatchStore, Data, DataPart, Record};
 use crate::causal::Trace as CausalTrace;
@@ -357,16 +357,19 @@ impl Node {
         if self.observations.contains_key(&round) {
             return Ok(Vec::new());
         }
+        let snapshot_start = self.causal.as_ref().map(CausalTrace::now_us);
         let observation = self
             .availability
             .observe(&base, &mut self.store, &self.key, self.id)?;
         self.bindings.insert(round, base);
         self.observations.insert(round, observation.clone());
         if let Some(trace) = &self.causal {
-            trace.mark(
+            trace.span(
                 "observation_fixed",
                 round,
-                json!({"base":observation.body.base}),
+                snapshot_start.unwrap(),
+                json!({"base":observation.body.base,
+                    "heights":observation.body.coordinates.iter().map(|c| c.checkpoint.height).collect::<Vec<_>>()}),
             );
         }
         let mut effects = vec![Effect::Trace(
@@ -438,7 +441,26 @@ impl Node {
                 return Ok(effects);
             }
             Message::Batch(record) => {
-                self.store.receive(record)?;
+                let identity = self.causal.as_ref().map(|trace| {
+                    (
+                        trace.now_us(),
+                        record.header.body.producer,
+                        record.header.body.height,
+                        record_digest(&record),
+                    )
+                });
+                let inserted = self.store.receive(record)?;
+                if let (Some(trace), Some((start, producer, height, digest))) =
+                    (&self.causal, identity)
+                {
+                    trace.span(
+                        "batch_stored",
+                        0,
+                        start,
+                        json!({"peer":from, "producer":producer,
+                        "height":height, "exact_batch_id":digest, "inserted":inserted}),
+                    );
+                }
             }
             Message::Observation(observation) => {
                 self.collect(observation)?;
@@ -510,26 +532,33 @@ impl Node {
         // ordering effects recursively constructs an input from another pool.
         let rounds = self.pending_pool_rounds();
         for r in rounds {
-            let construction_start = self
-                .causal
-                .as_ref()
-                .filter(|t| t.sampled(r))
-                .map(CausalTrace::now_us);
+            let construction_start = self.causal.as_ref().map(CausalTrace::now_us);
+            let mut membership = self.causal.as_ref().map(|_| ConstructionTrace::default());
             // Construction consumes the frozen pool and this finite store snapshot
             // exactly once. Every unavailable advance has an immediate empty fallback.
-            let (x, pi, construction) = self.availability.build_all_current_with_metrics(
+            let (x, pi, construction) = self.availability.build_all_current_traced(
                 &self.bindings[&r],
                 &self.pools[&r],
                 &self.store,
+                membership.as_mut(),
             )?;
             let (value_bytes, witness_bytes) = (x.len(), pi.len());
-            if let Some(start) = construction_start {
-                self.causal.as_ref().unwrap().span(
-                    "input_construct",
-                    r,
-                    start,
-                    json!({"value_bytes":value_bytes,"witness_bytes":witness_bytes,"construction":construction}),
-                );
+            if let (Some(trace), Some(start), Some(membership)) =
+                (&self.causal, construction_start, membership)
+            {
+                let end = trace.now_us();
+                let base = &self.bindings[&r];
+                let pool = self.pools[&r].iter().map(|o| json!({"signer":o.signer,
+                    "heights":o.body.coordinates.iter().map(|c| c.checkpoint.height).collect::<Vec<_>>()})).collect::<Vec<_>>();
+                trace.at("input_membership", r, end, Some(start), json!({"base":base.identity,
+                    "frontier_heights":base.frontier.iter().map(|c| c.height).collect::<Vec<_>>(),
+                    "local_heights":membership.local_heights, "target_heights":membership.target_heights,
+                    "value_hash":self.committee.hash(&x),
+                    "pool":pool, "candidates":membership.candidates}));
+                if trace.sampled(r) {
+                    trace.at("input_construct", r, end, Some(start),
+                        json!({"value_bytes":value_bytes,"witness_bytes":witness_bytes,"construction":construction}));
+                }
             }
             self.committee.validate_input_size(&x, &pi)?;
             let next = self.ordering.supply_input(now, r, x, pi)?;
@@ -1154,9 +1183,18 @@ mod tests {
         let compare = |a: Vec<Effect>, b: Vec<Effect>| {
             assert_eq!(format!("{a:?}"), format!("{b:?}"));
         };
+        let first_batch = traced.produce(0, payload(1)).unwrap();
+        let record = match &first_batch[0] {
+            Effect::Send {
+                message: Message::Batch(record),
+                ..
+            } => record.clone(),
+            _ => panic!("missing first batch broadcast"),
+        };
+        compare(first_batch, plain.produce(0, payload(1)).unwrap());
         compare(
-            traced.produce(0, payload(1)).unwrap(),
-            plain.produce(0, payload(1)).unwrap(),
+            traced.produce(0, payload(2)).unwrap(),
+            plain.produce(0, payload(2)).unwrap(),
         );
         let a = traced.start(1).unwrap();
         let b = plain.start(1).unwrap();
@@ -1173,6 +1211,27 @@ mod tests {
         compare(a, b);
         for signer in [1, 2] {
             let mut observer = node(signer);
+            // Only the first batch is present at a second signer when the pool freezes.
+            if signer == 1 {
+                let remote = CausalTrace::for_test();
+                observer.enable_causal_trace(remote.clone());
+                observer
+                    .receive(1, 0, Message::Batch(record.clone()))
+                    .unwrap();
+                let page = remote.page(0, 128).unwrap();
+                let stored = page["events"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .find(|e| e["event"] == "batch_stored")
+                    .unwrap();
+                assert_eq!(
+                    stored["detail"]["exact_batch_id"],
+                    json!(record_digest(&record))
+                );
+                assert_eq!(stored["detail"]["inserted"], true);
+                assert!(stored["start_us"].as_u64() <= stored["at_us"].as_u64());
+            }
             let observation = observer
                 .receive(2, 0, request.clone())
                 .unwrap()
@@ -1212,6 +1271,42 @@ mod tests {
         assert_eq!(traced.pending_input_rounds, plain.pending_input_rounds);
         assert_eq!(traced.executed, plain.executed);
         assert_eq!(traced.state_hash(), plain.state_hash());
+        let page = trace.page(0, 1024).unwrap();
+        let events = page["events"].as_array().unwrap();
+        let event = |kind| {
+            events
+                .iter()
+                .find(|e| e["event"] == kind && e["round"] == 1)
+                .unwrap()
+        };
+        let selection = &event("input_membership")["detail"];
+        assert_eq!(selection["local_heights"], json!([2, 0, 0, 0]));
+        assert_eq!(selection["target_heights"], json!([1, 0, 0, 0]));
+        assert_eq!(
+            selection["candidates"][0],
+            json!({"producer":0,"height":2,"base_proof":true,"usable_signers":[0]})
+        );
+        assert_eq!(
+            selection["candidates"][1],
+            json!({"producer":0,"height":1,"base_proof":true,"usable_signers":[0,1]})
+        );
+        assert_eq!(
+            event("observation_fixed")["detail"]["heights"],
+            json!([2, 0, 0, 0])
+        );
+        let emitted = events
+            .iter()
+            .find(|e| {
+                e["event"] == "ordering_outbox"
+                    && e["detail"]["kind"] == "PROPOSE"
+                    && e["round"] == 1
+            })
+            .unwrap();
+        assert_eq!(selection["value_hash"], emitted["detail"]["value_hash"]);
+        assert_eq!(
+            emitted["detail"]["digest"],
+            event("proposal_validated")["detail"]["digest"]
+        );
         let counts = trace.summary()["counts"].clone();
         for event in [
             "admission",
