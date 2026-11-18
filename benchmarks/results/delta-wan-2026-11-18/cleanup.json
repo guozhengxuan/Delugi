@@ -1,0 +1,70 @@
+{
+  "fleets": [
+    {
+      "fleet": "first fleet",
+      "regional_instances_deleted": 4,
+      "regional_security_groups_deleted": 4,
+      "estimated_cny": 15.311158228170385,
+      "region_estimates": [
+        {
+          "region": "ap-southeast-1",
+          "lease_seconds": 2624.551064,
+          "hourly_quote_cny": 5.8333,
+          "estimated_cny": 4.25272047823089
+        },
+        {
+          "region": "eu-central-1",
+          "lease_seconds": 2601.050797,
+          "hourly_quote_cny": 5.74714,
+          "estimated_cny": 4.152389743741828
+        },
+        {
+          "region": "eu-west-1",
+          "lease_seconds": 2575.542018,
+          "hourly_quote_cny": 3.92384,
+          "estimated_cny": 2.807226331085867
+        },
+        {
+          "region": "ap-northeast-2",
+          "lease_seconds": 2544.192716,
+          "hourly_quote_cny": 5.79978,
+          "estimated_cny": 4.0988216751118
+        }
+      ]
+    },
+    {
+      "fleet": "replacement fleet",
+      "regional_instances_deleted": 4,
+      "regional_security_groups_deleted": 4,
+      "estimated_cny": 2.512965620669239,
+      "region_estimates": [
+        {
+          "region": "ap-southeast-1",
+          "lease_seconds": 466.770557,
+          "hourly_quote_cny": 5.8333,
+          "estimated_cny": 0.7563368583744723
+        },
+        {
+          "region": "eu-central-1",
+          "lease_seconds": 437.183837,
+          "hourly_quote_cny": 5.74714,
+          "estimated_cny": 0.6979324213822722
+        },
+        {
+          "region": "eu-west-1",
+          "lease_seconds": 411.143156,
+          "hourly_quote_cny": 3.92384,
+          "estimated_cny": 0.44812776701084445
+        },
+        {
+          "region": "ap-northeast-2",
+          "lease_seconds": 378.987973,
+          "hourly_quote_cny": 5.79978,
+          "estimated_cny": 0.61056857390165
+        }
+      ]
+    }
+  ],
+  "combined_estimate_cny": 17.824123848839623,
+  "basis": "Provider full-profile hourly quote multiplied by launch-to-cleanup time. Final billing may differ."
+}

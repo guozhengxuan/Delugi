@@ -1,0 +1,196 @@
+[
+  {
+    "protocol": "raptr",
+    "case": "healthy",
+    "trial_id": "9b65f5c790b85b8186317c0f",
+    "status": "completed",
+    "scheduled": 3000,
+    "admitted": 3000,
+    "completed": 3000,
+    "unfinished": 0,
+    "goodput_tps": 98.10000000000001,
+    "p50_ms": 440.521,
+    "p95_ms": 602.133,
+    "raw_result_sha256": "61b2dc101b33662513eb60dd87d89b772ab1348ab1177c06bddff2565537355d",
+    "stage_coverage": 3000,
+    "mean_admission_to_output_ms": 445.2049386666667,
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "sum_us": 225912046,
+        "mean_ms": 75.30401533333333
+      },
+      {
+        "stage": "Dissemination / inclusion",
+        "sum_us": 556192300,
+        "mean_ms": 185.3974333333333
+      },
+      {
+        "stage": "Consensus",
+        "sum_us": 545969150,
+        "mean_ms": 181.98971666666668
+      },
+      {
+        "stage": "Payload retrieval / validation",
+        "sum_us": 1380070,
+        "mean_ms": 0.46002333333333334
+      },
+      {
+        "stage": "Contiguous output wait",
+        "sum_us": 25480,
+        "mean_ms": 0.008493333333333334
+      },
+      {
+        "stage": "Output consumer wait",
+        "sum_us": 4143781,
+        "mean_ms": 1.3812603333333333
+      },
+      {
+        "stage": "Application acceptance",
+        "sum_us": 1991989,
+        "mean_ms": 0.6639963333333334
+      }
+    ],
+    "traffic_measurement_written_bytes": 15846662
+  },
+  {
+    "protocol": "delugi",
+    "case": "healthy",
+    "trial_id": "5e2250ff5121e8d986930b2e",
+    "status": "passed",
+    "scheduled": 3000,
+    "admitted": 3000,
+    "completed": 3000,
+    "unfinished": 0,
+    "goodput_tps": 98.2,
+    "p50_ms": 515.341,
+    "p95_ms": 705.992,
+    "raw_result_sha256": "56271536efb69d3a495311ae38324a66f3882cbbf57f7713a79c28332e05c0be",
+    "stage_coverage": 3000,
+    "mean_admission_to_output_ms": 524.4253376666667,
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "mean_ms": 0.6072949999999999
+      },
+      {
+        "stage": "Await execution proposal",
+        "mean_ms": 340.51452966666665
+      },
+      {
+        "stage": "Agreement",
+        "mean_ms": 183.17098199999998
+      },
+      {
+        "stage": "Contiguous prefix wait",
+        "mean_ms": 0.012320666666666666
+      },
+      {
+        "stage": "Payload wait",
+        "mean_ms": 0.039446666666666665
+      },
+      {
+        "stage": "Application append",
+        "mean_ms": 0.08076366666666666
+      }
+    ],
+    "traffic_measurement_written_bytes": 39449445
+  },
+  {
+    "protocol": "raptr",
+    "case": "silent-first-leader",
+    "trial_id": "e29fe2ddd0dc409b444f0af8",
+    "status": "completed",
+    "scheduled": 3000,
+    "admitted": 3000,
+    "completed": 3000,
+    "unfinished": 0,
+    "goodput_tps": 83.16666666666666,
+    "p50_ms": 3026.578,
+    "p95_ms": 5033.123,
+    "raw_result_sha256": "a8fdbf4ccf97a416776954c0a839601452fee65107ca1d93872fefe4b41468f1",
+    "stage_coverage": 3000,
+    "mean_admission_to_output_ms": 3042.6956213333333,
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "sum_us": 254877586,
+        "mean_ms": 84.95919533333334
+      },
+      {
+        "stage": "Dissemination / inclusion",
+        "sum_us": 6914494222,
+        "mean_ms": 2304.8314073333336
+      },
+      {
+        "stage": "Consensus",
+        "sum_us": 777976033,
+        "mean_ms": 259.32534433333336
+      },
+      {
+        "stage": "Payload retrieval / validation",
+        "sum_us": 116302828,
+        "mean_ms": 38.76760933333333
+      },
+      {
+        "stage": "Contiguous output wait",
+        "sum_us": 79032,
+        "mean_ms": 0.026344000000000003
+      },
+      {
+        "stage": "Output consumer wait",
+        "sum_us": 60204926,
+        "mean_ms": 20.068308666666667
+      },
+      {
+        "stage": "Application acceptance",
+        "sum_us": 1004152237,
+        "mean_ms": 334.71741233333336
+      }
+    ],
+    "traffic_measurement_written_bytes": 40171206
+  },
+  {
+    "protocol": "delugi",
+    "case": "silent-first-leader",
+    "trial_id": "b5619611ae844d5a1d749182",
+    "status": "passed",
+    "scheduled": 3000,
+    "admitted": 3000,
+    "completed": 3000,
+    "unfinished": 0,
+    "goodput_tps": 90.16666666666667,
+    "p50_ms": 4254.766,
+    "p95_ms": 7254.266,
+    "raw_result_sha256": "7638d5576e648f59d15f9d230538b89f176c232b8e11e9b7d2c19909c920c62b",
+    "stage_coverage": 3000,
+    "mean_admission_to_output_ms": 4133.646567333333,
+    "stages": [
+      {
+        "stage": "Batch formation",
+        "mean_ms": 0.6440996666666666
+      },
+      {
+        "stage": "Await execution proposal",
+        "mean_ms": 3637.6140843333333
+      },
+      {
+        "stage": "Agreement",
+        "mean_ms": 248.70272133333333
+      },
+      {
+        "stage": "Contiguous prefix wait",
+        "mean_ms": 243.96897366666667
+      },
+      {
+        "stage": "Payload wait",
+        "mean_ms": 1.0851006666666667
+      },
+      {
+        "stage": "Application append",
+        "mean_ms": 1.6315876666666667
+      }
+    ],
+    "traffic_measurement_written_bytes": 8535078
+  }
+]

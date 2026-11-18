@@ -6,7 +6,7 @@ At 100 tx/s, Delugi took **292.2 ms** on average from batch broadcast to the fir
 
 ## Timed experiment
 
-We used the same four Aliyun hosts sequentially for both protocols, with one validator in each of Singapore, Frankfurt, London and Seoul. Each protocol ran once healthy and once with its first leader persistently silent. Each input window lasted 30 seconds at 100 aggregate tx/s, with a 15-second drain, one useful byte per transaction, Δ = 1,000 ms, 20 Mbps configured egress and no injected network delay. The 12 directional median overlay RTTs ranged from 13.9 to 222 ms. We reused the previous protocol-specific batching and fault settings. The silent identity was in Singapore for Delugi and Frankfurt for Raptr. [Workload configuration](parameters.json) · [Measured RTTs](network-matrix.json)
+The matched healthy runs and Raptr’s silent-leader run used the same four Aliyun hosts sequentially, with one validator in each of Singapore, Frankfurt, London and Seoul. The Delugi silent-leader retry used replacement hosts of the same type in those regions. Each protocol ran once healthy and once with its first leader persistently silent. Each input window lasted 30 seconds at 100 aggregate tx/s, with a 15-second drain, one useful byte per transaction, Δ = 1,000 ms, 20 Mbps configured egress and no injected network delay. The 12 directional median overlay RTTs ranged from 13.9 to 222 ms. We reused the previous protocol-specific batching and fault settings. The silent identity was in Singapore for Delugi and Frankfurt for Raptr. [Workload configuration](parameters.json) · [Measured RTTs](network-matrix.json)
 
 All four hosts ran the instrumented Linux release built from `6e49f91`. Both protocols timestamped message handoffs while running normally and exported their traces after the timed run. For Delugi, the batch start is its seal immediately before creating the broadcast effect. The first transport enqueue started 0.0035 ms later on average. For Raptr, the start is the native Quorum Store broadcast call. The midpoint is the **first proposal emitted by any leader whose payload actually includes the batch**. The endpoint is contiguous, payload-verified output at the request’s origin.
 
@@ -20,7 +20,7 @@ All four hosts ran the instrumented Linux release built from `6e49f91`. Both pro
 | First proposal emission → verified output | 231.6 | 230.4 | +1.2 |
 | Admission → verified output, origin clock | **524.4** | **445.2** | **+79.2** |
 
-With regular opportunities every δ and uniformly phased broadcasts, the average time to the next opportunity is δ/2. In Delugi, a leader freezes the first three signed observations for its opportunity. Two observations must cover the batch. Receiving the batch before sending the proposal can still leave the leader with only one covering observation.
+In the uniform-link model, let a batch be broadcast θ after a REPORT launch, with θ uniform over (0, δ). If the in-flight REPORT misses the batch, the next one starts δ − θ later. Its REPORT/OBS exchange takes 2δ. The expected broadcast-to-proposal time is therefore 2δ + E[δ − θ] = 2.5δ. The [signed-core phase sweep](../phase-verification-2026-10-30/README.md) measured 25.0 ms at δ = 10 ms. In Delugi, a leader freezes the first three signed observations for its opportunity. Two observations must cover the batch. Receiving the batch before sending the proposal can still leave the leader with only one covering observation.
 
 The trace gives three different measurements of that wait.
 
@@ -42,10 +42,23 @@ On the actual acceptance schedule, analytically allowing candidates with a local
 
 As an independent check on clocks, admission to the **first including proposal accepted at the origin** took 319.7 ms for Delugi and 260.7 ms for Raptr. Both endpoints use the same origin clock. Choosing the proposal credited with execution instead inflates that 59.0 ms gap to 80.4 ms. This explains why the historical bar for dissemination cannot be read as time to first leader emission.
 
+## Healthy and silent-leader results
+
+| Protocol | Case | Verified outputs | In-window goodput, tx/s | Mean admission → output, ms | Recorded outbound MB in window |
+|---|---|---:|---:|---:|---:|
+| Delugi | healthy | 3,000/3,000 | 98.20 | 524.43 | 39.45 |
+| Raptr | healthy | 3,000/3,000 | 98.10 | 445.20 | 15.85 |
+| Delugi | silent-first-leader | 3,000/3,000 | 90.17 | 4,133.65 | 8.54 |
+| Raptr | silent-first-leader | 3,000/3,000 | 83.17 | 3,042.70 | 40.17 |
+
+Every one of the 12,000 timed requests had a verified output and complete stage coverage. Goodput counts completions during the 30-second window. Latency follows requests through the drain. The silent cases exercise the protocols’ native timeout policies and different faulty locations. Their means do not isolate a healthy REPORT-phase effect. [Trial measurements and recorded stages](trials.json)
+
+Both four-host fleets and their security groups were deleted. The combined quote-based estimate for building, deploying and running the tests was **¥17.82**, pending final billing. [Resource and cost record](cleanup.json)
+
 ## Evidence and uncertainty
 
 We joined 3,000 verified healthy requests per protocol and paired 20,238 Delugi and 10,956 Raptr cross-region message legs. The full directed breakdown covers batch, REPORT, OBS, proposal, vote and certificate traffic for Delugi, and batch, proposal, QC vote and CC vote traffic for Raptr. Each sample spans the recorded send/receive callbacks, including intervening transport and validation work. The private archive retains the batch identities and raw signed evidence. [Per-direction aggregates](utc-comparison.json)
 
 Separate hosts use separate monotonic clocks. Bracketing samples mapped each host clock to UTC using the synchronized Linux kernel’s reported maximum error, sampled read width, and a 500 ppm allowance between probes. The uncertainty intervals include ambiguity about which leader emitted the first including proposal. That identity was ambiguous for 1,659 Delugi requests and zero Raptr requests. All healthy request intervals closed to within 0.5 µs at the central estimates. With one run per configuration the bounds describe clock uncertainty within this run only.
 
-The first Fabric preflight stopped before starting any workload because the controller checkout included post-build analysis scripts. Running Fabric from the exact release revision passed the source and binary checks. The completed runs share one fleet and publication.
+The first Fabric preflight stopped before starting any workload because the controller checkout included post-build analysis scripts. Running Fabric from the exact release revision passed the source and binary checks. All timed runs use the same instrumented release. A later SSH handshake reset in Seoul stopped the first Delugi silent-leader attempt before load or any control command. The deployment controller released those hosts. The retry selected only that case from its saved effective configuration.
