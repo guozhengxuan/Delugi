@@ -1,0 +1,633 @@
+{
+  "delugi": {
+    "validation": {
+      "covered": 3000,
+      "excluded": {},
+      "cohort_index_sha256": "9f15f675affcbe386bd70df7d2a26372d5208a30311cac8a05d9028bbda23586",
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-0.json",
+          "sha256": "45e3bef107149ec7b0922517ddd9f96e899ba154f65c2ba9ad483155e2aadd35",
+          "events": 52572,
+          "dropped": 0,
+          "run_bound": true
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-1.json",
+          "sha256": "f8ee8390dda939176c424b6ce71326c0d283c2eeaa5a7543c359c915a630227d",
+          "events": 52723,
+          "dropped": 0,
+          "run_bound": true
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-2.json",
+          "sha256": "19259a8aa54772c8802d62399b176f62bdcbaa981105a8d9592fe96d4b272b58",
+          "events": 52700,
+          "dropped": 0,
+          "run_bound": true
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/5e2250ff5121e8d986930b2e/trial/causal-traces/replica-3.json",
+          "sha256": "1efb27858772be38f02bc4b3c0a986a44c24a4f78a1706eaebff7ea8ef5a9f11",
+          "events": 52593,
+          "dropped": 0,
+          "run_bound": true
+        }
+      ]
+    },
+    "execution_associated_admission_to_accept_ms": 341.12182466666667,
+    "workload": [
+      100,
+      1,
+      30000,
+      1000
+    ],
+    "instrumented": true,
+    "own_obs_phases": [
+      {
+        "origin": 0,
+        "samples": 750,
+        "complete_intervals": 303,
+        "half_mean_interval_ms": 49.31963366336634,
+        "uniform_time_residual_ms": 77.78375994753483,
+        "actual_seal_to_next_own_obs_ms": 77.97461733333333
+      },
+      {
+        "origin": 1,
+        "samples": 750,
+        "complete_intervals": 302,
+        "half_mean_interval_ms": 49.21594536423841,
+        "uniform_time_residual_ms": 81.66242619942359,
+        "actual_seal_to_next_own_obs_ms": 82.17689866666666
+      },
+      {
+        "origin": 2,
+        "samples": 750,
+        "complete_intervals": 302,
+        "half_mean_interval_ms": 49.22958112582781,
+        "uniform_time_residual_ms": 77.67327154089008,
+        "actual_seal_to_next_own_obs_ms": 77.83408
+      },
+      {
+        "origin": 3,
+        "samples": 750,
+        "complete_intervals": 303,
+        "half_mean_interval_ms": 49.31947359735973,
+        "uniform_time_residual_ms": 85.64452478689043,
+        "actual_seal_to_next_own_obs_ms": 86.15593733333334
+      }
+    ],
+    "excluded_earlier_distinct_batch_proposal_pairs": {
+      "local_target_or_base_proof_missing": 3335,
+      "leader_can_prove_target_but_fewer_than_two_observations": 3711
+    },
+    "pool_support_on_same_pairs": {
+      "fewer_than_two_even_across_all_four": 5909,
+      "two_covering_with_unselected_fourth": 1137
+    },
+    "stages": {
+      "batching": {
+        "samples": 3000,
+        "mean_ms": 0.6072949999999999
+      },
+      "admit_to_first_local": {
+        "samples": 3000,
+        "mean_ms": 319.66607933333336
+      },
+      "seal_to_first_local": {
+        "samples": 3000,
+        "mean_ms": 319.05878433333334
+      },
+      "execution_midpoint_shift": {
+        "samples": 3000,
+        "mean_ms": 21.455745333333333
+      },
+      "fixed_schedule_base_proof_shift": {
+        "samples": 3000,
+        "mean_ms": 170.096656
+      },
+      "fixed_schedule_insufficient_observations_shift": {
+        "samples": 3000,
+        "mean_ms": 170.096656
+      },
+      "report_to_pool_leader": {
+        "samples": 3000,
+        "mean_ms": 168.97637899999998
+      },
+      "pool_to_constructed_leader": {
+        "samples": 3000,
+        "mean_ms": 0.7097256666666667
+      },
+      "constructed_to_emit_leader": {
+        "samples": 3000,
+        "mean_ms": 6.096385333333334
+      },
+      "seal_to_report_self_leader": {
+        "samples": 1454,
+        "mean_ms": 127.09107359009629
+      }
+    },
+    "by_origin": {
+      "0": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 0.5213306666666666
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 323.72595466666667
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 323.204624
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 61.039622666666666
+        },
+        "fixed_schedule_base_proof_shift": {
+          "samples": 750,
+          "mean_ms": 151.582036
+        },
+        "fixed_schedule_insufficient_observations_shift": {
+          "samples": 750,
+          "mean_ms": 151.582036
+        },
+        "report_to_pool_leader": {
+          "samples": 750,
+          "mean_ms": 164.46748399999998
+        },
+        "pool_to_constructed_leader": {
+          "samples": 750,
+          "mean_ms": 0.7136266666666666
+        },
+        "constructed_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 1.6883693333333334
+        },
+        "seal_to_report_self_leader": {
+          "samples": 638,
+          "mean_ms": 169.80138557993732
+        }
+      },
+      "1": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 0.6499733333333334
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 285.57152533333334
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 284.921552
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 0.22122933333333333
+        },
+        "fixed_schedule_base_proof_shift": {
+          "samples": 750,
+          "mean_ms": 164.65176
+        },
+        "fixed_schedule_insufficient_observations_shift": {
+          "samples": 750,
+          "mean_ms": 164.65176
+        },
+        "report_to_pool_leader": {
+          "samples": 750,
+          "mean_ms": 173.63977866666667
+        },
+        "pool_to_constructed_leader": {
+          "samples": 750,
+          "mean_ms": 0.70536
+        },
+        "constructed_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 10.70838
+        },
+        "seal_to_report_self_leader": {
+          "samples": 351,
+          "mean_ms": 93.21286324786325
+        }
+      },
+      "2": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 0.6259813333333333
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 294.26547600000004
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 293.6394946666667
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 0.23791866666666667
+        },
+        "fixed_schedule_base_proof_shift": {
+          "samples": 750,
+          "mean_ms": 174.56899466666667
+        },
+        "fixed_schedule_insufficient_observations_shift": {
+          "samples": 750,
+          "mean_ms": 174.56899466666667
+        },
+        "report_to_pool_leader": {
+          "samples": 750,
+          "mean_ms": 173.65418533333332
+        },
+        "pool_to_constructed_leader": {
+          "samples": 750,
+          "mean_ms": 0.705532
+        },
+        "constructed_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 10.683926666666666
+        },
+        "seal_to_report_self_leader": {
+          "samples": 400,
+          "mean_ms": 106.297665
+        }
+      },
+      "3": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 0.6318946666666667
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 375.10136133333333
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 374.4694666666667
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 24.324210666666666
+        },
+        "fixed_schedule_base_proof_shift": {
+          "samples": 750,
+          "mean_ms": 189.58383333333333
+        },
+        "fixed_schedule_insufficient_observations_shift": {
+          "samples": 750,
+          "mean_ms": 189.58383333333333
+        },
+        "report_to_pool_leader": {
+          "samples": 750,
+          "mean_ms": 164.144068
+        },
+        "pool_to_constructed_leader": {
+          "samples": 750,
+          "mean_ms": 0.714384
+        },
+        "constructed_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 1.3048653333333333
+        },
+        "seal_to_report_self_leader": {
+          "samples": 65,
+          "mean_ms": 18.774707692307693
+        }
+      }
+    }
+  },
+  "raptr": {
+    "validation": {
+      "covered": 3000,
+      "excluded": {},
+      "configuration_sha256": "8ccf58af1493c372f65a4d036f3560cdd6e3a77c6e5ab09d0a7d44473b5f8f3e",
+      "sources": [
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-0/final.json",
+          "bytes": 90527,
+          "sha256": "bf8414d42cb192936f78815d1afab71a9d93a0d103f3c6ae7c407812cfdf5ad5"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-0/latency-trace.json",
+          "bytes": 2526997,
+          "sha256": "d8cab991bd2b93d21eaa4b6e43b8a634817921ecd123506e79f4f428c268644b"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-0/effective-profile.json",
+          "bytes": 15514,
+          "sha256": "c26294b43ff21cbb7f605919667eef7082d20dfedcda406175e1435f51cd97f2"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-0/requests.jsonl",
+          "bytes": 359241,
+          "sha256": "fcec0fccbbcd468e369c60e23ce6e01c03c5f861018ce7a7d8296878fa171313"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-0/output.jsonl",
+          "bytes": 8321521,
+          "sha256": "5dc8861bb91db28ae429152b9096e4abc0856e81d966cc2cc5b15c06dbca0464"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-1/final.json",
+          "bytes": 92623,
+          "sha256": "3e99083f3f7ea7df0d517fef18a645a9573167ec3a6c79116a2729106ed6d291"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-1/latency-trace.json",
+          "bytes": 2509169,
+          "sha256": "20fdda004dc80d318d86b941c94c1ba9396e6c4bbb0a4acaabffab1b0ced0b4a"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-1/effective-profile.json",
+          "bytes": 15514,
+          "sha256": "5da96abc7be45a0397a98b346e1e78a8d39cbeee99f4798201587ca31ccb3e4d"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-1/requests.jsonl",
+          "bytes": 359262,
+          "sha256": "7fa6c5f874bad79f88bc2b433092c48bb59712edc632212649c6e1991103104c"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-1/output.jsonl",
+          "bytes": 8329428,
+          "sha256": "152feff69f9189e290126453df877532d2e385e6efdd78b664e3a72cce1e1fe5"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-2/final.json",
+          "bytes": 91602,
+          "sha256": "d8eb54d9dc584202f20a3598e3d406db4a9c4fc951f627f05f9c74ac2405a0ba"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-2/latency-trace.json",
+          "bytes": 2523474,
+          "sha256": "5e0a7e37dad49aa41169b72d6493da2ab6d0b208ee2544d448ab3b86b1a9cd3b"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-2/effective-profile.json",
+          "bytes": 15514,
+          "sha256": "f1725f9bb21bddf8517d24ad5780bb1bc88a218431d499ef2e4276a32670282e"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-2/requests.jsonl",
+          "bytes": 359267,
+          "sha256": "d11c534d56ac6f72d07a9dc4e144b66beb62b844afd426349e4d8c9097ede7e9"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-2/output.jsonl",
+          "bytes": 8329424,
+          "sha256": "a0fa4cb04c5745f81a9413544f6ff572fbbbdb9c432a2a69c5c6d270f3d36b13"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-3/final.json",
+          "bytes": 90539,
+          "sha256": "9d5666bce0b391f1f38a0920275d17bbe150111a7bf7410f2f6245f67ced5bd4"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-3/latency-trace.json",
+          "bytes": 2512002,
+          "sha256": "1dbe98ceaf3c4921fcf840d5caebeef85d2a5d06eafbcab90b546fcde2e9ffeb"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-3/effective-profile.json",
+          "bytes": 15514,
+          "sha256": "b6a36e2e7191fa833c0fb5f966c27bc0766d81d3f22759cac46674549499974e"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-3/requests.jsonl",
+          "bytes": 359249,
+          "sha256": "d0a4053ffb2e0028cddc5bb99da1cccf9a3f72662b3ee3647bd8bbe080f601b0"
+        },
+        {
+          "path": "/Users/zhengxuanguo/gitrepo/Delugi/benchmark/.state/runs/delta-wan-20261118/trials/9b65f5c790b85b8186317c0f/replicas/node-3/output.jsonl",
+          "bytes": 8325472,
+          "sha256": "5fd13cd395d189073b8ee74f4ba40cc6f89465564ab44b76fad753beebdec0e2"
+        }
+      ]
+    },
+    "execution_associated_admission_to_accept_ms": 260.70144866666664,
+    "workload": [
+      100,
+      1,
+      30000,
+      1000
+    ],
+    "instrumented": true,
+    "stages": {
+      "batching": {
+        "samples": 3000,
+        "mean_ms": 75.30401533333333
+      },
+      "admit_to_first_local": {
+        "samples": 3000,
+        "mean_ms": 260.70144866666664
+      },
+      "seal_to_first_local": {
+        "samples": 3000,
+        "mean_ms": 185.3974333333333
+      },
+      "execution_midpoint_shift": {
+        "samples": 3000,
+        "mean_ms": 0.0
+      },
+      "broadcast_to_first_local": {
+        "samples": 3000,
+        "mean_ms": 185.38089266666668
+      },
+      "received_to_queued_leader": {
+        "samples": 3000,
+        "mean_ms": 0.48822333333333334
+      },
+      "eligible_to_selected_leader": {
+        "samples": 3000,
+        "mean_ms": 74.10394966666667
+      },
+      "pull_to_selected_leader": {
+        "samples": 3000,
+        "mean_ms": 0.197358
+      },
+      "selected_to_emit_leader": {
+        "samples": 3000,
+        "mean_ms": 0.49189
+      }
+    },
+    "by_origin": {
+      "0": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 74.17602000000001
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 257.322088
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 183.14606799999999
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 0.0
+        },
+        "broadcast_to_first_local": {
+          "samples": 750,
+          "mean_ms": 183.12077466666668
+        },
+        "received_to_queued_leader": {
+          "samples": 750,
+          "mean_ms": 0.47225466666666666
+        },
+        "eligible_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 70.962036
+        },
+        "pull_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 0.1943413333333333
+        },
+        "selected_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 0.48256
+        }
+      },
+      "1": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 74.80868933333333
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 255.40161866666668
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 180.59292933333333
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 0.0
+        },
+        "broadcast_to_first_local": {
+          "samples": 750,
+          "mean_ms": 180.58049866666667
+        },
+        "received_to_queued_leader": {
+          "samples": 750,
+          "mean_ms": 0.5080826666666667
+        },
+        "eligible_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 68.23296133333334
+        },
+        "pull_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 0.19851733333333335
+        },
+        "selected_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 0.49592
+        }
+      },
+      "2": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 75.25944933333334
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 258.90354
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 183.64409066666664
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 0.0
+        },
+        "broadcast_to_first_local": {
+          "samples": 750,
+          "mean_ms": 183.62581733333334
+        },
+        "received_to_queued_leader": {
+          "samples": 750,
+          "mean_ms": 0.4781146666666667
+        },
+        "eligible_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 79.743624
+        },
+        "pull_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 0.20031200000000002
+        },
+        "selected_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 0.5018186666666666
+        }
+      },
+      "3": {
+        "batching": {
+          "samples": 750,
+          "mean_ms": 76.97190266666667
+        },
+        "admit_to_first_local": {
+          "samples": 750,
+          "mean_ms": 271.17854800000003
+        },
+        "seal_to_first_local": {
+          "samples": 750,
+          "mean_ms": 194.2066453333333
+        },
+        "execution_midpoint_shift": {
+          "samples": 750,
+          "mean_ms": 0.0
+        },
+        "broadcast_to_first_local": {
+          "samples": 750,
+          "mean_ms": 194.19648
+        },
+        "received_to_queued_leader": {
+          "samples": 750,
+          "mean_ms": 0.49444133333333334
+        },
+        "eligible_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 77.47717733333334
+        },
+        "pull_to_selected_leader": {
+          "samples": 750,
+          "mean_ms": 0.19626133333333334
+        },
+        "selected_to_emit_leader": {
+          "samples": 750,
+          "mean_ms": 0.4872613333333333
+        }
+      }
+    },
+    "selection_modes": {
+      "optimistic": 2820,
+      "proof": 180
+    }
+  },
+  "comparison": {
+    "execution_associated_admission_to_accept_gap_ms": 80.42037600000003,
+    "first_local_admission_to_accept_gap_ms": 58.96463066666672,
+    "batching_gap_ms": -74.69672033333333,
+    "fixed_schedule_base_proof_shift_ms": 170.096656,
+    "gap_after_fixed_schedule_base_proof_shift_ms": -111.13202533333327,
+    "fixed_schedule_insufficient_observations_shift_ms": 170.096656,
+    "gap_after_fixed_schedule_insufficient_observations_shift_ms": -111.13202533333327
+  },
+  "clock": "All differences use timestamps from a single process. Locally accepted inclusion includes proposal transit.",
+  "population": "Healthy four-validator runs, one request-weighted cohort per protocol. Workload order: aggregate tx/s, useful bytes, measured ms, configured delay-bound ms.",
+  "interpretation": [
+    "Only producer-as-leader requests contribute to seal-to-REPORT on a single clock. Signed times can be negative when the productive REPORT opens before the batch. This subset need not represent all origins or leaders.",
+    "A Delugi proposal includes a batch if the selected target covers its unique producer height on this healthy, fork-free chain. The earliest locally accepted such proposal can differ from the first one to execute.",
+    "The base-proof counterfactual asks for the earliest actually accepted proposal whose leader could prove a local candidate covering the batch at construction, waiving witness requirements. It freezes actual proposal times, bases and origin acceptance times.",
+    "The insufficient-observations variant allows substitution only when a covering candidate had a base proof and fewer than two frozen observations reached the batch height. These paired weights measure timing on the fixed observed schedule and do not predict a changed protocol or establish causal attribution.",
+    "Own-observation residuals measure the opportunity schedule; the origin need not be a selected witness. Leader-local spans are diagnostics that can overlap the origin intervals.",
+    "Raptr eligibility time is the observed queue time of the selected proof or optimistic batch, with native minimum creation age applied for optimistic selection. Exclusions, author limits and work deadlines may delay selection further."
+  ]
+}

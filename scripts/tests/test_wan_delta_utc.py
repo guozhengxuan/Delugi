@@ -3,7 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from wan_delta_utc import HostClock, Point, Span, earliest, elapsed, next_launch, to_first, launch_residual
+from wan_delta_utc import HostClock, Point, Span, earliest, elapsed, next_launch, to_first, launch_residual, paired_clock_mean
 
 
 def sample(t, offset=10_000, error=10):
@@ -46,6 +46,21 @@ class ClockTest(unittest.TestCase):
         self.assertEqual(to_first(origin,candidates),Span(-20,2,16))
         launches=[pt(1,2,80,85,92),pt(0,30,100,110,120)]
         self.assertEqual(next_launch(origin,launches),Span(0,10,10))
+
+    def test_mean_clock_offsets_cancel_for_balanced_sources_and_destinations(self):
+        # Each directed duration has 80 us of uncertainty. Within-host
+        # reassociation removes the common clock offsets in the two-event mean.
+        a=pt(0,100,960,1000,1040)
+        b=pt(1,500,1060,1100,1140)
+        c=pt(1,520,1080,1120,1160)
+        d=pt(0,140,1000,1040,1080)
+        result=paired_clock_mean([(a,b),(c,d)])
+        lo,est,hi=result['mean_ms']
+        self.assertAlmostEqual(est,.01)
+        self.assertLess(hi-lo,.005)
+        self.assertLessEqual(lo,.01)
+        self.assertGreaterEqual(hi,.01)
+        self.assertEqual([v['paired'] for v in result['endpoints_by_host'].values()],[1,1])
 
     def test_length_weighted_residual_on_irregular_schedule(self):
         launches=[pt(0,t,t,t,t) for t in (0,10_000,40_000)]

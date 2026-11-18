@@ -1,0 +1,157 @@
+{
+  "unit": "ms",
+  "measurement": "median of five overlay ping RTTs in each direction before the workloads",
+  "regions": [
+    "Singapore",
+    "Frankfurt",
+    "London",
+    "Seoul"
+  ],
+  "measured_at": "2026-11-18T03:06:58.256010+00:00",
+  "directed_rtt": [
+    {
+      "from": 0,
+      "to": 1,
+      "median_ms": 159.0,
+      "samples_ms": [
+        159.0,
+        159.0,
+        159.0,
+        159.0,
+        159.0
+      ]
+    },
+    {
+      "from": 0,
+      "to": 2,
+      "median_ms": 182.0,
+      "samples_ms": [
+        184.0,
+        182.0,
+        182.0,
+        182.0,
+        182.0
+      ]
+    },
+    {
+      "from": 0,
+      "to": 3,
+      "median_ms": 64.4,
+      "samples_ms": [
+        64.3,
+        64.4,
+        64.4,
+        64.4,
+        66.3
+      ]
+    },
+    {
+      "from": 1,
+      "to": 0,
+      "median_ms": 159.0,
+      "samples_ms": [
+        165.0,
+        159.0,
+        159.0,
+        159.0,
+        161.0
+      ]
+    },
+    {
+      "from": 1,
+      "to": 2,
+      "median_ms": 13.9,
+      "samples_ms": [
+        14.1,
+        14.0,
+        13.9,
+        13.9,
+        13.9
+      ]
+    },
+    {
+      "from": 1,
+      "to": 3,
+      "median_ms": 195.0,
+      "samples_ms": [
+        195.0,
+        195.0,
+        194.0,
+        194.0,
+        195.0
+      ]
+    },
+    {
+      "from": 2,
+      "to": 0,
+      "median_ms": 182.0,
+      "samples_ms": [
+        182.0,
+        182.0,
+        182.0,
+        182.0,
+        182.0
+      ]
+    },
+    {
+      "from": 2,
+      "to": 1,
+      "median_ms": 14.0,
+      "samples_ms": [
+        14.0,
+        14.0,
+        14.0,
+        14.0,
+        14.0
+      ]
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "median_ms": 222.0,
+      "samples_ms": [
+        222.0,
+        222.0,
+        222.0,
+        222.0,
+        222.0
+      ]
+    },
+    {
+      "from": 3,
+      "to": 0,
+      "median_ms": 64.4,
+      "samples_ms": [
+        64.4,
+        64.4,
+        64.3,
+        64.4,
+        64.4
+      ]
+    },
+    {
+      "from": 3,
+      "to": 1,
+      "median_ms": 194.0,
+      "samples_ms": [
+        195.0,
+        194.0,
+        195.0,
+        194.0,
+        194.0
+      ]
+    },
+    {
+      "from": 3,
+      "to": 2,
+      "median_ms": 222.0,
+      "samples_ms": [
+        222.0,
+        222.0,
+        222.0,
+        222.0,
+        222.0
+      ]
+    }
+  ]
+}

@@ -5,6 +5,7 @@ from bisect import bisect_right
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from functools import lru_cache
+from math import fsum
 import hashlib
 import json
 from pathlib import Path
@@ -341,6 +342,62 @@ def summarize(spans):
                                               for k in ('lo','est','hi'))).millis()}
 
 
+def paired_clock_mean(pairs):
+    """Bound the mean cross-host elapsed time without treating clock offsets as independent.
+
+    A sum is invariant under reordering. Pair a positive endpoint with a negative
+    endpoint from the same host, even if they belong to different requests.
+    The unknown common UTC offset cancels. The remaining difference between UTC
+    elapsed and host monotonic elapsed is bounded by our rate assumption over the
+    matched time span. Unmatched endpoints retain their full NTP envelopes.
+    """
+    plus, minus = defaultdict(list), defaultdict(list)
+    terms = []
+    matched_cross_host_endpoints = {}
+    for sent, emitted in pairs:
+        if sent.host == emitted.host:
+            direct = elapsed(sent, emitted)
+            rate_error = abs(direct.est)*PPM/1e6 + 2
+            terms.append(Span(direct.lo-rate_error, direct.est, direct.hi+rate_error))
+        else:
+            plus[emitted.host].append(emitted)
+            minus[sent.host].append(sent)
+    # Subtract one arbitrary constant before summing UTC values. There are
+    # equally many positive and negative endpoints overall.
+    ref = pairs[0][0].utc.est
+    reference = Span(ref, ref, ref)
+    for host in sorted(set(plus) | set(minus)):
+        positive = sorted(plus[host], key=lambda p: p.tick)
+        negative = sorted(minus[host], key=lambda p: p.tick)
+        n = min(len(positive), len(negative))
+        matched_positive, matched_negative = set(), set()
+        for k in range(n):
+            # Match by empirical time quantile. This minimizes the temporal
+            # separation when the two populations have similar time coverage.
+            a = (2*k+1)*len(positive)//(2*n)
+            b = (2*k+1)*len(negative)//(2*n)
+            matched_positive.add(a)
+            matched_negative.add(b)
+            end, start = positive[a], negative[b]
+            delta = end.tick - start.tick
+            tolerance = abs(delta)*PPM/1e6 + 2  # two integer microsecond readings
+            individual = end.utc.minus(start.utc)
+            lower = max(individual.lo, delta-tolerance)
+            upper = min(individual.hi, delta+tolerance)
+            phase.require(lower <= upper, 'paired UTC and rate envelopes disagree')
+            terms.append(Span(lower, individual.est, upper))
+        phase.require(len(matched_positive) == len(matched_negative) == n, 'duplicate endpoint pairing')
+        terms.extend(p.utc.minus(reference) for j,p in enumerate(positive) if j not in matched_positive)
+        terms.extend(reference.minus(p.utc) for j,p in enumerate(negative) if j not in matched_negative)
+        matched_cross_host_endpoints[host] = {'paired': n, 'unpaired_positive': len(positive)-n,
+                                               'unpaired_negative': len(negative)-n}
+    result = Span(*(fsum(getattr(s,k) for s in terms)/len(pairs) for k in ('lo','est','hi')))
+    independent = Span(*(fmean(getattr(elapsed(a,b),k) for a,b in pairs) for k in ('lo','est','hi')))
+    phase.require(abs(result.est-independent.est)<1, 'mean changed under reassociation')
+    return {'count':len(pairs), 'mean_ms':result.millis(),
+            'endpoints_by_host':matched_cross_host_endpoints}
+
+
 def launch_residual(launches, loads):
     # Irregular-interval renewal expectation for the observed schedule, clipped
     # exactly to the load period. Calendar values here are calibrated centers.
@@ -378,9 +435,13 @@ def main():
         trial=Trial(getattr(args,protocol),protocol,samples,cohort)
         metrics=defaultdict(list)
         ambiguous=0
+        raptr_pairs=[]
         residuals=defaultdict(list)
         for row in cohort:
             header, stages=trial.request(row)
+            if protocol=='raptr' and len(header['possible_rounds'])==1:
+                broadcast=trial.clocks[row['origin']].point(row['broadcast_us'])
+                raptr_pairs.append((broadcast,trial.props[header['winner_estimate']]['emit']))
             # Same-host legs use exact monotonic differences while calibrated
             # centers interpolate UTC. Record the sub-probe conversion residual
             # and verify the propagated bounds cover each independently joined sum.
@@ -410,9 +471,22 @@ def main():
                           'paired_remote_message_legs':links,'unpaired_receives':missing,
                           'center_closure_residual_us':{
                               k:{'mean':fmean(v),'max_abs':max(map(abs,v))} for k,v in residuals.items()}}
+        if protocol=='raptr' and len(raptr_pairs)==len(cohort):
+            report[protocol]['broadcast_to_first_emission_paired_clock_mean']=paired_clock_mean(raptr_pairs)
         if protocol=='delugi':
+            starts=[trial.clocks[r['origin']].point(r['seal_us']).utc for r in cohort]
+            # All these launches lie in the load interval under every admissible
+            # ordering. Total covered time divided by at least n-1 gaps bounds
+            # the mean duration of a complete inter-launch gap.
+            certain=sum(min(s.hi for s in starts)<=p.utc.lo and p.utc.hi<=max(s.lo for s in starts)
+                        for p in trial.launches)
+            window_upper=max(s.hi for s in starts)-min(s.lo for s in starts)
+            phase.require(certain>1,'too few in-window launches for cadence bound')
             loads=[trial.clocks[r['origin']].point(r['seal_us']).utc.est for r in cohort]
             report[protocol]['report_schedule']=launch_residual(trial.launches,loads)
+            report[protocol]['report_schedule'].update(certainly_in_window_launches=certain,
+                window_duration_upper_ms=window_upper/1000,
+                half_mean_complete_interval_upper_ms=window_upper/(2*(certain-1))/1000)
             waits=metrics['broadcast_to_winning_report']
             report[protocol]['winning_report_vs_broadcast']={
                 'definitely_before':sum(x.hi<0 for x in waits),
@@ -433,6 +507,21 @@ def main():
     batching=Span(*report['comparison_ms']['admit_to_broadcast'])
     report['comparison_ms']['admit_to_emit_gap_minus_winning_report_phase']=[
         residual.lo+batching.lo,residual.est+batching.est,residual.hi+batching.hi]
+    if 'broadcast_to_first_emission_paired_clock_mean' in report['raptr']:
+        rpaired=Span(*report['raptr']['broadcast_to_first_emission_paired_clock_mean']['mean_ms'])
+        # Subtracting two remote intervals leaves a within-leader elapsed
+        # time in UTC. Allow rate uncertainty when replacing it with the
+        # leader's measured MONOTONIC duration (milliseconds here). Apply
+        # the same conservative allowance to both batching intervals.
+        lead_error_ms=max(abs(report_emit.lo),abs(report_emit.hi))*PPM/1e6+.002
+        lead_utc=Span(report_emit.lo-lead_error_ms, report_emit.est, report_emit.hi+lead_error_ms)
+        tighter=lead_utc.minus(rpaired)
+        batching_error_ms=sum(report[n]['stages']['admit_to_broadcast']['mean_ms'][2]*PPM/1e6+.002
+                              for n in ('delugi','raptr'))
+        report['comparison_ms']['broadcast_to_emit_gap_minus_winning_report_phase_paired_clocks']=list(vars(tighter).values())
+        report['comparison_ms']['admit_to_emit_gap_minus_winning_report_phase_paired_clocks']=[
+            tighter.lo+batching.lo-batching_error_ms,tighter.est+batching.est,tighter.hi+batching.hi+batching_error_ms]
+        report['local_duration_to_utc_allowance_ms']={'report_to_emit':lead_error_ms,'both_batching_legs':batching_error_ms}
     observed_phase=Span(*report['delugi']['stages']['broadcast_to_winning_report']['mean_ms'])
     raw_gap=Span(*report['comparison_ms']['broadcast_to_first_emission'])
     report['cancellation_estimate_residual_us']=(raw_gap.est-observed_phase.est-residual.est)*1000
